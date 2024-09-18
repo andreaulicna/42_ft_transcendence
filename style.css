@@ -1,0 +1,29 @@
+@keyframes gradientAnimation {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.gradient-bg {
+    background: linear-gradient(90deg, #003031, #091a3b);
+    background-size: 800% 800%;
+    animation: gradientAnimation 15s ease infinite;
+    height: 100vh;
+    margin: 0;
+
+	font-family: 'Arimo', sans-serif;
+	color:whitesmoke;
+}
+
+.navbar-nav .profile-image {
+	width: 40px;
+	height: 40px;
+	object-fit: cover;
+	border-radius: 50%;
+}
