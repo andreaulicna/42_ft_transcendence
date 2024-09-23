@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game View</title>
+    <style>
+        .game-container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .game-rectangle {
+            width: 50vw;
+            height: 50vh;
+            background-color: {{ initial_color }};
+            border: 2px solid #fff;
+        }
+    </style>
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const rectangle = document.getElementById('game-rectangle');
+            rectangle.addEventListener('click', function() {
+                console.log('Rectangle clicked'); // Log the click event
+                fetch('/pong/toggle-color/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({})
+                })
+                .then(response => {
+                    console.log('Fetch response status:', response.status); // Log the response status
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Color received from server:', data.color); // Log the color value
+                    if (data.color) {
+                        rectangle.style.backgroundColor = data.color;
+                    } else {
+                        console.error('Invalid response:', data);
+                    }
+                })
+                .catch(error => console.error('Fetch error:', error)); // Log any fetch errors
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-rectangle" id="game-rectangle"></div>
+    </div>
+</body>
+</html>
