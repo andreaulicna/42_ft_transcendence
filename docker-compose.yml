@@ -1,0 +1,33 @@
+services:
+  my-postgres:
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    container_name: my-postgres
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: $(POSTGRES_PASSWORD)
+    networks:
+      - transcendence
+
+  web:
+    depends_on:
+      my-postgres:
+        condition: service_healthy
+    container_name: website
+    build: ./website/
+    volumes:
+      - ./website:/app
+    ports:
+      - "8000:8000"
+    environment:
+      POSTGRES_PASSWORD: $(POSTGRES_PASSWORD)
+    networks:
+      - transcendence
+
+networks:
+  transcendence:
+    name: transcendence
+    driver: bridge
