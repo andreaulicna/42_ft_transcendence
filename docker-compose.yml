@@ -15,7 +15,7 @@ services:
       - db-volume:/var/lib/postgresql/data
     restart: always
 
-  web:
+  website:
     depends_on:
       my-postgres:
         condition: service_healthy
@@ -23,13 +23,29 @@ services:
     build: ./website/
     volumes:
       - ./website:/app
-    ports:
-      - "8000:8000"
+      - static-volume:/app/staticfiles
+    expose:
+      - 8000
+    # ports:
+    #   - "8000:8000"
     environment:
       POSTGRES_PASSWORD: $(POSTGRES_PASSWORD)
     networks:
       - transcendence
     restart: always
+
+  nginx:
+    build: ./nginx
+    ports:
+      - 1337:80
+    depends_on:
+      - website
+    restart: always
+    networks:
+      - transcendence
+    volumes:
+      - static-volume:/app/staticfiles
+
 
 networks:
   transcendence:
@@ -42,3 +58,4 @@ volumes:
       o: bind
       type: none
       device: ${HOME}/data/db-volume
+  static-volume:

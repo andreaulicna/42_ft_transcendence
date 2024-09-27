@@ -28,6 +28,7 @@ clean: stop
 
 fclean:
 	@echo "Cleaning everything that's got anything to do with ${name}!\n"
+	@IMAGES=$$(docker images -qa); if [ -n "$$IMAGES" ]; then docker rmi -f $$IMAGES; fi
 	@CONTAINERS=$$(docker ps -qa); if [ -n "$$CONTAINERS" ]; then docker stop $$CONTAINERS; fi
 	@docker system prune --all --force --volumes	# remove all (also used) images
 	@docker network prune --force	# remove all networks
