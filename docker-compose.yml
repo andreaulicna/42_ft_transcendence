@@ -11,6 +11,8 @@ services:
       POSTGRES_PASSWORD: $(POSTGRES_PASSWORD)
     networks:
       - transcendence
+    volumes:
+      - db-volume:/var/lib/postgresql/data
 
   web:
     depends_on:
@@ -31,3 +33,10 @@ networks:
   transcendence:
     name: transcendence
     driver: bridge
+
+volumes:
+  db-volume:
+    driver_opts:
+      o: bind
+      type: none
+      device: ${HOME}/data/db-volume
