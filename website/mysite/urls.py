@@ -16,7 +16,6 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
-from debug_toolbar.toolbar import debug_toolbar_urls
 from rest_framework.routers import DefaultRouter
 from api_test.views import BlogPostViewSet
 
@@ -29,4 +28,4 @@ urlpatterns = [
     path("admin/", admin.site.urls),
 	path('api/', include((router.urls, 'api_test'), namespace='api_test')),
 	path("chat/", include("chat.urls")),
-] + debug_toolbar_urls()
+]

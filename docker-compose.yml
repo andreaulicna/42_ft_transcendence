@@ -35,8 +35,6 @@ services:
     restart: always
 
   daphne:
-    depends_on:
-      - website
     container_name: daphne
     build: ./daphne/
     volumes:
