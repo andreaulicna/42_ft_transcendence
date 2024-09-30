@@ -51,6 +51,8 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+	"daphne",
+	"chat",
     "polls.apps.PollsConfig",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -61,7 +63,7 @@ INSTALLED_APPS = [
 	"debug_toolbar",
 	"rest_framework",
 	"api_test",
-	"django_extensions"
+	"django_extensions",
 ]
 
 MIDDLEWARE = [
@@ -175,3 +177,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # }
 
 CSRF_TRUSTED_ORIGINS = ["http://localhost:1337"]
+
+ASGI_APPLICATION = "mysite.asgi.application"

@@ -27,5 +27,6 @@ router.register(r'blogposts', BlogPostViewSet, basename='blogpost')
 urlpatterns = [
     path("polls/", include("polls.urls")),
     path("admin/", admin.site.urls),
-	path('api/', include((router.urls, 'api_test'), namespace='api_test'))
+	path('api/', include((router.urls, 'api_test'), namespace='api_test')),
+	path("chat/", include("chat.urls")),
 ] + debug_toolbar_urls()

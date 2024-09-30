@@ -34,6 +34,21 @@ services:
       - transcendence
     restart: always
 
+  daphne:
+    depends_on:
+      - website
+    container_name: daphne
+    build: ./daphne/
+    volumes:
+      - ./website:/app
+    expose:
+      - 9000
+    environment:
+      POSTGRES_PASSWORD: $(POSTGRES_PASSWORD)
+    networks:
+      - transcendence
+    restart: always
+
   nginx:
     build: ./nginx
     ports:
