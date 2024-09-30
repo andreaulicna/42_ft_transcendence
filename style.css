@@ -2,7 +2,7 @@ body {
     background: linear-gradient(90deg, #242424, #185657);
     background-size: 800% 800%;
     animation: gradientAnimation 15s ease infinite;
-    height: 100vh;
+    min-height: 100vh;
     margin: 0;
 
 	font-family: 'Arimo', sans-serif;
@@ -56,11 +56,13 @@ body {
     cursor: pointer;
 }
 
-.profile-widget {
-    background-color: #242424;
-    /* box-shadow: 1px 3px 0px 5px #00babc; */
-    border-radius: 5px;
-	min-width: 150px;
-	/* max-width: 250px; */
-	/* height: 95vh; */
+.coming-soon {
+    background-color: #00babc;
+    color: white;
+    padding: 0.2em 0.5em;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: bold;
+    display: inline-block;
+    content: "Coming Soon";
 }
