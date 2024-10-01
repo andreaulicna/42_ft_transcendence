@@ -56,13 +56,21 @@ body {
     cursor: pointer;
 }
 
-.coming-soon {
-    background-color: #00babc;
-    color: white;
-    padding: 0.2em 0.5em;
-    border-radius: 0.25rem;
-    font-size: 0.75rem;
-    font-weight: bold;
-    display: inline-block;
-    content: "Coming Soon";
+.badge-coming-soon {
+	position: relative;
+	display: inline-block;
+}
+
+.badge-coming-soon::after {
+	content: "Coming Soon";
+	position: absolute;
+	top: 0;
+	right: 0;
+	background-color: #00babc;
+	color: white;
+	padding: 0.2em 0.5em;
+	border-radius: 0.25rem;
+	font-size: 0.6rem;
+	font-weight: bold;
+	transform: translate(50%, -50%);
 }
