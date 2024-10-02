@@ -59,6 +59,15 @@ services:
     volumes:
       - static-volume:/app/staticfiles
 
+  redis:
+    container_name: redis
+    image: redis
+    build: ./redis/
+    expose:
+      - 6379
+    networks:
+      - transcendence
+    restart: always
 
 networks:
   transcendence:

@@ -4,6 +4,13 @@ FROM python:3.11-alpine
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
+# Install test dependencies
+RUN apk update && apk upgrade && \
+    apk add --no-cache \
+    chromium \
+    chromium-chromedriver \
+    && rm -rf /var/cache/apk/*
+
 # Set the working directory in docker
 WORKDIR /app
 
@@ -24,5 +31,5 @@ RUN chmod +x /entrypoint.sh
 ENTRYPOINT [ "/entrypoint.sh" ]
 
 # # Specify the command to run on container start
-CMD ["gunicorn", "mysite.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["gunicorn", "mysite.wsgi:application", "--bind", "0.0.0.0:8000", "--reload"]
 # CMD ["python", "manage.py", "runserver" , "0.0.0.0:8000"]

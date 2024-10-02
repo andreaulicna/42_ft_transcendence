@@ -53,6 +53,7 @@ ALLOWED_HOSTS = ['*']
 INSTALLED_APPS = [
 	"daphne",
 	"chat",
+	"snippets",
     "polls.apps.PollsConfig",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -118,6 +119,9 @@ DATABASES = {
         'PASSWORD':  os.getenv('POSTGRES_PASSWORD'),
         'HOST': 'my-postgres',
         'PORT': '5432',
+		'TEST': {
+			'NAME': 'postgres-test'
+		},
     }
 }
 
@@ -177,3 +181,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CSRF_TRUSTED_ORIGINS = ["http://localhost:1337"]
 
 ASGI_APPLICATION = "mysite.asgi.application"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],
+        },
+    },
+}
