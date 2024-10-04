@@ -1,15 +1,19 @@
+import { addRegistrationFormListener } from './register.js';
+import { initializeGame } from './gameLogic.js';
+
 const routes = {
     '/' : 'login-template',
     '/dashboard' : 'dashboard-template',
-    '/game' : 'game-template'
+    '/game' : 'game-template',
+    '/register' : 'register-template'
 };
 
 const rootDiv = document.getElementById('root');
 
-const onNavigate = (event, pathname) => {
-	if (event) {
-		event.preventDefault();
-	}
+export const onNavigate = (event, pathname) => {
+    if (event) {
+        event.preventDefault();
+    }
     window.history.pushState(
         {},
         pathname,
@@ -24,9 +28,13 @@ const renderView = (pathname) => {
     const clone = document.importNode(template.content, true);
     rootDiv.appendChild(clone);
 
-    if (pathname === '/game') {
+    if (pathname === '/') {
+        // No additional initialization needed for login
+    } else if (pathname === '/register') {
+        addRegistrationFormListener(); // Add the event listener after rendering the register template
+    } else if (pathname === '/game') {
         initializeGame(); // Initialize the game after injecting the gameBoard element
-    };
+    }
 };
 
 window.onpopstate = () => {
@@ -35,3 +43,6 @@ window.onpopstate = () => {
 
 // Initial render
 renderView(window.location.pathname);
+
+// Expose onNavigate to the global scope
+window.onNavigate = onNavigate;
