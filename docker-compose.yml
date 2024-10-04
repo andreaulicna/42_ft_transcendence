@@ -6,7 +6,7 @@ services:
       timeout: 5s
       retries: 5
     container_name: my-postgres
-    image: postgres
+    image: postgres:16
     environment:
       POSTGRES_PASSWORD: $(POSTGRES_PASSWORD)
     networks:
@@ -14,7 +14,6 @@ services:
     volumes:
       - db-volume:/var/lib/postgresql/data
     restart: always
-
   website:
     depends_on:
       my-postgres:
@@ -26,12 +25,42 @@ services:
       - static-volume:/app/staticfiles
     expose:
       - 8000
-    # ports:
-    #   - "8000:8000"
     environment:
       POSTGRES_PASSWORD: $(POSTGRES_PASSWORD)
     networks:
       - transcendence
+    restart: always
+  
+  user_management:
+    depends_on:
+      user_management_db:
+        condition: service_healthy
+    container_name: user_management
+    build: ./user_management/
+    volumes:
+      - ./user_management:/app
+      - static-volume:/app/staticfiles
+    expose:
+      - 8001
+    environment:
+      POSTGRES_PASSWORD: $(POSTGRES_PASSWORD)
+    networks:
+      - transcendence
+    restart: always
+  user_management_db:
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    container_name: user_management_db
+    image: postgres:16
+    environment:
+      POSTGRES_PASSWORD: $(POSTGRES_PASSWORD)
+    networks:
+      - transcendence
+    volumes:
+      - user-db:/var/lib/postgresql/data
     restart: always
 
   nginx:
@@ -58,4 +87,9 @@ volumes:
       o: bind
       type: none
       device: ${HOME}/data/db-volume
+  user-db:
+    driver_opts:
+        o: bind
+        type: none
+        device: ${HOME}/data/user-db
   static-volume:
