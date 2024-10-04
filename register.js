@@ -1,7 +1,9 @@
 export function addRegistrationFormListener() {
     const form = document.getElementById('registrationForm');
     if (form) {
+
         form.addEventListener('submit', async function(event) {
+			console.log('hello')
             event.preventDefault(); // Prevent the default form submission
 
             // Capture the input values
@@ -16,7 +18,7 @@ export function addRegistrationFormListener() {
 
             try {
                 // Send the data to the API
-                const response = await fetch('https://your-api-endpoint.com/register', {
+                const response = await fetch('http://localhost:1337/api/user/register/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

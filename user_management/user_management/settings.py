@@ -42,7 +42,8 @@ INSTALLED_APPS = [
 	"django_extensions",
 	'rest_framework',
 	'rest_framework.authtoken',
-	'login'
+	'login',
+	'corsheaders'
 ]
 
 AUTH_USER_MODEL = 'login.User'
@@ -51,12 +52,21 @@ MIDDLEWARE = [
 	"debug_toolbar.middleware.DebugToolbarMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+	'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# CORS_ALLOWED_ORIGINS = [
+#     "http://127.0.0.1:5500",
+#     "http://localhost:5500",
+# ]
+# Or allow all origins (not recommended for production)
+CORS_ALLOW_ALL_ORIGINS = True
+
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -145,4 +155,4 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-CSRF_TRUSTED_ORIGINS = ["http://localhost:1337", "http://localhost"]
+CSRF_TRUSTED_ORIGINS = ["http://localhost:1337", "http://localhost", "http://localhost:5500"]
