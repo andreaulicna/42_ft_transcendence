@@ -1,0 +1,22 @@
+#gameContainer {
+	text-align: center;
+}
+
+#gameBoard {
+	border: 3px solid #00babc;
+}
+
+#scoreText {
+	font-size: 6;
+	text-shadow: 0 0 5px whitesmoke, 0 0 15px whitesmoke, 0 0 25px whitesmoke;
+}
+
+.blueSide {
+    color: #00babc;
+    text-shadow: 0 0 5px #00babc, 0 0 15px #00babc, 0 0 25px #00babc;
+}
+
+.redSide {
+    color: #df2af7;
+    text-shadow: 0 0 5px #df2af7, 0 0 15px #df2af7, 0 0 25px #df2af7;
+}

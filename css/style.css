@@ -1,0 +1,76 @@
+body {
+    background: linear-gradient(90deg, #242424, #185657);
+    background-size: 800% 800%;
+    animation: gradientAnimation 15s ease infinite;
+    min-height: 100vh;
+    margin: 0;
+
+	font-family: 'Arimo', sans-serif;
+	color:whitesmoke;
+}
+
+@keyframes gradientAnimation {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.slide-right {
+	transition: transform 0.3s ease, color 0.3s ease;
+	color:whitesmoke;
+}
+.slide-right:hover {
+	transform: translateX(20px);
+	color: #00babc;
+}
+
+.navbar-nav .profile-image {
+	width: 40px;
+	height: 40px;
+	object-fit: cover;
+	border-radius: 50%;
+}
+
+.btn-prg {
+    background-color: #00babc;
+    color: whitesmoke;
+    cursor: pointer;
+}
+
+.btn-prg:hover {
+    background-color: #009fa1;
+}
+
+.link-prg {
+    color: #00babc;
+}
+
+.link-prg:hover {
+    color: #009fa1;
+    cursor: pointer;
+}
+
+.badge-coming-soon {
+	position: relative;
+	display: inline-block;
+}
+
+.badge-coming-soon::after {
+	content: "Coming Soon";
+	position: absolute;
+	top: 0;
+	right: 0;
+	background-color: #00babc;
+	color: white;
+	padding: 0.2em 0.5em;
+	border-radius: 0.25rem;
+	font-size: 0.6rem;
+	font-weight: bold;
+	transform: translate(50%, -50%);
+}
