@@ -1,7 +1,7 @@
 // props to BroCode: https://www.youtube.com/watch?v=AiFqApeurqI
 
-export function initializeGame() {
-    const gameBoard = document.querySelector("#gameBoard");
+export function init() {
+	const gameBoard = document.querySelector("#gameBoard");
     const ctx = gameBoard.getContext("2d");
     const scoreText = document.querySelector("#scoreText");
     const gameWidth = gameBoard.width;
