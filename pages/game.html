@@ -1,10 +1,21 @@
 <div class=" fadeAnimation">
 	<div id="gameContainer" class="container-sm">
-		<div id="scoreText" class="fs-1">0:0</div>
+		<div id="scoreText" class="fs-1">0 : 0</div>
 		<canvas id="gameBoard" width="800" height="500"></canvas>
 	</div>
 	<div id="gameControlHint" class="container-sm d-flex flex-row justify-content-around w-50 fs-5">
 		<p class="blueSide">W = up<br>S = down</p>
 		<p class="redSide">↑ = up<br>↓ = down</p>
+	</div>
+	<div id="gameOverScreen" style="display:none;">
+		<h1 id="winnerMessage"></h1>
+		<button type="button" id="replayButton"  class="btn btn-prg w-100">
+			<span class="fs-5">🔃</span> Replay
+		</button>
+		<a href="#dashboard">
+			<button type="button" id="mainMenuButton" class="btn btn-prg w-100">
+				<span class="fs-5">🔙</span> Main Menu
+			</button>
+		</a>
 	</div>
 </div>

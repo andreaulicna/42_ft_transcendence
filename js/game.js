@@ -6,12 +6,19 @@ export function init() {
 	const gameBoard = document.querySelector("#gameBoard");
 	const ctx = gameBoard.getContext("2d");
 	const scoreText = document.querySelector("#scoreText");
+	const gameControlHint = document.querySelector("#gameControlHint");
 	const gameWidth = gameBoard.width;
 	const gameHeight = gameBoard.height;
 	const paddle1Color = "#00babc";
 	const paddle2Color = "#df2af7";
 	const ballColor = "whitesmoke";
 	const ballRadius = 12.5;
+
+	// GAME OVER SCREEN ELEMENTS
+	const gameOverScreen = document.getElementById("gameOverScreen");
+	const winnerMessage = document.getElementById("winnerMessage");
+	const replayButton = document.getElementById("replayButton");
+	const mainMenuButton = document.getElementById("mainMenuButton");
 
 	// DEFAULT GAME SETTINGS 
 	let intervalID;
@@ -218,29 +225,38 @@ export function init() {
 	function updateScore(){
 		scoreText.textContent = `${player1Score} : ${player2Score}`;
 		if (player1Score >= winCondition || player2Score >= winCondition)
-			endGame();
+			showGameOverScreen();
 	}
 
 	function resetGame() {
-		// Reset scores
 		player1Score = 0;
 		player2Score = 0;
 		updateScore();
-		
-		// Reset paddle positions
-		paddle1.y = 0;
-		paddle2.y = gameHeight - paddle2.height;
-	
-		// Clear any existing intervals
-		clearTimeout(intervalID);
-		clearInterval(aiIntervalID);
-	
-		// Restart the game
-		gameStart();
 	}
 
-	function endGame(){
-		alert("Game over!");
-		resetGame();
-	}
+    function showGameOverScreen() {
+        let winner = player1Score >= winCondition ? "Player 1" : "Player 2";
+        winnerMessage.textContent = `${winner} Wins!`;
+
+        gameOverScreen.style.display = "block";
+        gameBoard.style.display = "none";
+		scoreText.style.display = "none";
+		gameControlHint.style.display = "none";
+    }
+
+    function hideGameOverScreen() {
+        gameOverScreen.style.display = "none";
+        gameBoard.style.display = "block";
+		scoreText.style.display = "block";
+		gameControlHint.style.display = "block";
+    }
+
+    replayButton.addEventListener("click", () => {
+        hideGameOverScreen();
+        resetGame();
+    });
+
+    mainMenuButton.addEventListener("click", () => {
+        hideGameOverScreen();
+    });
 }
