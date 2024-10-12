@@ -6,6 +6,7 @@ const routes = {
 	'#register'		: '/pages/register.html',
 	'#dashboard'	: '/pages/dashboard.html',
 	'#game'			: '/pages/game.html',
+	'#profile'		: '/pages/profile.html',
 	'404'			: '/pages/404.html'
 };
 

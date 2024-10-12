@@ -49,7 +49,7 @@ body {
 	color: #00babc;
 }
 
-/* BUTTONS & LINKS */
+/* BOOTSTRAP COMPONENTS CUSTOMIZATION */
 
 .btn-prg {
     background-color: #00babc;
@@ -69,6 +69,22 @@ body {
     color: #009fa1;
     cursor: pointer;
 }
+
+.nav-link {
+    color: #00babc !important;
+    cursor: pointer !important;
+}
+
+.nav-link.active {
+	background-color: #00babc !important;
+	color: whitesmoke !important;
+}
+
+.nav-link:hover {
+    background-color: #009fa1 !important;
+	color: whitesmoke !important;
+}
+
 
 /* MISCELANIOUS */
 
