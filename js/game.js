@@ -3,10 +3,9 @@
 export function init() {
 
 	// CANVAS SETTINGS 
-	const gameBoard = document.querySelector("#gameBoard");
+	const gameBoard = document.getElementById("gameBoard");
 	const ctx = gameBoard.getContext("2d");
-	const scoreText = document.querySelector("#scoreText");
-	const gameControlHint = document.querySelector("#gameControlHint");
+	const scoreText = document.getElementById("scoreText");
 	const gameWidth = gameBoard.width;
 	const gameHeight = gameBoard.height;
 	const paddle1Color = "#00babc";
@@ -52,11 +51,13 @@ export function init() {
 	const paddleSpeed = 5;
 	const aiSpeed = 5;
 	const winCondition = 1;
+	let gamePaused = false;
 
 	// GAME LOGIC
 	gameStart();
 
 	function gameStart(){
+		gamePaused = false;
 		createBall();
 		nextTick();
 		if (gameMode == 'ai') {
@@ -66,6 +67,9 @@ export function init() {
 	}
 
 	function nextTick(){
+		if (gamePaused)
+				return;
+
 		intervalID = setTimeout(() => {
 			clearBoard();
 			drawPaddles();
@@ -228,27 +232,22 @@ export function init() {
 			showGameOverScreen();
 	}
 
-	function resetGame() {
-		player1Score = 0;
-		player2Score = 0;
-		updateScore();
-	}
-
     function showGameOverScreen() {
         let winner = player1Score >= winCondition ? "Player 1" : "Player 2";
         winnerMessage.textContent = `${winner} Wins!`;
+		winnerMessage.className = player1Score >= winCondition ? "blueSide" : "redSide";
 
         gameOverScreen.style.display = "block";
         gameBoard.style.display = "none";
 		scoreText.style.display = "none";
-		gameControlHint.style.display = "none";
+
+		gamePaused = true;
     }
 
     function hideGameOverScreen() {
         gameOverScreen.style.display = "none";
         gameBoard.style.display = "block";
 		scoreText.style.display = "block";
-		gameControlHint.style.display = "block";
     }
 
     replayButton.addEventListener("click", () => {
@@ -259,4 +258,11 @@ export function init() {
     mainMenuButton.addEventListener("click", () => {
         hideGameOverScreen();
     });
+
+	function resetGame() {
+		player1Score = 0;
+		player2Score = 0;
+		updateScore();
+		gameStart();
+	}
 }
