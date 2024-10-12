@@ -3,7 +3,7 @@
 }
 
 #gameBoard {
-	border: 3px solid #f7fafa;
+	border: 3px solid whitesmoke !important;
 }
 
 #scoreText {

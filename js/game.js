@@ -50,7 +50,7 @@ export function init() {
 	// CUSTOMIZABLE GAME SETTINGS
 	const paddleSpeed = 5;
 	const aiSpeed = 5;
-	const winCondition = 1;
+	const winCondition = 3;
 	let gamePaused = false;
 
 	// GAME LOGIC
@@ -232,36 +232,42 @@ export function init() {
 			showGameOverScreen();
 	}
 
-    function showGameOverScreen() {
-        let winner = player1Score >= winCondition ? "Player 1" : "Player 2";
-        winnerMessage.textContent = `${winner} Wins!`;
+	function showGameOverScreen() {
+		let winner = player1Score >= winCondition ? "Player 1" : "Player 2";
+		winnerMessage.textContent = `${winner} Wins!`;
 		winnerMessage.className = player1Score >= winCondition ? "blueSide" : "redSide";
 
-        gameOverScreen.style.display = "block";
-        gameBoard.style.display = "none";
+		gameOverScreen.style.display = "block";
+		gameBoard.style.display = "none";
 		scoreText.style.display = "none";
 
 		gamePaused = true;
-    }
+	}
 
-    function hideGameOverScreen() {
-        gameOverScreen.style.display = "none";
-        gameBoard.style.display = "block";
+	function hideGameOverScreen() {
+		gameOverScreen.style.display = "none";
+		gameBoard.style.display = "block";
 		scoreText.style.display = "block";
-    }
+	}
 
-    replayButton.addEventListener("click", () => {
-        hideGameOverScreen();
-        resetGame();
-    });
+	replayButton.addEventListener("click", () => {
+		hideGameOverScreen();
+		resetGame();
+	});
 
-    mainMenuButton.addEventListener("click", () => {
-        hideGameOverScreen();
-    });
+	mainMenuButton.addEventListener("click", () => {
+		hideGameOverScreen();
+	});
 
 	function resetGame() {
 		player1Score = 0;
 		player2Score = 0;
+		ballX = gameWidth / 2;
+		ballY = gameHeight / 2;
+		ballXDirection = 0;
+		ballYDirection = 0;
+		paddle1.y = 0;
+		paddle2.y = gameHeight - paddle2.height;
 		updateScore();
 		gameStart();
 	}

@@ -5,7 +5,8 @@ const routes = {
 	'#login'		: '/pages/login.html',
 	'#register'		: '/pages/register.html',
 	'#dashboard'	: '/pages/dashboard.html',
-	'#game'			: '/pages/game.html'
+	'#game'			: '/pages/game.html',
+	'404'			: '/pages/404.html'
 };
 
 const loadContent = async (path) => {
@@ -30,7 +31,7 @@ const loadContent = async (path) => {
 
 const router = () => {
 	const route = window.location.hash || '';
-	const path = routes[route] || routes[''];
+	const path = routes[route] || routes['404'];
 	loadContent(path);
 };
 
