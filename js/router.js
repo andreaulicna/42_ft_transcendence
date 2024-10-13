@@ -6,6 +6,7 @@ const routes = {
 	'#register'		: '/pages/register.html',
 	'#dashboard'	: '/pages/dashboard.html',
 	'#game'			: '/pages/game.html',
+	'#tournament'	: '/pages/tournament.html',
 	'#profile'		: '/pages/profile.html',
 	'404'			: '/pages/404.html'
 };
@@ -24,6 +25,8 @@ const loadContent = async (path) => {
 			import('/js/game.js').then(module => module.init());
 		} else if (window.location.hash === '#register') {
 			import('/js/register.js').then(module => module.init());
+		} else if (window.location.hash === '#tournament') {
+			import('/js/tournament.js').then(module => module.init());
 		}
 	} catch (err) {
 		console.error('Error loading content:', err);
