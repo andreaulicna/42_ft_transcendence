@@ -1,5 +1,5 @@
-export function addRegistrationFormListener() {
-    const form = document.getElementById('registrationForm');
+export function init() {
+	const form = document.getElementById('registrationForm');
     if (form) {
 
         form.addEventListener('submit', async function(event) {

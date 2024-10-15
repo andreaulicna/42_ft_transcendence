@@ -1,3 +1,5 @@
+/* BODY & BACKGROUND */
+
 body {
     background: linear-gradient(90deg, #242424, #185657);
     background-size: 800% 800%;
@@ -8,6 +10,8 @@ body {
 	font-family: 'Arimo', sans-serif;
 	color:whitesmoke;
 }
+
+/* ANIMATIONS */
 
 @keyframes gradientAnimation {
     0% {
@@ -21,6 +25,21 @@ body {
     }
 }
 
+@keyframes fadeAnimation {
+	0% {
+	  transform: translateY(3%);
+	  opacity: 0;
+	}
+	100% {
+	  transform: translateY(0%);
+	  opacity: 1;
+	}
+  }
+  
+.fadeAnimation {
+	animation: 1s fadeAnimation;
+}
+
 .slide-right {
 	transition: transform 0.3s ease, color 0.3s ease;
 	color:whitesmoke;
@@ -30,12 +49,7 @@ body {
 	color: #00babc;
 }
 
-.navbar-nav .profile-image {
-	width: 40px;
-	height: 40px;
-	object-fit: cover;
-	border-radius: 50%;
-}
+/* BOOTSTRAP COMPONENTS CUSTOMIZATION */
 
 .btn-prg {
     background-color: #00babc;
@@ -56,6 +70,24 @@ body {
     cursor: pointer;
 }
 
+.nav-link {
+    color: #00babc !important;
+    cursor: pointer !important;
+}
+
+.nav-link.active {
+	background-color: #00babc !important;
+	color: whitesmoke !important;
+}
+
+.nav-link:hover {
+    background-color: #009fa1 !important;
+	color: whitesmoke !important;
+}
+
+
+/* MISCELANIOUS */
+
 .badge-coming-soon {
 	position: relative;
 	display: inline-block;
@@ -73,4 +105,13 @@ body {
 	font-size: 0.6rem;
 	font-weight: bold;
 	transform: translate(50%, -50%);
+}
+
+.reset-styles {
+    all: unset;
+    display: inline-block;
+    cursor: pointer;
+
+	font-family: 'Arimo', sans-serif;
+	color:whitesmoke;
 }
