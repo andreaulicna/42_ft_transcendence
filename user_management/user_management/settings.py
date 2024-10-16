@@ -46,7 +46,7 @@ INSTALLED_APPS = [
 	'corsheaders'
 ]
 
-AUTH_USER_MODEL = 'login.User'
+AUTH_USER_MODEL = 'login.CustomUser'
 
 MIDDLEWARE = [
 	"debug_toolbar.middleware.DebugToolbarMiddleware",
