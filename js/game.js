@@ -1,6 +1,6 @@
 // props to BroCode: https://www.youtube.com/watch?v=AiFqApeurqI
 
-export function init() {
+export function init(data) {
 
 	// CANVAS SETTINGS 
 	const gameBoard = document.getElementById("gameBoard");
