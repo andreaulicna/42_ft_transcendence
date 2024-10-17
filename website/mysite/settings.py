@@ -178,7 +178,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #     "SHOW_TOOLBAR_CALLBACK" : show_toolbar,
 # }
 
-CSRF_TRUSTED_ORIGINS = ["http://localhost:1337"]
+CSRF_TRUSTED_ORIGINS = ["http://localhost:1337", "http://localhost"]
 
 ASGI_APPLICATION = "mysite.asgi.application"
 
@@ -195,3 +195,4 @@ REST_FRAMEWORK = {
 	'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
 	'PAGE_SIZE': 10
 }
+

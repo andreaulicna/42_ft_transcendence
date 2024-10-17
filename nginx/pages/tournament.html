@@ -1,0 +1,92 @@
+<div class="container-sm fadeAnimation mt-4">
+	<div id="defaultTournamentPage" class="d-flex flex-column justify-content-center align-items-center">
+		<div class="col-md-6 mb-4">
+			<div class="card">
+				<div class="card-header">
+					<h2 class="section-title">Create Tournament</h2>
+				</div>
+				<div class="card-body">
+					<form id="create-tournament-form">
+						<div class="form-group mb-3">
+							<label for="tournament-name">Tournament Name</label>
+							<input type="text" class="form-control" id="tournament-name" placeholder="Enter tournament name">
+						</div>
+						<div class="form-group  mb-3">
+							<label for="tournament-slots">Slots</label>
+							<select class="form-control" id="tournament-slots">
+								<option value="4">4</option>
+								<option value="6">6</option>
+								<option value="8">8</option>
+							</select>
+						</div>
+						<div class="d-flex justify-content-center">
+							<button type="submit" class="btn btn-prg" data-bs-toggle="modal" data-bs-target="#createLobby">Create</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		<p> or </p>
+		<div class="col-md-6 mb-4">
+			<div class="card">
+				<div class="card-header">
+					<h2 class="section-title">Join Tournament</h2>
+				</div>
+				<div class="card-body">
+					<ul class="list-group" id="joinable-tournaments">
+						<li class="list-group-item d-flex justify-content-between align-items-center">
+							<div class="d-flex align-items-center">
+								<span class="badge">3/4</span>
+								Tournament 1
+							</div>
+							<button class="btn btn-prg btn-sm">Join</button>
+						</li>
+						<li class="list-group-item d-flex justify-content-between align-items-center">
+							<div class="d-flex align-items-center">
+								<span class="badge badge-primary badge-pill mr-3">0/6</span>
+								Tournament 2
+							</div>
+							<button class="btn btn-prg btn-sm">Join</button>
+						</li>
+						<li class="list-group-item d-flex justify-content-between align-items-center">
+							<div class="d-flex align-items-center">
+								<span class="badge badge-primary badge-pill mr-3">0/8</span>
+								Tournament 3
+							</div>
+							<button class="btn btn-prg btn-sm">Join</button>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- Button trigger modal -->
+	<div class="modal fade" id="createLobby" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header">
+			<h1 class="modal-title fs-5" id="createLobbyLabel">Lobby for {tournament_name}</h1>
+			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<ul class="list-group" id="joinable-tournaments">
+					<li class="list-group-item d-flex justify-content-between align-items-center">
+						{player1}
+					</li>
+					<li class="list-group-item d-flex justify-content-between align-items-center">
+						{player2}
+					</li>
+					<li class="list-group-item d-flex justify-content-between align-items-center">
+						{player3}
+					</li>
+				</ul>
+				<p id="createLobbyStatus" class="text-center mt-4">🥱 Waiting for players to join...</p>
+			</div>
+			<div class="modal-footer d-flex justify-content-center align-items-center">
+				<button type="button" disabled class="btn btn-prg" data-bs-dismiss="modal">Start Game</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel Lobby</button>
+			</div>
+		</div>
+		</div>
+	</div>
+</div>
