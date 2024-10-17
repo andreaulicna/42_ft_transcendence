@@ -4,6 +4,13 @@ FROM python:3.11-alpine
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
+# Install test dependencies
+RUN apk update && apk upgrade && \
+    apk add --no-cache \
+    chromium \
+    chromium-chromedriver \
+    && rm -rf /var/cache/apk/*
+
 # Set the working directory in docker
 WORKDIR /app
 
