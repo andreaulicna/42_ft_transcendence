@@ -10,3 +10,5 @@ class CustomUser(AbstractUser):
 	)
 	role = models.CharField(max_length=15, choices=ROLE_CHOICES, default='player')
 	email = models.EmailField(unique=True)
+	win_count = models.PositiveIntegerField(blank=False, default=0)
+	loss_count = models.PositiveIntegerField(blank=False, default=0)

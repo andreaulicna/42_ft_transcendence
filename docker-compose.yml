@@ -40,6 +40,7 @@ services:
     volumes:
       - ./user_management:/app
       - static-volume:/app/staticfiles
+      - media-volume:/app/mediafiles
     expose:
       - 8001
     environment:
@@ -74,6 +75,7 @@ services:
       - transcendence
     volumes:
       - static-volume:/app/staticfiles
+      - media-volume:/app/mediafiles
 
 
 networks:
@@ -93,3 +95,5 @@ volumes:
         type: none
         device: ${HOME}/data/user-db
   static-volume:
+  media-volume:
+  

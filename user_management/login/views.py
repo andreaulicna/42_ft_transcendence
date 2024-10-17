@@ -43,10 +43,7 @@ class UserInfoView(APIView):
 			except CustomUser.DoesNotExist:
 				return Response({'detail': 'Player does not exist'}, status=status.HTTP_404_NOT_FOUND)
 			serializer = UserSerializer(player)
-			#if serializer.is_valid():
 			return Response(serializer.data)
-			#else:
-			#	return Response({'detail': 'Serialization failed'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 		def post(self, request):
 			try:
 				player = CustomUser.objects.get(username=request.user)
@@ -62,13 +59,11 @@ class UserInfoView(APIView):
 				player.last_name = new_last_name
 			player.save()
 			return Response({'detail' : 'User info updated'})
-			
-		
+
 class UserLogoutView(APIView):
 	permission_classes = [IsAuthenticated]
 
 	def post(self, request):
-		print(request.headers)
 		token_key = request.auth.key
 		token = Token.objects.get(key=token_key)
 		token.delete()
