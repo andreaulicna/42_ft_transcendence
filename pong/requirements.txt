@@ -1,0 +1,16 @@
+asgiref==3.8.1
+Django==5.1.1
+django-debug-toolbar==4.4.6
+django-extensions==3.2.3
+djangorestframework==3.15.2
+gunicorn==23.0.0
+packaging==24.1
+psycopg2-binary==2.9.9
+sqlparse==0.5.1
+daphne==4.1.2
+channels==4.1.0
+requests==2.28.1
+channels_redis==4.2.0
+selenium==4.25.0
+pygments==2.18.0
+httpie==3.2.3
