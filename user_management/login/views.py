@@ -2,15 +2,14 @@ from django.shortcuts import render
 from .models import CustomUser
 from .serializers import UserSerializer
 from django.contrib.auth import authenticate, login
-from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import api_view
-from login.permissions import IsOwner
+from pathlib import Path
+from django.core.files import File
 
 class UserRegistrationView(APIView):
 	def post(self, request):
@@ -59,6 +58,37 @@ class UserInfoView(APIView):
 				player.last_name = new_last_name
 			player.save()
 			return Response({'detail' : 'User info updated'})
+
+
+# protect against identical names and big amounts
+class UserAvatarUpload(APIView):
+	permission_classes = [IsAuthenticated]
+
+	def post(self, request):
+		try:
+			player = CustomUser.objects.get(username=request.user)
+		except CustomUser.DoesNotExist:
+			return Response({'detail': 'Player does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+		# Specify the local file path
+		local_file_path = '/app/test_media/emoji_template.jpg'
+		
+		# Open the local file
+		with open(local_file_path, 'rb') as f:
+			# Save the file to the user's ImageField
+			player.avatar.save(Path(local_file_path).name, File(f))
+		
+		player.save()
+		return Response({'detail': 'Avatar updated successfully'})
+	
+	def get(self, request):
+		try:
+			player = CustomUser.objects.get(username=request.user)
+		except CustomUser.DoesNotExist:
+			return Response({'detail': 'Player does not exist'}, status=status.HTTP_404_NOT_FOUND)
+		serializer = UserSerializer(player)
+		return Response({'avatar' : serializer.data['avatar']})
+		
 
 class UserLogoutView(APIView):
 	permission_classes = [IsAuthenticated]

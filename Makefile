@@ -33,7 +33,6 @@ fclean:
 	@docker system prune --all --force --volumes	# remove all (also used) images
 	@docker network prune --force	# remove all networks
 	@docker volume prune --force	# remove all connected partitions
-	@sudo rm -rf ~/data/db-volume/*
 	@sudo rm -rf ~/data
 
 .PHONY: all build stop re clean fclean

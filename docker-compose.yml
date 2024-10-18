@@ -53,7 +53,8 @@ services:
     volumes:
       - ./user_management:/app
       - static-volume:/app/staticfiles
-      - media-volume:/app/mediafiles
+      - media-volume:/app/test_media
+      - uploaded-volume:/app/mediafiles
     expose:
       - 8001
     environment:
@@ -86,9 +87,9 @@ services:
     restart: always
     networks:
       - transcendence
-    volumes:
-      - static-volume:/app/staticfiles
-      - media-volume:/app/mediafiles
+    # volumes:
+    #   - static-volume:/app/staticfiles
+    #   - media-volume:/app/mediafiles
 
   redis:
     container_name: redis
@@ -131,6 +132,12 @@ volumes:
         o: bind
         type: none
         device: ${HOME}/data/user-db
+  uploaded-volume:
+    driver_opts:
+      o: bind
+      type: none
+      device: ${HOME}/data/media
   static-volume:
   media-volume:
+
   
