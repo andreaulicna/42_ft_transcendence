@@ -101,19 +101,19 @@ services:
       - transcendence
     restart: always
   
-  pong:
-    container_name: pong
-    build: ./pong/
-    volumes:
-      - ./pong:/pong
-    env_file:
-      - .env
-    depends_on:
-      my-postgres:
-        condition: service_healthy
-    networks:
-      - transcendence
-    restart: always
+ # pong:
+ #   container_name: pong
+ #   build: ./pong/
+ #   volumes:
+ #     - ./pong:/pong
+ #   env_file:
+ #     - .env
+ #   depends_on:
+ #     my-postgres:
+ #       condition: service_healthy
+ #   networks:
+ #     - transcendence
+ #   restart: always
     
 networks:
   transcendence:

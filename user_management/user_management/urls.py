@@ -17,16 +17,20 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.conf import settings
-from login.views import UserLoginView, UserLogoutView, UserRegistrationView, UserInfoView, UserAvatarUpload
+from login import views
 from django.conf.urls.static import static
 
 urlpatterns = [
     path('api/user/admin', admin.site.urls),
-	path('api/user/register', UserRegistrationView.as_view(), name='user-registration'),
-    path('api/user/login', UserLoginView.as_view(), name='user-login'),
-	path('api/user/logout', UserLogoutView.as_view(), name = 'user-logout'),
-	path('api/user/info', UserInfoView.as_view(), name='user-info'),
-	path('api/user/avatar', UserAvatarUpload.as_view(), name='user-avatar-upload')
+	path('api/user/register', views.UserRegistrationView.as_view(), name='user-registration'),
+    path('api/user/login', views.UserLoginView.as_view(), name='user-login'),
+	path('api/user/logout', views.UserLogoutView.as_view(), name = 'user-logout'),
+	path('api/user/info', views.UserInfoView.as_view(), name='user-info'),
+	path('api/user/avatar', views.UserAvatarUpload.as_view(), name='user-avatar-upload'),
+	path('api/user/match', views.MatchView.as_view(), name='match-creation'),
+	path('api/user/users-list', views.UserListView.as_view(), name='user-list'),
+	path('api/user/friendships', views.FriendshipView.as_view(), name='filtered-friendship-list'),
+	path('api/user/friendships/<int:pk>', views.FriendshipDeleteView.as_view(), name='friendship-delete')
 ]  
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

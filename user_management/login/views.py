@@ -1,6 +1,6 @@
 from django.shortcuts import render
-from .models import CustomUser
-from .serializers import UserSerializer
+from .models import CustomUser, Match, Friendship
+from .serializers import UserSerializer, MatchSerializer, FriendshipSerializer
 from django.contrib.auth import authenticate, login
 from rest_framework import status
 from rest_framework.response import Response
@@ -8,8 +8,13 @@ from rest_framework.views import APIView
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.generics import ListCreateAPIView
 from pathlib import Path
 from django.core.files import File
+import random
+from django.db.models import Q
+from django.shortcuts import get_object_or_404
+from django.http import Http404
 
 class UserRegistrationView(APIView):
 	def post(self, request):
@@ -98,3 +103,81 @@ class UserLogoutView(APIView):
 		token = Token.objects.get(key=token_key)
 		token.delete()
 		return Response({'detail' : 'Successfully logged out.'})
+	
+class UserListView(ListCreateAPIView):
+	queryset = CustomUser.objects.all()
+	serializer_class = UserSerializer
+
+class MatchView(APIView):
+	permission_classes = [IsAuthenticated]
+
+	def post(self, request):
+		players = list(CustomUser.objects.all())
+		if len(players) < 2:
+			return Response({'detail': 'Waiting for more players.'}, status=status.HTTP_400_BAD_REQUEST) # will solve async eventually, now it just needs to return smt
+		random_players = random.sample(players, 2)
+		match_data = {
+			'player1_id': random_players[0].id,
+			'player2_id': random_players[1].id,
+			'status': Match.StatusOptions.WAITING
+		}
+		match_serializer = MatchSerializer(data=match_data)
+		if match_serializer.is_valid():
+			match_serializer.save()
+			return Response({'detail': 'Match successfully created.', 'match_id': match_serializer.data['id']}, status=status.HTTP_201_CREATED)
+		else:
+			return Response(match_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+	
+	def get(self, request):
+		matches = Match.objects.filter(Q(player1_id=request.user.id) | Q(player2_id=request.user.id))
+		serializer = MatchSerializer(matches, many=True)
+		return Response(serializer.data)
+	
+class FriendshipView(APIView):
+	permission_classes = [IsAuthenticated]
+
+	def post(self, request):
+		players = list(CustomUser.objects.all())
+		if len(players) < 2:
+			return Response({'detail': 'Waiting for more players.'}, status=status.HTTP_400_BAD_REQUEST) # will solve async eventually, now it just needs to return smt
+		try:
+			players.pop(players.index(request.user))
+		except ValueError:
+			return Response({'detail': 'Existential crisis.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) # should never happen
+		random_friend = random.choice(players)
+		sender_current = request.user
+		receiver_current = random_friend
+		print("Sender: ", sender_current.id, " Receiver: ", receiver_current.id)
+		db_check = Friendship.objects.filter(Q(receiver_id=sender_current) | Q(sender_id=sender_current), Q(receiver_id=receiver_current) | Q(sender_id=receiver_current))
+		if db_check:
+			return Response({'detail': 'Friendship request ALREADY exists.'}, status=status.HTTP_200_OK)
+		friendship_data = {
+			'sender_id': sender_current.id,
+			'receiver_id': receiver_current.id
+		}
+		friendship_serializer = FriendshipSerializer(data=friendship_data)
+		if friendship_serializer.is_valid():
+			friendship_serializer.save()
+			return Response({'detail': 'Friendship request sent successfully.', 'friendship_id': friendship_serializer.data['id']}, status=status.HTTP_201_CREATED)
+		else:
+			return Response(friendship_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+	def get(self, request):
+		friendships = Friendship.objects.filter(Q(sender_id=request.user.id) | Q(receiver_id=request.user.id))
+	#	friendships = Friendship.objects.all()
+		serializer = FriendshipSerializer(friendships, many=True)
+		return Response(serializer.data)
+	
+
+class FriendshipDeleteView(APIView):
+	permission_classes = [IsAuthenticated]
+
+	def delete(self, request, pk):
+		try:
+			friendship_to_delete = get_object_or_404(Friendship, pk=pk)
+			if ((friendship_to_delete.sender_id or friendship_to_delete.receiver_id) != request.user):
+				raise Http404
+			friendship_to_delete.delete()
+			return Response({'detail': 'Friendship deleted successfully.'}, status=status.HTTP_200_OK)
+		except Http404:
+			return Response({'detail': 'Friendship not found.'}, status=status.HTTP_404_NOT_FOUND)
