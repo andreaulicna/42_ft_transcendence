@@ -1,6 +1,6 @@
 <div class="container-sm fadeAnimation d-flex flex-column justify-content-center align-items-center gap-3">
 	<div class="m-auto">
-		<img src="assets/default_user_pfp.png" alt="User profile picture" class="d-block mx-auto p-4" style="width:150px">
+		<img id="profilePic" src="assets/default_user_pfp.png" alt="User profile picture" class="d-block mx-auto p-4" style="width:150px">
 		<div id="userName" class="text-center fs-3 pb-2">🏓 {username}</div>
 		<div class="container-sm d-flex justify-content-center gap-4">
 			<div id="numOfPlayed">⚔️ {games_played}</div>
@@ -41,8 +41,16 @@
 				<div class="row mb-2">
 					<button type="button" class="btn btn-prg" data-translate="editDisplayName">Edit Display Name</button>
 				</div>
+				<hr class="my-4 "  style="max-width: 360px">
 				<div class="row mb-2">
-					<button type="button" class="btn btn-prg" data-translate="editProfilePic">Edit Profile Picture</button>
+					<form id="editProfilePicForm">
+						<div class="mb-3">
+							<label for="profilePicInput" class="form-label">Upload a new profile picture</label>
+							<input class="form-control" type="file" id="profilePicInput" accept="image/*">
+							<div class="form-text">Maximum size: 800x800px</div>
+						</div>
+						<button type="submit" class="btn btn-prg">Submit</button>
+					</form>
 				</div>
 			</div>
 		</div>
