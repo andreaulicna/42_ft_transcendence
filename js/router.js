@@ -18,6 +18,10 @@ const loadContent = async (path) => {
         dynamicContent.innerHTML = content;
 		let data;
 
+		// Reapply language settings after loading new content
+		const preferredLanguage = localStorage.getItem("language") || "en";
+		setLanguage(preferredLanguage);
+
         if (window.location.hash === '#login') {
             import('/js/login.js').then(module => module.init());
         } else if (window.location.hash === '#dashboard') {
