@@ -1,6 +1,6 @@
 <div class="container-sm fadeAnimation d-flex flex-column justify-content-center align-items-center gap-3">
 	<div class="m-auto">
-		<img src="assets/default_user_pfp.png" alt="User profile picture" class="d-block mx-auto p-4" style="width:150px">
+		<img id="profilePic" src="assets/default_user_pfp.png" alt="User profile picture" class="d-block mx-auto p-4" style="width:150px">
 		<div id="userName" class="text-center fs-3 pb-2">🏓 {username}</div>
 		<div class="container-sm d-flex justify-content-center gap-4">
 			<div id="numOfPlayed">⚔️ {games_played}</div>
@@ -10,13 +10,13 @@
 	</div>
 	<ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
 		<li class="nav-item" role="presentation">
-		  <button class="nav-link active" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">Profile</button>
+		  <button class="nav-link active" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false" data-translate="tabProfile">Profile</button>
 		</li>
 		<li class="nav-item" role="presentation">
-		  <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-contact" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">Match History</button>
+		  <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-contact" type="button" role="tab" aria-controls="pills-contact" aria-selected="false" data-translate="tabMatches">Match History</button>
 		</li>
 		<li class="nav-item" role="presentation">
-		  <button class="nav-link" id="pills-disabled-tab" data-bs-toggle="pill" data-bs-target="#pills-disabled" type="button" role="tab" aria-controls="pills-disabled" aria-selected="false">Friendlist</button>
+		  <button class="nav-link" id="pills-disabled-tab" data-bs-toggle="pill" data-bs-target="#pills-disabled" type="button" role="tab" aria-controls="pills-disabled" aria-selected="false" data-translate="tabFriendlist">Friendlist</button>
 		</li>
 	  </ul>
 	  <div class="tab-content" id="pills-tabContent">
@@ -24,7 +24,7 @@
 			<div class="container">
 				<div class="row mb-2">
 					<div class="col-md-6">
-						<strong>Account name:</strong>
+						<strong data-translate="profileAccountName">Account name:</strong>
 					</div>
 					<div class="col-md-6">
 						{account_name}
@@ -32,17 +32,25 @@
 				</div>
 				<div class="row mb-3">
 					<div class="col-md-6">
-						<strong>Display name:</strong>
+						<strong data-translate="profileDisplayName">Display name:</strong>
 					</div>
 					<div class="col-md-6">
 						{username}
 					</div>
 				</div>
 				<div class="row mb-2">
-					<button type="button" class="btn btn-prg">Edit Display Name</button>
+					<button type="button" class="btn btn-prg" data-translate="editDisplayName">Edit Display Name</button>
 				</div>
+				<hr class="my-4 "  style="max-width: 360px">
 				<div class="row mb-2">
-					<button type="button" class="btn btn-prg">Edit Profile Picture</button>
+					<form id="editProfilePicForm">
+						<div class="mb-3">
+							<label for="profilePicInput" class="form-label">Upload a new profile picture</label>
+							<input class="form-control" type="file" id="profilePicInput" accept="image/*">
+							<div class="form-text">Maximum size: 800x800px</div>
+						</div>
+						<button type="submit" class="btn btn-prg">Submit</button>
+					</form>
 				</div>
 			</div>
 		</div>
@@ -57,13 +65,13 @@
 				<div class="list-group-item list-group-item-action">
 					<div class="d-flex w-100 justify-content-between">
 						<p class="mb-1"><strong>👍 WIN</strong> vs <strong>typeczech</strong></p>
-						<small>2 days ago</small>
+						<small>01/01/2020</small>
 					</div>
 				</div>
 				<div class="list-group-item list-group-item-action">
 					<div class="d-flex w-100 justify-content-between">
 						<p class="mb-1"><strong>👎 LOSS</strong> vs <strong>boreczech</strong></p>
-						<small>2 days ago</small>
+						<small>23/02/2032</small>
 					</div>
 				</div>
 			  </div>

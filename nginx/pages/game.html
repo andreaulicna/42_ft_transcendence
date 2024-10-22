@@ -4,15 +4,18 @@
 		<canvas id="gameBoard" width="800" height="500"></canvas>
 	</div>
 	<div id="gameOverScreen" style="display:none">
-		<span class="fs-2 text-center">
-			<p id="winnerMessage"></p>
-		</span>
+		<div class="fs-2 text-center">
+			<span id="winnerName"></span>
+			<span data-translate="hasWon"> wins!</span>
+		</div>
 		<button type="button" id="replayButton"  class="btn btn-prg w-100 mb-2">
-			<span class="fs-5">🔃</span> Replay
+			<span class="fs-5">🔃</span>
+			<span data-translate="buttonReplay">Replay</span>
 		</button>
 		<a href="#dashboard">
 			<button type="button" id="mainMenuButton" class="btn btn-prg w-100">
-				<span class="fs-5">🔙</span> Main Menu
+				<span class="fs-5">🔙</span>
+				<span data-translate="buttonMenu">Main Menu</span>
 			</button>
 		</a>
 	</div>

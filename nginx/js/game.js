@@ -15,7 +15,7 @@ export function init(data) {
 
 	// GAME OVER SCREEN ELEMENTS
 	const gameOverScreen = document.getElementById("gameOverScreen");
-	const winnerMessage = document.getElementById("winnerMessage");
+	const winnerName = document.getElementById("winnerName");
 	const replayButton = document.getElementById("replayButton");
 	const mainMenuButton = document.getElementById("mainMenuButton");
 
@@ -50,7 +50,7 @@ export function init(data) {
 	// CUSTOMIZABLE GAME SETTINGS
 	const paddleSpeed = 5;
 	const aiSpeed = 5;
-	const winCondition = 3;
+	const winCondition = 1;
 	let gamePaused = false;
 
 	// GAME LOGIC
@@ -234,8 +234,8 @@ export function init(data) {
 
 	function showGameOverScreen() {
 		let winner = player1Score >= winCondition ? "Player 1" : "Player 2";
-		winnerMessage.textContent = `${winner} Wins!`;
-		winnerMessage.className = player1Score >= winCondition ? "blueSide" : "redSide";
+		winnerName.textContent = `${winner}`;
+		winnerName.className = player1Score >= winCondition ? "blueSide" : "redSide";
 
 		gameOverScreen.style.display = "block";
 		gameBoard.style.display = "none";

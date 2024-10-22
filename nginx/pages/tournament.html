@@ -3,16 +3,16 @@
 		<div class="col-md-6 mb-4">
 			<div class="card">
 				<div class="card-header">
-					<h2 class="section-title">Create Tournament</h2>
+					<h2 class="section-title" data-translate="tournamentCreate">Create Tournament</h2>
 				</div>
 				<div class="card-body">
 					<form id="create-tournament-form">
 						<div class="form-group mb-3">
-							<label for="tournament-name">Tournament Name</label>
-							<input type="text" class="form-control" id="tournament-name" placeholder="Enter tournament name">
+							<label for="tournament-name" data-translate="tournamentName">Tournament Name</label>
+							<input type="text" class="form-control" id="tournament-name" placeholder="Enter tournament name" data-translate="tournamentNamePlaceholder">
 						</div>
 						<div class="form-group  mb-3">
-							<label for="tournament-slots">Slots</label>
+							<label for="tournament-slots" data-translate="tournamentSlots">Slots</label>
 							<select class="form-control" id="tournament-slots">
 								<option value="4">4</option>
 								<option value="6">6</option>
@@ -20,17 +20,17 @@
 							</select>
 						</div>
 						<div class="d-flex justify-content-center">
-							<button type="submit" class="btn btn-prg" data-bs-toggle="modal" data-bs-target="#createLobby">Create</button>
+							<button type="submit" class="btn btn-prg" data-bs-toggle="modal" data-bs-target="#createLobby" data-translate="tournamentCreateButton">Create</button>
 						</div>
 					</form>
 				</div>
 			</div>
 		</div>
-		<p> or </p>
+		<p data-translate="loginOr"> or </p>
 		<div class="col-md-6 mb-4">
 			<div class="card">
 				<div class="card-header">
-					<h2 class="section-title">Join Tournament</h2>
+					<h2 class="section-title" data-translate="tournamentJoin">Join Tournament</h2>
 				</div>
 				<div class="card-body">
 					<ul class="list-group" id="joinable-tournaments">
@@ -39,21 +39,21 @@
 								<span class="badge">3/4</span>
 								Tournament 1
 							</div>
-							<button class="btn btn-prg btn-sm">Join</button>
+							<button class="btn btn-prg btn-sm"  data-translate="tournamentJoinButton">Join</button>
 						</li>
 						<li class="list-group-item d-flex justify-content-between align-items-center">
 							<div class="d-flex align-items-center">
 								<span class="badge badge-primary badge-pill mr-3">0/6</span>
 								Tournament 2
 							</div>
-							<button class="btn btn-prg btn-sm">Join</button>
+							<button class="btn btn-prg btn-sm" data-translate="tournamentJoinButton">Join</button>
 						</li>
 						<li class="list-group-item d-flex justify-content-between align-items-center">
 							<div class="d-flex align-items-center">
 								<span class="badge badge-primary badge-pill mr-3">0/8</span>
 								Tournament 3
 							</div>
-							<button class="btn btn-prg btn-sm">Join</button>
+							<button class="btn btn-prg btn-sm" data-translate="tournamentJoinButton">Join</button>
 						</li>
 					</ul>
 				</div>
@@ -65,7 +65,9 @@
 		<div class="modal-dialog modal-dialog-centered">
 		<div class="modal-content">
 			<div class="modal-header">
-			<h1 class="modal-title fs-5" id="createLobbyLabel">Lobby for {tournament_name}</h1>
+			<span class="modal-title fs-5" id="createLobbyLabel">
+				<span data-translate="tournamentLobby">Lobby for </span>
+				<span> {tournament_name}</span></span>
 			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
@@ -80,11 +82,11 @@
 						{player3}
 					</li>
 				</ul>
-				<p id="createLobbyStatus" class="text-center mt-4">🥱 Waiting for players to join...</p>
+				<p id="createLobbyStatus" class="text-center mt-4" data-translate="tournamentLobbyWait">Waiting for players to join...</p>
 			</div>
 			<div class="modal-footer d-flex justify-content-center align-items-center">
-				<button type="button" disabled class="btn btn-prg" data-bs-dismiss="modal">Start Game</button>
-				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel Lobby</button>
+				<button type="button" disabled class="btn btn-prg" data-bs-dismiss="modal" data-translate="tournamentLobbyStartButton">Start Game</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-translate="tournamentLobbyCancelButton">Cancel Lobby</button>
 			</div>
 		</div>
 		</div>

@@ -12,6 +12,7 @@
 	<script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 	<script defer src="js/router.js"></script>
 	<script defer src="js/mockData.js"></script>
+	<script src="js/lang.js"></script>
 
 
 	<title>🏓 Transcendence</title>
@@ -27,9 +28,11 @@
 			</button>
 			<div class="collapse navbar-collapse" id="navbarNavAltMarkup">
 				<div class="navbar-nav ms-auto pe-4">
-				<a class="reset-styles" href="#">🇬🇧 EN</a>
+				<a id="langEN" class="reset-styles" href="">🇬🇧 EN</a>
 				<div>&nbsp;&nbsp;/&nbsp;&nbsp;</div>
-				<a class="reset-styles" href="#">🇨🇿 CZ</a>
+				<a id="langCZ" class="reset-styles" href="">🇨🇿 CZ</a>
+				<div>&nbsp;&nbsp;/&nbsp;&nbsp;</div>
+				<a id="langSK" class="reset-styles" href="">🇸🇰 SK</a>
 				</div>
 			</div>
 		</div>
@@ -41,10 +44,15 @@
 
 	<footer>
 		<div class="container-sm text-center">
-			<p>🧙 <br> made by 42 Prague students <br>
+			<p>
+				🧙
+				<br>
+				<span data-translate="madeBy">made by 42 Prague students</span>
+				<br>
 				<a href="https://github.com/andreaulicna/" class="link-prg" target="_blank">aulicna</a>,
 				<a href="https://github.com/loudapet/" class="link-prg" target="_blank">plouda</a> &
-				<a href="https://github.com/sl16/" class="link-prg" target="_blank">vbartos</a></p>
+				<a href="https://github.com/sl16/" class="link-prg" target="_blank">vbartos</a>
+			</p>
 		</div>
 	</footer>
 </body>
