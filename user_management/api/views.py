@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.generics import ListCreateAPIView
 from pathlib import Path
 from django.core.files import File
@@ -15,8 +15,12 @@ import random
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.http import Http404
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.middleware import csrf
 
 class UserRegistrationView(APIView):
+	permission_classes = [AllowAny]
+
 	def post(self, request):
 		serializer = UserSerializer(data=request.data)
 		if serializer.is_valid():
@@ -48,7 +52,7 @@ class UserInfoView(APIView):
 				return Response({'detail': 'Player does not exist'}, status=status.HTTP_404_NOT_FOUND)
 			serializer = UserSerializer(player)
 			return Response(serializer.data)
-		def post(self, request):
+		def put(self, request):
 			try:
 				player = CustomUser.objects.get(username=request.user)
 			except CustomUser.DoesNotExist:

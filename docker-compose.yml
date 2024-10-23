@@ -1,35 +1,35 @@
 services:
-  my-postgres:
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    container_name: my-postgres
-    image: postgres:16
-    environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    networks:
-      - transcendence
-    volumes:
-      - db-volume:/var/lib/postgresql/data
-    restart: always
-  website:
-    depends_on:
-      my-postgres:
-        condition: service_healthy
-    container_name: website
-    build: ./website/
-    volumes:
-      - ./website:/app
-      - static-volume:/app/staticfiles
-    expose:
-      - 8000
-    environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    networks:
-      - transcendence
-    restart: always
+  # my-postgres:
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U postgres"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #   container_name: my-postgres
+  #   image: postgres:16
+  #   environment:
+  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  #   networks:
+  #     - transcendence
+  #   volumes:
+  #     - db-volume:/var/lib/postgresql/data
+  #   restart: always
+  # website:
+  #   depends_on:
+  #     my-postgres:
+  #       condition: service_healthy
+  #   container_name: website
+  #   build: ./website/
+  #   volumes:
+  #     - ./website:/app
+  #     - static-volume:/app/staticfiles
+  #   expose:
+  #     - 8000
+  #   environment:
+  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  #   networks:
+  #     - transcendence
+  #   restart: always
 
   daphne:
     container_name: daphne
@@ -51,17 +51,18 @@ services:
     container_name: user_management
     build: ./user_management/
     volumes:
-      - ./user_management:/app
-      - static-volume:/app/staticfiles
-      - media-volume:/app/test_media
+      # - ./user_management:/app
+      # - static-volume:/app/staticfiles
+      # - media-volume:/app/test_media
       - uploaded-volume:/app/mediafiles
-    expose:
-      - 8001
+    # expose:
+    #   - 8001
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     networks:
       - transcendence
     restart: always
+  
   user_management_db:
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
@@ -79,11 +80,12 @@ services:
     restart: always
 
   nginx:
+    container_name: nginx
     build: ./nginx
     ports:
       - 1337:80
-    depends_on:
-      - website
+    # depends_on:
+    #   - website
     restart: always
     networks:
       - transcendence
@@ -97,6 +99,25 @@ services:
     build: ./redis/
     expose:
       - 6379
+    networks:
+      - transcendence
+    restart: always
+
+  authentication:
+    depends_on:
+      user_management_db:
+        condition: service_healthy
+    container_name: authentication
+    build: ./authentication/
+    volumes:
+      # - ./authentication:/app
+      # - static-volume:/app/staticfiles
+      # - media-volume:/app/test_media
+      - uploaded-volume:/app/mediafiles
+    # expose:
+    #   - 8002
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     networks:
       - transcendence
     restart: always
@@ -136,7 +157,7 @@ volumes:
       o: bind
       type: none
       device: ${HOME}/data/media
-  static-volume:
-  media-volume:
+  # static-volume:
+  # media-volume:
 
   

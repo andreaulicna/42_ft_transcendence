@@ -17,8 +17,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.conf import settings
-from login import views
+from api import views
 from django.conf.urls.static import static
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
     path('api/user/admin', admin.site.urls),
@@ -30,7 +31,9 @@ urlpatterns = [
 	path('api/user/match', views.MatchView.as_view(), name='match-creation'),
 	path('api/user/users-list', views.UserListView.as_view(), name='user-list'),
 	path('api/user/friendships', views.FriendshipView.as_view(), name='filtered-friendship-list'),
-	path('api/user/friendships/<int:pk>', views.FriendshipDeleteView.as_view(), name='friendship-delete')
+	path('api/user/friendships/<int:pk>', views.FriendshipDeleteView.as_view(), name='friendship-delete'),
+	# path('api/user/token', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    # path('api/user/token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
 ]  
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
