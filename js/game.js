@@ -62,7 +62,6 @@ export function init(data) {
 		nextTick();
 		if (gameMode == 'ai') {
 			setInterval(predictAIPaddlePosition, 1000); // Predict AI paddle position every 1 second
-			aiIntervalID = setInterval(moveAIPaddle, 10); // Update AI paddle position every 10 miliseconds
 		}
 	}
 
@@ -77,6 +76,9 @@ export function init(data) {
 			moveBall();
 			drawBall(ballX, ballY);
 			checkCollision();
+			if (gameMode == 'ai') {
+				moveAIPaddle();
+			}
 			requestAnimationFrame(nextTick);
 		}, 10)
 	}
