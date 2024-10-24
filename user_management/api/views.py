@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from .models import CustomUser, Match, Friendship
 from .serializers import UserSerializer, MatchSerializer, FriendshipSerializer
 from django.contrib.auth import authenticate, login
@@ -28,20 +27,20 @@ class UserRegistrationView(APIView):
 			return Response(serializer.data, status=status.HTTP_201_CREATED)
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class UserLoginView(ObtainAuthToken):
-	def post(self, request, *args, **kwargs):
-		username = request.data.get('username')
-		password = request.data.get('password')
-		user = authenticate(request, username=username, password=password)
-		if user is not None:
-			login(request, user)
-			token, created = Token.objects.get_or_create(user=user)
-			if created:
-				token.delete()
-				token = Token.objects.create(user=user)
-			return Response({'token' : token.key, 'username' : user.username, 'role' : user.role})
-		else:
-			return Response({'detail' : 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)
+# class UserLoginView(ObtainAuthToken):
+# 	def post(self, request, *args, **kwargs):
+# 		username = request.data.get('username')
+# 		password = request.data.get('password')
+# 		user = authenticate(request, username=username, password=password)
+# 		if user is not None:
+# 			login(request, user)
+# 			token, created = Token.objects.get_or_create(user=user)
+# 			if created:
+# 				token.delete()
+# 				token = Token.objects.create(user=user)
+# 			return Response({'token' : token.key, 'username' : user.username, 'role' : user.role})
+# 		else:
+# 			return Response({'detail' : 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)
 
 class UserInfoView(APIView):
 		permission_classes = [IsAuthenticated]
@@ -99,14 +98,14 @@ class UserAvatarUpload(APIView):
 		return Response({'avatar' : serializer.data['avatar']})
 		
 
-class UserLogoutView(APIView):
-	permission_classes = [IsAuthenticated]
+# class UserLogoutView(APIView):
+# 	permission_classes = [IsAuthenticated]
 
-	def post(self, request):
-		token_key = request.auth.key
-		token = Token.objects.get(key=token_key)
-		token.delete()
-		return Response({'detail' : 'Successfully logged out.'})
+# 	def post(self, request):
+# 		token_key = request.auth.key
+# 		token = Token.objects.get(key=token_key)
+# 		token.delete()
+# 		return Response({'detail' : 'Successfully logged out.'})
 	
 class UserListView(ListCreateAPIView):
 	queryset = CustomUser.objects.all()

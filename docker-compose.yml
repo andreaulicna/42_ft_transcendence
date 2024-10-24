@@ -51,7 +51,7 @@ services:
     container_name: user_management
     build: ./user_management/
     volumes:
-      # - ./user_management:/app
+      - ./user_management:/app
       # - static-volume:/app/staticfiles
       # - media-volume:/app/test_media
       - uploaded-volume:/app/mediafiles
@@ -110,7 +110,7 @@ services:
     container_name: authentication
     build: ./authentication/
     volumes:
-      # - ./authentication:/app
+      - ./authentication:/app
       # - static-volume:/app/staticfiles
       # - media-volume:/app/test_media
       - uploaded-volume:/app/mediafiles

@@ -24,8 +24,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 urlpatterns = [
     path('api/user/admin', admin.site.urls),
 	path('api/user/register', views.UserRegistrationView.as_view(), name='user-registration'),
-    path('api/user/login', views.UserLoginView.as_view(), name='user-login'),
-	path('api/user/logout', views.UserLogoutView.as_view(), name = 'user-logout'),
+    # path('api/user/login', views.UserLoginView.as_view(), name='user-login'),
+	# path('api/user/logout', views.UserLogoutView.as_view(), name = 'user-logout'),
 	path('api/user/info', views.UserInfoView.as_view(), name='user-info'),
 	path('api/user/avatar', views.UserAvatarUpload.as_view(), name='user-avatar-upload'),
 	path('api/user/match', views.MatchView.as_view(), name='match-creation'),
