@@ -48,7 +48,7 @@ INSTALLED_APPS = [
 	'channels'
 ]
 
-ASGI_APPLICATION = 'authentication.asgo.application'
+ASGI_APPLICATION = 'authentication.asgi.application'
 
 AUTH_USER_MODEL = 'api.CustomUser'
 

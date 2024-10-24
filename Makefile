@@ -8,7 +8,7 @@ all:
 build:
 	@echo "Building ${name}\n"
 	@bash ./tools/make_volume.sh
-	@docker-compose -f ./docker-compose.yml build --no-cache
+	@docker-compose -f ./docker-compose.yml build
 	@docker-compose -f ./docker-compose.yml up -d
 
 stop:

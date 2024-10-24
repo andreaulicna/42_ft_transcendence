@@ -35,7 +35,7 @@ services:
     container_name: daphne
     build: ./daphne/
     volumes:
-      - ./website:/app
+      - ./authentication:/app
     expose:
       - 9000
     environment:

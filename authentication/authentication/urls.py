@@ -17,11 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-
+from django_channels_jwt.views import AsgiValidateTokenView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 	path('api/auth/token', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/auth/token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
-	#path('api/auth/ws/login/', include('django_channels_jwt.urls'))
+    path("api/auth/ws/login", AsgiValidateTokenView.as_view())
 ]

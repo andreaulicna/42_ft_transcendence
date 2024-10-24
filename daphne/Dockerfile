@@ -17,8 +17,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 FROM python:3.10-slim
 
 ENV DAPHNE_PORT=9000
-ENV DJANGO_SETTINGS_MODULE=mysite.settings
-ENV APP_ASGI_ENTRYPOINT=mysite.asgi:application
+ENV DJANGO_SETTINGS_MODULE=authentication.settings
+ENV APP_ASGI_ENTRYPOINT=authentication.asgi:application
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
 
 WORKDIR /app
 
@@ -32,4 +34,4 @@ COPY . .
 # Run database migrations
 #RUN python manage.py migrate
 
-CMD ["daphne", "-b", "0.0.0.0", "-p", "9000", "mysite.asgi:application"]
+CMD ["daphne", "-b", "0.0.0.0", "-p", "9000", "authentication.asgi:application"]
