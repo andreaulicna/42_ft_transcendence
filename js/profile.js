@@ -1,3 +1,5 @@
+import { apiCall } from './api.js';
+
 export function init(data) {
 	// LOAD DYNAMIC DATA
 	document.getElementById('userName').textContent = '🏓 ' + data.user;
