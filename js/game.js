@@ -256,7 +256,7 @@ export function init(data) {
 	});
 
 	mainMenuButton.addEventListener("click", () => {
-		hideGameOverScreen();
+		// hideGameOverScreen();
 	});
 
 	function resetGame() {
