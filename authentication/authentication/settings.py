@@ -44,8 +44,11 @@ INSTALLED_APPS = [
 	'rest_framework',
 	'rest_framework.authtoken',
 	'api',
-	'corsheaders'
+	'corsheaders',
+	'channels'
 ]
+
+ASGI_APPLICATION = 'authentication.asgo.application'
 
 AUTH_USER_MODEL = 'api.CustomUser'
 
