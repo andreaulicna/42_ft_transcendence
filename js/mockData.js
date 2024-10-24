@@ -21,7 +21,7 @@ const fetchMockData = (route) => {
             } else if (route === '#profile') {
                 resolve(mockData.profile);
 			} else if (route === '#game') {
-				resolve(mockData.game);
+				resolve(mockData.profile);
             } else {
                 resolve(null);
             }
