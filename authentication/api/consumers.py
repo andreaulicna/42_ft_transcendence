@@ -2,11 +2,6 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from .models import CustomUser
 
-@database_sync_to_async
-def set_user_state(user, userState):
-	user.state = userState
-	user.save(update_fields=["state"])
-	
 #{
 # 'type': 'websocket', 
 # 'path': '/api/auth/ws/login/consume/', 
@@ -29,13 +24,19 @@ def set_user_state(user, userState):
 # 'channel_layer': None, 
 # 'base_send': <bound method InstanceSessionWrapper.send of <channels.sessions.InstanceSessionWrapper object at 0xffffb8c2bd30>>, 
 # 'id': 1}
+
+@database_sync_to_async
+def set_user_state(user, userState):
+	user.state = userState
+	user.save(update_fields=["state"])
+
 class UserConsumer(AsyncWebsocketConsumer):
 	async def connect(self):
 		await self.accept()
+		print(f"Player {self.id} says hello!")
 		self.id = self.scope['user'].id
 		await set_user_state(self.scope['user'], CustomUser.StateOptions.ONLINE)
 
-		
 	async def disconnect(self, close_code):
 		await set_user_state(self.scope['user'], CustomUser.StateOptions.OFFLINE)
 		print(f"Player {self.id} says goodbye!")

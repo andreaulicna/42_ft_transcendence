@@ -1,5 +1,5 @@
 """
-URL configuration for authentication project.
+URL configuration for matchmaking project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.1/topics/http/urls/
@@ -15,13 +15,8 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from django_channels_jwt.views import AsgiValidateTokenView
+from django.urls import path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-	path('api/auth/token', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/auth/token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/auth/ws-login', AsgiValidateTokenView.as_view())
 ]

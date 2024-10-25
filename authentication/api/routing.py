@@ -1,8 +1,8 @@
 
-from django.urls import path
+from django.urls import re_path
 from . import consumers
 
-print('hello');
+print('hello authentication');
 websocket_urlpatterns = [
-    path("api/auth/ws/login/consume/", consumers.UserConsumer.as_asgi()),
+    re_path(r'^api/auth/ws/init/$', consumers.UserConsumer.as_asgi()),
 ]

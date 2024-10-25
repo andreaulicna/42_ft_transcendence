@@ -24,5 +24,6 @@ RUN chmod +x /entrypoint.sh
 ENTRYPOINT [ "/entrypoint.sh" ]
 
 # # Specify the command to run on container start
-CMD ["daphne", "-b", "0.0.0.0", "-p", "8002", "authentication.asgi:application"]
+#CMD ["gunicorn", "authentication.wsgi:application", "--bind", "0.0.0.0:8002", "--reload"]
+CMD ["daphne", "-b", "0.0.0.0", "-p", "8003", "matchmaking.asgi:application"]
 # CMD ["python", "manage.py", "runserver" , "0.0.0.0:8000"]

@@ -31,18 +31,18 @@ services:
   #     - transcendence
   #   restart: unless-stopped
 
-  daphne:
-    container_name: daphne
-    build: ./daphne/
-    volumes:
-      - ./authentication:/app
-    expose:
-      - 9000
-    environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    networks:
-      - transcendence
-    restart: unless-stopped
+  #daphne:
+  #  container_name: daphne
+  #  build: ./daphne/
+  #  volumes:
+  #    - ./authentication:/app
+  #  expose:
+  #    - 9000
+  #  environment:
+  #    POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  #  networks:
+  #    - transcendence
+  #  restart: unless-stopped
   
   user_management:
     depends_on:
