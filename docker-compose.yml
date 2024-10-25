@@ -13,7 +13,7 @@ services:
   #     - transcendence
   #   volumes:
   #     - db-volume:/var/lib/postgresql/data
-  #   restart: always
+  #   restart: unless-stopped
   # website:
   #   depends_on:
   #     my-postgres:
@@ -29,7 +29,7 @@ services:
   #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
   #   networks:
   #     - transcendence
-  #   restart: always
+  #   restart: unless-stopped
 
   daphne:
     container_name: daphne
@@ -42,7 +42,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     networks:
       - transcendence
-    restart: always
+    restart: unless-stopped
   
   user_management:
     depends_on:
@@ -61,7 +61,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     networks:
       - transcendence
-    restart: always
+    restart: unless-stopped
   
   user_management_db:
     healthcheck:
@@ -77,7 +77,7 @@ services:
       - transcendence
     volumes:
       - user-db:/var/lib/postgresql/data
-    restart: always
+    restart: unless-stopped
 
   nginx:
     container_name: nginx
@@ -86,7 +86,7 @@ services:
       - 1337:80
     # depends_on:
     #   - website
-    restart: always
+    restart: unless-stopped
     networks:
       - transcendence
     # volumes:
@@ -101,7 +101,7 @@ services:
       - 6379
     networks:
       - transcendence
-    restart: always
+    restart: unless-stopped
 
   authentication:
     depends_on:
@@ -120,7 +120,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     networks:
       - transcendence
-    restart: always
+    restart: unless-stopped
   
  # pong:
  #   container_name: pong
@@ -134,7 +134,7 @@ services:
  #       condition: service_healthy
  #   networks:
  #     - transcendence
- #   restart: always
+ #   restart: unless-stopped
     
 networks:
   transcendence:
