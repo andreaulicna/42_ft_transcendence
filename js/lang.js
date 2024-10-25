@@ -104,7 +104,7 @@ const translations = {
 		firstTime: "Si tu prvýkrát?",
 		createAccount: "Vytvor si účet!",
 		// DASHBOARD
-		modeLocal: "Miestny hráč",
+		modeLocal: "Lokálny hráč",
 		modeRemote: "Vzdialený hráč",
 		modeAI: "AI hráč",
 		modeTournament: "Turnaj",

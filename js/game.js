@@ -1,4 +1,4 @@
-// props to BroCode: https://www.youtube.com/watch?v=AiFqApeurqI
+import { initializeTouchControls } from './gameTouchControls.js';
 
 export function init(data) {
 
@@ -42,11 +42,15 @@ export function init(data) {
 		x: gameWidth - 25,
 		y: gameHeight - 100
 	};
+	let gameMode = localStorage.getItem('gameMode');
+	let aiTargetY = paddle2.y + paddle2.height / 2;
+
+	// PLAYER CONTROLS
 	let keys = {};
 	window.addEventListener("keydown", (event) => keys[event.keyCode] = true);
 	window.addEventListener("keyup", (event) => keys[event.keyCode] = false);
-	let gameMode = localStorage.getItem('gameMode');
-	let aiTargetY = paddle2.y + paddle2.height / 2;
+	initializeTouchControls(gameBoard, paddle1, paddle2, gameWidth, gameHeight);
+
 
 	// CUSTOMIZABLE GAME SETTINGS
 	const paddleSpeed = 5;
