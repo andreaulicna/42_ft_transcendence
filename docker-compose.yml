@@ -121,6 +121,23 @@ services:
     networks:
       - transcendence
     restart: unless-stopped
+
+  matchmaking:
+    depends_on:
+      user_management_db:
+        condition: service_healthy
+    container_name: matchmaking
+    build: ./matchmaking/
+    volumes:
+      - ./matchmaking:/app
+      # - static-volume:/app/staticfiles
+      # - media-volume:/app/test_media
+      # - uploaded-volume:/app/mediafiles
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    networks:
+      - transcendence
+    restart: unless-stopped
   
  # pong:
  #   container_name: pong

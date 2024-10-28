@@ -73,7 +73,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-		'rest_framework_simplejwt.matchmaking.JWTAuthentication',
+		#'rest_framework_simplejwt.authentication.JWTAuthentication', # temporarily removed authentication to code the logic + not sure if shouldn't say matchmaking
         #'rest_framework.authentication.TokenAuthentication',
     ],
 }
