@@ -133,6 +133,8 @@ class MatchView(APIView):
 	
 	def get(self, request):
 		matches = Match.objects.filter(Q(player1_id=request.user.id) | Q(player2_id=request.user.id))
+		if not matches:
+			return Response({'detail':'No matches found'}, status=status.HTTP_404_NOT_FOUND)
 		serializer = MatchSerializer(matches, many=True)
 		return Response(serializer.data)
 	
@@ -146,7 +148,7 @@ class FriendshipView(APIView):
 		try:
 			players.pop(players.index(request.user))
 		except ValueError:
-			return Response({'detail': 'Existential crisis.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) # should never happen
+			return Response({'detail': 'Existential crisis.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) # should never happen			
 		random_friend = random.choice(players)
 		sender_current = request.user
 		receiver_current = random_friend
@@ -168,6 +170,8 @@ class FriendshipView(APIView):
 	def get(self, request):
 		friendships = Friendship.objects.filter(Q(sender_id=request.user.id) | Q(receiver_id=request.user.id))
 	#	friendships = Friendship.objects.all()
+		if not friendships:
+			return Response({'detail':'You have no friends :('}, status=status.HTTP_404_NOT_FOUND)
 		serializer = FriendshipSerializer(friendships, many=True)
 		return Response(serializer.data)
 	
