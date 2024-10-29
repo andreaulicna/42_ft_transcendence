@@ -1,6 +1,6 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
-from .models import CustomUser
+from .models import CustomUser, WebSocketTicket
 
 #{
 # 'type': 'websocket', 
@@ -30,12 +30,30 @@ def set_user_state(user, userState):
 	user.state = userState
 	user.save(update_fields=["state"])
 
+@database_sync_to_async
+def get_user_by_uuid(uuid):
+	try:
+		print("Validating against database")
+		ticket_uuid = WebSocketTicket.objects.get(uuid=uuid)
+		return ticket_uuid.user
+	except WebSocketTicket.DoesNotExist:
+		return None
+
 class UserConsumer(AsyncWebsocketConsumer):
 	async def connect(self):
+	#	This part would be for making it to work with the database
+	#	self.uuid = self.scope['url_route']['kwargs']['uuid']
+	#	self.user = await get_user_by_uuid(self.uuid)
+
+	#	if self.user is None:
+	#		print("User is NONE")
+	#		await self.close()
+	#		return
+	#	self.id = self.user.id
+
 		self.id = self.scope['user'].id # Linux complains when the self.id is used later in the code but not explicitly set
 		await self.accept()
 		print(f"Player {self.id} says hello!")
-		self.id = self.scope['user'].id
 		await set_user_state(self.scope['user'], CustomUser.StateOptions.ONLINE)
 
 	async def disconnect(self, close_code):
