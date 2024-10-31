@@ -32,10 +32,9 @@ def set_user_state(user, userState):
 
 class UserConsumer(AsyncWebsocketConsumer):
 	async def connect(self):
-		self.id = self.scope['user'].id # Linux complains when the self.id is used later in the code but not explicitly set
 		await self.accept()
-		print(f"Player {self.id} says hello!")
 		self.id = self.scope['user'].id
+		print(f"Player {self.id} says hello!")
 		await set_user_state(self.scope['user'], CustomUser.StateOptions.ONLINE)
 
 	async def disconnect(self, close_code):
