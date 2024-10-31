@@ -1,24 +1,33 @@
 ## API endpoints
+### Changelog
+31/10/24 <br/>
+Deleted `/api/user/friendships`, reworked `/api/user/friends` endpoint, updated friend functionality
+
 ### Notes
-1. `5xx` status codes usually mean something in backend has gone wrong, be prepared to intercept those for any call made to API
+1. Authentication is required for all endpoints except `/api/user/register` and `/api/auth/token`
 
-2. If a response contains any details with regard to why it was sent (e.g. `404` when a user is not found), it is encoded in the key-value pair: `{"detail" : "reason" }`
+2. `5xx` status codes usually mean something in backend has gone wrong, be prepared to intercept those for any call made to API
 
-3. `401` is raised on any API call that doesn't have a valid `Bearer` token if the endpoint requires authentication, `405` on any API call whose method is not supported (e.g. a POST request on endpoint that only supports GET requests)
+3. If a response contains any details with regard to why it was sent (e.g. `404` when a user is not found), it is encoded in the key-value pair: `{"detail" : "reason" }`
+
+4. `401` is raised on any API call that doesn't have a valid `Bearer` token if the endpoint requires authentication, `405` on any API call whose method is not supported (e.g. a POST request on endpoint that only supports GET requests)
 ### `/api/user`
 
-| Endpoint | Supported methods | Required input | Return codes | Authentication required |
+| Endpoint | Supported methods | Required input | Return codes | Notes |
 | :--- |---|:---| :---:| :---: |
-| `/register` |POST|`username`<br>`password`<br>`email`| 201<br>400 | &cross; |
-| `/info` |GET, PUT|  `last_name` (PUT)<br> `first_name` (PUT)| 200<br>404 | &check; |
-| `/avatar` | GET, (PUT) | JSON-encoded image | 200 (GET)<br>201 (PUT)<br>404 | &check; |
-| `/match` | GET, POST<sup>1</sup> |  | 200 (GET)<br>201 (POST)<br>400<br>404 | &check; |
+| `/register` |POST|`username`<br>`password`<br>`email`| 201<br>400 |  |
+| `/info` |GET, PUT|  `last_name` (PUT)<br> `first_name` (PUT)| 200<br>404 |  |
+| `/avatar` | GET, (PUT) | JSON-encoded image | 200 (GET)<br>201 (PUT)<br>404 | currently non-functional |
+| `/match` | GET, POST<sup>1</sup> |  | 200 (GET)<br>201 (POST)<br>400<br>404 | will be deleted |
 | `/users-list`<sup>2</sup> | GET|  | 200  | &check; |
-| `/friendships`<sup>3</sup> | GET, POST |  | 200<br>201 (POST)<br>400<br>404 | &check; |
+| `/friends`<br>`/friends/sent`<br>`/friends/received` | GET |  | 200 | lists accepted requests (aka. friendships), sent friend requests and received friend requests respectively |
+| `/friends/request/<str:username>` | POST |  | 201, 400, 404 | e.g. `/friends/requests/testusr1` sends a friend request to `testusr1`|
+| `/friends/<int:pk>/accept`<br>`/friends/<int:pk>/refuse`<br>| POST| | 200, 404| only related to pending friend requests, it should treat irrelevant or already accepted requests as "Not found" |
+| `/friends/<int:pk>/delete`| DELETE || 200, 404| deletes an active friendship OR, if the user is the sender, a pending friend request (basically withdraws the request) |
+
 
 <sup>1</sup> Pairs two random players together and creates a match, will change over time<br>
 <sup>2</sup> Only available for debugging purposes for now, will net slightly different results for authenticated and non-authenticated users in the future<br>
-<sup>3</sup> Sends a friend request to a random existing user that is not identical to the sender, will change over time, no accept/refuse functionality yet<br><br><br>
 
 
 ### `/api/auth`
