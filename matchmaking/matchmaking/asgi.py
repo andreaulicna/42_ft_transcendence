@@ -12,7 +12,6 @@ from django.core.asgi import get_asgi_application
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'matchmaking.settings')
 django_asgi_app = get_asgi_application()
 
-from channels.auth import AuthMiddlewareStack
 from django_channels_jwt.middleware import JwtAuthMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter
 import api.routing

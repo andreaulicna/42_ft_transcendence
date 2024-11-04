@@ -140,19 +140,19 @@ services:
       - transcendence
     restart: unless-stopped
   
- # pong:
- #   container_name: pong
- #   build: ./pong/
- #   volumes:
- #     - ./pong:/pong
- #   env_file:
- #     - .env
- #   depends_on:
- #     my-postgres:
- #       condition: service_healthy
- #   networks:
- #     - transcendence
- #   restart: unless-stopped
+  pong:
+    depends_on:
+      user_management_db:
+        condition: service_healthy
+    container_name: pong
+    build: ./pong/
+    volumes:
+      - ./pong:/app
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    networks:
+      - transcendence
+    restart: unless-stopped
     
 networks:
   transcendence:
