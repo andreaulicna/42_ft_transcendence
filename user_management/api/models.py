@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 from rest_framework.authtoken.models import Token
 from django.utils.translation import gettext_lazy
+import uuid
 
 
 def user_directory_path(instance, filename):
@@ -98,3 +99,9 @@ class PlayerTournament(models.Model):
 		if not self.player_tmp_username:
 			self.player_tmp_username = self.player.username
 		super().save(*args, **kwargs)
+
+class WebSocketTicket(models.Model):
+	user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+	uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+	created_at = models.DateTimeField(auto_now_add=True)
+	expires_at = models.DateTimeField()

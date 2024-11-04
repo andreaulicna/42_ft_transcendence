@@ -2,6 +2,8 @@ from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
 import uuid # unique room_id
 from pprint import pprint # nice printing
+from channels.db import database_sync_to_async
+from .models import WebSocketTicket
 
 rooms = []
 

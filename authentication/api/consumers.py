@@ -1,6 +1,6 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
-from .models import CustomUser
+from .models import CustomUser, WebSocketTicket
 
 #{
 # 'type': 'websocket', 
@@ -29,6 +29,15 @@ from .models import CustomUser
 def set_user_state(user, userState):
 	user.state = userState
 	user.save(update_fields=["state"])
+
+@database_sync_to_async
+def get_user_by_uuid(uuid):
+	try:
+		print("Validating against database")
+		ticket_uuid = WebSocketTicket.objects.get(uuid=uuid)
+		return ticket_uuid.user
+	except WebSocketTicket.DoesNotExist:
+		return None
 
 class UserConsumer(AsyncWebsocketConsumer):
 	async def connect(self):
