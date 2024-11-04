@@ -41,18 +41,8 @@ def get_user_by_uuid(uuid):
 
 class UserConsumer(AsyncWebsocketConsumer):
 	async def connect(self):
-	#	This part would be for making it to work with the database
-	#	self.uuid = self.scope['url_route']['kwargs']['uuid']
-	#	self.user = await get_user_by_uuid(self.uuid)
-
-	#	if self.user is None:
-	#		print("User is NONE")
-	#		await self.close()
-	#		return
-	#	self.id = self.user.id
-
-		self.id = self.scope['user'].id # Linux complains when the self.id is used later in the code but not explicitly set
 		await self.accept()
+		self.id = self.scope['user'].id
 		print(f"Player {self.id} says hello!")
 		await set_user_state(self.scope['user'], CustomUser.StateOptions.ONLINE)
 

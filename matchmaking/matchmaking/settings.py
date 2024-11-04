@@ -63,6 +63,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://redis:6379",
+    }
+}
 # CORS_ALLOWED_ORIGINS = [
 #     "http://127.0.0.1:5500",
 #     "http://localhost:5500",

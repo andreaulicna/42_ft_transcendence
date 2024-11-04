@@ -89,9 +89,10 @@ services:
     restart: unless-stopped
     networks:
       - transcendence
-    # volumes:
-    #   - static-volume:/app/staticfiles
-    #   - media-volume:/app/mediafiles
+    volumes:
+      - ./authentication:/app
+      # - static-volume:/app/staticfiles
+      # - media-volume:/app/mediafiles
 
   redis:
     container_name: redis
