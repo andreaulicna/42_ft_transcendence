@@ -24,7 +24,7 @@ const loadContent = async (path) => {
 		const preferredLanguage = localStorage.getItem("language") || "en";
 		setLanguage(preferredLanguage);
 
-		if (window.location.hash === '#login') {
+		if (window.location.hash === '#login' || window.location.hash === '') {
 			import('/js/login.js').then(module => module.init());
 		} else if (window.location.hash === '#register') {
 			import('/js/register.js').then(module => module.init());

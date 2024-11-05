@@ -5,11 +5,11 @@ export function init() {
 	if (form) {
 		form.addEventListener('submit', async function(event) {
 			event.preventDefault();
-			const email = document.getElementById('inputEmail').value;
+			const username = document.getElementById('inputUsername').value;
 			const password = document.getElementById('inputPassword').value;
 
 			const payload = {
-				username: email,
+				username: username,
 				password: password
 			};
 
@@ -19,6 +19,8 @@ export function init() {
 				// Store tokens in session storage
 				sessionStorage.setItem('access', data.access);
 				sessionStorage.setItem('refresh', data.refresh);
+				// Redirect to dashboard upon succesfull authentization
+                window.location.hash = '#dashboard';
 			} catch (error) {
 				console.error('Login failed:', error);
 			}
