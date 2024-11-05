@@ -1,3 +1,5 @@
+import { apiCallAuthed } from './api.js';
+
 const dynamicContent = document.getElementById('dynamicContent');
 
 const routes = {
@@ -12,35 +14,35 @@ const routes = {
 };
 
 const loadContent = async (path) => {
-    try {
-        const response = await fetch(path);
-        const content = await response.text();
-        dynamicContent.innerHTML = content;
+	try {
+		const response = await fetch(path);
+		const content = await response.text();
+		dynamicContent.innerHTML = content;
 		let data;
 
 		// Reapply language settings after loading new content
 		const preferredLanguage = localStorage.getItem("language") || "en";
 		setLanguage(preferredLanguage);
 
-        if (window.location.hash === '#login') {
-            import('/js/login.js').then(module => module.init());
-        } else if (window.location.hash === '#dashboard') {
-            data = await fetchMockData('#dashboard');
-            import('/js/dashboard.js').then(module => module.init(data));
+		if (window.location.hash === '#login') {
+			import('/js/login.js').then(module => module.init());
+		} else if (window.location.hash === '#register') {
+			import('/js/register.js').then(module => module.init());
+		} else if (window.location.hash === '#dashboard') {
+			data = await apiCallAuthed('/api/user/info');
+			import('/js/dashboard.js').then(module => module.init(data));
 		} else if (window.location.hash === '#profile') {
-			data = await fetchMockData('#profile');
+			data = await apiCallAuthed('/api/user/info');
 			import('/js/profile.js').then(module => module.init(data));
-        } else if (window.location.hash === '#game') {
-            data = await fetchMockData('#game');
-            import('/js/game.js').then(module => module.init(data));
-        } else if (window.location.hash === '#register') {
-            import('/js/register.js').then(module => module.init());
-        } else if (window.location.hash === '#tournament') {
+		} else if (window.location.hash === '#game') {
+			data = await apiCallAuthed('/api/user/match');
+			import('/js/game.js').then(module => module.init(data));
+		} else if (window.location.hash === '#tournament') {
 			import('/js/tournament.js').then(module => module.init());
 		}
-    } catch (err) {
-        console.error('Error loading content:', err);
-    }
+	} catch (err) {
+		console.error('Error loading content:', err);
+	}
 };
 
 const router = () => {
