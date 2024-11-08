@@ -2,7 +2,9 @@ from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
 import uuid # unique room_id
 from pprint import pprint # nice printing
-from .models import CustomUser
+from .models import CustomUser, Match
+import json
+from .serializers import MatchSerializer
 
 rooms = []
 
@@ -36,6 +38,11 @@ def get_player_state(player_id):
 		return user.state
 	except CustomUser.DoesNotExist:
 		return None
+	
+def set_user_to_ingame(player_id):
+	user = CustomUser.objects.get(id=player_id)
+	user.state = CustomUser.StateOptions.INGAME
+	user.save(update_fields=["state"])
 
 class MatchmakingConsumer(WebsocketConsumer):
 	def connect(self):
@@ -50,6 +57,20 @@ class MatchmakingConsumer(WebsocketConsumer):
 		self.room_group_name = room['room_id']
 		async_to_sync(self.channel_layer.group_add)(self.room_group_name, self.channel_name)
 		self.accept()
+		if len(room['players']) == 2:
+			self.send(text_data=json.dumps({"message": "Ready for match"}))
+			data = {
+				'player1_id' : list(room['players'][0].keys())[0],
+				'player2_id' : list(room['players'][1].keys())[0]
+			}
+			match_serializer = MatchSerializer(data=data)
+			if match_serializer.is_valid():
+				match_serializer.save()
+				set_user_to_ingame(list(room['players'][0].keys())[0])
+				set_user_to_ingame(list(room['players'][1].keys())[0])
+				async_to_sync(self.channel_layer.group_send)(
+					self.room_group_name, {"type": "chat_message", "message": match_serializer.data['id']}
+				)
 		print("Rooms after connect:")
 		pprint(rooms)
 
@@ -64,3 +85,19 @@ class MatchmakingConsumer(WebsocketConsumer):
 					break
 		print("Rooms after disconnect:")
 		pprint(rooms)
+	
+	def receive(self, text_data):
+		text_data_json = json.loads(text_data)
+		message = text_data_json["message"]
+		print(f"Message in receive: {message}")
+
+		# Send message to room group
+		async_to_sync(self.channel_layer.group_send)(
+			self.room_group_name, {"type": "chat_message", "message": message}
+		)
+	
+	def chat_message(self, event):
+		message = event["message"]
+		print("Fakt sa tu nic neprinti")
+		print(f"Received group message: {message}")
+		self.send(text_data=json.dumps({"message": message}))
