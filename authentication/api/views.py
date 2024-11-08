@@ -71,5 +71,5 @@ class RefreshView(TokenRefreshView):
 
                 return response
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except TokenError:
-            return Response({"details" : "Token is blacklisted"},status=status.HTTP_400_BAD_REQUEST)
+        except TokenError as e:
+            return Response({"details" : str(e)},status=status.HTTP_401_UNAUTHORIZED)

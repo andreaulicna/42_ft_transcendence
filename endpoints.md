@@ -33,8 +33,8 @@ Deleted `/api/user/friendships`, reworked `/api/user/friends` endpoint, updated 
 ### `/api/auth`
 | Endpoint | Supported methods | Required input | Return codes | Authentication required |
 | :--- |---|:---| :---:| :---: |
-| `/token` |POST|`username`<br>`password`<br>| 200<br>401 | &cross; |
-| `/token/refresh` |POST|| 200<br>401 | &check; |
+| `/login` |POST|`username`<br>`password`<br> | 200<br>401 | &cross; |
+| `/login/refresh` |POST|`refresh`| 200<br>400<br>401 | &cross; |
 | `/ws-login` |GET|| 200<br>401 | &check; |
 |`/ws/init/`<br>(mind the slash at the end) |non-HTTP|`?uuid=`|Connected<br>Disconnected|?|
 
