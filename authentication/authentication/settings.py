@@ -45,7 +45,8 @@ INSTALLED_APPS = [
 	'rest_framework.authtoken',
 	'api',
 	'corsheaders',
-	'channels'
+	'channels',
+	'rest_framework_simplejwt.token_blacklist'
 ]
 
 ASGI_APPLICATION = 'authentication.asgi.application'
@@ -91,6 +92,7 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(seconds=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': True,
+	'BLACKLIST_AFTER_ROTATION' : True,
 	'AUTH_COOKIE': 'access_token',  # Cookie name. Enables cookies if value is set.
 	'AUTH_COOKIE_DOMAIN': None,     # A string like "example.com", or None for standard domain cookie.
 	'AUTH_COOKIE_SECURE': False,    # Whether the auth cookies should be secure (https:// only).

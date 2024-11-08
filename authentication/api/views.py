@@ -8,6 +8,7 @@ from django.middleware import csrf
 from django.utils import timezone
 from rest_framework_simplejwt.views import TokenRefreshView
 from .serializers import CustomTokenRefreshSerializer
+from rest_framework_simplejwt.exceptions import TokenError
 
 
 def get_tokens_for_user(user):
@@ -51,21 +52,24 @@ class RefreshView(TokenRefreshView):
     serializer_class = CustomTokenRefreshSerializer
 
     def post (self, request):
-        serializer = self.serializer_class(data=request.data)
-        response = Response()
-        if serializer.is_valid():
-            data = serializer.validated_data
-            expires = timezone.now() + settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME']
-            response.set_cookie(
-                                key = settings.SIMPLE_JWT['AUTH_COOKIE'], 
-                                value = data["access"],
-                                expires = expires,
-                                secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
-                                httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
-                                samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
-                                    )
-            csrf.get_token(request)
-            response.data = data
+        try:
+            serializer = self.serializer_class(data=request.data)
+            response = Response()
+            if serializer.is_valid():
+                data = serializer.validated_data
+                expires = timezone.now() + settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME']
+                response.set_cookie(
+                                    key = settings.SIMPLE_JWT['AUTH_COOKIE'], 
+                                    value = data["access"],
+                                    expires = expires,
+                                    secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
+                                    httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
+                                    samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
+                                        )
+                csrf.get_token(request)
+                response.data = data
 
-            return response
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                return response
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except TokenError:
+            return Response({"details" : "Token is blacklisted"},status=status.HTTP_400_BAD_REQUEST)
