@@ -58,6 +58,7 @@ class UserInfoView(APIView):
 				return Response({'detail': 'Player does not exist'}, status=status.HTTP_404_NOT_FOUND)
 			first_name = request.data.get('first_name')
 			last_name = request.data.get('last_name')
+			user_state = request.data.get('state')
 			if first_name:
 				new_first_name = ' '.join(first_name.split())
 				player.first_name = new_first_name
@@ -66,6 +67,17 @@ class UserInfoView(APIView):
 				player.last_name = new_last_name
 			player.save()
 			return Response({'detail' : 'User info updated'})
+		
+class UserInfoReset(APIView):
+	permission_classes = [IsAuthenticated]
+	def post(self, request):
+		try:
+			player = CustomUser.objects.get(username=request.user)
+		except CustomUser.DoesNotExist:
+			return Response({'detail': 'Player does not exist'}, status=status.HTTP_404_NOT_FOUND)
+		player.state = CustomUser.StateOptions.OFFLINE.value
+		player.save()
+		return Response({'detail' : 'User info reset to default'})
 
 
 # protect against identical names and big amounts

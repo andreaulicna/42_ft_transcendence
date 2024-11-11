@@ -27,6 +27,7 @@ urlpatterns = [
     # path('api/user/login', views.UserLoginView.as_view(), name='user-login'),
 	# path('api/user/logout', views.UserLogoutView.as_view(), name = 'user-logout'),
 	path('api/user/info', views.UserInfoView.as_view(), name='user-info'),
+	path('api/user/debug/info/reset', views.UserInfoReset.as_view(), name='user-info-reset'),
 	path('api/user/avatar', views.UserAvatarUpload.as_view(), name='user-avatar-upload'),
 	path('api/user/match', views.MatchView.as_view(), name='match-creation'),
 	path('api/user/users-list', views.UserListView.as_view(), name='user-list'),

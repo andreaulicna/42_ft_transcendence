@@ -47,7 +47,7 @@ def set_user_to_ingame(player_id):
 class MatchmakingConsumer(WebsocketConsumer):
 	def connect(self):
 		self.id = self.scope['user'].id
-		print(f"Player {self.id} wants to play match a match!")
+		print(f"Player {self.id} wants to play a match!")
 		if is_player_in_room_already(self.id) or get_player_state(self.id) in (CustomUser.StateOptions.INGAME, CustomUser.StateOptions.INTOURNAMENT):
 			return
 		room = find_room_to_join()
@@ -55,7 +55,9 @@ class MatchmakingConsumer(WebsocketConsumer):
 			room = create_room()
 		add_player_to_room(room, self.id, self.channel_name)
 		self.room_group_name = room['room_id']
-		async_to_sync(self.channel_layer.group_add)(self.room_group_name, self.channel_name)
+		async_to_sync(self.channel_layer.group_add)(
+			self.room_group_name, self.channel_name
+		)
 		self.accept()
 		if len(room['players']) == 2:
 			self.send(text_data=json.dumps({"message": "Ready for match"}))
@@ -69,7 +71,7 @@ class MatchmakingConsumer(WebsocketConsumer):
 				set_user_to_ingame(list(room['players'][0].keys())[0])
 				set_user_to_ingame(list(room['players'][1].keys())[0])
 				async_to_sync(self.channel_layer.group_send)(
-					self.room_group_name, {"type": "chat_message", "message": match_serializer.data['id']}
+					self.room_group_name, {"type": "matchmaking_message", "message": match_serializer.data['id']}
 				)
 		print("Rooms after connect:")
 		pprint(rooms)
@@ -78,7 +80,9 @@ class MatchmakingConsumer(WebsocketConsumer):
 		for room in rooms:
 			for player in room['players']:
 				if self.channel_name in player.values():
-					async_to_sync(self.channel_layer.group_discard)(self.room_group_name, self.channel_name)
+					async_to_sync(self.channel_layer.group_discard)(
+						self.room_group_name, self.channel_name
+					)
 					room['players'].remove(player)
 					if not room['players']:
 						rooms.remove(room)
@@ -93,11 +97,10 @@ class MatchmakingConsumer(WebsocketConsumer):
 
 		# Send message to room group
 		async_to_sync(self.channel_layer.group_send)(
-			self.room_group_name, {"type": "chat_message", "message": message}
+			self.room_group_name, {"type": "matchmaking_message", "message": message}
 		)
 	
-	def chat_message(self, event):
+	def matchmaking_message(self, event):
 		message = event["message"]
-		print("Fakt sa tu nic neprinti")
 		print(f"Received group message: {message}")
 		self.send(text_data=json.dumps({"message": message}))
