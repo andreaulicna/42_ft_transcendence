@@ -29,14 +29,15 @@ class LoginView(APIView):
         if user is not None:
             if user.is_active:
                 data = get_tokens_for_user(user)
-                expires = timezone.now() + settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME']
+                expires = timezone.now() + settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME']
                 response.set_cookie(
                                     key = settings.SIMPLE_JWT['AUTH_COOKIE'], 
-                                    value = data["access"],
+                                    value = data["refresh"],
                                     expires = expires,
                                     secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
                                     httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
-                                    samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
+                                    samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
+                                    path = settings.SIMPLE_JWT['AUTH_COOKIE_PATH']
                                         )
                 csrf.get_token(request)
                 response.data = {"refresh": data['refresh'], "access" : data['access']}
@@ -48,24 +49,23 @@ class LoginView(APIView):
             return Response({"details" : "Invalid username or password"},status=status.HTTP_404_NOT_FOUND)
 
 class RefreshView(TokenRefreshView):
-
     serializer_class = CustomTokenRefreshSerializer
-
     def post (self, request):
         try:
-            serializer = self.serializer_class(data=request.data)
+            serializer = self.serializer_class(data=request.data, context={'request': request})
             response = Response()
             if serializer.is_valid():
                 data = serializer.validated_data
-                expires = timezone.now() + settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME']
+                expires = timezone.now() + settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME']
                 response.set_cookie(
-                                    key = settings.SIMPLE_JWT['AUTH_COOKIE'], 
-                                    value = data["access"],
+                                    key = settings.SIMPLE_JWT['AUTH_COOKIE'],
+                                    value = data["refresh"],
                                     expires = expires,
                                     secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
                                     httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
-                                    samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
-                                        )
+                                    samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
+                                    path = settings.SIMPLE_JWT['AUTH_COOKIE_PATH']
+                                    )
                 csrf.get_token(request)
                 response.data = data
 

@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 from datetime import timedelta
+from django.urls import reverse_lazy
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -82,8 +84,8 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-		'authentication.authenticate.CookieJWTAuthentication'
-		#'rest_framework_simplejwt.authentication.JWTAuthentication',
+		#'authentication.authenticate.CookieJWTAuthentication'
+		'rest_framework_simplejwt.authentication.JWTAuthentication',
         #'rest_framework.authentication.TokenAuthentication',
     ],
 }
@@ -93,11 +95,11 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': True,
 	'BLACKLIST_AFTER_ROTATION' : True,
-	'AUTH_COOKIE': 'access_token',  # Cookie name. Enables cookies if value is set.
+	'AUTH_COOKIE': 'refresh_token',  # Cookie name. Enables cookies if value is set.
 	'AUTH_COOKIE_DOMAIN': None,     # A string like "example.com", or None for standard domain cookie.
 	'AUTH_COOKIE_SECURE': False,    # Whether the auth cookies should be secure (https:// only).
 	'AUTH_COOKIE_HTTP_ONLY' : True, # Http only cookie flag.It's not fetch by javascript.
-	'AUTH_COOKIE_PATH': '/',        # The path of the auth cookie.
+	'AUTH_COOKIE_PATH': reverse_lazy('login-refresh'),        # The path of the auth cookie.
 	'AUTH_COOKIE_SAMESITE': 'Lax',  # Whether to set the flag restricting cookie leaks on cross-site requests.
 									# This can be 'Lax', 'Strict', or None to disable
 }
