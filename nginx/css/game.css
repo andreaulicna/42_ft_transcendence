@@ -4,6 +4,9 @@
 
 #gameBoard {
 	border: 3px solid whitesmoke !important;
+	width: 100%;
+	height: auto;
+	display: block;
 }
 
 #scoreText {
@@ -12,11 +15,11 @@
 }
 
 .blueSide {
-    color: #00babc;
-    text-shadow: 0 0 5px #00babc, 0 0 15px #00babc, 0 0 25px #00babc;
+	color: #00babc;
+	text-shadow: 0 0 5px #00babc, 0 0 15px #00babc, 0 0 25px #00babc;
 }
 
 .redSide {
-    color: #df2af7;
-    text-shadow: 0 0 5px #df2af7, 0 0 15px #df2af7, 0 0 25px #df2af7;
+	color: #df2af7;
+	text-shadow: 0 0 5px #df2af7, 0 0 15px #df2af7, 0 0 25px #df2af7;
 }

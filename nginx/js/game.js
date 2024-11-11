@@ -1,10 +1,11 @@
-// props to BroCode: https://www.youtube.com/watch?v=AiFqApeurqI
+import { initializeTouchControls } from './gameTouchControls.js';
 
 export function init(data) {
 
 	// CANVAS SETTINGS 
 	const gameBoard = document.getElementById("gameBoard");
 	const ctx = gameBoard.getContext("2d");
+	const playerNames = document.getElementById("playerNames");
 	const scoreText = document.getElementById("scoreText");
 	const gameWidth = gameBoard.width;
 	const gameHeight = gameBoard.height;
@@ -41,17 +42,33 @@ export function init(data) {
 		x: gameWidth - 25,
 		y: gameHeight - 100
 	};
+	let gameMode = localStorage.getItem('gameMode');
+	let aiTargetY = paddle2.y + paddle2.height / 2;
+
+	// PLAYER CONTROLS
 	let keys = {};
 	window.addEventListener("keydown", (event) => keys[event.keyCode] = true);
 	window.addEventListener("keyup", (event) => keys[event.keyCode] = false);
-	let gameMode = localStorage.getItem('gameMode');
-	let aiTargetY = paddle2.y + paddle2.height / 2;
+	initializeTouchControls(gameBoard, paddle1, paddle2, gameWidth, gameHeight);
+
 
 	// CUSTOMIZABLE GAME SETTINGS
 	const paddleSpeed = 5;
 	const aiSpeed = 5;
 	const winCondition = 1;
 	let gamePaused = false;
+
+	// PLAYER NAME SETTINGS
+	const player1Name = data.user;
+	let player2Name = "Player 2";
+	if (gameMode == "ai" )
+		player2Name = "Pongothon-8000";
+	// else if (gameMode == "remote")
+	// 	handle second remote player name
+	const player1NameID = document.querySelector("#playerNames .blueSide");
+	player1NameID.textContent = player1Name;
+	const player2NameID = document.querySelector("#playerNames .redSide");
+	player2NameID.textContent = player2Name;
 
 	// GAME LOGIC
 	gameStart();
@@ -62,7 +79,6 @@ export function init(data) {
 		nextTick();
 		if (gameMode == 'ai') {
 			setInterval(predictAIPaddlePosition, 1000); // Predict AI paddle position every 1 second
-			aiIntervalID = setInterval(moveAIPaddle, 10); // Update AI paddle position every 10 miliseconds
 		}
 	}
 
@@ -77,6 +93,9 @@ export function init(data) {
 			moveBall();
 			drawBall(ballX, ballY);
 			checkCollision();
+			if (gameMode == 'ai') {
+				moveAIPaddle();
+			}
 			requestAnimationFrame(nextTick);
 		}, 10)
 	}
@@ -233,12 +252,13 @@ export function init(data) {
 	}
 
 	function showGameOverScreen() {
-		let winner = player1Score >= winCondition ? "Player 1" : "Player 2";
+		let winner = player1Score >= winCondition ? data.user : player2Name;
 		winnerName.textContent = `${winner}`;
 		winnerName.className = player1Score >= winCondition ? "blueSide" : "redSide";
 
 		gameOverScreen.style.display = "block";
 		gameBoard.style.display = "none";
+		playerNames.style.visibility = "hidden";
 		scoreText.style.display = "none";
 
 		gamePaused = true;
@@ -247,6 +267,7 @@ export function init(data) {
 	function hideGameOverScreen() {
 		gameOverScreen.style.display = "none";
 		gameBoard.style.display = "block";
+		playerNames.style.visibility = "visible";
 		scoreText.style.display = "block";
 	}
 
@@ -256,7 +277,7 @@ export function init(data) {
 	});
 
 	mainMenuButton.addEventListener("click", () => {
-		hideGameOverScreen();
+		// hideGameOverScreen();
 	});
 
 	function resetGame() {
