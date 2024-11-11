@@ -23,7 +23,7 @@ export async function registerUser(payload) {
 }
 
 export async function loginUser(payload) {
-	const url = '/api/auth/token';
+	const url = '/api/auth/login';
 	const options = {
 		method: 'POST',
 		headers: {
@@ -71,7 +71,7 @@ export async function apiCallAuthed(url, method = 'GET', headers = {}, payload =
 			return await response.json();
 		} else if (response.status === 401) {
 			// If access token is expired, try to refresh it
-			const refreshResponse = await fetch('/api/auth/token/refresh', {
+			const refreshResponse = await fetch('/api/auth/login/refresh', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
