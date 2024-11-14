@@ -84,14 +84,15 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
+		'authentication.authenticate.CustomJWTAuthentication'
 		#'authentication.authenticate.CookieJWTAuthentication'
-		'rest_framework_simplejwt.authentication.JWTAuthentication',
+		#'rest_framework_simplejwt.authentication.JWTAuthentication',
         #'rest_framework.authentication.TokenAuthentication',
     ],
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(seconds=10),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': True,
 	'BLACKLIST_AFTER_ROTATION' : True,

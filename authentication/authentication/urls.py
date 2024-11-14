@@ -26,7 +26,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from api.models import WebSocketTicket
 from django.core.cache import cache
-from api.views import LoginView, RefreshView
+from api.views import LoginView, RefreshView, LogoutView
 
 from pprint import pprint
 def print_websocket_tickets():
@@ -61,6 +61,7 @@ urlpatterns = [
 	#path('api/auth/token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
 	path('api/auth/login', LoginView.as_view(),name = "login"),
 	path('api/auth/login/refresh', RefreshView.as_view(),name = "login-refresh"),
-	path('api/auth/ws-login', AsgiValidateTokenView.as_view())
+	path('api/auth/ws-login', AsgiValidateTokenView.as_view(), name = "websocket-login"),
+	path('api/auth/login/refresh/logout', LogoutView.as_view(), name = "logout")
 ]
 
