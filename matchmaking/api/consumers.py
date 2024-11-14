@@ -60,10 +60,9 @@ class MatchmakingConsumer(WebsocketConsumer):
 		)
 		self.accept()
 		if len(room['players']) == 2:
-			self.send(text_data=json.dumps({"message": "Ready for match"}))
 			data = {
-				'player1_id' : list(room['players'][0].keys())[0],
-				'player2_id' : list(room['players'][1].keys())[0]
+				'player1' : list(room['players'][0].keys())[0],
+				'player2' : list(room['players'][1].keys())[0]
 			}
 			match_serializer = MatchSerializer(data=data)
 			if match_serializer.is_valid():
@@ -73,6 +72,8 @@ class MatchmakingConsumer(WebsocketConsumer):
 				async_to_sync(self.channel_layer.group_send)(
 					self.room_group_name, {"type": "matchmaking_message", "message": match_serializer.data['id']}
 				)
+				print("Rooms after connect:")
+				pprint(rooms)
 		print("Rooms after connect:")
 		pprint(rooms)
 
@@ -104,3 +105,4 @@ class MatchmakingConsumer(WebsocketConsumer):
 		message = event["message"]
 		print(f"Received group message: {message}")
 		self.send(text_data=json.dumps({"message": message}))
+		self.close()

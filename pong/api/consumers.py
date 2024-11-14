@@ -90,11 +90,11 @@ def set_match_status(match, matchStatus):
 @database_sync_to_async
 def set_match_winner(match):
 	if match.player1_score > match.player2_score:
-		match.winner_id = match.player1_id
+		match.winner = match.player1
 	else:
-		match.winner_id = match.player2_id
+		match.winner = match.player2
 	match.status = Match.StatusOptions.FINISHED
-	match.save(update_fields=['status', 'winner_id'])
+	match.save(update_fields=['winner', 'status'])
 
 class PongConsumer(AsyncWebsocketConsumer):
 	async def connect(self):
@@ -189,5 +189,6 @@ class PongConsumer(AsyncWebsocketConsumer):
 				highest_score = match_database.player1_score
 			else:
 				highest_score = match_database.player2_score
-		await set_match_winner(match_database, Match.StatusOptions.FINISHED)
+		await set_match_winner(match_database)
+		# return await self.close() - should work when play_pong is implemented differently, for both players
 			

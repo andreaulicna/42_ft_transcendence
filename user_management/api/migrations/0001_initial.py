@@ -55,8 +55,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(primary_key=True, serialize=False)),
                 ('status', models.CharField(choices=[('PEN', 'Pending'), ('ACC', 'Accepted')], default='PEN', max_length=3)),
-                ('receiver_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='receiver_id', to=settings.AUTH_USER_MODEL)),
-                ('sender_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sender_id', to=settings.AUTH_USER_MODEL)),
+                ('receiver', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='receiver', to=settings.AUTH_USER_MODEL)),
+                ('sender', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sender', to=settings.AUTH_USER_MODEL)),
             ],
         ),
         migrations.CreateModel(
@@ -66,8 +66,8 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(default='unnamed', max_length=30)),
                 ('time_created', models.DateTimeField(auto_now_add=True)),
                 ('status', models.CharField(choices=[('WAIT', 'Waiting'), ('IP', 'In progress'), ('FIN', 'Finished')], default='WAIT', max_length=4)),
-                ('creator_id', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='creator_id', to=settings.AUTH_USER_MODEL)),
-                ('winner_id', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='winner_id_tpurnament', to=settings.AUTH_USER_MODEL)),
+                ('creator', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='creator', to=settings.AUTH_USER_MODEL)),
+                ('winner', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='winner_tpurnament', to=settings.AUTH_USER_MODEL)),
             ],
         ),
         migrations.CreateModel(
@@ -75,8 +75,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(primary_key=True, serialize=False)),
                 ('player_tmp_username', models.CharField(blank=True, max_length=150)),
-                ('player_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-                ('tournament_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='api.tournament')),
+                ('player', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                ('tournament', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='api.tournament')),
             ],
         ),
         migrations.CreateModel(
@@ -88,10 +88,10 @@ class Migration(migrations.Migration):
                 ('player1_score', models.PositiveIntegerField(default=0)),
                 ('player2_score', models.PositiveIntegerField(default=0)),
                 ('round_number', models.PositiveIntegerField(default=0)),
-                ('player1_id', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='player1_id', to=settings.AUTH_USER_MODEL)),
-                ('player2_id', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='player2_id', to=settings.AUTH_USER_MODEL)),
-                ('winner_id', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='winner_id_match', to=settings.AUTH_USER_MODEL)),
-                ('tournament_id', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='api.tournament')),
+                ('player1', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='player1', to=settings.AUTH_USER_MODEL)),
+                ('player2', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='player2', to=settings.AUTH_USER_MODEL)),
+                ('winner', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='winner_match', to=settings.AUTH_USER_MODEL)),
+                ('tournament', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='api.tournament')),
             ],
         ),
     ]

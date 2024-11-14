@@ -100,10 +100,10 @@ class MatchView(ListAPIView):
 
 	def get_queryset(self):
 		user = self.request.user
-		return Match.objects.filter(Q(player1_id=user.id) | Q(player2_id=user.id))
+		return Match.objects.filter(Q(player1=user.id) | Q(player2=user.id))
 	
 	# def get(self, request):
-	# 	matches = Match.objects.filter(Q(player1_id=request.user.id) | Q(player2_id=request.user.id))
+	# 	matches = Match.objects.filter(Q(player1=request.user.id) | Q(player2=request.user.id))
 	# 	if not matches:
 	# 		return Response({'detail':'No matches found'}, status=status.HTTP_404_NOT_FOUND)
 	# 	serializer = MatchSerializer(matches, many=True)
@@ -115,7 +115,7 @@ class ActiveFriendshipsListView(ListAPIView):
 
 	def get_queryset(self):
 		user = self.request.user
-		return Friendship.objects.filter(Q(sender_id=user.id) | Q(receiver_id=user.id), Q(status=Friendship.StatusOptions.ACCEPTED))
+		return Friendship.objects.filter(Q(sender=user.id) | Q(receiver=user.id), Q(status=Friendship.StatusOptions.ACCEPTED))
 
 class FriendshipRequestSentListView(ListAPIView):
 	serializer_class = FriendshipSerializer
@@ -123,7 +123,7 @@ class FriendshipRequestSentListView(ListAPIView):
 
 	def get_queryset(self):
 		user = self.request.user
-		return Friendship.objects.filter(Q(sender_id=user.id), Q(status=Friendship.StatusOptions.PENDING))
+		return Friendship.objects.filter(Q(sender=user.id), Q(status=Friendship.StatusOptions.PENDING))
 	
 class FriendshipRequestReceivedListView(ListAPIView):
 	serializer_class = FriendshipSerializer
@@ -131,7 +131,7 @@ class FriendshipRequestReceivedListView(ListAPIView):
 
 	def get_queryset(self):
 		user = self.request.user
-		return Friendship.objects.filter(Q(receiver_id=user.id), Q(status=Friendship.StatusOptions.PENDING))
+		return Friendship.objects.filter(Q(receiver=user.id), Q(status=Friendship.StatusOptions.PENDING))
 
 class FriendshipRequestView(APIView):
 	permission_classes = [IsAuthenticated]
@@ -149,12 +149,12 @@ class FriendshipRequestView(APIView):
 		sender_current = request.user
 		receiver_current = target_player
 		print("Sender: ", sender_current.id, " Receiver: ", receiver_current.id)
-		db_check = Friendship.objects.filter(Q(receiver_id=sender_current) | Q(sender_id=sender_current), Q(receiver_id=receiver_current) | Q(sender_id=receiver_current))
+		db_check = Friendship.objects.filter(Q(receiver=sender_current) | Q(sender=sender_current), Q(receiver=receiver_current) | Q(sender=receiver_current))
 		if db_check:
 			return Response({'detail': 'Friendship (request) already exists.'}, status=status.HTTP_400_BAD_REQUEST)
 		friendship_data = {
-			'sender_id': sender_current.id,
-			'receiver_id': receiver_current.id
+			'sender': sender_current.id,
+			'receiver': receiver_current.id
 		}
 		friendship_serializer = FriendshipSerializer(data=friendship_data)
 		if friendship_serializer.is_valid():
@@ -172,7 +172,7 @@ class FriendshipRequestAcceptView(APIView):
 	def post(self, request, pk):
 		try:
 			friendship =  get_object_or_404(Friendship, pk=pk)
-			if (friendship.receiver_id != request.user) or (friendship.status != Friendship.StatusOptions.PENDING):
+			if (friendship.receiver != request.user) or (friendship.status != Friendship.StatusOptions.PENDING):
 				raise Http404
 			friendship.status = Friendship.StatusOptions.ACCEPTED
 			friendship.save()
@@ -186,7 +186,7 @@ class FriendshipRequestRefuseView(APIView):
 	def post(self, request, pk):
 		try:
 			friendship =  get_object_or_404(Friendship, pk=pk)
-			if (friendship.receiver_id != request.user) or (friendship.status != Friendship.StatusOptions.PENDING):
+			if (friendship.receiver != request.user) or (friendship.status != Friendship.StatusOptions.PENDING):
 				raise Http404
 			friendship.delete()
 			return Response({'detail': 'Friendship request deleted successfully.'}, status=status.HTTP_200_OK)
@@ -199,8 +199,8 @@ class FriendshipRequestDeleteView(APIView):
 	def delete(self, request, pk):
 		try:
 			friendship = get_object_or_404(Friendship, pk=pk)
-			if (friendship.sender_id != request.user and friendship.receiver_id != request.user)\
-				or (friendship.status != Friendship.StatusOptions.ACCEPTED and friendship.sender_id != request.user):
+			if (friendship.sender != request.user and friendship.receiver != request.user)\
+				or (friendship.status != Friendship.StatusOptions.ACCEPTED and friendship.sender != request.user):
 				raise Http404
 			friendship.delete()
 			return Response({'detail': 'Friendship (request) deleted successfully.'}, status=status.HTTP_200_OK)
