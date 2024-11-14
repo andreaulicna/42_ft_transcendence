@@ -30,6 +30,7 @@ const loadContent = async (path) => {
 			import('/js/register.js').then(module => module.init());
 		} else if (window.location.hash === '#dashboard') {
 			data = await apiCallAuthed('/api/user/info');
+			console.log('Dashboard data:', data);
 			import('/js/dashboard.js').then(module => module.init(data));
 		} else if (window.location.hash === '#profile') {
 			data = await apiCallAuthed('/api/user/info');

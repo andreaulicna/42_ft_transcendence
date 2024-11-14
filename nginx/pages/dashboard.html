@@ -10,7 +10,7 @@
 			<span class="fs-6">vs</span>
 			<span data-translate="modeLocal">Local Player</span>
 		</a>
-		<a href="#game" id="modeRemote" class="text-decoration-none slide-right badge-coming-soon" data-mode="remote">
+		<a data-bs-toggle="modal" data-bs-target="#searchingPlayerModal" id="modeRemote" class="text-decoration-none slide-right badge-coming-soon" data-mode="remote">
 			<span class="fs-1">⚔️</span>
 			<span class="fs-6">vs</span>
 			<span data-translate="modeRemote">Remote Player</span>
@@ -29,5 +29,19 @@
 			<span class="fs-1">🐱</span>
 			<span data-translate="viewProfile">Profile</span>
 		</a>
+	</div>
+	<!-- Search for player trigger modal -->
+	<div class="modal fade" id="searchingPlayerModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="searchingPlayerLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="searchingPlayerLabel">Searching for a player</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body" style="color:black">
+					<p>Searching for opponent...</p>
+				</div>
+			</div>
+		</div>
 	</div>
 </div>

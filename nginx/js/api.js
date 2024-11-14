@@ -17,7 +17,7 @@ export async function registerUser(payload) {
 			throw new Error(errorData.message || 'Registration failed');
 		}
 	} catch (error) {
-		console.error('API call error:', error);
+		console.error('Registration API call error:', error);
 		throw error;
 	}
 }
@@ -41,7 +41,7 @@ export async function loginUser(payload) {
 			throw new Error(errorData.message || 'Login failed');
 		}
 	} catch (error) {
-		console.error('API call error:', error);
+		console.error('Login API call error:', error);
 		throw error;
 	}
 }
@@ -102,7 +102,31 @@ export async function apiCallAuthed(url, method = 'GET', headers = {}, payload =
 			throw new Error(errorData.message || 'API call status not OK');
 		}
 	} catch (error) {
-		console.error('API call error:', error);
+		console.error('Authoed API call error:', error);
 		throw error;
+	}
+}
+
+export async function searchForPlayer() {
+	try {
+		const response = await apiCallAuthed('/api/auth/ws-login', 'GET');
+		const uuid = response.uuid;
+		sessionStorage.setItem('uuid', uuid);
+
+		const ws = new WebSocket(`ws://localhost:1337/ws/init/?uuid=${uuid}`);
+
+		ws.onopen = () => {
+			console.log('WebSocket connection opened');
+		};
+
+		ws.onclose = () => {
+			console.log('WebSocket connection closed');
+		};
+
+		ws.onerror = (error) => {
+			console.error('WebSocket error:', error);
+		};
+	} catch (error) {
+		console.error('Error searching for player:', error);
 	}
 }
