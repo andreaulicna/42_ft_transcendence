@@ -54,7 +54,7 @@ services:
       - ./user_management:/app
       # - static-volume:/app/staticfiles
       # - media-volume:/app/test_media
-      - uploaded-volume:/app/mediafiles
+      - /home/hackerman/data/media:/app/mediafiles
     # expose:
     #   - 8001
     environment:
@@ -76,7 +76,7 @@ services:
     networks:
       - transcendence
     volumes:
-      - user-db:/var/lib/postgresql/data
+      - /home/hackerman/data/user-db:/var/lib/postgresql/data
     restart: unless-stopped
 
   nginx:
@@ -114,7 +114,7 @@ services:
       - ./authentication:/app
       # - static-volume:/app/staticfiles
       # - media-volume:/app/test_media
-      - uploaded-volume:/app/mediafiles
+      - /home/hackerman/data/media:/app/mediafiles
     # expose:
     #   - 8002
     environment:
