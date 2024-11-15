@@ -108,13 +108,13 @@ export async function apiCallAuthed(url, method = 'GET', headers = {}, payload =
 	}
 }
 
-export async function searchForPlayer() {
+export async function openWebSocket(url) {
 	try {
 		const response = await apiCallAuthed('/api/auth/ws-login', 'GET');
 		const uuid = response.uuid;
 		sessionStorage.setItem('uuid', uuid);
 
-		const ws = new WebSocket(`ws://localhost:1337/api/auth/ws/init/?uuid=${uuid}`);
+		const ws = new WebSocket(url + `?uuid=${uuid}`);
 
 		ws.onopen = () => {
 			console.log('WebSocket connection opened');
@@ -126,6 +126,15 @@ export async function searchForPlayer() {
 
 		ws.onerror = (error) => {
 			console.error('WebSocket error:', error);
+		};
+
+		ws.onmessage = (event) => {
+			const data = event.data;
+			console.log('WebSocket message received:', data);
+			if (url == "/api/matchmaking/ws/")
+			{
+				
+			}
 		};
 	} catch (error) {
 		console.error('Error searching for player:', error);

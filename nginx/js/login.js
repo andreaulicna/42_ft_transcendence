@@ -1,4 +1,5 @@
 import { loginUser } from './api.js';
+import { openFriendlistWebsocket } from './websockets.js';
 
 export function init() {
 	const form = document.getElementById('loginForm');
@@ -19,8 +20,10 @@ export function init() {
 				// Store tokens in session storage
 				sessionStorage.setItem('access', data.access);
 				sessionStorage.setItem('refresh', data.refresh);
-				// Redirect to dashboard upon succesfull authentization
-                window.location.hash = '#dashboard';
+				// Establish friendlist websocket
+				openFriendlistWebsocket();
+				// Redirect to dashboard upon succesful authentization
+				window.location.hash = '#dashboard';
 			} catch (error) {
 				console.error('Login failed:', error);
 			}
