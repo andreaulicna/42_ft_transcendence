@@ -21,11 +21,11 @@ export async function openWebSocket(url) {
 		};
 
 		ws.onmessage = (event) => {
-			const data = event.data;
+			const data = JSON.parse(event.data);
 			console.log('WebSocket message received:', data);
 			if (url == "/api/matchmaking/ws/")
 			{
-				openPongWebsocket(data.match_id);
+				openPongWebsocket(data.message);
 			}
 		};
 	} catch (error) {
