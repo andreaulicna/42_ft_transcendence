@@ -18,25 +18,26 @@ Deleted `/api/user/friendships`, reworked `/api/user/friends` endpoint, updated 
 | `/register` |POST|`username`<br>`password`<br>`email`| 201<br>400 |  |
 | `/info` |GET, PUT|  `last_name` (PUT)<br> `first_name` (PUT)| 200<br>404 |  |
 | `/avatar` | GET, (PUT) | JSON-encoded image | 200 (GET)<br>201 (PUT)<br>404 | currently non-functional |
-| `/match` | GET, POST<sup>1</sup> |  | 200 (GET)<br>201 (POST)<br>400<br>404 | will be deleted |
+| `/match` | GET |  | 200 (GET)<br>400<br>404 | shows history of all matches for a specific user |
 | `/users-list`<sup>2</sup> | GET|  | 200  | &check; |
 | `/friends`<br>`/friends/sent`<br>`/friends/received` | GET |  | 200 | lists accepted requests (aka. friendships), sent friend requests and received friend requests respectively |
 | `/friends/request/<str:username>` | POST |  | 201, 400, 404 | e.g. `/friends/requests/testusr1` sends a friend request to `testusr1`|
 | `/friends/<int:pk>/accept`<br>`/friends/<int:pk>/refuse`<br>| POST| | 200, 404| only related to pending friend requests, it should treat irrelevant or already accepted requests as "Not found" |
 | `/friends/<int:pk>/delete`| DELETE || 200, 404| deletes an active friendship OR, if the user is the sender, a pending friend request (basically withdraws the request) |
+|`/debug/info/reset`| POST | | 200, 404 | Resets user state from any to OFF 
 
 
-<sup>1</sup> Pairs two random players together and creates a match, will change over time<br>
 <sup>2</sup> Only available for debugging purposes for now, will net slightly different results for authenticated and non-authenticated users in the future<br>
 
 
 ### `/api/auth`
-| Endpoint | Supported methods | Required input | Return codes | Authentication required |
+| Endpoint | Supported methods | Required input | Return codes | Notes |
 | :--- |---|:---| :---:| :---: |
-| `/login` |POST|`username`<br>`password`<br> | 200<br>401 | &cross; |
-| `/login/refresh` |POST|`refresh`| 200<br>400<br>401 | &cross; |
-| `/ws-login` |GET|| 200<br>401 | &check; |
-|`/ws/init/`<br>(mind the slash at the end) |non-HTTP|`?uuid=`|Connected<br>Disconnected|?|
+| `/login` |POST|`username`<br>`password`<br> | 200<br>401 | Sets `refresh_token` cookie, returns `access` token in body, sets `csrftoken` cookie|
+| `/login/refresh` |POST|| 200<br>400<br>401 | Refreshes `access` token and issues a new `refresh_token` |
+|`login/refresh/logout`| POST | | 200<br>401 | Blacklists `refresh_token` and expires the relevant cookie |
+| `/ws-login` |GET|| 200<br>401 | Returns short-lived `uuid` for websocket use |
+|`/ws/init/`<br>(mind the slash at the end) |non-HTTP|`?uuid=`|Connected<br>Disconnected| Changes user status to ON on connect, and to OFF on disconnect |
 
 
 - `/token` returns both `access` and `refresh` tokens - `access` currently lasts for an hour, `refresh` for 24 hours<br>
@@ -47,4 +48,14 @@ Deleted `/api/user/friendships`, reworked `/api/user/friends` endpoint, updated 
 	3. save the returned `uuid`
 	4. send the WEBSOCKET request to `/ws/init/?uuid=returneduuidnumber`
 	5. profit
+
+### `/api/matchmaking`
+| Endpoint | Supported methods | Required input | Return codes | Notes |
+| :--- |---|:---| :---:| :---: |
+| `/ws/`|non-HTTP|`?uuid=`|Connected<br>Disconnected|Pairs players and return their match_id
+
+### `/api/pong`
+| Endpoint | Supported methods | Required input | Return codes | Notes |
+| :--- |---|:---| :---:| :---: |
+| `/ws/<int:match_id>/`|non-HTTP|`?uuid=`|Connected<br>Disconnected|Waits for players to join & starts the match
 

@@ -73,9 +73,11 @@ def add_player_to_room(match_id, match_room, player_id, channel_name):
 	pprint(f'player2_id: {match_database.player2_id} vs player_id: {player_id}')
 	if match_database.player2_id == player_id:
 		match_room.player2 = Player(player_id, channel_name)
-	else:
+	elif match_database.player1_id == player_id:
 		pprint(f'Added player 1 with id {player_id} to match {match_id}')
 		match_room.player1 = Player(player_id, channel_name)
+	else:
+		raise ValueError(f"Player ID {player_id} does not match any players in match {match_id}")
 
 @database_sync_to_async
 def set_user_state(user, userState):
@@ -96,23 +98,36 @@ def set_match_winner(match):
 	match.status = Match.StatusOptions.FINISHED
 	match.save(update_fields=['winner', 'status'])
 
+@database_sync_to_async
+def get_match_status(match_id):
+	try:
+		match = Match.objects.get(id=match_id)
+		return (match.status)
+	except Match.DoesNotExist:
+		return None
+
 class PongConsumer(AsyncWebsocketConsumer):
 	async def connect(self):
 		self.id = self.scope['user'].id
 		match_id = self.scope['url_route']['kwargs'].get('match_id')
 		print(f"Player {self.id} is ready to play match {match_id}!")
-		await set_user_state(self.scope['user'], CustomUser.StateOptions.INGAME)
-		if is_player_in_match_room_already(self.id):
+		if is_player_in_match_room_already(self.id) or await (get_match_status(match_id)) == Match.StatusOptions.FINISHED:
+			await self.close()
 			return
 		match_room = find_match_room_to_join(match_id)
 		if not match_room:
 			match_room = create_match_room(match_id)
-		await add_player_to_room(match_id, match_room, self.id, self.channel_name)
+		try:
+			await add_player_to_room(match_id, match_room, self.id, self.channel_name)
+		except ValueError:
+			self.close()
+			return
 		self.match_group_name = match_room.match_id
 		await self.channel_layer.group_add(
 			self.match_group_name, 
 			self.channel_name
 		)
+		await set_user_state(self.scope['user'], CustomUser.StateOptions.INGAME)
 		await self.accept()
 		print("Rooms after connect:")
 		pprint(match_rooms)

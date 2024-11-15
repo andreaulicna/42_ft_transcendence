@@ -51,7 +51,8 @@ export async function apiCallAuthed(url, method = 'GET', headers = {}, payload =
 		method,
 		headers: {
 			...headers,
-			'Authorization': `Bearer ${sessionStorage.getItem('access')}`
+			'Authorization': `Bearer ${sessionStorage.getItem('access')}`,
+			'X-CSRFToken' : Cookies.get("csrftoken")
 		}
 	};
 
@@ -74,9 +75,9 @@ export async function apiCallAuthed(url, method = 'GET', headers = {}, payload =
 			const refreshResponse = await fetch('/api/auth/login/refresh', {
 				method: 'POST',
 				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({ refresh: sessionStorage.getItem('refresh') })
+					'Content-Type': 'application/json',
+					'X-CSRFToken' : Cookies.get("csrftoken")
+				}
 			});
 
 			if (refreshResponse.ok) {
@@ -113,7 +114,7 @@ export async function searchForPlayer() {
 		const uuid = response.uuid;
 		sessionStorage.setItem('uuid', uuid);
 
-		const ws = new WebSocket(`ws://localhost:1337/ws/init/?uuid=${uuid}`);
+		const ws = new WebSocket(`ws://localhost:1337/api/auth/ws/init/?uuid=${uuid}`);
 
 		ws.onopen = () => {
 			console.log('WebSocket connection opened');
