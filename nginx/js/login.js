@@ -1,6 +1,5 @@
 import { loginUser } from './api.js';
-import { openFriendlistWebsocket } from './friendlist.js';
-
+import { openFriendlistWebsocket } from './websockets.js';
 
 export function init() {
 	const form = document.getElementById('loginForm');

@@ -127,6 +127,15 @@ export async function openWebSocket(url) {
 		ws.onerror = (error) => {
 			console.error('WebSocket error:', error);
 		};
+
+		ws.onmessage = (event) => {
+			const data = event.data;
+			console.log('WebSocket message received:', data);
+			if (url == "/api/matchmaking/ws/")
+			{
+				
+			}
+		};
 	} catch (error) {
 		console.error('Error searching for player:', error);
 	}

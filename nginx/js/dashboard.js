@@ -1,4 +1,4 @@
-// import { searchForPlayer } from './api.js';
+import { openMatchmakingWebsocket } from './websockets.js';
 
 export function init(data) {
 	// DEBUG
@@ -15,7 +15,7 @@ export function init(data) {
 			localStorage.setItem('gameMode', mode);
 
 			if (mode === 'remote') {
-				// searchForPlayer();
+				openMatchmakingWebsocket();
 			}
 		});
 	});
