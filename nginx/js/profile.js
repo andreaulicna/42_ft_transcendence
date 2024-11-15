@@ -1,11 +1,11 @@
-import { apiCall } from './api.js';
+import { apiCallAuthed } from './api.js';
 
 export function init(data) {
 	// LOAD DYNAMIC DATA
 	document.getElementById('userName').textContent = '🏓 ' + data.username;
-	document.getElementById('numOfPlayed').textContent = '⚔️ ' + data.stats.gamesPlayed;
-	document.getElementById('numOfWins').textContent = '👍 ' + data.stats.wins;
-	document.getElementById('numOfLosses').textContent = '👎 ' + data.stats.losses;
+	// document.getElementById('numOfPlayed').textContent = '⚔️ ' + data.stats.gamesPlayed;
+	document.getElementById('numOfWins').textContent = '👍 ' + data.win_count;
+	document.getElementById('numOfLosses').textContent = '👎 ' + data.loss_count;
 
 	// HANDLE PROFILE PIC UPLOAD
 	const editProfilePicForm = document.getElementById("editProfilePicForm");
