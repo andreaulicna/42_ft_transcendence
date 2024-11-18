@@ -2,7 +2,7 @@
 
 # Function to create a user
 create_user() {
-  curl --location 'http://localhost:1337/api/user/register' \
+  curl --location 'http://localhost:4200/api/user/register' \
   --header 'Content-Type: application/json' \
   --data-raw "$1"
 }

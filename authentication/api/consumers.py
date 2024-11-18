@@ -7,7 +7,7 @@ from .models import CustomUser
 # 'path': '/api/auth/ws/login/consume/', 
 # 'raw_path': b'/api/auth/ws/login/consume/', 
 # 'root_path': '', 
-# 'headers': [(b'upgrade', b'websocket'), (b'connection', b'upgrade'), (b'x-forwarded-for', b'192.168.65.1'), (b'host', b'localhost:1337'), (b'sec-websocket-version', b'13'), (b'sec-websocket-key', b'oz8cxW2v8gTJHQqN6Nh6Mg=='), (b'sec-websocket-extensions', b'permessage-deflate; client_max_window_bits')], 
+# 'headers': [(b'upgrade', b'websocket'), (b'connection', b'upgrade'), (b'x-forwarded-for', b'192.168.65.1'), (b'host', b'localhost:4200'), (b'sec-websocket-version', b'13'), (b'sec-websocket-key', b'oz8cxW2v8gTJHQqN6Nh6Mg=='), (b'sec-websocket-extensions', b'permessage-deflate; client_max_window_bits')], 
 # 'query_string': b'uuid=6145c83c-d2ce-49e8-934b-1b83a26c65ca', 
 # 'client': ['172.18.0.7', 34330], 
 # 'server': ['172.18.0.3', 9000], 

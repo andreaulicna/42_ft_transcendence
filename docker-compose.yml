@@ -38,7 +38,7 @@ services:
     container_name: nginx
     build: ./nginx
     ports:
-      - 1337:80
+      - 4200:80
     # depends_on:
     #   - website
     restart: unless-stopped
