@@ -26,13 +26,7 @@ clean: stop
 	@docker network prune --force	# remove all networks
 	@docker volume prune --force	# remove all connected partitions
 
-fclean:
-	@echo "Cleaning everything that's got anything to do with ${name}!\n"
-	@CONTAINERS=$$(docker ps -qa); if [ -n "$$CONTAINERS" ]; then docker stop $$CONTAINERS; fi
-	@IMAGES=$$(docker images -qa); if [ -n "$$IMAGES" ]; then docker rmi -f $$IMAGES; fi
-	@docker system prune --all --force --volumes	# remove all (also used) images
-	@docker network prune --force	# remove all networks
-	@docker volume prune --force	# remove all connected partitions
+fclean: clean
 	@sudo rm -rf ~/data
 
 .PHONY: all build stop re clean fclean
