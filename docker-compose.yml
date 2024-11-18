@@ -1,49 +1,4 @@
 services:
-  # my-postgres:
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "pg_isready -U postgres"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
-  #   container_name: my-postgres
-  #   image: postgres:16
-  #   environment:
-  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-  #   networks:
-  #     - transcendence
-  #   volumes:
-  #     - db-volume:/var/lib/postgresql/data
-  #   restart: unless-stopped
-  # website:
-  #   depends_on:
-  #     my-postgres:
-  #       condition: service_healthy
-  #   container_name: website
-  #   build: ./website/
-  #   volumes:
-  #     - ./website:/app
-  #     - static-volume:/app/staticfiles
-  #   expose:
-  #     - 8000
-  #   environment:
-  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-  #   networks:
-  #     - transcendence
-  #   restart: unless-stopped
-
-  #daphne:
-  #  container_name: daphne
-  #  build: ./daphne/
-  #  volumes:
-  #    - ./authentication:/app
-  #  expose:
-  #    - 9000
-  #  environment:
-  #    POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-  #  networks:
-  #    - transcendence
-  #  restart: unless-stopped
-  
   user_management:
     depends_on:
       user_management_db:
@@ -160,21 +115,8 @@ networks:
     driver: bridge
 
 volumes:
-  db-volume:
-    driver_opts:
-      o: bind
-      type: none
-      device: ${HOME}/data/db-volume
   user-db:
-    driver_opts:
-        o: bind
-        type: none
-        device: ${HOME}/data/user-db
   uploaded-volume:
-    driver_opts:
-      o: bind
-      type: none
-      device: ${HOME}/data/media
   # static-volume:
   # media-volume:
 
