@@ -11,8 +11,9 @@ from .serializers import CustomTokenRefreshSerializer
 from rest_framework_simplejwt.exceptions import TokenError
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from django.utils.decorators import method_decorator
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
+from .models import CustomUser
 
 
 def get_tokens_for_user(user):
@@ -85,7 +86,11 @@ class RefreshView(TokenRefreshView):
 		
 
 class LogoutView(APIView):
+	permission_classes = [IsAuthenticated]
 	def post(self, request):
+		player = CustomUser.objects.get(username=request.user)
+		if player.state == CustomUser:
+			return Response({"details" : "Logging out when in game is not possible"}, status=status.HTTP_403_FORBIDDEN)
 		try:
 			token = RefreshToken(request.COOKIES.get('refresh_token'))
 			token.blacklist()
@@ -99,6 +104,8 @@ class LogoutView(APIView):
 									samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
 									path = settings.SIMPLE_JWT['AUTH_COOKIE_PATH']
 										)
+			player.status_counter = 0
+			player.save(update_fields=["status_counter"])
 			return response
 		except TokenError as e:
 			return Response({"details" : str(e)},status=status.HTTP_401_UNAUTHORIZED)

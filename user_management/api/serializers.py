@@ -31,3 +31,23 @@ class FriendshipSerializer(serializers.ModelSerializer):
 	def create(self, validated_data):
 		friendship = Friendship.objects.create(**validated_data)
 		return friendship
+	
+#class FriendshipSerializer(serializers.ModelSerializer):
+#	sender_status = serializers.SerializerMethodField()
+#	receiver_status = serializers.SerializerMethodField()
+#
+#	class Meta:
+#		model = Friendship
+#		fields = ['id', 'sender', 'receiver', 'status', 'sender_status', 'receiver_status']
+#
+#	def get_sender_status(self, obj):
+#		user = CustomUser.objects.get(id=obj.sender.id)
+#		if user.status_counter > 0:
+#			return "online"
+#		return "offline"
+#
+#	def get_receiver_status(self, obj):
+#		user = CustomUser.objects.get(id=obj.receiver.id)
+#		if user.status_counter > 0:
+#			return "online"
+#		return "offline"

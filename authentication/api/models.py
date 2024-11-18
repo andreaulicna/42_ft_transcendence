@@ -5,7 +5,6 @@ from rest_framework.authtoken.models import Token
 from django.utils.translation import gettext_lazy
 import uuid
 
-
 def user_directory_path(instance, filename):
 	# file will be uploaded to MEDIA_ROOT/user_<username>/<filename>
 	return "user_{0}/{1}".format(instance.username, filename)
@@ -29,10 +28,8 @@ class CustomUser(AbstractUser):
 		managed = False
 	class StateOptions(models.TextChoices):
 		# [VALUE IN CODE] = [DB NAME], [human readable name]
-		OFFLINE = "OFF", gettext_lazy("Offline")
-		ONLINE = "ON", gettext_lazy("Online")
+		IDLE = "ID", gettext_lazy("Idle")
 		INGAME = "IG", gettext_lazy("In game")
-		INTOURNAMENT = "IT", gettext_lazy("In tournament")
 
 	ROLE_CHOICES = (
 		('admin', 'Admin'),
@@ -42,7 +39,8 @@ class CustomUser(AbstractUser):
 	email = models.EmailField(unique=True)
 	win_count = models.PositiveIntegerField(blank=False, default=0)
 	loss_count = models.PositiveIntegerField(blank=False, default=0)
-	state = models.CharField(max_length=3, choices=StateOptions, default=StateOptions.OFFLINE)
+	state = models.CharField(max_length=3, choices=StateOptions, default=StateOptions.IDLE)
+	status_counter = models.PositiveIntegerField(blank=False, default=0)
 	avatar = models.ImageField(upload_to=user_directory_path, blank=True)
 	two_factor = models.BooleanField(blank=False, default=False)
 

@@ -206,3 +206,4 @@ class FriendshipRequestDeleteView(APIView):
 			return Response({'detail': 'Friendship (request) deleted successfully.'}, status=status.HTTP_200_OK)
 		except Http404:
 			return Response({'detail': 'Friendship not found.'}, status=status.HTTP_404_NOT_FOUND)
+

@@ -30,13 +30,19 @@ def set_user_state(user, userState):
 	user.state = userState
 	user.save(update_fields=["state"])
 
+@database_sync_to_async
+def update_user_status_counter(user, update_value):
+	if (user.status_counter > 0):
+		user.status_counter += update_value
+		user.save(update_fields=["status_counter"])
+
 class UserConsumer(AsyncWebsocketConsumer):
 	async def connect(self):
 		self.id = self.scope['user'].id
 		print(f"Player {self.id} says hello from authentication!")
-		await set_user_state(self.scope['user'], CustomUser.StateOptions.ONLINE)
+		await update_user_status_counter(self.scope['user'], 1)
 		await self.accept()
 
 	async def disconnect(self, close_code):
-		await set_user_state(self.scope['user'], CustomUser.StateOptions.OFFLINE)
+		await update_user_status_counter(self.scope['user'], -1)
 		print(f"Player {self.id} says goodbye!")
