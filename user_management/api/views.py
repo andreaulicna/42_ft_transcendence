@@ -1,5 +1,5 @@
 from .models import CustomUser, Match, Friendship
-from .serializers import UserSerializer, MatchSerializer, FriendshipSerializer
+from .serializers import UserSerializer, MatchSerializer, FriendshipSerializer, FriendshipListSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -55,7 +55,8 @@ class UserInfoReset(APIView):
 			player = CustomUser.objects.get(username=request.user)
 		except CustomUser.DoesNotExist:
 			return Response({'detail': 'Player does not exist'}, status=status.HTTP_404_NOT_FOUND)
-		player.state = CustomUser.StateOptions.OFFLINE.value
+		player.state = CustomUser.StateOptions.IDLE
+		player.status_counter = 0
 		player.save()
 		return Response({'detail' : 'User info reset to default'})
 
@@ -110,7 +111,7 @@ class MatchView(ListAPIView):
 	# 	return Response(serializer.data)
 	
 class ActiveFriendshipsListView(ListAPIView):
-	serializer_class = FriendshipSerializer
+	serializer_class = FriendshipListSerializer
 	permission_classes = [IsAuthenticated]
 
 	def get_queryset(self):
@@ -118,7 +119,7 @@ class ActiveFriendshipsListView(ListAPIView):
 		return Friendship.objects.filter(Q(sender=user.id) | Q(receiver=user.id), Q(status=Friendship.StatusOptions.ACCEPTED))
 
 class FriendshipRequestSentListView(ListAPIView):
-	serializer_class = FriendshipSerializer
+	serializer_class = FriendshipListSerializer
 	permission_classes = [IsAuthenticated]
 
 	def get_queryset(self):
@@ -126,7 +127,7 @@ class FriendshipRequestSentListView(ListAPIView):
 		return Friendship.objects.filter(Q(sender=user.id), Q(status=Friendship.StatusOptions.PENDING))
 	
 class FriendshipRequestReceivedListView(ListAPIView):
-	serializer_class = FriendshipSerializer
+	serializer_class = FriendshipListSerializer
 	permission_classes = [IsAuthenticated]
 
 	def get_queryset(self):
@@ -152,6 +153,7 @@ class FriendshipRequestView(APIView):
 		db_check = Friendship.objects.filter(Q(receiver=sender_current) | Q(sender=sender_current), Q(receiver=receiver_current) | Q(sender=receiver_current))
 		if db_check:
 			return Response({'detail': 'Friendship (request) already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+		# the friendship gets created here and so the database needs data in this format
 		friendship_data = {
 			'sender': sender_current.id,
 			'receiver': receiver_current.id

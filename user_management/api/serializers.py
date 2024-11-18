@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from .models import CustomUser, Match, Friendship
+from django.db.models import Q
+
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -31,23 +33,32 @@ class FriendshipSerializer(serializers.ModelSerializer):
 	def create(self, validated_data):
 		friendship = Friendship.objects.create(**validated_data)
 		return friendship
-	
-#class FriendshipSerializer(serializers.ModelSerializer):
-#	sender_status = serializers.SerializerMethodField()
-#	receiver_status = serializers.SerializerMethodField()
-#
-#	class Meta:
-#		model = Friendship
-#		fields = ['id', 'sender', 'receiver', 'status', 'sender_status', 'receiver_status']
-#
-#	def get_sender_status(self, obj):
-#		user = CustomUser.objects.get(id=obj.sender.id)
-#		if user.status_counter > 0:
-#			return "online"
-#		return "offline"
-#
-#	def get_receiver_status(self, obj):
-#		user = CustomUser.objects.get(id=obj.receiver.id)
-#		if user.status_counter > 0:
-#			return "online"
-#		return "offline"
+
+class FriendshipListSerializer(serializers.ModelSerializer):
+	friend_id = serializers.SerializerMethodField()
+	friend_status = serializers.SerializerMethodField()
+	friend_username = serializers.SerializerMethodField()
+
+	class Meta:
+		model = Friendship
+		fields = ['id', 'friend_id', 'friend_username', 'friend_status']
+
+	def get_friend(self, obj):
+		user = self.context['request'].user
+		if (user.id != obj.sender.id):
+			return CustomUser.objects.get(id=obj.sender.id)
+		return CustomUser.objects.get(id=obj.receiver.id)
+
+	def get_friend_id(self, obj):
+		friend = self.get_friend(obj)
+		return friend.id
+
+	def get_friend_username(self, obj):
+		friend = self.get_friend(obj)
+		return friend.username
+
+	def get_friend_status(self, obj):
+		friend = self.get_friend(obj)
+		if friend.status_counter > 0:
+			return "ON"
+		return "OFF"
