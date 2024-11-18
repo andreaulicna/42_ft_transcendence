@@ -2,7 +2,7 @@ import { openMatchmakingWebsocket } from './websockets.js';
 
 export function init(data) {
 	// DEBUG
-	console.log('Dashboard init data:', data);
+	// console.log('Dashboard init data:', data);
 	// console.log('Username:', data.username);
 	
 	// LOAD DYNAMIC DATA

@@ -35,7 +35,17 @@ export async function loginUser(payload) {
 	try {
 		const response = await fetch(url, options);
 		if (response.ok) {
-			return await response.json();
+			const data = await response.json();
+			const accessToken = data.access;
+
+			// Decode the JWT to get the expiration time
+			const accessTokenPayload = JSON.parse(atob(accessToken.split('.')[1]));
+			const accessTokenExpiration = accessTokenPayload.exp * 1000; // Convert to milliseconds
+
+			sessionStorage.setItem('access', accessToken);
+			sessionStorage.setItem('access_expiration', accessTokenExpiration);
+
+			return data;
 		} else {
 			const errorData = await response.json();
 			throw new Error(errorData.message || 'Login failed');
@@ -47,12 +57,21 @@ export async function loginUser(payload) {
 }
 
 export async function apiCallAuthed(url, method = 'GET', headers = {}, payload = null) {
+	const accessToken = sessionStorage.getItem('access');
+	const accessTokenExpiration = parseInt(sessionStorage.getItem('access_expiration'), 10);
+	const now = Date.now();
+
+	// Check if the access token is about to expire
+	if (now >= accessTokenExpiration - 3000) { // Refresh the token 3 seconds before it expires
+		await refreshAccessToken();
+	}
+
 	const options = {
 		method,
 		headers: {
 			...headers,
 			'Authorization': `Bearer ${sessionStorage.getItem('access')}`,
-			'X-CSRFToken' : Cookies.get("csrftoken")
+			'X-CSRFToken': Cookies.get("csrftoken")
 		}
 	};
 
@@ -67,76 +86,47 @@ export async function apiCallAuthed(url, method = 'GET', headers = {}, payload =
 	}
 
 	try {
-		let response = await fetch(url, options);
+		const response = await fetch(url, options);
 		if (response.ok) {
 			return await response.json();
-		} else if (response.status === 401) {
-			// If access token is expired, try to refresh it
-			const refreshResponse = await fetch('/api/auth/login/refresh', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					'X-CSRFToken' : Cookies.get("csrftoken")
-				}
-			});
-
-			if (refreshResponse.ok) {
-				const refreshData = await refreshResponse.json();
-				sessionStorage.setItem('access', refreshData.access);
-
-				// Retry the original request with the new access token
-				options.headers['Authorization'] = `Bearer ${refreshData.access}`;
-				response = await fetch(url, options);
-
-				if (response.ok) {
-					return await response.json();
-				} else {
-					const errorData = await response.json();
-					throw new Error(errorData.message || 'API call status not OK after token refresh');
-				}
-			} else {
-				const errorData = await refreshResponse.json();
-				throw new Error(errorData.message || 'Token refresh failed');
-			}
 		} else {
 			const errorData = await response.json();
 			throw new Error(errorData.message || 'API call status not OK');
 		}
 	} catch (error) {
-		console.error('Authoed API call error:', error);
+		console.error('Authenticated API call error:', error);
 		throw error;
 	}
 }
 
-export async function openWebSocket(url) {
+async function refreshAccessToken() {
+	const url = '/api/auth/login/refresh';
+	const options = {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-CSRFToken': Cookies.get("csrftoken")
+		},
+	};
+
 	try {
-		const response = await apiCallAuthed('/api/auth/ws-login', 'GET');
-		const uuid = response.uuid;
-		sessionStorage.setItem('uuid', uuid);
+		const response = await fetch(url, options);
+		if (response.ok) {
+			const data = await response.json();
+			const accessToken = data.access;
 
-		const ws = new WebSocket(url + `?uuid=${uuid}`);
+			// Decode the JWT to get the expiration time
+			const accessTokenPayload = JSON.parse(atob(accessToken.split('.')[1]));
+			const accessTokenExpiration = accessTokenPayload.exp * 1000; // Convert to milliseconds
 
-		ws.onopen = () => {
-			console.log('WebSocket connection opened');
-		};
-
-		ws.onclose = () => {
-			console.log('WebSocket connection closed');
-		};
-
-		ws.onerror = (error) => {
-			console.error('WebSocket error:', error);
-		};
-
-		ws.onmessage = (event) => {
-			const data = event.data;
-			console.log('WebSocket message received:', data);
-			if (url == "/api/matchmaking/ws/")
-			{
-				
-			}
-		};
+			sessionStorage.setItem('access', accessToken);
+			sessionStorage.setItem('access_expiration', accessTokenExpiration);
+		} else {
+			const errorData = await response.json();
+			throw new Error(errorData.message || 'Token refresh failed');
+		}
 	} catch (error) {
-		console.error('Error searching for player:', error);
+		console.error('Token refresh error:', error);
+		throw error;
 	}
 }
