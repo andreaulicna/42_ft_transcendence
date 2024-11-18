@@ -7,11 +7,7 @@ services:
     build: ./user_management/
     volumes:
       - ./user_management:/app
-      # - static-volume:/app/staticfiles
-      # - media-volume:/app/test_media
       - uploaded-volume:/app/mediafiles
-    # expose:
-    #   - 8001
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     networks:
@@ -39,39 +35,28 @@ services:
     build: ./nginx
     ports:
       - 4200:80
-    # depends_on:
-    #   - website
     restart: unless-stopped
     networks:
       - transcendence
     volumes:
       - ./authentication:/app
-      # - static-volume:/app/staticfiles
-      # - media-volume:/app/mediafiles
 
   redis:
     container_name: redis
     image: redis
     build: ./redis/
-    expose:
-      - 6379
     networks:
       - transcendence
     restart: unless-stopped
 
   authentication:
     depends_on:
-      user_management_db:
-        condition: service_healthy
+    - user_management
     container_name: authentication
     build: ./authentication/
     volumes:
       - ./authentication:/app
-      # - static-volume:/app/staticfiles
-      # - media-volume:/app/test_media
       - uploaded-volume:/app/mediafiles
-    # expose:
-    #   - 8002
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     networks:
@@ -80,15 +65,11 @@ services:
 
   matchmaking:
     depends_on:
-      user_management_db:
-        condition: service_healthy
+    - user_management
     container_name: matchmaking
     build: ./matchmaking/
     volumes:
       - ./matchmaking:/app
-      # - static-volume:/app/staticfiles
-      # - media-volume:/app/test_media
-      # - uploaded-volume:/app/mediafiles
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     networks:
@@ -97,8 +78,7 @@ services:
   
   pong:
     depends_on:
-      user_management_db:
-        condition: service_healthy
+    - user_management
     container_name: pong
     build: ./pong/
     volumes:
@@ -117,7 +97,3 @@ networks:
 volumes:
   user-db:
   uploaded-volume:
-  # static-volume:
-  # media-volume:
-
-  

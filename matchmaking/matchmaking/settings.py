@@ -44,7 +44,8 @@ INSTALLED_APPS = [
 	'rest_framework.authtoken',
 	'api',
 	'corsheaders',
-	'channels'
+	'channels',
+	'rest_framework_simplejwt.token_blacklist'
 ]
 
 ASGI_APPLICATION = 'matchmaking.asgi.application'
