@@ -35,8 +35,7 @@ const loadContent = async (path) => {
 			data = await apiCallAuthed('/api/user/info');
 			import('/js/profile.js').then(module => module.init(data));
 		} else if (window.location.hash === '#game') {
-			data = await apiCallAuthed('/api/user/match');
-			import('/js/game.js').then(module => module.init(data));
+			import('/js/gameRemote.js').then(module => module.init());
 		} else if (window.location.hash === '#tournament') {
 			import('/js/tournament.js').then(module => module.init());
 		}
@@ -72,5 +71,5 @@ export function redirectToHome(event) {
 	}
 }
 
-// Attach the redirect function to the window object so the rerouting it global
+// Attach the redirect function to the window object so the rerouting is global
 window.redirectToHome = redirectToHome;

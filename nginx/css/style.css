@@ -86,6 +86,9 @@ body {
 	color: whitesmoke !important;
 }
 
+.modal-content, .modal-header, .modal-footer, .modal-body, .list-group {
+	color: #242424;
+}
 
 /* MISCELANIOUS */
 
