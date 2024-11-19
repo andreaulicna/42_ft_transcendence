@@ -40,6 +40,8 @@ services:
       - transcendence
     volumes:
       - ./authentication:/app
+    depends_on:
+      - authentication
 
   redis:
     container_name: redis
@@ -83,6 +85,19 @@ services:
     build: ./pong/
     volumes:
       - ./pong:/app
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    networks:
+      - transcendence
+    restart: unless-stopped
+
+  tournament:
+    depends_on:
+    - user_management
+    container_name: tournament
+    build: ./tournament/
+    volumes:
+      - ./tournament:/app
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     networks:
