@@ -48,9 +48,29 @@ const loadContent = async (path) => {
 const router = () => {
 	const route = window.location.hash || '';
 	const path = routes[route] || routes['404'];
+	// console.log(`Routing to: ${route}, Path: ${path}`);
 	loadContent(path);
 };
 
 window.addEventListener('hashchange', router);
 
 window.addEventListener('load', router);
+
+// Redirection when the page logo in top left is clicked
+export function redirectToHome(event) {
+	event.preventDefault();
+	
+	const accessToken = sessionStorage.getItem('access');
+	if (accessToken) {
+		// User is logged in, redirect to dashboard
+		// console.log('Redirecting as a logged in user');
+		window.location.hash = '#dashboard';
+	} else {
+		// User is not logged in, redirect to login page
+		// console.log('Redirecting as a NON-logged in user');
+		window.location.hash = '#login';
+	}
+}
+
+// Attach the redirect function to the window object so the rerouting it global
+window.redirectToHome = redirectToHome;
