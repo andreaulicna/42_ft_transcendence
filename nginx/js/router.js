@@ -73,3 +73,20 @@ export function redirectToHome(event) {
 
 // Attach the redirect function to the window object so the rerouting is global
 window.redirectToHome = redirectToHome;
+
+// Logout procedure
+export async function logout() {
+	try {
+		const response = await apiCallAuthed("/api/auth/login/refresh/logout", "POST");
+		sessionStorage.removeItem('access');
+		sessionStorage.removeItem('access_expiration');
+		sessionStorage.removeItem('uuid');
+		// Cookies.remove('csrftoken');
+		// Cookies.remove('refresh_token', { path: '/', domain: 'yourdomain.com' });
+		console.log('Logged out successfully');
+	} catch (error) {
+		console.error('Error during logout:', error);
+	}
+}
+
+window.logout = logout;

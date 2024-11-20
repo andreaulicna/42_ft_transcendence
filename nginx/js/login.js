@@ -1,5 +1,6 @@
 import { loginUser } from './api.js';
 import { openFriendlistWebsocket } from './websockets.js';
+import { apiCallAuthed } from './api.js';
 
 export function init() {
 	const form = document.getElementById('loginForm');
@@ -18,8 +19,9 @@ export function init() {
 				const data = await loginUser(payload);
 				console.log('Login successful:', data);
 				// Store tokens in session storage
+				apiCallAuthed("/api/user/debug/info/reset", 'POST'); // FOR DEBUGGING PURPOSES
+				console.log("Calling /api/user/debug/info/reset");
 				sessionStorage.setItem('access', data.access);
-				sessionStorage.setItem('refresh', data.refresh);
 				// Establish friendlist websocket
 				openFriendlistWebsocket();
 				// Redirect to dashboard upon succesful authentization

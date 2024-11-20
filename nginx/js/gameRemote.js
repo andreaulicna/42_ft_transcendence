@@ -54,14 +54,16 @@ export function init() {
 	initializeTouchControls(gameBoard, paddle1, paddle2, gameWidth, gameHeight);
 
 	// LISTEN FOR CUSTOM EVENTS
-	window.addEventListener('match_start', (event) => {
+	function handleMatchStart(event) {
 		const data = event.detail;
 		player1Name = data.player1;
 		player2Name = data.player2;
-		gameStart();
-	});
+	}
 
-	window.addEventListener('draw', (event) => {
+	window.removeEventListener('match_start', handleMatchStart);
+	window.addEventListener('match_start', handleMatchStart);
+
+	function handleDraw(event) {
 		const data = event.detail;
 		ballX = (data.ball_x + originalGameWidth / 2) * scaleX;
 		ballY = (data.ball_y + originalGameHeight / 2) * scaleY;
@@ -71,8 +73,16 @@ export function init() {
 		paddle2.y = (data.paddle2_y + originalGameHeight / 2) * scaleY;
 		player1Score = data.player1_score;
 		player2Score = data.player2_score;
-		// drawGame();
-	});
+
+		clearBoard();
+		drawPaddles();
+		drawBall(ballX, ballY);
+		updateScore();
+		sendPaddleMovement();
+	}
+
+	window.removeEventListener('draw', handleDraw);
+	window.addEventListener('draw', handleDraw);
 
 	// // START COUNTDOWN
 	// function startCountdown() {
@@ -88,24 +98,24 @@ export function init() {
 	// }
 
 	// GAME START
-	function gameStart() {
-		gamePaused = false;
-		nextTick();
-	}
+	// function gameStart() {
+	// 	gamePaused = false;
+	// 	nextTick();
+	// }
 
-	// NEXT TICK
-	function nextTick() {
-		if (gamePaused) return;
+	// // NEXT TICK
+	// function nextTick() {
+	// 	if (gamePaused) return;
 
-		setTimeout(() => {
-			clearBoard();
-			drawPaddles();
-			drawBall(ballX, ballY);
-			updateScore();
-			sendPaddleMovement();
-			requestAnimationFrame(nextTick);
-		}, 10);
-	}
+	// 	setTimeout(() => {
+	// 		clearBoard();
+	// 		drawPaddles();
+	// 		drawBall(ballX, ballY);
+	// 		updateScore();
+	// 		sendPaddleMovement();
+	// 		requestAnimationFrame(nextTick);
+	// 	}, 10);
+	// }
 
 	// CLEAR BOARD
 	function clearBoard() {
