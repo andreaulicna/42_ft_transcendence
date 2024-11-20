@@ -19,7 +19,6 @@ export function init() {
 				console.log('Login successful:', data);
 				// Store tokens in session storage
 				sessionStorage.setItem('access', data.access);
-				sessionStorage.setItem('refresh', data.refresh);
 				// Establish friendlist websocket
 				openFriendlistWebsocket();
 				// Redirect to dashboard upon succesful authentization

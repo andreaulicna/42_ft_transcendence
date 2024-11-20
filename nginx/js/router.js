@@ -73,3 +73,19 @@ export function redirectToHome(event) {
 
 // Attach the redirect function to the window object so the rerouting is global
 window.redirectToHome = redirectToHome;
+
+// Logout procedure
+export function logout(event) {
+	event.preventDefault();
+	
+	const accessToken = sessionStorage.getItem('access');
+	if (accessToken) {
+		sessionStorage.removeItem('access');
+		sessionStorage.removeItem('access_expiration');
+		sessionStorage.removeItem('uuid');
+		Cookies.remove('csrftoken');
+		window.location.hash = '#login';
+	}
+}
+
+window.logout = logout;

@@ -19,6 +19,7 @@ const translations = {
 		modeAI: "AI Player",
 		modeTournament: "Tournament",
 		viewProfile: "Profile",
+		logout: "Logout",
 		// GAME
 		hasWon: "has won!",
 		buttonReplay: "Replay",
@@ -64,6 +65,7 @@ const translations = {
 		modeAI: "AI hráč",
 		modeTournament: "Turnaj",
 		viewProfile: "Profil",
+		logout: "Odhlásit se",
 		// GAME
 		hasWon: "je vítěz!",
 		buttonReplay: "Hrát znovu",
@@ -109,6 +111,7 @@ const translations = {
 		modeAI: "AI hráč",
 		modeTournament: "Turnaj",
 		viewProfile: "Profil",
+		logout: "Odhlásiť sa",
 		// GAME
 		hasWon: "has won!",
 		buttonReplay: "Hrať znova",
