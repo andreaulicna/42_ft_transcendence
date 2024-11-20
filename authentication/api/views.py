@@ -89,7 +89,7 @@ class LogoutView(APIView):
 	permission_classes = [IsAuthenticated]
 	def post(self, request):
 		player = CustomUser.objects.get(username=request.user)
-		if player.state == CustomUser:
+		if player.state == CustomUser.StateOptions.INGAME:
 			return Response({"details" : "Logging out when in game is not possible"}, status=status.HTTP_403_FORBIDDEN)
 		try:
 			token = RefreshToken(request.COOKIES.get('refresh_token'))

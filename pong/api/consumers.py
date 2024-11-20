@@ -168,7 +168,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 			print("Waiting for more players to join the match room.")
 
 	async def disconnect(self, close_code):
-		await set_user_state(self.scope['user'], CustomUser.StateOptions.ONLINE)
+		await set_user_state(self.scope['user'], CustomUser.StateOptions.IDLE)
 		for match_room in match_rooms:
 			if (match_room.player1 is not None) and (self.id == match_room.player1.id):
 				match_room.player1 = None
@@ -263,23 +263,28 @@ class PongConsumer(AsyncWebsocketConsumer):
 				"type": "match_start",
 				"message": "match_start",
 				"player1": match_room.player1.username,
-				"player2": match_room.player1.username
+				"player2": match_room.player2.username
 			}
 		)
 		print(f"Starting game for: ")
 		pprint(match_room)
+		asyncio.create_task(self.game_loop(match_room, match_database))
 
+	async def game_loop(self, match_room, match_database):
+		await asyncio.sleep(3)
 		ball = match_room.ball
 		paddle1 = match_room.paddle1
 		paddle2 = match_room.paddle2
 		
 		while 42:
+			if match_room.player1 is None or match_room.player2 is None:
+				break
 			# Update ball position
 			ball.x += ball.speed * ball.x_direction
 			ball.y += ball.speed * ball.y_direction
 
 			# Ball collision with floor & ceiling
-			if (ball.y <= (match_room.game_half_height - ball.size)) or ((ball.y >= match_room.game_half_height - ball.size) * (-1)):
+			if (ball.y >= (match_room.game_half_height - ball.size)) or ((ball.y <= ((match_room.game_half_height - ball.size)) * (-1))):
 				ball.y_direction *= -1
 			
 			# Ball collision with paddles
@@ -337,7 +342,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 				break
 
 			# Short sleep
-			await asyncio.sleep(0.01)
+			await asyncio.sleep(1)
 
 	
 	#	RANDOM SCORING LOOP	

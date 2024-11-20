@@ -48,7 +48,7 @@ class MatchmakingConsumer(WebsocketConsumer):
 	def connect(self):
 		self.id = self.scope['user'].id
 		print(f"Player {self.id} wants to play a match!")
-		if is_player_in_room_already(self.id) or get_player_state(self.id) in (CustomUser.StateOptions.INGAME, CustomUser.StateOptions.INTOURNAMENT):
+		if is_player_in_room_already(self.id) or get_player_state(self.id) == CustomUser.StateOptions.INGAME:
 			self.close()
 			return 
 		room = find_room_to_join()
