@@ -48,7 +48,7 @@ class MatchmakingConsumer(WebsocketConsumer):
 	def connect(self):
 		self.id = self.scope['user'].id
 		print(f"Player {self.id} wants to play a match!")
-		if is_player_in_room_already(self.id) or get_player_state(self.id) in (CustomUser.StateOptions.INGAME, CustomUser.StateOptions.INTOURNAMENT):
+		if is_player_in_room_already(self.id) or get_player_state(self.id) == CustomUser.StateOptions.INGAME:
 			self.close()
 			return 
 		room = find_room_to_join()
@@ -68,8 +68,8 @@ class MatchmakingConsumer(WebsocketConsumer):
 			match_serializer = MatchSerializer(data=data)
 			if match_serializer.is_valid():
 				match_serializer.save()
-				#set_user_to_ingame(list(room['players'][0].keys())[0])
-				#set_user_to_ingame(list(room['players'][1].keys())[0])
+				set_user_to_ingame(list(room['players'][0].keys())[0])
+				set_user_to_ingame(list(room['players'][1].keys())[0])
 				async_to_sync(self.channel_layer.group_send)(
 					self.room_group_name, {"type": "matchmaking_message", "message": match_serializer.data['id']}
 				)

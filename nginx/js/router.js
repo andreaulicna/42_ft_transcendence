@@ -75,16 +75,17 @@ export function redirectToHome(event) {
 window.redirectToHome = redirectToHome;
 
 // Logout procedure
-export function logout(event) {
-	event.preventDefault();
-	
-	const accessToken = sessionStorage.getItem('access');
-	if (accessToken) {
+export async function logout() {
+	try {
+		const response = await apiCallAuthed("/api/auth/login/refresh/logout", "POST");
 		sessionStorage.removeItem('access');
 		sessionStorage.removeItem('access_expiration');
 		sessionStorage.removeItem('uuid');
-		Cookies.remove('csrftoken');
-		window.location.hash = '#login';
+		// Cookies.remove('csrftoken');
+		// Cookies.remove('refresh_token', { path: '/', domain: 'yourdomain.com' });
+		console.log('Logged out successfully');
+	} catch (error) {
+		console.error('Error during logout:', error);
 	}
 }
 

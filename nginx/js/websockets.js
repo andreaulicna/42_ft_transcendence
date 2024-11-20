@@ -78,7 +78,7 @@ export async function openPongWebsocket(match_id) {
 		// Add a small delay before the redirect to compensate for the slow-ass closing of the shitty-ass modal
 		setTimeout(() => {
 			window.location.hash = '#game'; // Redirect to #game when the connection is established
-		}, 50);
+		}, 100);
 	}).catch((error) => {
 		console.error('Failed to establish Pong WebSocket:', error);
 	});

@@ -3,17 +3,17 @@ name = transcendence
 all:
 	@echo "Configuring ${name}\n"
 	@bash ./tools/make_volume.sh
-	@docker-compose -f ./docker-compose.yml up -d
+	@docker compose -f ./docker compose.yml up -d
 
 build:
 	@echo "Building ${name}\n"
 	@bash ./tools/make_volume.sh
-	@docker-compose -f ./docker-compose.yml build
-	@docker-compose -f ./docker-compose.yml up -d
+	@docker compose -f ./docker-compose.yml build
+	@docker compose -f ./docker-compose.yml up -d
 
 stop:
 	@echo "Stopping ${name}\n"
-	@docker-compose -f ./docker-compose.yml down
+	@docker compose -f ./docker-compose.yml down
 
 re: clean all
 
@@ -27,6 +27,6 @@ clean: stop
 	@docker volume prune --force	# remove all connected partitions
 
 fclean: clean
-	@sudo rm -rf ~/data
+	# @sudo rm -rf ~/data
 
 .PHONY: all build stop re clean fclean
