@@ -1,11 +1,19 @@
 import { initializeTouchControls } from './gameTouchControls.js';
 
 export function init() {
+	startCountdown();
+	window.addEventListener('match_start', handleMatchStart);
+	window.removeEventListener('draw', handleDraw);
+	window.addEventListener('draw', handleDraw);
+
 	// CANVAS SETTINGS 
 	const gameBoard = document.getElementById("gameBoard");
 	const ctx = gameBoard.getContext("2d");
 	const playerNames = document.getElementById("playerNames");
+	let player1Name = document.getElementById("player1Name");
+	let player2Name = document.getElementById("player2Name");
 	const scoreText = document.getElementById("scoreText");
+	let countdownText = document.getElementById("countdown");
 	const gameWidth = gameBoard.width;
 	const gameHeight = gameBoard.height;
 	const paddle1Color = "#00babc";
@@ -38,8 +46,6 @@ export function init() {
 		y: 0,
 	};
 	let gamePaused = false;
-	let player1Name;
-	let player2Name;
 	let player1Score;
 	let player2Score;
 
@@ -55,13 +61,13 @@ export function init() {
 
 	// LISTEN FOR CUSTOM EVENTS
 	function handleMatchStart(event) {
+		console.log("STARTING MATCH");
 		const data = event.detail;
-		player1Name = data.player1;
-		player2Name = data.player2;
+		player1Name.textContent = data.player1;
+		player2Name.textContent = data.player2;
 	}
 
-	window.removeEventListener('match_start', handleMatchStart);
-	window.addEventListener('match_start', handleMatchStart);
+	// window.removeEventListener('match_start', handleMatchStart);
 
 	function handleDraw(event) {
 		const data = event.detail;
@@ -79,23 +85,20 @@ export function init() {
 		drawBall(ballX, ballY);
 		updateScore();
 		sendPaddleMovement();
+		// console.log("DRAWING");
 	}
 
-	window.removeEventListener('draw', handleDraw);
-	window.addEventListener('draw', handleDraw);
-
-	// // START COUNTDOWN
-	// function startCountdown() {
-	// 	let countdown = 3;
-	// 	const countdownInterval = setInterval(() => {
-	// 		scoreText.textContent = countdown;
-	// 		countdown--;
-	// 		if (countdown < 0) {
-	// 			clearInterval(countdownInterval);
-	// 			gameStart();
-	// 		}
-	// 	}, 1000);
-	// }
+	// START COUNTDOWN
+	function startCountdown() {
+		let countdown = 3;
+		const countdownInterval = setInterval(() => {
+			countdownText.textContent = countdown;
+			countdown--;
+			if (countdown < 0) {
+				clearInterval(countdownInterval);
+			}
+		}, 1000);
+	}
 
 	// GAME START
 	// function gameStart() {
