@@ -1,9 +1,7 @@
 import { openMatchmakingWebsocket } from './websockets.js';
 
 export function init(data) {
-	// DEBUG
-	console.log('Dashboard init data:', data);
-	// console.log('Username:', data.username);
+	initializeModals();
 	
 	// LOAD DYNAMIC DATA
 	document.getElementById('userName').textContent = '🏓 ' + data.username;
@@ -20,4 +18,9 @@ export function init(data) {
 		});
 	});
 
+}
+
+export function initializeModals() {
+	// Initialize the modal instance after the DOM is fully loaded
+	window.searchingPlayerModal = new bootstrap.Modal(document.getElementById('searchingPlayerModal'));
 }
