@@ -6,7 +6,7 @@ import json
 from django.shortcuts import get_object_or_404
 import random
 from asgiref.sync import sync_to_async
-import asyncio
+import asyncio, logging
 
 match_rooms = []
 
@@ -143,6 +143,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 		match_id = self.scope['url_route']['kwargs'].get('match_id')
 		print(f"Player {self.id} is ready to play match {match_id}!")
 		if is_player_in_match_room_already(self.id) or await (get_match_status(match_id)) == Match.StatusOptions.FINISHED:
+			logging.info(f"Player {self.id} in room already or connecting to a finished match")
 			await self.close()
 			return
 		match_room = find_match_room_to_join(match_id)
@@ -151,6 +152,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 		try:
 			await add_player_to_room(match_id, match_room, self.id, self.channel_name)
 		except ValueError:
+			logging.info("VALUE ERROR")
 			self.close()
 			return
 		self.match_group_name = match_room.match_id
@@ -158,7 +160,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 			self.match_group_name, 
 			self.channel_name
 		)
-		await set_user_state(self.scope['user'], CustomUser.StateOptions.INGAME)
+		#await set_user_state(self.scope['user'], CustomUser.StateOptions.INGAME)
 		await self.accept()
 		print("Rooms after connect:")
 		pprint(match_rooms)
@@ -202,6 +204,8 @@ class PongConsumer(AsyncWebsocketConsumer):
 		await self.send(text_data=json.dumps(
 			{
 				"type": event["message"],
+				"for_player" : event["for_player"],
+				"sequence" : event["sequence"],
 				"ball_x": event["ball_x"],
 				"ball_y": event["ball_y"],
 				"paddle1_x": event["paddle1_x"],
@@ -214,6 +218,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 		))
 
 	async def match_start(self, event):
+		logging.info("match_start called")
 		await self.send(text_data=json.dumps(
 			{
 				"type": event["message"],
@@ -221,6 +226,15 @@ class PongConsumer(AsyncWebsocketConsumer):
 				"player2": event["player2"]
 			}
 		))
+
+	async def match_end(self, event):
+		logging.info("match_end called")
+		await self.send(text_data=json.dumps(
+			{
+				"type": event["message"]
+			}
+		))
+		await self.close()
 
 	async def move_paddle(self, paddle, direction):
 		match_room = None
@@ -244,6 +258,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 			self.match_group_name, {
 				"type": "draw",
 				"message": "draw",
+				"for_player" : self.id,
 				"ball_x": match_room.ball.x,
 				"ball_y": match_room.ball.y,
 				"paddle1_x" : match_room.paddle1.x, 
@@ -272,6 +287,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 	async def game_loop(self, match_room, match_database):
 		await asyncio.sleep(3)
+		sequence = 0
 		ball = match_room.ball
 		paddle1 = match_room.paddle1
 		paddle2 = match_room.paddle2
@@ -321,16 +337,54 @@ class PongConsumer(AsyncWebsocketConsumer):
 					await sync_to_async(match_database.save)(update_fields=["player2_score"])
 
 			# Match state group send
-			await self.channel_layer.group_send(
-				self.match_group_name, {
-					"type" : "draw",
+			# await self.channel_layer.group_send(
+			# 	self.match_group_name, {
+			# 		"type" : "draw",
+			# 		"message": "draw",
+			# 		"for_player" : self.id,
+			# 		"ball_x" : ball.x,
+			# 		"ball_y" : ball.y,
+			# 		"paddle1_x" : paddle1.x, 
+			# 		"paddle1_y" : paddle1.y,
+			# 		"paddle2_x" : paddle2.x, 
+			# 		"paddle2_y" : paddle2.y,
+			# 		"player1_score": match_room.player1.score,
+			# 		"player2_score": match_room.player2.score
+			# 	}
+			# )
+			sequence += 1
+
+			logging.info(f"Sending draw message to player 1: {match_room.player1.channel_name}")
+			await self.channel_layer.send(
+				match_room.player1.channel_name, {
+					"type": "draw",
 					"message": "draw",
-					"ball_x" : ball.x,
-					"ball_y" : ball.y,
-					"paddle1_x" : paddle1.x, 
-					"paddle1_y" : paddle1.y,
-					"paddle2_x" : paddle2.x, 
-					"paddle2_y" : paddle2.y,
+					"sequence": sequence,
+					"for_player": match_room.player1.id,
+					"ball_x": ball.x,
+					"ball_y": ball.y,
+					"paddle1_x": paddle1.x,
+					"paddle1_y": paddle1.y,
+					"paddle2_x": paddle2.x,
+					"paddle2_y": paddle2.y,
+					"player1_score": match_room.player1.score,
+					"player2_score": match_room.player2.score
+				}
+			)
+
+			logging.info(f"Sending draw message to player 2: {match_room.player2.channel_name}")
+			await self.channel_layer.send(
+				match_room.player2.channel_name, {
+					"type": "draw",
+					"message": "draw",
+					"sequence": sequence,
+					"for_player": match_room.player2.id,
+					"ball_x": ball.x,
+					"ball_y": ball.y,
+					"paddle1_x": paddle1.x,
+					"paddle1_y": paddle1.y,
+					"paddle2_x": paddle2.x,
+					"paddle2_y": paddle2.y,
 					"player1_score": match_room.player1.score,
 					"player2_score": match_room.player2.score
 				}
@@ -342,8 +396,13 @@ class PongConsumer(AsyncWebsocketConsumer):
 				break
 
 			# Short sleep
-			await asyncio.sleep(1)
-
+			await asyncio.sleep(0.1)
+		await self.channel_layer.group_send(
+				self.match_group_name, {
+					"type" : "match_end",
+					"message" : "match_end"
+				}
+			)
 	
 	#	RANDOM SCORING LOOP	
 	#	match_database = await sync_to_async(get_object_or_404)(Match, id=match_room.match_id)

@@ -68,8 +68,8 @@ class MatchmakingConsumer(WebsocketConsumer):
 			match_serializer = MatchSerializer(data=data)
 			if match_serializer.is_valid():
 				match_serializer.save()
-				set_user_to_ingame(list(room['players'][0].keys())[0])
-				set_user_to_ingame(list(room['players'][1].keys())[0])
+				#set_user_to_ingame(list(room['players'][0].keys())[0])
+				#set_user_to_ingame(list(room['players'][1].keys())[0])
 				async_to_sync(self.channel_layer.group_send)(
 					self.room_group_name, {"type": "matchmaking_message", "message": match_serializer.data['id']}
 				)
