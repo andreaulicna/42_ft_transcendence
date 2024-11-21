@@ -1,5 +1,5 @@
 from .models import CustomUser, Match, Friendship
-from .serializers import UserSerializer, MatchSerializer, FriendshipSerializer, FriendshipListSerializer
+from .serializers import UserSerializer, MatchSerializer, FriendshipSerializer, FriendshipListSerializer, MatchStartSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -103,11 +103,11 @@ class MatchView(ListAPIView):
 		user = self.request.user
 		return Match.objects.filter(Q(player1=user.id) | Q(player2=user.id))
 	
-class MatchInfoView(APIView):
+class MatchStartView(APIView):
 	def get(self, request, pk):
 		try:
 			match = get_object_or_404(Match, pk=pk)
-			match_serializer = MatchSerializer(match)
+			match_serializer = MatchStartSerializer(match)
 			return Response(match_serializer.data)
 		except Http404:
 			return Response({'detail' : 'Match not found'}, status=status.HTTP_404_NOT_FOUND)
