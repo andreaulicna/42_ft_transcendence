@@ -3,7 +3,7 @@ import { initializeTouchControls } from './gameTouchControls.js';
 export function init() {
 	startCountdown();
 	window.addEventListener('match_start', handleMatchStart);
-	window.removeEventListener('draw', handleDraw);
+	// window.removeEventListener('draw', handleDraw);
 	window.addEventListener('draw', handleDraw);
 
 	// CANVAS SETTINGS 
@@ -13,7 +13,6 @@ export function init() {
 	let player1Name = document.getElementById("player1Name");
 	let player2Name = document.getElementById("player2Name");
 	const scoreText = document.getElementById("scoreText");
-	let countdownText = document.getElementById("countdown");
 	const gameWidth = gameBoard.width;
 	const gameHeight = gameBoard.height;
 	const paddle1Color = "#00babc";
@@ -90,14 +89,21 @@ export function init() {
 
 	// START COUNTDOWN
 	function startCountdown() {
+		const countdownModal = new bootstrap.Modal(document.getElementById('countdownModal'));
+		const countdownText = document.getElementById('countdownText');
 		let countdown = 3;
+
+		countdownModal.show();
+
 		const countdownInterval = setInterval(() => {
 			countdownText.textContent = countdown;
 			countdown--;
 			if (countdown < 0) {
 				clearInterval(countdownInterval);
+				countdownModal.hide();
+				// gameStart();
 			}
-		}, 1000);
+		}, 800);
 	}
 
 	// GAME START
@@ -153,12 +159,14 @@ export function init() {
 	// PADDLE MOVEMENT
 	function sendPaddleMovement() {
 		let direction = null;
-		if (keys[87]) { // W key
+		if (keys[87] && paddle1.y > 0) { // W key
+			// Move paddle up if it is not at the top edge
 			direction = "UP";
-		} else if (keys[83]) { // S key
+		} else if (keys[83] && paddle1.y < gameHeight - paddle1.height * scaleY) { // S key
+			// Move paddle down if it is not at the bottom edge
 			direction = "DOWN";
 		}
-
+	
 		if (direction) {
 			const paddleMovementEvent = new CustomEvent('paddle_movement', {
 				detail: {
