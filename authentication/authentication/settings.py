@@ -194,3 +194,14 @@ print(MEDIA_ROOT)
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CSRF_TRUSTED_ORIGINS = ["http://localhost:4200", "http://localhost", "http://localhost:5500"]
+
+GAME_CONSTANTS = {
+	'GAME_HEIGHT': 100,
+	'GAME_WIDTH': 160,
+	'BALL_SIZE': 1,
+	'BALL_SPEED': 0.3,
+	'PADDLE_SPEED': 0.2,
+}
+
+GAME_CONSTANTS['PADDLE_HEIGHT'] = GAME_CONSTANTS['GAME_HEIGHT'] / 10
+GAME_CONSTANTS['PADDLE_WIDTH'] = 2

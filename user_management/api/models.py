@@ -4,6 +4,7 @@ from django.conf import settings
 from rest_framework.authtoken.models import Token
 from django.utils.translation import gettext_lazy
 import uuid
+from django.conf import settings
 
 
 def user_directory_path(instance, filename):
@@ -77,6 +78,10 @@ class Match(models.Model):
 	winner = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, related_name="winner_match", null=True)
 	tournament = models.ForeignKey(Tournament, on_delete=models.SET_NULL, null=True)
 	round_number = models.PositiveIntegerField(blank=False, default=0)
+	default_ball_size = models.FloatField(blank=False, default=settings.GAME_CONSTANTS['BALL_SIZE'])
+	default_paddle_height = models.FloatField(blank=False, default=settings.GAME_CONSTANTS['PADDLE_HEIGHT'])
+	default_paddle_width = models.FloatField(blank=False, default=settings.GAME_CONSTANTS['PADDLE_WIDTH'])
+	default_paddle_speed = models.FloatField(blank=False, default=settings.GAME_CONSTANTS['PADDLE_SPEED'])
 	
 class Friendship(models.Model):
 	class StatusOptions(models.TextChoices):
