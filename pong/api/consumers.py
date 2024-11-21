@@ -21,7 +21,7 @@ class PongGame:
 		self.game_half_height = self.game_height / 2
 		self.default_paddle_height = self.game_height / (10 * 2)  # adjusted for a half
 		self.default_paddle_width = 2 / 2  # adjusted for a half
-		self.default_paddle_speed = 5
+		self.default_paddle_speed = 0.2
 		self.paddle1 = Paddle(x=-80 + self.default_paddle_width, game=self)
 		self.paddle2 = Paddle(x=80 - self.default_paddle_width, game=self)
 		self.ball = Ball()
@@ -32,6 +32,10 @@ class PongGame:
 		return (f"PongGame(match_id={self.match_id}, game_width={self.game_width}, "
 				f"game_height={self.game_height}, paddle1={self.paddle1}, paddle2={self.paddle2}, "
 				f"player1={self.player1}, player2={self.player2})")
+	def reset(self):
+		self.paddle1 = Paddle(x=-80 + self.default_paddle_width, game=self)
+		self.paddle2 = Paddle(x=80 - self.default_paddle_width, game=self)
+		self.ball = Ball()
 
 class Paddle:
 	def __init__(self, x, game):
@@ -48,7 +52,7 @@ class Ball:
 	def __init__(self):
 		self.x = 0
 		self.y = 0
-		self.speed = 1
+		self.speed = 0.3
 		self.x_direction = random.choice([-1, 1])
 		self.y_direction = random.choice([-1, 1])
 		self.size = 1
@@ -198,7 +202,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 			elif match_room.player2.id == self.id:
 				paddle = "paddle2"
 			direction = text_data_json["direction"]
-			await self.move_paddle(paddle, direction)
+			self.move_paddle(paddle, direction)
 	
 	async def draw(self, event):
 		await self.send(text_data=json.dumps(
@@ -236,7 +240,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 		))
 		await self.close()
 
-	async def move_paddle(self, paddle, direction):
+	def move_paddle(self, paddle, direction):
 		match_room = None
 		for room in match_rooms:
 			if room.match_id == self.match_group_name:
@@ -246,29 +250,29 @@ class PongConsumer(AsyncWebsocketConsumer):
 		paddle_speed = match_room.default_paddle_speed
 		if paddle == "paddle1":
 			if direction == "UP" and match_room.paddle1.y < (match_room.game_half_height - match_room.paddle1.paddle_height):
-				match_room.paddle1.y += paddle_speed
-			elif direction == "DOWN" and match_room.paddle1.y > (match_room.game_half_height - match_room.paddle1.paddle_height) * (-1):
 				match_room.paddle1.y -= paddle_speed
+			elif direction == "DOWN" and match_room.paddle1.y > (match_room.game_half_height - match_room.paddle1.paddle_height) * (-1):
+				match_room.paddle1.y += paddle_speed
 		elif paddle == "paddle2":
 			if direction == "UP" and match_room.paddle2.y < (match_room.game_half_height - match_room.paddle2.paddle_height):
-				match_room.paddle2.y += paddle_speed
-			elif direction == "DOWN" and match_room.paddle2.y > (match_room.game_half_height - match_room.paddle2.paddle_height) * (-1):
 				match_room.paddle2.y -= paddle_speed
-		await self.channel_layer.group_send(
-			self.match_group_name, {
-				"type": "draw",
-				"message": "draw",
-				"for_player" : self.id,
-				"ball_x": match_room.ball.x,
-				"ball_y": match_room.ball.y,
-				"paddle1_x" : match_room.paddle1.x, 
-				"paddle1_y" : match_room.paddle1.y,
-				"paddle2_x" : match_room.paddle2.x,
-				"paddle2_y" : match_room.paddle2.y,
-				"player1_score": match_room.player1.score,
-				"player2_score": match_room.player2.score
-			}
-		)
+			elif direction == "DOWN" and match_room.paddle2.y > (match_room.game_half_height - match_room.paddle2.paddle_height) * (-1):
+				match_room.paddle2.y += paddle_speed
+		# await self.channel_layer.group_send(
+		# 	self.match_group_name, {
+		# 		"type": "draw",
+		# 		"message": "draw",
+		# 		"for_player" : self.id,
+		# 		"ball_x": match_room.ball.x,
+		# 		"ball_y": match_room.ball.y,
+		# 		"paddle1_x" : match_room.paddle1.x, 
+		# 		"paddle1_y" : match_room.paddle1.y,
+		# 		"paddle2_x" : match_room.paddle2.x,
+		# 		"paddle2_y" : match_room.paddle2.y,
+		# 		"player1_score": match_room.player1.score,
+		# 		"player2_score": match_room.player2.score
+		# 	}
+		# )
 
 	async def play_pong(self, match_room):
 		match_database = await sync_to_async(get_object_or_404)(Match, id=match_room.match_id)
@@ -310,7 +314,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 			ball_left = ball.x + ball.size
 			if (ball_left <= paddle1_right) and (paddle1_bottom <= ball.y <= paddle1_top):
 				ball.x_direction *= -1
-				ball.speed += 1
+				ball.speed += Ball().speed
 
 			paddle2_top = paddle2.y + paddle2.paddle_height
 			paddle2_bottom = paddle2.y - paddle2.paddle_height
@@ -318,23 +322,43 @@ class PongConsumer(AsyncWebsocketConsumer):
 			ball_right = ball.x + ball.size
 			if (ball_right >= paddle2_left) and (paddle2_bottom <= ball.y <= paddle2_top):
 				ball.x_direction *= -1
-				ball.speed += 1
+				ball.speed += Ball().speed
 
 			# Scoring - player1
 			if (ball_left <= (0 - match_room.game_half_width)):
-				random_value = random.randint(0, 1)
-				if (random_value == 0):
-					match_room.player1.score += 1
-					match_database.player1_score += 1
-					await sync_to_async(match_database.save)(update_fields=["player1_score"])
+				match_room.player1.score += 1
+				match_database.player1_score += 1
+				await sync_to_async(match_database.save)(update_fields=["player1_score"])
+				match_room.reset()
+				ball = match_room.ball
+				paddle1 = match_room.paddle1
+				paddle2 = match_room.paddle2
 			
 			# Scoring - player2
 			if (ball_right >= (match_room.game_half_width)):
-				random_value = random.randint(0, 1)
-				if (random_value == 0):
-					match_room.player2.score += 1
-					match_database.player2_score += 1
-					await sync_to_async(match_database.save)(update_fields=["player2_score"])
+				match_room.player2.score += 1
+				match_database.player2_score += 1
+				await sync_to_async(match_database.save)(update_fields=["player2_score"])
+				match_room.reset()
+				ball = match_room.ball
+				paddle1 = match_room.paddle1
+				paddle2 = match_room.paddle2
+
+			# # Scoring - player1
+			# if (ball_left <= (0 - match_room.game_half_width)):
+			# 	random_value = random.randint(0, 1)
+			# 	if (random_value == 0):
+			# 		match_room.player1.score += 1
+			# 		match_database.player1_score += 1
+			# 		await sync_to_async(match_database.save)(update_fields=["player1_score"])
+			
+			# # Scoring - player2
+			# if (ball_right >= (match_room.game_half_width)):
+			# 	random_value = random.randint(0, 1)
+			# 	if (random_value == 0):
+			# 		match_room.player2.score += 1
+			# 		match_database.player2_score += 1
+			# 		await sync_to_async(match_database.save)(update_fields=["player2_score"])
 
 			# Match state group send
 			# await self.channel_layer.group_send(
@@ -354,7 +378,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 			# )
 			sequence += 1
 
-			logging.info(f"Sending draw message to player 1: {match_room.player1.channel_name}")
+			#logging.info(f"Sending draw message to player 1: {match_room.player1.channel_name}")
 			await self.channel_layer.send(
 				match_room.player1.channel_name, {
 					"type": "draw",
@@ -372,7 +396,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 				}
 			)
 
-			logging.info(f"Sending draw message to player 2: {match_room.player2.channel_name}")
+			#logging.info(f"Sending draw message to player 2: {match_room.player2.channel_name}")
 			await self.channel_layer.send(
 				match_room.player2.channel_name, {
 					"type": "draw",
@@ -396,7 +420,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 				break
 
 			# Short sleep
-			await asyncio.sleep(0.1)
+			await asyncio.sleep(0.01)
 		await self.channel_layer.group_send(
 				self.match_group_name, {
 					"type" : "match_end",
