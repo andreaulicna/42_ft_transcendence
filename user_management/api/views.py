@@ -103,12 +103,14 @@ class MatchView(ListAPIView):
 		user = self.request.user
 		return Match.objects.filter(Q(player1=user.id) | Q(player2=user.id))
 	
-	# def get(self, request):
-	# 	matches = Match.objects.filter(Q(player1=request.user.id) | Q(player2=request.user.id))
-	# 	if not matches:
-	# 		return Response({'detail':'No matches found'}, status=status.HTTP_404_NOT_FOUND)
-	# 	serializer = MatchSerializer(matches, many=True)
-	# 	return Response(serializer.data)
+class MatchInfoView(APIView):
+	def get(self, request, pk):
+		try:
+			match = get_object_or_404(Match, pk=pk)
+			match_serializer = MatchSerializer(match)
+			return Response(match_serializer.data)
+		except Http404:
+			return Response({'detail' : 'Match not found'}, status=status.HTTP_404_NOT_FOUND)
 	
 class ActiveFriendshipsListView(ListAPIView):
 	serializer_class = FriendshipListSerializer

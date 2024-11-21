@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404
 import random
 from asgiref.sync import sync_to_async
 import asyncio, logging
+from django.conf import settings
 
 match_rooms = []
 
@@ -15,44 +16,44 @@ from pprint import pprint
 class PongGame:
 	def __init__(self, match_id):
 		self.match_id = match_id
-		self.game_width = 160
-		self.game_height = 100
-		self.game_half_width = self.game_width / 2
-		self.game_half_height = self.game_height / 2
-		self.default_paddle_height = self.game_height / (10 * 2)  # adjusted for a half
-		self.default_paddle_width = 2 / 2  # adjusted for a half
-		self.default_paddle_speed = 1
-		self.paddle1 = Paddle(x=-80 + self.default_paddle_width, game=self)
-		self.paddle2 = Paddle(x=80 - self.default_paddle_width, game=self)
+		self.GAME_WIDTH = settings.GAME_CONSTANTS['GAME_WIDTH']
+		self.GAME_HEIGHT = settings.GAME_CONSTANTS['GAME_HEIGHT']
+		self.GAME_HALF_WIDTH = self.GAME_WIDTH / 2
+		self.GAME_HALF_HEIGHT = self.GAME_HEIGHT / 2
+		self.PADDLE_HALF_HEIGHT = settings.GAME_CONSTANTS['PADDLE_HEIGHT'] / 2 # adjusted for a half
+		self.PADDLE_HALF_WIDTH = settings.GAME_CONSTANTS['PADDLE_WIDTH'] / 2 # adjusted for a half
+		self.PADDLE_SPEED = settings.GAME_CONSTANTS['PADDLE_SPEED']
+		self.paddle1 = Paddle(x=-80 + self.PADDLE_HALF_WIDTH, game=self)
+		self.paddle2 = Paddle(x=80 - self.PADDLE_HALF_WIDTH, game=self)
 		self.ball = Ball()
 		self.player1 = None
 		self.player2 = None
 
 	def __repr__(self):
-		return (f"PongGame(match_id={self.match_id}, game_width={self.game_width}, "
-				f"game_height={self.game_height}, paddle1={self.paddle1}, paddle2={self.paddle2}, "
+		return (f"PongGame(match_id={self.match_id}, game_width={self.GAME_WIDTH}, "
+				f"game_height={self.GAME_HEIGHT}, paddle1={self.paddle1}, paddle2={self.paddle2}, "
 				f"player1={self.player1}, player2={self.player2})")
 	def reset(self):
-		self.paddle1 = Paddle(x=-80 + self.default_paddle_width, game=self)
-		self.paddle2 = Paddle(x=80 - self.default_paddle_width, game=self)
+		self.paddle1 = Paddle(x=-80 + self.PADDLE_HALF_HEIGHT, game=self)
+		self.paddle2 = Paddle(x=80 - self.PADDLE_HALF_HEIGHT, game=self)
 		self.ball = Ball()
 
 class Paddle:
 	def __init__(self, x, game):
 		self.x = x
 		self.y = 0
-		self.paddle_height = game.default_paddle_height
-		self.paddle_width = game.default_paddle_width
-		self.paddle_speed = game.default_paddle_speed
+		self.paddle_half_height = game.PADDLE_HALF_HEIGHT
+		self.paddle_half_width = game.PADDLE_HALF_WIDTH
+		self.paddle_speed = game.PADDLE_SPEED
 
 	def __repr__(self):
-		return f"Paddle(x={self.x}, y={self.y}, paddle_height={self.paddle_height}, paddle_width={self.paddle_width}, paddle_speed={self.paddle_speed})"
+		return f"Paddle(x={self.x}, y={self.y}, paddle_half_height={self.paddle_half_height}, paddle_half_width={self.paddle_half_width}, paddle_speed={self.paddle_speed})"
 
 class Ball:
 	def __init__(self):
 		self.x = 0
 		self.y = 0
-		self.speed = 0.3
+		self.speed = settings.GAME_CONSTANTS['BALL_SPEED']
 		self.x_direction = random.choice([-1, 1])
 		self.y_direction = random.choice([-1, 1])
 		self.size = 1
@@ -247,16 +248,16 @@ class PongConsumer(AsyncWebsocketConsumer):
 				match_room = room
 		if not match_room:
 			return
-		paddle_speed = match_room.default_paddle_speed
+		paddle_speed = match_room.PADDLE_SPEED
 		if paddle == "paddle1":
-			if direction == "UP" and match_room.paddle1.y < (match_room.game_half_height - match_room.paddle1.paddle_height):
+			if direction == "UP" and match_room.paddle1.y < (match_room.GAME_HALF_HEIGHT - match_room.paddle1.paddle_half_height):
 				match_room.paddle1.y -= paddle_speed
-			elif direction == "DOWN" and match_room.paddle1.y > (match_room.game_half_height - match_room.paddle1.paddle_height) * (-1):
+			elif direction == "DOWN" and match_room.paddle1.y > (match_room.GAME_HALF_HEIGHT - match_room.paddle1.paddle_half_height) * (-1):
 				match_room.paddle1.y += paddle_speed
 		elif paddle == "paddle2":
-			if direction == "UP" and match_room.paddle2.y < (match_room.game_half_height - match_room.paddle2.paddle_height):
+			if direction == "UP" and match_room.paddle2.y < (match_room.GAME_HALF_HEIGHT - match_room.paddle2.paddle_half_height):
 				match_room.paddle2.y -= paddle_speed
-			elif direction == "DOWN" and match_room.paddle2.y > (match_room.game_half_height - match_room.paddle2.paddle_height) * (-1):
+			elif direction == "DOWN" and match_room.paddle2.y > (match_room.GAME_HALF_HEIGHT - match_room.paddle2.paddle_half_height) * (-1):
 				match_room.paddle2.y += paddle_speed
 		# await self.channel_layer.group_send(
 		# 	self.match_group_name, {
@@ -304,28 +305,28 @@ class PongConsumer(AsyncWebsocketConsumer):
 			ball.y += ball.speed * ball.y_direction
 
 			# Ball collision with floor & ceiling
-			if (ball.y >= (match_room.game_half_height - ball.size)) or ((ball.y <= ((match_room.game_half_height - ball.size)) * (-1))):
+			if (ball.y >= (match_room.GAME_HALF_HEIGHT - ball.size)) or ((ball.y <= ((match_room.GAME_HALF_HEIGHT - ball.size)) * (-1))):
 				ball.y_direction *= -1
 			
 			# Ball collision with paddles
-			paddle1_top = paddle1.y + paddle1.paddle_height
-			paddle1_bottom = paddle1.y - paddle1.paddle_height
-			paddle1_right = paddle1.x + paddle1.paddle_width
+			paddle1_top = paddle1.y + paddle1.paddle_half_height
+			paddle1_bottom = paddle1.y - paddle1.paddle_half_height
+			paddle1_right = paddle1.x + paddle1.paddle_half_width
 			ball_left = ball.x + ball.size
 			if (ball_left <= paddle1_right) and (paddle1_bottom <= ball.y <= paddle1_top):
 				ball.x_direction *= -1
 				ball.speed += ball.speed
 
-			paddle2_top = paddle2.y + paddle2.paddle_height
-			paddle2_bottom = paddle2.y - paddle2.paddle_height
-			paddle2_left = paddle2.x - paddle2.paddle_width
+			paddle2_top = paddle2.y + paddle2.paddle_half_height
+			paddle2_bottom = paddle2.y - paddle2.paddle_half_height
+			paddle2_left = paddle2.x - paddle2.paddle_half_width
 			ball_right = ball.x + ball.size
 			if (ball_right >= paddle2_left) and (paddle2_bottom <= ball.y <= paddle2_top):
 				ball.x_direction *= -1
 				ball.speed += ball.speed
 
 			# Scoring - player1
-			if (ball_left <= (0 - match_room.game_half_width)):
+			if (ball_left <= (0 - match_room.GAME_HALF_WIDTH)):
 				match_room.player1.score += 1
 				match_database.player1_score += 1
 				await sync_to_async(match_database.save)(update_fields=["player1_score"])
@@ -335,7 +336,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 				paddle2 = match_room.paddle2
 			
 			# Scoring - player2
-			if (ball_right >= (match_room.game_half_width)):
+			if (ball_right >= (match_room.GAME_HALF_WIDTH)):
 				match_room.player2.score += 1
 				match_database.player2_score += 1
 				await sync_to_async(match_database.save)(update_fields=["player2_score"])
@@ -345,7 +346,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 				paddle2 = match_room.paddle2
 
 			# # Scoring - player1
-			# if (ball_left <= (0 - match_room.game_half_width)):
+			# if (ball_left <= (0 - match_room.GAME_HALF_WIDTH)):
 			# 	random_value = random.randint(0, 1)
 			# 	if (random_value == 0):
 			# 		match_room.player1.score += 1
@@ -353,7 +354,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 			# 		await sync_to_async(match_database.save)(update_fields=["player1_score"])
 			
 			# # Scoring - player2
-			# if (ball_right >= (match_room.game_half_width)):
+			# if (ball_right >= (match_room.GAME_HALF_WIDTH)):
 			# 	random_value = random.randint(0, 1)
 			# 	if (random_value == 0):
 			# 		match_room.player2.score += 1
