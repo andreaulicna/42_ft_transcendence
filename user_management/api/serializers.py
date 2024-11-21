@@ -24,6 +24,20 @@ class MatchSerializer(serializers.ModelSerializer):
 		match = Match.objects.create(**validated_data)
 		return match
 
+class MatchStartSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Match
+		fields = ['id', 
+				'player1', 
+				'player2', 
+				'default_ball_size', 
+				'default_paddle_height', 
+				'default_paddle_width', 
+				'default_paddle_speed']
+
+	def create(self, validated_data):
+		match = Match.objects.create(**validated_data)
+		return match
 
 class FriendshipSerializer(serializers.ModelSerializer):
 	class Meta:
