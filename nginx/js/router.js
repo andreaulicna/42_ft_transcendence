@@ -7,6 +7,7 @@ const routes = {
 	'#login'		: '/pages/login.html',
 	'#register'		: '/pages/register.html',
 	'#dashboard'	: '/pages/dashboard.html',
+	'#searching'	: '/pages/searchingForGame.html',
 	'#game'			: '/pages/game.html',
 	'#tournament'	: '/pages/tournament.html',
 	'#profile'		: '/pages/profile.html',
@@ -30,10 +31,13 @@ const loadContent = async (path) => {
 			import('/js/register.js').then(module => module.init());
 		} else if (window.location.hash === '#dashboard') {
 			data = await apiCallAuthed('/api/user/info');
+			console.log("User info: ", data);
 			import('/js/dashboard.js').then(module => module.init(data));
 		} else if (window.location.hash === '#profile') {
 			data = await apiCallAuthed('/api/user/info');
 			import('/js/profile.js').then(module => module.init(data));
+		} else if (window.location.hash === '#searching') {
+			import('/js/gameSearching.js').then(module => module.init());
 		} else if (window.location.hash === '#game') {
 			import('/js/gameRemote.js').then(module => module.init());
 		} else if (window.location.hash === '#tournament') {

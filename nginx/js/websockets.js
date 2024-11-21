@@ -1,8 +1,10 @@
 import { apiCallAuthed } from './api.js';
 
-let pongWebSocket; // Declare a variable to store the Pong WebSocket instance
+let pongWebSocket;
+let friendlistWebSocket;
+let matchmakingWebSocket;
 
-export async function openWebSocket(url) {
+async function openWebSocket(url) {
 	return new Promise(async (resolve, reject) => {
 		try {
 			const response = await apiCallAuthed('/api/auth/ws-login', 'GET');
@@ -50,14 +52,16 @@ export async function openWebSocket(url) {
 
 export async function openFriendlistWebsocket() {
 	const url = "/api/auth/ws/init/";
-	openWebSocket(url).then(() => {
+	openWebSocket(url).then((ws) => {
+		friendlistWebSocket = ws;
 		console.log('Friendlist WebSocket established');
 	});
 }
 
 export async function openMatchmakingWebsocket() {
 	const url = "/api/matchmaking/ws/";
-	openWebSocket(url).then(() => {
+	openWebSocket(url).then((ws) => {
+		matchmakingWebSocket = ws;
 		console.log('Matchmaking WebSocket established');
 	}).catch((error) => {
 		console.error('Failed to establish Matchmaking WebSocket:', error);
@@ -67,17 +71,24 @@ export async function openMatchmakingWebsocket() {
 export async function openPongWebsocket(match_id) {
 	const url = "/api/pong/ws/" + match_id + "/";
 	openWebSocket(url).then((ws) => {
-		pongWebSocket = ws; // Store the Pong WebSocket instance
+		pongWebSocket = ws;
 		console.log('Pong WebSocket established');
-		const redirectToGameEvent = new CustomEvent('game_redirect');
-		window.dispatchEvent(redirectToGameEvent);
-		// Add a small delay before the redirect to compensate for the slow-ass closing of the shitty-ass modal
-		setTimeout(() => {
-			window.location.hash = '#game'; // Redirect to #game when the connection is established
-		}, 100);
+		window.location.hash = '#game';
 	}).catch((error) => {
 		console.error('Failed to establish Pong WebSocket:', error);
 	});
+}
+
+function closeWebSocket(ws) {
+	if (ws && ws.readyState === WebSocket.OPEN) {
+		ws.close();
+		console.log('WebSocket connection closed manually');
+	}
+}
+
+export function closeMatchmakingWebsocket() {
+	closeWebSocket(matchmakingWebSocket);
+	console.log('Closing Matchmaking Websocket');
 }
 
 // Listen for paddle movement events and send them through the Pong WebSocket

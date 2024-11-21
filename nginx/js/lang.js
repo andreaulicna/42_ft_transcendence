@@ -20,6 +20,9 @@ const translations = {
 		modeTournament: "Tournament",
 		viewProfile: "Profile",
 		logout: "Logout",
+		// SEARCHING FOR GAME
+		searchingForGame: "Searching for game",
+		returnToMenu: "Return to menu",
 		// GAME
 		hasWon: "has won!",
 		buttonReplay: "Replay",
@@ -66,6 +69,9 @@ const translations = {
 		modeTournament: "Turnaj",
 		viewProfile: "Profil",
 		logout: "Odhlásit se",
+		// SEARCHING FOR GAME
+		searchingForGame: "Hledám hru",
+		returnToMenu: "Návrat do hlavního menu",
 		// GAME
 		hasWon: "je vítěz!",
 		buttonReplay: "Hrát znovu",
@@ -112,6 +118,9 @@ const translations = {
 		modeTournament: "Turnaj",
 		viewProfile: "Profil",
 		logout: "Odhlásiť sa",
+		// SEARCHING FOR GAME
+		searchingForGame: "Hľadám hru",
+		returnToMenu: "Návrat do hlavného menu",
 		// GAME
 		hasWon: "has won!",
 		buttonReplay: "Hrať znova",
