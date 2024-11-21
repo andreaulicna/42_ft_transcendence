@@ -96,11 +96,6 @@ def find_player_in_match_room(player_id):
 			return match_room
 	return None
 
-#@database_sync_to_async
-#def get_player_username(player_id):
-#	player = get_object_or_404(Player, id=player_id)
-#	return (player.username)
-
 # This functions orders the players in the room based on if they are player 1 or 2
 @database_sync_to_async
 def add_player_to_room(match_id, match_room, player_id, channel_name):
@@ -259,21 +254,6 @@ class PongConsumer(AsyncWebsocketConsumer):
 				match_room.paddle2.y -= paddle_speed
 			elif direction == "DOWN" and match_room.paddle2.y < (match_room.GAME_HALF_HEIGHT - match_room.paddle2.paddle_half_height):
 				match_room.paddle2.y += paddle_speed
-		# await self.channel_layer.group_send(
-		# 	self.match_group_name, {
-		# 		"type": "draw",
-		# 		"message": "draw",
-		# 		"for_player" : self.id,
-		# 		"ball_x": match_room.ball.x,
-		# 		"ball_y": match_room.ball.y,
-		# 		"paddle1_x" : match_room.paddle1.x, 
-		# 		"paddle1_y" : match_room.paddle1.y,
-		# 		"paddle2_x" : match_room.paddle2.x,
-		# 		"paddle2_y" : match_room.paddle2.y,
-		# 		"player1_score": match_room.player1.score,
-		# 		"player2_score": match_room.player2.score
-		# 	}
-		# )
 
 	async def play_pong(self, match_room):
 		match_database = await sync_to_async(get_object_or_404)(Match, id=match_room.match_id)
@@ -345,40 +325,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 				paddle1 = match_room.paddle1
 				paddle2 = match_room.paddle2
 
-			# # Scoring - player1
-			# if (ball_left <= (0 - match_room.GAME_HALF_WIDTH)):
-			# 	random_value = random.randint(0, 1)
-			# 	if (random_value == 0):
-			# 		match_room.player1.score += 1
-			# 		match_database.player1_score += 1
-			# 		await sync_to_async(match_database.save)(update_fields=["player1_score"])
-			
-			# # Scoring - player2
-			# if (ball_right >= (match_room.GAME_HALF_WIDTH)):
-			# 	random_value = random.randint(0, 1)
-			# 	if (random_value == 0):
-			# 		match_room.player2.score += 1
-			# 		match_database.player2_score += 1
-			# 		await sync_to_async(match_database.save)(update_fields=["player2_score"])
-
-			# Match state group send
-			# await self.channel_layer.group_send(
-			# 	self.match_group_name, {
-			# 		"type" : "draw",
-			# 		"message": "draw",
-			# 		"for_player" : self.id,
-			# 		"ball_x" : ball.x,
-			# 		"ball_y" : ball.y,
-			# 		"paddle1_x" : paddle1.x, 
-			# 		"paddle1_y" : paddle1.y,
-			# 		"paddle2_x" : paddle2.x, 
-			# 		"paddle2_y" : paddle2.y,
-			# 		"player1_score": match_room.player1.score,
-			# 		"player2_score": match_room.player2.score
-			# 	}
-			# )
 			sequence += 1
-
 			#logging.info(f"Sending draw message to player 1: {match_room.player1.channel_name}")
 			await self.channel_layer.send(
 				match_room.player1.channel_name, {
@@ -428,43 +375,3 @@ class PongConsumer(AsyncWebsocketConsumer):
 					"message" : "match_end"
 				}
 			)
-	
-	#	RANDOM SCORING LOOP	
-	#	match_database = await sync_to_async(get_object_or_404)(Match, id=match_room.match_id)
-	#	await set_match_status(match_database, Match.StatusOptions.INPROGRESS)
-	#	await self.channel_layer.group_send(
-	#		self.match_group_name, {"type": "pong_message", "message": "pong game init"}
-	#	)
-	#	print(f"Starting game for: ")
-	#	pprint(match_room)
-	#	if match_database.player1_score > match_database.player2_score:
-	#		highest_score = match_database.player1_score
-	#	else:
-	#		highest_score = match_database.player2_score
-	#	while(highest_score < 5):
-	#		random_value = random.randint(0, 1)
-	#		if (random_value == 0):
-	#			match_database.player1_score += 1
-	#			await sync_to_async(match_database.save)(update_fields=["player1_score"])
-	#			await self.channel_layer.group_send(
-	#				self.match_group_name, {
-	#					"type": "pong_message",
-	#					"message": f"Player 1 scored, current score is {match_database.player1_score}:{match_database.player2_score}"
-	#				}
-	#			)
-	#		else:
-	#			match_database.player2_score += 1
-	#			await sync_to_async(match_database.save)(update_fields=["player2_score"])
-	#			await self.channel_layer.group_send(
-	#				self.match_group_name, {
-	#					"type": "pong_message",
-	#					"message": f"Player 2 scored, current score is {match_database.player1_score}:{match_database.player2_score}"
-	#				}
-	#			)
-	#		match_database = await sync_to_async(get_object_or_404)(Match, id=match_room.match_id)
-	#		if match_database.player1_score > match_database.player2_score:
-	#			highest_score = match_database.player1_score
-	#		else:
-	#			highest_score = match_database.player2_score
-	#	await set_match_winner(match_database)
-	#	# return await self.close() - should work when play_pong is implemented differently, for both players
