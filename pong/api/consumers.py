@@ -21,7 +21,7 @@ class PongGame:
 		self.game_half_height = self.game_height / 2
 		self.default_paddle_height = self.game_height / (10 * 2)  # adjusted for a half
 		self.default_paddle_width = 2 / 2  # adjusted for a half
-		self.default_paddle_speed = 0.2
+		self.default_paddle_speed = 1
 		self.paddle1 = Paddle(x=-80 + self.default_paddle_width, game=self)
 		self.paddle2 = Paddle(x=80 - self.default_paddle_width, game=self)
 		self.ball = Ball()
@@ -314,7 +314,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 			ball_left = ball.x + ball.size
 			if (ball_left <= paddle1_right) and (paddle1_bottom <= ball.y <= paddle1_top):
 				ball.x_direction *= -1
-				ball.speed += Ball().speed
+				ball.speed += ball.speed
 
 			paddle2_top = paddle2.y + paddle2.paddle_height
 			paddle2_bottom = paddle2.y - paddle2.paddle_height
@@ -322,7 +322,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 			ball_right = ball.x + ball.size
 			if (ball_right >= paddle2_left) and (paddle2_bottom <= ball.y <= paddle2_top):
 				ball.x_direction *= -1
-				ball.speed += Ball().speed
+				ball.speed += ball.speed
 
 			# Scoring - player1
 			if (ball_left <= (0 - match_room.game_half_width)):

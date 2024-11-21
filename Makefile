@@ -15,6 +15,10 @@ stop:
 	@echo "Stopping ${name}\n"
 	@docker compose -f ./docker-compose.yml down
 
+restart:
+	@echo "Stopping ${name}\n"
+	@docker compose -f ./docker-compose.yml restart
+
 re: clean all
 
 clean: stop
