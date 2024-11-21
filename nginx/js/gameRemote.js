@@ -35,14 +35,14 @@ export function init() {
 	let ballX;
 	let ballY;
 	let paddle1 = {
-		width: 1,
-		height: 5,
+		width: 2,
+		height: 10,
 		x: 80,
 		y: 0,
 	};
 	let paddle2 = {
-		width: 1,
-		height: 5,
+		width: 2,
+		height: 10,
 		x: -80,
 		y: 0,
 	};
@@ -140,10 +140,10 @@ export function init() {
 		ctx.shadowBlur = 20;
 		ctx.shadowColor = paddle1Color;
 		ctx.fillStyle = paddle1Color;
-		ctx.fillRect(paddle1.x, paddle1.y, paddle1.width * scaleX, paddle1.height * scaleY);
+		ctx.fillRect(paddle1.x - (paddle1.width / 2), paddle1.y - (paddle2.height / 2), paddle1.width * scaleX, paddle1.height * scaleY);
 		ctx.shadowColor = paddle2Color;
 		ctx.fillStyle = paddle2Color;
-		ctx.fillRect(paddle2.x, paddle2.y, paddle2.width * scaleX, paddle2.height * scaleY);
+		ctx.fillRect(paddle2.x - (paddle2.width / 2), paddle2.y - (paddle2.height / 2), paddle2.width * scaleX, paddle2.height * scaleY);
 		ctx.shadowBlur = 0;
 		ctx.shadowColor = 'transparent';
 	}
