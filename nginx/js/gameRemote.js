@@ -10,8 +10,10 @@ export function init() {
 	const gameBoard = document.getElementById("gameBoard");
 	const ctx = gameBoard.getContext("2d");
 	const playerNames = document.getElementById("playerNames");
-	let player1Name = document.getElementById("player1Name");
-	let player2Name = document.getElementById("player2Name");
+	let player1Name;
+	let player2Name;
+	const player1NamePlaceholder = document.getElementById("player1Name");
+	const player2NamePlaceholder = document.getElementById("player2Name");
 	const scoreText = document.getElementById("scoreText");
 	const gameWidth = gameBoard.width;
 	const gameHeight = gameBoard.height;
@@ -27,7 +29,7 @@ export function init() {
 	const mainMenuButton = document.getElementById("mainMenuButton");
 
 	// DEFAULT GAME SETTINGS 
-	// const winCondition = 10;
+	const winCondition = 5;
 	const originalGameWidth = 160; // Server-side game width
 	const originalGameHeight = 100; // Server-side game height
 	let ballX;
@@ -44,7 +46,7 @@ export function init() {
 		x: -80,
 		y: 0,
 	};
-	let gamePaused = false;
+	// let gamePaused = false;
 	let player1Score;
 	let player2Score;
 
@@ -62,8 +64,10 @@ export function init() {
 	function handleMatchStart(event) {
 		console.log("STARTING MATCH");
 		const data = event.detail;
-		player1Name.textContent = data.player1;
-		player2Name.textContent = data.player2;
+		player1Name = data.player1;
+		player2Name = data.player2;
+		player1NamePlaceholder.textContent = player1Name;
+		player2NamePlaceholder.textContent = player2Name;
 	}
 
 	// window.removeEventListener('match_start', handleMatchStart);
@@ -181,41 +185,41 @@ export function init() {
 	// UPDATE SCORE
 	function updateScore() {
 		scoreText.textContent = `${player1Score} : ${player2Score}`;
-		// if (player1Score >= winCondition || player2Score >= winCondition) {
-		// 	showGameOverScreen();
-		// }
+		if (player1Score >= winCondition || player2Score >= winCondition) {
+			showGameOverScreen();
+		}
 	}
 
-	// // SHOW GAME OVER SCREEN
-	// function showGameOverScreen() {
-	// 	let winner = player1Score >= winCondition ? player1Name : player2Name;
-	// 	winnerName.textContent = `${winner}`;
-	// 	winnerName.className = player1Score >= winCondition ? "blueSide" : "redSide";
+	// SHOW GAME OVER SCREEN
+	function showGameOverScreen() {
+		let winner = player1Score >= winCondition ? player1Name : player2Name;
+		winnerName.textContent = `${winner}`;
+		winnerName.className = player1Score >= winCondition ? "blueSide" : "redSide";
 
-	// 	gameOverScreen.style.display = "block";
-	// 	gameBoard.style.display = "none";
-	// 	playerNames.style.visibility = "hidden";
-	// 	scoreText.style.display = "none";
+		gameOverScreen.style.display = "block";
+		gameBoard.style.display = "none";
+		playerNames.style.visibility = "hidden";
+		scoreText.style.display = "none";
 
-	// 	gamePaused = true;
-	// }
+		// gamePaused = true;
+	}
 
 	// // HIDE GAME OVER SCREEN
-	// function hideGameOverScreen() {
-	// 	gameOverScreen.style.display = "none";
-	// 	gameBoard.style.display = "block";
-	// 	playerNames.style.visibility = "visible";
-	// 	scoreText.style.display = "block";
-	// }
+	function hideGameOverScreen() {
+		gameOverScreen.style.display = "none";
+		gameBoard.style.display = "block";
+		playerNames.style.visibility = "visible";
+		scoreText.style.display = "block";
+	}
 
-	// replayButton.addEventListener("click", () => {
-	// 	hideGameOverScreen();
-	// 	// resetGame();
-	// });
+	replayButton.addEventListener("click", () => {
+		hideGameOverScreen();
+		// resetGame();
+	});
 
-	// mainMenuButton.addEventListener("click", () => {
-	// 	// hideGameOverScreen();
-	// });
+	mainMenuButton.addEventListener("click", () => {
+		hideGameOverScreen();
+	});
 
 	// // RESET GAME
 	// function resetGame() {
