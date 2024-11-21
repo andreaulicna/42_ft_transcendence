@@ -250,14 +250,14 @@ class PongConsumer(AsyncWebsocketConsumer):
 			return
 		paddle_speed = match_room.PADDLE_SPEED
 		if paddle == "paddle1":
-			if direction == "UP" and match_room.paddle1.y < (match_room.GAME_HALF_HEIGHT - match_room.paddle1.paddle_half_height):
+			if direction == "UP" and match_room.paddle1.y > (match_room.GAME_HALF_HEIGHT - match_room.paddle1.paddle_half_height) * (-1):
 				match_room.paddle1.y -= paddle_speed
-			elif direction == "DOWN" and match_room.paddle1.y > (match_room.GAME_HALF_HEIGHT - match_room.paddle1.paddle_half_height) * (-1):
+			elif direction == "DOWN" and match_room.paddle1.y < (match_room.GAME_HALF_HEIGHT - match_room.paddle1.paddle_half_height):
 				match_room.paddle1.y += paddle_speed
 		elif paddle == "paddle2":
-			if direction == "UP" and match_room.paddle2.y < (match_room.GAME_HALF_HEIGHT - match_room.paddle2.paddle_half_height):
+			if direction == "UP" and match_room.paddle2.y > (match_room.GAME_HALF_HEIGHT - match_room.paddle2.paddle_half_height) * (-1):
 				match_room.paddle2.y -= paddle_speed
-			elif direction == "DOWN" and match_room.paddle2.y > (match_room.GAME_HALF_HEIGHT - match_room.paddle2.paddle_half_height) * (-1):
+			elif direction == "DOWN" and match_room.paddle2.y < (match_room.GAME_HALF_HEIGHT - match_room.paddle2.paddle_half_height):
 				match_room.paddle2.y += paddle_speed
 		# await self.channel_layer.group_send(
 		# 	self.match_group_name, {
