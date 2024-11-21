@@ -57,7 +57,6 @@ export async function openFriendlistWebsocket() {
 
 export async function openMatchmakingWebsocket() {
 	const url = "/api/matchmaking/ws/";
-	window.searchingPlayerModal.show(); // Open the 'Searching for player' modal
 	openWebSocket(url).then(() => {
 		console.log('Matchmaking WebSocket established');
 	}).catch((error) => {
@@ -69,12 +68,9 @@ export async function openPongWebsocket(match_id) {
 	const url = "/api/pong/ws/" + match_id + "/";
 	openWebSocket(url).then((ws) => {
 		pongWebSocket = ws; // Store the Pong WebSocket instance
-		const modalBackdrop = document.querySelector('.modal-backdrop');
-		if (modalBackdrop) {
-			modalBackdrop.remove(); // Remove the backdrop element from the DOM
-		}
-		window.searchingPlayerModal.hide(); // Close the modal when match found
 		console.log('Pong WebSocket established');
+		const redirectToGameEvent = new CustomEvent('game_redirect');
+		window.dispatchEvent(redirectToGameEvent);
 		// Add a small delay before the redirect to compensate for the slow-ass closing of the shitty-ass modal
 		setTimeout(() => {
 			window.location.hash = '#game'; // Redirect to #game when the connection is established

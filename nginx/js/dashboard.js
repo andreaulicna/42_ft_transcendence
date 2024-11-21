@@ -1,7 +1,7 @@
 import { openMatchmakingWebsocket } from './websockets.js';
 
 export function init(data) {
-	initializeModals();
+	window.searchingPlayerModal = new bootstrap.Modal(document.getElementById('searchingPlayerModal'));
 	
 	// LOAD DYNAMIC DATA
 	document.getElementById('userName').textContent = '🏓 ' + data.username;
@@ -14,13 +14,16 @@ export function init(data) {
 
 			if (mode === 'remote') {
 				openMatchmakingWebsocket();
+				searchingPlayerModal.show(); // Open the 'Searching for player' modal
 			}
 		});
 	});
 
-}
+	// Close the 'Searching for player' modal when a match starts
+	window.addEventListener('game_redirect', () => {
+		if (window.searchingPlayerModal) {
+			window.searchingPlayerModal.hide(); // Close the modal when the match starts
+		}
+	});
 
-export function initializeModals() {
-	// Initialize the modal instance after the DOM is fully loaded
-	window.searchingPlayerModal = new bootstrap.Modal(document.getElementById('searchingPlayerModal'));
 }

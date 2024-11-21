@@ -6,7 +6,6 @@
 		</div>
 		<div id="scoreText" class="fs-1">0 : 0</div>
 		<canvas id="gameBoard" width="800" height="500"></canvas>
-		<div id="countdown" class="fs-1">Countdown!</div>
 	</div>
 	<div id="gameOverScreen" style="display:none">
 		<div class="fs-2 text-center">
@@ -23,5 +22,16 @@
 				<span data-translate="buttonMenu">Main Menu</span>
 			</button>
 		</a>
+	</div>
+</div>
+
+<!-- Countdown Modal -->
+<div class="modal fade" id="countdownModal" tabindex="-1" aria-labelledby="countdownModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-body text-center">
+				<h1 id="countdownText" class="display-1"></h1>
+			</div>
+		</div>
 	</div>
 </div>
