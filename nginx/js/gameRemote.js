@@ -1,17 +1,38 @@
+import { apiCallAuthed } from './api.js';
 import { initializeTouchControls } from './gameTouchControls.js';
 
-export function init() {
+export async function init(data) {
 	startCountdown();
 	window.addEventListener('match_start', handleMatchStart);
-	// window.removeEventListener('draw', handleDraw);
 	window.addEventListener('draw', handleDraw);
+
+	// LOAD DYNAMIC DATA
+	console.log("Match data", data);
+	let player1Data;
+	let player2Data;
+	let player1Name;
+	let player2Name;
+	// if (sessionStorage.getItem("id") == data.player1)
+	// {
+	// 	player1Data = await apiCallAuthed(`api/user/info`);
+	// 	player2Data = await apiCallAuthed(`api/user/${data.player2}/info`);
+	// }
+	// else
+	// {
+	// 	player1Data = await apiCallAuthed(`api/user/${data.player1}/info`);
+	// 	player2Data = await apiCallAuthed(`api/user/info`);
+	// }
+	// player1Name = player1Data.username;
+	// player2Name = player2Data.username;
+	// const player1AvatarPlaceholder = document.getElementById("player1Pic");
+	// const player2AvatarPlaceholder = document.getElementById("player2Pic");
+	// player1AvatarPlaceholder.src = player1Data.avatar;
+	// player2AvatarPlaceholder.src = player2Data.avatar;
 
 	// CANVAS SETTINGS 
 	const gameBoard = document.getElementById("gameBoard");
 	const ctx = gameBoard.getContext("2d");
 	const playerNames = document.getElementById("playerNames");
-	let player1Name;
-	let player2Name;
 	const player1NamePlaceholder = document.getElementById("player1Name");
 	const player2NamePlaceholder = document.getElementById("player2Name");
 	const scoreText = document.getElementById("scoreText");
@@ -20,7 +41,6 @@ export function init() {
 	const paddle1Color = "#00babc";
 	const paddle2Color = "#df2af7";
 	const ballColor = "whitesmoke";
-	const ballRadius = 1;
 
 	// GAME OVER SCREEN ELEMENTS
 	const gameOverScreen = document.getElementById("gameOverScreen");
@@ -34,25 +54,21 @@ export function init() {
 	const originalGameHeight = 100; // Server-side game height
 	let ballX;
 	let ballY;
+	let ballRadius = data.default_ball_size;
 	let paddle1 = {
-		width: 2,
-		height: 10,
+		width: data.default_paddle_width,
+		height: data.default_paddle_height,
 		x: 80,
 		y: 0,
 	};
 	let paddle2 = {
-		width: 2,
-		height: 10,
+		width: data.default_paddle_width,
+		height: data.default_paddle_height,
 		x: -80,
 		y: 0,
 	};
-	// let gamePaused = false;
 	let player1Score;
 	let player2Score;
-
-	// Calculate scaling factors
-	const scaleX = gameWidth / originalGameWidth;
-	const scaleY = gameHeight / originalGameHeight;
 
 	// PLAYER CONTROLS
 	let keys = {};
@@ -70,7 +86,8 @@ export function init() {
 		player2NamePlaceholder.textContent = player2Name;
 	}
 
-	// window.removeEventListener('match_start', handleMatchStart);
+	const scaleX = gameWidth / originalGameWidth;
+	const scaleY = gameHeight / originalGameHeight;
 
 	function handleDraw(event) {
 		const data = event.detail;
@@ -105,30 +122,9 @@ export function init() {
 			if (countdown < 0) {
 				clearInterval(countdownInterval);
 				countdownModal.hide();
-				// gameStart();
 			}
 		}, 800);
 	}
-
-	// GAME START
-	// function gameStart() {
-	// 	gamePaused = false;
-	// 	nextTick();
-	// }
-
-	// // NEXT TICK
-	// function nextTick() {
-	// 	if (gamePaused) return;
-
-	// 	setTimeout(() => {
-	// 		clearBoard();
-	// 		drawPaddles();
-	// 		drawBall(ballX, ballY);
-	// 		updateScore();
-	// 		sendPaddleMovement();
-	// 		requestAnimationFrame(nextTick);
-	// 	}, 10);
-	// }
 
 	// CLEAR BOARD
 	function clearBoard() {
@@ -200,8 +196,6 @@ export function init() {
 		gameBoard.style.display = "none";
 		playerNames.style.visibility = "hidden";
 		scoreText.style.display = "none";
-
-		// gamePaused = true;
 	}
 
 	// // HIDE GAME OVER SCREEN

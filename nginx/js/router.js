@@ -47,7 +47,8 @@ const loadContent = async (path) => {
 		} else if (window.location.hash === '#searching') {
 			import('/js/gameSearching.js').then(module => module.init());
 		} else if (window.location.hash === '#game') {
-			import('/js/gameRemote.js').then(module => module.init());
+			data = await apiCallAuthed(`/api/user/match/${sessionStorage.getItem("match_id")}`);
+			import('/js/gameRemote.js').then(module => module.init(data));
 		} else if (window.location.hash === '#tournament') {
 			import('/js/tournament.js').then(module => module.init());
 		}

@@ -1,4 +1,6 @@
 export function init(data) {
+	sessionStorage.setItem("id", data.id);
+
 	// LOAD DYNAMIC DATA
 	document.getElementById('userName').textContent = '🏓 ' + data.username;
 
