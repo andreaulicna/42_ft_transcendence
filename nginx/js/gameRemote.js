@@ -2,16 +2,32 @@ import { apiCallAuthed } from './api.js';
 import { initializeTouchControls } from './gameTouchControls.js';
 
 export async function init(data) {
-	startCountdown();
 	window.addEventListener('match_start', handleMatchStart);
 	window.addEventListener('draw', handleDraw);
 
-	// LOAD DYNAMIC DATA
+	startCountdown();
+
+	// 👇 MATCH INFO API CALLS
+
 	console.log("Match data", data);
-	let player1Data;
-	let player2Data;
+	// let player1Data;
+	// let player2Data;
+	
+	// let player1 = {
+	// 	name: player1Data.username,
+	// 	score: 0,
+	// }
+
+	// let player2 = {
+	// 	name: player2Data.username,
+	// 	score: 0,
+	// }
+
 	let player1Name;
 	let player2Name;
+	let player1Score;
+	let player2Score;
+
 	// if (sessionStorage.getItem("id") == data.player1)
 	// {
 	// 	player1Data = await apiCallAuthed(`api/user/info`);
@@ -29,6 +45,8 @@ export async function init(data) {
 	// player1AvatarPlaceholder.src = player1Data.avatar;
 	// player2AvatarPlaceholder.src = player2Data.avatar;
 
+	// 👇 GAME LOGIC
+
 	// CANVAS SETTINGS 
 	const gameBoard = document.getElementById("gameBoard");
 	const ctx = gameBoard.getContext("2d");
@@ -42,33 +60,30 @@ export async function init(data) {
 	const paddle2Color = "#df2af7";
 	const ballColor = "whitesmoke";
 
-	// GAME OVER SCREEN ELEMENTS
-	const gameOverScreen = document.getElementById("gameOverScreen");
-	const winnerName = document.getElementById("winnerName");
-	const replayButton = document.getElementById("replayButton");
-	const mainMenuButton = document.getElementById("mainMenuButton");
-
 	// DEFAULT GAME SETTINGS 
 	const winCondition = 5;
 	const originalGameWidth = 160; // Server-side game width
 	const originalGameHeight = 100; // Server-side game height
-	let ballX;
-	let ballY;
-	let ballRadius = data.default_ball_size;
+
+	let ball = {
+		x: originalGameWidth / 2,
+		y: originalGameHeight / 2,
+		radius: data.default_ball_size,
+	}
+
 	let paddle1 = {
 		width: data.default_paddle_width,
 		height: data.default_paddle_height,
 		x: 80,
 		y: 0,
 	};
+
 	let paddle2 = {
 		width: data.default_paddle_width,
 		height: data.default_paddle_height,
 		x: -80,
 		y: 0,
 	};
-	let player1Score;
-	let player2Score;
 
 	// PLAYER CONTROLS
 	let keys = {};
@@ -91,8 +106,8 @@ export async function init(data) {
 
 	function handleDraw(event) {
 		const data = event.detail;
-		ballX = (data.ball_x + originalGameWidth / 2) * scaleX;
-		ballY = (data.ball_y + originalGameHeight / 2) * scaleY;
+		ball.x = (data.ball_x + originalGameWidth / 2) * scaleX;
+		ball.y = (data.ball_y + originalGameHeight / 2) * scaleY;
 		paddle1.x = (data.paddle1_x + originalGameWidth / 2) * scaleX;
 		paddle1.y = (data.paddle1_y + originalGameHeight / 2) * scaleY;
 		paddle2.x = (data.paddle2_x + originalGameWidth / 2) * scaleX;
@@ -102,28 +117,9 @@ export async function init(data) {
 
 		clearBoard();
 		drawPaddles();
-		drawBall(ballX, ballY);
+		drawBall(ball.x, ball.y);
 		updateScore();
 		sendPaddleMovement();
-		// console.log("DRAWING");
-	}
-
-	// START COUNTDOWN
-	function startCountdown() {
-		const countdownModal = new bootstrap.Modal(document.getElementById('countdownModal'));
-		const countdownText = document.getElementById('countdownText');
-		let countdown = 3;
-
-		countdownModal.show();
-
-		const countdownInterval = setInterval(() => {
-			countdownText.textContent = countdown;
-			countdown--;
-			if (countdown < 0) {
-				clearInterval(countdownInterval);
-				countdownModal.hide();
-			}
-		}, 800);
 	}
 
 	// CLEAR BOARD
@@ -150,7 +146,7 @@ export async function init(data) {
 		ctx.shadowColor = ballColor;
 		ctx.fillStyle = ballColor;
 		ctx.beginPath();
-		ctx.arc(ballX, ballY, ballRadius * Math.min(scaleX, scaleY), 0, 2 * Math.PI);
+		ctx.arc(ball.x, ball.y, ball.radius * Math.min(scaleX, scaleY), 0, 2 * Math.PI);
 		ctx.fill();
 		ctx.shadowBlur = 0;
 		ctx.shadowColor = 'transparent';
@@ -159,11 +155,9 @@ export async function init(data) {
 	// PADDLE MOVEMENT
 	function sendPaddleMovement() {
 		let direction = null;
-		if (keys[87] && paddle1.y > 0) { // W key
-			// Move paddle up if it is not at the top edge
+		if (keys[87] && paddle1.y > 0) {
 			direction = "UP";
-		} else if (keys[83] && paddle1.y < gameHeight - paddle1.height * scaleY) { // S key
-			// Move paddle down if it is not at the bottom edge
+		} else if (keys[83] && paddle1.y < gameHeight - paddle1.height * scaleY) {
 			direction = "DOWN";
 		}
 	
@@ -177,6 +171,34 @@ export async function init(data) {
 			window.dispatchEvent(paddleMovementEvent);
 		}
 	}
+
+	// 👇 MENUS & NON-GAME LOGIC
+
+	// START COUNTDOWN
+	function startCountdown() {
+		drawPaddles();
+		drawBall(ball.x, ball.y);
+		const countdownModal = new bootstrap.Modal(document.getElementById('countdownModal'));
+		const countdownText = document.getElementById('countdownText');
+		let countdown = 3;
+
+		countdownModal.show();
+
+		const countdownInterval = setInterval(() => {
+			countdownText.textContent = countdown;
+			countdown--;
+			if (countdown < 0) {
+				clearInterval(countdownInterval);
+				countdownModal.hide();
+			}
+		}, 800);
+	}
+
+	// GAME OVER SCREEN ELEMENTS
+	const gameOverScreen = document.getElementById("gameOverScreen");
+	const winnerName = document.getElementById("winnerName");
+	const replayButton = document.getElementById("replayButton");
+	const mainMenuButton = document.getElementById("mainMenuButton");
 
 	// UPDATE SCORE
 	function updateScore() {
@@ -198,7 +220,7 @@ export async function init(data) {
 		scoreText.style.display = "none";
 	}
 
-	// // HIDE GAME OVER SCREEN
+	// HIDE GAME OVER SCREEN
 	function hideGameOverScreen() {
 		gameOverScreen.style.display = "none";
 		gameBoard.style.display = "block";
