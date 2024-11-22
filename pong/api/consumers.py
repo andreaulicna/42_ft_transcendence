@@ -34,8 +34,8 @@ class PongGame:
 				f"game_height={self.GAME_HEIGHT}, paddle1={self.paddle1}, paddle2={self.paddle2}, "
 				f"player1={self.player1}, player2={self.player2})")
 	def reset(self):
-		self.paddle1 = Paddle(x=-80 + self.PADDLE_HALF_HEIGHT, game=self)
-		self.paddle2 = Paddle(x=80 - self.PADDLE_HALF_HEIGHT, game=self)
+		self.paddle1 = Paddle(x=-80 + self.PADDLE_HALF_WIDTH, game=self)
+		self.paddle2 = Paddle(x=80 - self.PADDLE_HALF_WIDTH, game=self)
 		self.ball = Ball()
 
 class Paddle:
@@ -280,6 +280,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 		while 42:
 			if match_room.player1 is None or match_room.player2 is None:
 				break
+
 			# Update ball position
 			ball.x += ball.speed * ball.x_direction
 			ball.y += ball.speed * ball.y_direction
@@ -292,21 +293,17 @@ class PongConsumer(AsyncWebsocketConsumer):
 			paddle1_top = paddle1.y + paddle1.paddle_half_height
 			paddle1_bottom = paddle1.y - paddle1.paddle_half_height
 			paddle1_right = paddle1.x + paddle1.paddle_half_width
-			ball_left = ball.x + ball.size
-			if (ball_left <= paddle1_right) and (paddle1_bottom <= ball.y <= paddle1_top):
-				ball.x_direction *= -1
-				ball.speed += ball.speed
-
 			paddle2_top = paddle2.y + paddle2.paddle_half_height
 			paddle2_bottom = paddle2.y - paddle2.paddle_half_height
 			paddle2_left = paddle2.x - paddle2.paddle_half_width
-			ball_right = ball.x + ball.size
-			if (ball_right >= paddle2_left) and (paddle2_bottom <= ball.y <= paddle2_top):
+			ball_right = ball.x + (ball.size / 2)
+			ball_left = ball.x - (ball.size / 2)
+			if (ball_left <= paddle1_right) and (paddle1_bottom <= ball.y <= paddle1_top):
+				logging.info("Bounced from paddle1")
 				ball.x_direction *= -1
-				ball.speed += ball.speed
-
-			# Scoring - player1
-			if (ball_left <= (0 - match_room.GAME_HALF_WIDTH)):
+				ball.speed += 0.1
+				ball.x = paddle1_right + (ball.size / 2)
+			elif (ball_left <= (0 - match_room.GAME_HALF_WIDTH)):
 				match_room.player1.score += 1
 				match_database.player1_score += 1
 				await sync_to_async(match_database.save)(update_fields=["player1_score"])
@@ -314,9 +311,12 @@ class PongConsumer(AsyncWebsocketConsumer):
 				ball = match_room.ball
 				paddle1 = match_room.paddle1
 				paddle2 = match_room.paddle2
-			
-			# Scoring - player2
-			if (ball_right >= (match_room.GAME_HALF_WIDTH)):
+			if (ball_right >= paddle2_left) and (paddle2_bottom <= ball.y <= paddle2_top):
+				logging.info("Bounced from paddle2")
+				ball.x_direction *= -1
+				ball.speed += 0.1
+				ball.x = paddle2_left - (ball.size / 2)
+			elif (ball_right >= (match_room.GAME_HALF_WIDTH)):
 				match_room.player2.score += 1
 				match_database.player2_score += 1
 				await sync_to_async(match_database.save)(update_fields=["player2_score"])
