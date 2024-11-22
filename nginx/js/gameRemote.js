@@ -2,68 +2,31 @@ import { apiCallAuthed } from './api.js';
 import { initializeTouchControls } from './gameTouchControls.js';
 
 export async function init(data) {
-	window.addEventListener('match_start', handleMatchStart);
 	window.addEventListener('draw', handleDraw);
+	window.addEventListener('match_end', showGameOverScreen);
 
 	startCountdown();
 
-	// 👇 MATCH INFO API CALLS
+	/* 👇 DEFAULT GAME OBJECTS INITIALIZATON */
 
 	console.log("Match data", data);
-	// let player1Data;
-	// let player2Data;
-	
-	// let player1 = {
-	// 	name: player1Data.username,
-	// 	score: 0,
-	// }
-
-	// let player2 = {
-	// 	name: player2Data.username,
-	// 	score: 0,
-	// }
-
-	let player1Name;
-	let player2Name;
-	let player1Score;
-	let player2Score;
-
-	// if (sessionStorage.getItem("id") == data.player1)
-	// {
-	// 	player1Data = await apiCallAuthed(`api/user/info`);
-	// 	player2Data = await apiCallAuthed(`api/user/${data.player2}/info`);
-	// }
-	// else
-	// {
-	// 	player1Data = await apiCallAuthed(`api/user/${data.player1}/info`);
-	// 	player2Data = await apiCallAuthed(`api/user/info`);
-	// }
-	// player1Name = player1Data.username;
-	// player2Name = player2Data.username;
-	// const player1AvatarPlaceholder = document.getElementById("player1Pic");
-	// const player2AvatarPlaceholder = document.getElementById("player2Pic");
-	// player1AvatarPlaceholder.src = player1Data.avatar;
-	// player2AvatarPlaceholder.src = player2Data.avatar;
-
-	// 👇 GAME LOGIC
-
-	// CANVAS SETTINGS 
-	const gameBoard = document.getElementById("gameBoard");
-	const ctx = gameBoard.getContext("2d");
-	const playerNames = document.getElementById("playerNames");
-	const player1NamePlaceholder = document.getElementById("player1Name");
-	const player2NamePlaceholder = document.getElementById("player2Name");
-	const scoreText = document.getElementById("scoreText");
-	const gameWidth = gameBoard.width;
-	const gameHeight = gameBoard.height;
-	const paddle1Color = "#00babc";
-	const paddle2Color = "#df2af7";
-	const ballColor = "whitesmoke";
-
-	// DEFAULT GAME SETTINGS 
-	const winCondition = 5;
 	const originalGameWidth = 160; // Server-side game width
 	const originalGameHeight = 100; // Server-side game height
+
+	const player1Data = await apiCallAuthed(`api/user/${data.player1}/info`);
+	console.log("Player 1 data", player1Data);
+	const player2Data = await apiCallAuthed(`api/user/${data.player2}/info`);
+	console.log("Player 2 data", player2Data);
+
+	let player1 = {
+		name: player1Data.username,
+		score: 0,
+	}
+
+	let player2 = {
+		name: player2Data.username,
+		score: 0,
+	}
 
 	let ball = {
 		x: originalGameWidth / 2,
@@ -85,24 +48,42 @@ export async function init(data) {
 		y: 0,
 	};
 
+	// CANVAS SETTINGS 
+	const gameBoard = document.getElementById("gameBoard");
+	const ctx = gameBoard.getContext("2d");
+	const playerNames = document.getElementById("playerNames");
+	const player1NamePlaceholder = document.getElementById("player1Name");
+	const player2NamePlaceholder = document.getElementById("player2Name");
+	player1NamePlaceholder.textContent = player1.name;
+	player2NamePlaceholder.textContent = player2.name;
+
+	// Uncomment this after the avatar upload is in place
+
+	// const player1AvatarPlaceholder = document.getElementById("player1Pic");
+	// const player2AvatarPlaceholder = document.getElementById("player2Pic");
+	// player1AvatarPlaceholder.src = player1Data.avatar;
+	// player2AvatarPlaceholder.src = player2Data.avatar;
+
+	const scoreText = document.getElementById("scoreText");
+	const gameWidth = gameBoard.width;
+	const gameHeight = gameBoard.height;
+	const paddle1Color = "#00babc";
+	const paddle2Color = "#df2af7";
+	const ballColor = "whitesmoke";
+
+	// Calculate the drawing scale for client's viewport
+	const scaleX = gameWidth / originalGameWidth;
+	const scaleY = gameHeight / originalGameHeight;
+
+	/* 👇 GAME LOGIC */
+
 	// PLAYER CONTROLS
 	let keys = {};
 	window.addEventListener("keydown", (event) => keys[event.keyCode] = true);
 	window.addEventListener("keyup", (event) => keys[event.keyCode] = false);
 	initializeTouchControls(gameBoard, paddle1, paddle2, gameWidth, gameHeight);
 
-	// LISTEN FOR CUSTOM EVENTS
-	function handleMatchStart(event) {
-		console.log("STARTING MATCH");
-		const data = event.detail;
-		player1Name = data.player1;
-		player2Name = data.player2;
-		player1NamePlaceholder.textContent = player1Name;
-		player2NamePlaceholder.textContent = player2Name;
-	}
-
-	const scaleX = gameWidth / originalGameWidth;
-	const scaleY = gameHeight / originalGameHeight;
+	// LISTEN TO DRAW EVENT AND DRAW THE FRAME
 
 	function handleDraw(event) {
 		const data = event.detail;
@@ -112,12 +93,12 @@ export async function init(data) {
 		paddle1.y = (data.paddle1_y + originalGameHeight / 2) * scaleY;
 		paddle2.x = (data.paddle2_x + originalGameWidth / 2) * scaleX;
 		paddle2.y = (data.paddle2_y + originalGameHeight / 2) * scaleY;
-		player1Score = data.player1_score;
-		player2Score = data.player2_score;
+		player1.score = data.player1_score;
+		player2.score = data.player2_score;
 
 		clearBoard();
-		drawPaddles();
-		drawBall(ball.x, ball.y);
+		drawPaddles(paddle1, paddle2);
+		drawBall(ball);
 		updateScore();
 		sendPaddleMovement();
 	}
@@ -128,7 +109,7 @@ export async function init(data) {
 	}
 
 	// DRAW PADDLES
-	function drawPaddles() {
+	function drawPaddles(paddle1, paddle2) {
 		ctx.shadowBlur = 20;
 		ctx.shadowColor = paddle1Color;
 		ctx.fillStyle = paddle1Color;
@@ -141,7 +122,7 @@ export async function init(data) {
 	}
 
 	// DRAW BALL
-	function drawBall(ballX, ballY) {
+	function drawBall(ball) {
 		ctx.shadowBlur = 20;
 		ctx.shadowColor = ballColor;
 		ctx.fillStyle = ballColor;
@@ -172,12 +153,10 @@ export async function init(data) {
 		}
 	}
 
-	// 👇 MENUS & NON-GAME LOGIC
+	/* 👇 MENUS & NON-GAME LOGIC */
 
 	// START COUNTDOWN
 	function startCountdown() {
-		drawPaddles();
-		drawBall(ball.x, ball.y);
 		const countdownModal = new bootstrap.Modal(document.getElementById('countdownModal'));
 		const countdownText = document.getElementById('countdownText');
 		let countdown = 3;
@@ -202,17 +181,14 @@ export async function init(data) {
 
 	// UPDATE SCORE
 	function updateScore() {
-		scoreText.textContent = `${player1Score} : ${player2Score}`;
-		if (player1Score >= winCondition || player2Score >= winCondition) {
-			showGameOverScreen();
-		}
+		scoreText.textContent = `${player1.score} : ${player2.score}`;
 	}
 
 	// SHOW GAME OVER SCREEN
 	function showGameOverScreen() {
-		let winner = player1Score >= winCondition ? player1Name : player2Name;
+		let winner = player1.score > player2.score ? player1.name : player2.name;
 		winnerName.textContent = `${winner}`;
-		winnerName.className = player1Score >= winCondition ? "blueSide" : "redSide";
+		winnerName.className = player1.score > player2.score ? "blueSide" : "redSide";
 
 		gameOverScreen.style.display = "block";
 		gameBoard.style.display = "none";
