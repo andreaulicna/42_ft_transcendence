@@ -63,7 +63,7 @@ class Tournament(models.Model):
 	time_created = models.DateTimeField(auto_now_add=True)
 	creator = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, related_name="creator", null=True)
 	status = models.CharField(max_length=4, choices=StatusOptions, default=StatusOptions.WAITING)
-	winner = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, related_name="winner_tpurnament", null=True)
+	winner = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, related_name="winner_tournament", null=True)
 
 class Match(models.Model):
 	class Meta:

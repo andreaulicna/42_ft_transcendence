@@ -1,5 +1,5 @@
 from .models import CustomUser, Match, Friendship
-from .serializers import UserSerializer, MatchSerializer, FriendshipSerializer, FriendshipListSerializer, MatchStartSerializer
+from .serializers import UserSerializer, MatchSerializer, FriendshipSerializer, FriendshipListSerializer, MatchStartSerializer, OtherUserSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -59,7 +59,16 @@ class UserInfoReset(APIView):
 		player.status_counter = 0
 		player.save()
 		return Response({'detail' : 'User info reset to default'})
-
+	
+class OtherUserInfoView(APIView):
+	permission_classes = [IsAuthenticated]
+	def get(self, request, pk):
+		try:
+			other_user = get_object_or_404(CustomUser, pk=pk)
+			other_user_serializer = OtherUserSerializer(other_user)
+			return Response(other_user_serializer.data)
+		except Http404:
+			return Response({'detail' : 'Other user not found'}, status=status.HTTP_404_NOT_FOUND)
 
 # protect against identical names and big amounts
 class UserAvatarUpload(APIView):
