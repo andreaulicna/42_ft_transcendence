@@ -36,12 +36,12 @@ async function openWebSocket(url) {
 					openPongWebsocket(data.message);
 				}
 				// For an ongoing match, dispatch custom events based on the message type
-				if (data.type === "match_start") {
-					const matchStartEvent = new CustomEvent('match_start', { detail: data });
-					window.dispatchEvent(matchStartEvent);
-				} else if (data.type === "draw") {
+				if (data.type === "draw") {
 					const drawEvent = new CustomEvent('draw', { detail: data });
 					window.dispatchEvent(drawEvent);
+				} else if (data.type === "match_end") {
+					const matchEndEvent = new CustomEvent('match_end');
+					window.dispatchEvent(matchEndEvent);
 				}
 			};
 		} catch (error) {
