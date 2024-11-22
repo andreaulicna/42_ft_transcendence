@@ -1,11 +1,11 @@
 /* BODY & BACKGROUND */
 
 body {
-    background: linear-gradient(90deg, #242424, #185657);
-    background-size: 800% 800%;
-    animation: gradientAnimation 15s ease infinite;
-    min-height: 100vh;
-    margin: 0;
+	background: linear-gradient(90deg, #242424, #185657);
+	background-size: 800% 800%;
+	animation: gradientAnimation 15s ease infinite;
+	min-height: 100vh;
+	margin: 0;
 
 	font-family: 'Arimo', sans-serif;
 	color:whitesmoke;
@@ -14,15 +14,15 @@ body {
 /* ANIMATIONS */
 
 @keyframes gradientAnimation {
-    0% {
-        background-position: 0% 50%;
-    }
-    50% {
-        background-position: 100% 50%;
-    }
-    100% {
-        background-position: 0% 50%;
-    }
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
 }
 
 @keyframes fadeAnimation {
@@ -52,28 +52,28 @@ body {
 /* BOOTSTRAP COMPONENTS CUSTOMIZATION */
 
 .btn-prg {
-    background-color: #00babc;
-    color: whitesmoke;
-    cursor: pointer;
+	background-color: #00babc;
+	color: whitesmoke;
+	cursor: pointer;
 }
 
 .btn-prg:hover {
-    background-color: #009fa1;
+	background-color: #009fa1;
 	color: whitesmoke;
 }
 
 .link-prg {
-    color: #00babc;
+	color: #00babc;
 }
 
 .link-prg:hover {
-    color: #009fa1;
-    cursor: pointer;
+	color: #009fa1;
+	cursor: pointer;
 }
 
 .nav-link {
-    color: #00babc !important;
-    cursor: pointer !important;
+	color: #00babc !important;
+	cursor: pointer !important;
 }
 
 .nav-link.active {
@@ -82,7 +82,7 @@ body {
 }
 
 .nav-link:hover {
-    background-color: #009fa1 !important;
+	background-color: #009fa1 !important;
 	color: whitesmoke !important;
 }
 
@@ -112,9 +112,9 @@ body {
 }
 
 .reset-styles {
-    all: unset;
-    display: inline-block;
-    cursor: pointer;
+	all: unset;
+	display: inline-block;
+	cursor: pointer;
 
 	font-family: 'Arimo', sans-serif;
 	color:whitesmoke;

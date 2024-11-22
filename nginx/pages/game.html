@@ -1,8 +1,10 @@
 <div class=" fadeAnimation">
 	<div id="gameContainer" class="container-sm">
-		<div id="playerNames" class="d-flex justify-content-center gap-5">
+		<div id="playerNames" class="d-flex justify-content-center gap-2">
+			<img id="player1Pic" src="assets/default_user_pfp.png" alt="User profile picture" class="d-block mx-auto p-4" style="width:100px">
 			<div id="player1Name" class="blueSide">Player 1</div>
 			<div id="player2Name" class="redSide">Player 2</div>
+			<img id="player2Pic" src="assets/default_user_pfp.png" alt="User profile picture" class="d-block mx-auto p-4" style="width:100px">
 		</div>
 		<div id="scoreText" class="fs-1">0 : 0</div>
 		<canvas id="gameBoard" width="800" height="500"></canvas>
@@ -12,7 +14,7 @@
 			<span id="winnerName"></span>
 			<span data-translate="hasWon"> wins!</span>
 		</div>
-		<button type="button" id="replayButton"  class="btn btn-prg w-100 mb-2">
+		<button type="button" id="replayButton" class="btn btn-prg w-100 mb-2">
 			<span class="fs-5">🔃</span>
 			<span data-translate="buttonReplay">Replay</span>
 		</button>

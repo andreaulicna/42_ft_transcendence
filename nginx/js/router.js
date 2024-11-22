@@ -7,6 +7,7 @@ const routes = {
 	'#login'		: '/pages/login.html',
 	'#register'		: '/pages/register.html',
 	'#dashboard'	: '/pages/dashboard.html',
+	'#searching'	: '/pages/searchingForGame.html',
 	'#game'			: '/pages/game.html',
 	'#tournament'	: '/pages/tournament.html',
 	'#profile'		: '/pages/profile.html',
@@ -15,27 +16,39 @@ const routes = {
 
 const loadContent = async (path) => {
 	try {
+		// Load the HTML content
 		const response = await fetch(path);
 		const content = await response.text();
 		dynamicContent.innerHTML = content;
-		let data;
 
 		// Reapply language settings after loading new content
 		const preferredLanguage = localStorage.getItem("language") || "en";
 		setLanguage(preferredLanguage);
 
+		// Check if user is logged in first
+		if ((path != '/pages/login.html' && path != '/pages/register.html' && path != '/pages/404.html') && !sessionStorage.getItem('access')) {
+			window.location.hash = '#login';
+			throw new Error('Not logged in.');
+		}
+
+		// Reroute
+		let data;
 		if (window.location.hash === '#login' || window.location.hash === '') {
 			import('/js/login.js').then(module => module.init());
 		} else if (window.location.hash === '#register') {
 			import('/js/register.js').then(module => module.init());
 		} else if (window.location.hash === '#dashboard') {
 			data = await apiCallAuthed('/api/user/info');
+			console.log("User info: ", data);
 			import('/js/dashboard.js').then(module => module.init(data));
 		} else if (window.location.hash === '#profile') {
 			data = await apiCallAuthed('/api/user/info');
 			import('/js/profile.js').then(module => module.init(data));
+		} else if (window.location.hash === '#searching') {
+			import('/js/gameSearching.js').then(module => module.init());
 		} else if (window.location.hash === '#game') {
-			import('/js/gameRemote.js').then(module => module.init());
+			data = await apiCallAuthed(`/api/user/match/${sessionStorage.getItem("match_id")}`);
+			import('/js/gameRemote.js').then(module => module.init(data));
 		} else if (window.location.hash === '#tournament') {
 			import('/js/tournament.js').then(module => module.init());
 		}
