@@ -45,10 +45,19 @@ def set_user_to_ingame(player_id):
 	user.state = CustomUser.StateOptions.INGAME
 	user.save(update_fields=["state"])
 
+def get_channel_name_by_player_id(room, player_id):
+    for player in room['players']:
+        if player_id in player:
+            return player[player_id]
+    return None
+
+def get_player_id(room, index):
+	return list(room['players'][index].keys())[0]
+
 class TournamentConsumer(WebsocketConsumer):
 	def connect(self):
 		self.id = self.scope['user'].id
-		capacity = self.scope['url_route']['kwargs'].get('capacity')
+		capacity = int(self.scope['url_route']['kwargs'].get('capacity'))
 		print(f"Player {self.id} wants to play a tournament with capacity {capacity}!")
 		if is_player_in_room_already(self.id) or get_player_state(self.id) == CustomUser.StateOptions.INGAME:
 			self.close()
@@ -63,38 +72,51 @@ class TournamentConsumer(WebsocketConsumer):
 		)
 		self.accept()
 		if len(room['players']) == 4:
-			self.round1_group_name = "round1_" + room['room_id']
-			self.round2_group_name = "round2_" + room['room_id']
-			if (self.id == list(room['players'][0].keys())[0]) or (self.id == list(room['players'][1].keys())[0]):
-				async_to_sync(self.channel_layer.group_add)(
-					self.round1_group_name, self.channel_name
+			# Get player ids
+			player1_id = get_player_id(0)
+			player2_id = get_player_id(1)
+			player3_id = get_player_id(2)
+			player4_id = get_player_id(3)
+			# Create group_names for each round
+			round1_group_name = "round1_" + room['room_id']
+			round2_group_name = "round2_" + room['room_id']
+			# Assign players to group_names for each round
+			async_to_sync(self.channel_layer.group_add)(
+				round1_group_name, get_channel_name_by_player_id(room, player1_id)
+			)
+			async_to_sync(self.channel_layer.group_add)(
+				round1_group_name, get_channel_name_by_player_id(room, player2_id)
+			)
+			async_to_sync(self.channel_layer.group_add)(
+				round2_group_name, get_channel_name_by_player_id(room, player3_id)
+			)
+			async_to_sync(self.channel_layer.group_add)(
+				round2_group_name, get_channel_name_by_player_id(room, player4_id)
+			)
+			# Create math for round 1 and return match_id to players
+			data1 = {
+				'player1' : player1_id,
+				'player2' : player2_id,
+				'round' : 1
+			}
+			match_serializer1 = MatchSerializer(data=data1)
+			if match_serializer1.is_valid():
+				match_serializer1.save()
+				async_to_sync(self.channel_layer.group_send)(
+					round1_group_name, {"type": "tournament_message", "message": match_serializer1.data['id']}
 				)
-				data = {
-					'player1' : list(room['players'][0].keys())[0],
-					'player2' : list(room['players'][1].keys())[0],
-					'round' : 1
-				}
-				match_serializer = MatchSerializer(data=data)
-				if match_serializer.is_valid():
-					match_serializer.save()
-					async_to_sync(self.channel_layer.group_send)(
-						self.round1_group_name, {"type": "tournament_message", "message": match_serializer.data['id']}
-					)
-			elif (self.id == list(room['players'][2].keys())[0]) or (self.id == list(room['players'][3].keys())[0]):
-				async_to_sync(self.channel_layer.group_add)(
-					self.round1_group_name, self.channel_name
+			# Create math for round 2 and return match_id to players
+			data2 = {
+				'player1' : player3_id,
+				'player2' : player4_id,
+				'round' : 2
+			}
+			match_serializer2 = MatchSerializer(data=data2)
+			if match_serializer2.is_valid():
+				match_serializer2.save()
+				async_to_sync(self.channel_layer.group_send)(
+					round2_group_name, {"type": "tournament_message", "message": match_serializer2.data['id']}
 				)
-				data = {
-					'player1' : list(room['players'][2].keys())[0],
-					'player2' : list(room['players'][3].keys())[0],
-					'round' : 2
-				}
-				match_serializer = MatchSerializer(data=data)
-				if match_serializer.is_valid():
-					match_serializer.save()
-					async_to_sync(self.channel_layer.group_send)(
-						self.round2_group_name, {"type": "tournament_message", "message": match_serializer.data['id']}
-					)
 		print("Tournaments after connect:")
 		pprint(tournaments)
 
