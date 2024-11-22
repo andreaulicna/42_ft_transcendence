@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.1/howto/deployment/asgi/
 
 import os
 from django.core.asgi import get_asgi_application
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'pong.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'tournament.settings')
 django_asgi_app = get_asgi_application()
 
 from django_channels_jwt.middleware import JwtAuthMiddlewareStack
