@@ -153,7 +153,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 			await add_player_to_room(match_id, match_room, self.id, self.channel_name)
 		except ValueError:
 			logging.info("VALUE ERROR")
-			self.close()
+			await self.close()
 			return
 		self.match_group_name = match_room.match_id
 		await self.channel_layer.group_add(
@@ -172,13 +172,14 @@ class PongConsumer(AsyncWebsocketConsumer):
 	async def disconnect(self, close_code):
 		await set_user_state(self.scope['user'], CustomUser.StateOptions.IDLE)
 		for match_room in match_rooms:
+			if (match_room.player1 is not None and match_room.player1.channel_name == self.channel_name) or (match_room.player2 is not None and match_room.player2.channel_name == self.channel_name):
+				await self.channel_layer.group_discard(
+					self.match_group_name, self.channel_name
+				)
 			if (match_room.player1 is not None) and (self.id == match_room.player1.id):
 				match_room.player1 = None
 			else:
 				match_room.player2 = None
-			await self.channel_layer.group_discard(
-				self.match_group_name, self.channel_name
-			)
 			if (match_room.player1 is None) and (match_room.player2 is None):
 				match_rooms.remove(match_room)
 			break

@@ -26,7 +26,6 @@ Deleted `/api/user/friendships`, reworked `/api/user/friends` endpoint, updated 
 | `/friends/<int:pk>/delete`| DELETE || 200, 404| deletes an active friendship OR, if the user is the sender, a pending friend request (basically withdraws the request) |
 |`/debug/info/reset`| POST | | 200, 404 | Resets user state from any to OFF 
 
-
 <sup>2</sup> Only available for debugging purposes for now, will net slightly different results for authenticated and non-authenticated users in the future<br>
 
 
@@ -59,3 +58,10 @@ Deleted `/api/user/friendships`, reworked `/api/user/friends` endpoint, updated 
 | :--- |---|:---| :---:| :---: |
 | `/ws/<int:match_id>/`|non-HTTP|`?uuid=`|Connected<br>Disconnected|Waits for players to join & starts the match
 
+
+### `/api/tournament`
+| Endpoint | Supported methods | Required input | Return codes | Notes |
+| :--- |---|:---| :---:| :---: |
+| `/create`|POST|`tournament_name`(optional)<br>`player_tmp_username`(optional)|200<br>400<br>404|Creates a tournament and player_tournament database entries
+| `/join`|POST|`tournament_name`(optional)<br>`player_tmp_username`(optional)|200<br>403<br>404|If `tournament_name` -> joins the exact tournament or asks the user to create one<br> If no `tournament_name` -> joins the first tournament with a free spot of asks the user to create one
+| `/ws/<int:tournament_id>/`|non-HTTP|`?uuid=`|Connected<br>Disconnected|Matchmaking for tournament. Returns match_id for pairs of users.

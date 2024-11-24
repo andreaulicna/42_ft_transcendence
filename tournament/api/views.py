@@ -1,5 +1,5 @@
 from .models import Tournament, PlayerTournament, CustomUser
-from .serializers import TournamentSerializer, PlayerTournamentSerializer
+from .serializers import TournamentSerializer, PlayerTournamentSerializer, Match
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -45,13 +45,26 @@ class CreateTournamentView(APIView):
 						'player_tournament' : player_tournament_serializer.data},
 						status=status.HTTP_201_CREATED)
 
-def player_already_in_a_tournament(tournaments, player_id):
+def player_already_in_waiting_tournament(tournaments, player_id):
     for tournament_iterator in tournaments:
         players_in_tournament = PlayerTournament.objects.filter(tournament=tournament_iterator.id)
         for player in players_in_tournament:
             if player.player_id == player_id:
                 return True
     return False
+
+def player_already_in_inprogress_tournament(tournaments, player_id):
+	for tournament_iterator in tournaments:
+		players_in_tournament = PlayerTournament.objects.filter(tournament=tournament_iterator.id)
+		for player in players_in_tournament:
+			all_tournament_matches = Match.objects.filter(tournament=tournament_iterator.id)
+			if len(all_tournament_matches) == 4 - 1: # CHANGE to tournament capacity
+				return True
+			for match in all_tournament_matches:
+				if (player.id in [match.player1_id, match.player2_id]) and (match.status != Match.StatusOptions.FINISHED):
+					return True
+	return False
+
 class JoinTournamentView(APIView):
 	permission_classes = [IsAuthenticated]
 	def post(self, request):
@@ -59,15 +72,17 @@ class JoinTournamentView(APIView):
 		player_tmp_username = request.data.get('player_tmp_username')
 		tournament_name = request.data.get('tournament_name')
 
-		# Allow only one waiting or in-progress tournament
-		waiting_and_inprogress_tournament = Tournament.objects.filter(
-			Q(status=Tournament.StatusOptions.WAITING) | Q(status=Tournament.StatusOptions.INPROGRESS)
-		)
-		if player_already_in_a_tournament(waiting_and_inprogress_tournament, request.user.id) == True:
-			return Response({"details" : "You are alredy in a (waiting or in progress) tournament!"}, status=status.HTTP_403_FORBIDDEN)
-
 		# Get all waiting tournaments
 		waiting_tournaments = Tournament.objects.filter(status=Tournament.StatusOptions.WAITING)
+		# Allow only one waiting tournament
+		if player_already_in_waiting_tournament(waiting_tournaments, request.user.id):
+			return Response({"details" : "You are alredy in a waiting tournament!"}, status=status.HTTP_403_FORBIDDEN)
+		# Get all inprogress tournaments
+		inprogress_tournaments = Tournament.objects.filter(status=Tournament.StatusOptions.INPROGRESS)
+		# Allow only one in-progress tournament
+		if player_already_in_inprogress_tournament(inprogress_tournaments, request.user.id):
+			return Response({"details" : "You are in an inprogress tournament and have matches to play!"}, status=status.HTTP_403_FORBIDDEN)
+
 		# Try to find a tournament to join 
 		for waiting_tournament in waiting_tournaments: 
 			players_in_tournament = PlayerTournament.objects.filter(tournament=waiting_tournament.id)

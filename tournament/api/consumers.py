@@ -2,36 +2,51 @@ from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
 import uuid # unique room_id
 from pprint import pprint # nice printing
-from .models import CustomUser, Match
+from .models import CustomUser, Match, PlayerTournament, Tournament
 import json
 from .serializers import MatchSerializer
+from django.shortcuts import get_object_or_404
+from django.http import Http404
+from django.core.exceptions import ObjectDoesNotExist
 
-tournaments = []
+tournament_rooms = []
 
-def create_room(capacity):
-	room = {
-		'players': [],
-		'room_id': str(uuid.uuid4()),
-		'capacity': capacity
-	}
-	tournaments.append(room)
-	return room
+class TournamentRoom:
+	def __init__(self, tournament_id):
+		self.id = tournament_id
+		self.players = []
 
-def add_player_to_room(room, player_id, channel_name):
-	room['players'].append({player_id: channel_name})
+	def __repr__(self):
+		return f"TournamentRoom(id={self.id}, players={self.players})"
 
-def find_room_to_join():
-	for room in tournaments:
-		if len(room['players']) < room['capacity']:
-			return room
-	return None
+class Player:
+	def __init__(self, player_id, channel_name, tournament_username):
+		self.id = player_id
+		self.channel_name = channel_name
+		self.username = tournament_username
 
-def is_player_in_room_already(player_id):
-	for room in tournaments:
-		for player in room['players']:
-			if player_id in player:
+	def __repr__(self):
+		return f"Player(id={self.id}, channel_name={self.channel_name}, username={self.username})"
+
+def is_player_in_tournament_room_already(player_id):
+	for tournament_room in tournament_rooms:
+		for player in tournament_room.players:
+			if player is not None and player_id == player.id:
 				return True
 	return False
+
+def find_tournament_room_to_join(tournament_id):
+	for tournament_room in tournament_rooms:
+		if (tournament_room.id == tournament_id) and (len(tournament_room.players) < 4): # CHANGE to tournament capacity
+			pprint(f'Found tournament room: {tournament_room}')
+			return tournament_room
+	return None
+
+def find_player_in_tournament_room(player_id):
+	for tournament_room in tournament_rooms:
+		if player_id in tournament_room.players:
+			return tournament_room
+	return None
 
 def get_player_state(player_id):
 	try:
@@ -39,64 +54,77 @@ def get_player_state(player_id):
 		return user.state
 	except CustomUser.DoesNotExist:
 		return None
-	
-def set_user_to_ingame(player_id):
-	user = CustomUser.objects.get(id=player_id)
-	user.state = CustomUser.StateOptions.INGAME
-	user.save(update_fields=["state"])
 
-def get_channel_name_by_player_id(room, player_id):
-    for player in room['players']:
-        if player_id in player:
-            return player[player_id]
-    return None
+def create_tournament_room(tournament_id):
+	tournament_database = get_object_or_404(Tournament, id=tournament_id)
+	tournament_room = TournamentRoom(tournament_id)
+	tournament_rooms.append(tournament_room)
+	return tournament_room
 
-def get_player_id(room, index):
-	return list(room['players'][index].keys())[0]
+def add_player_to_tournament_room(tournament_room, player_id, channel_name, player_tournament_tmp_username):
+	if (player_tournament_tmp_username):
+		tournament_username = player_tournament_tmp_username
+	else:
+		player = CustomUser.objects.filter(id=player_id)
+		tournament_username = player.username
+	tournament_room.players.append(Player(player_id, channel_name, tournament_username))
+
 
 class TournamentConsumer(WebsocketConsumer):
 	def connect(self):
 		self.id = self.scope['user'].id
-		capacity = int(self.scope['url_route']['kwargs'].get('capacity'))
-		print(f"Player {self.id} wants to play a tournament with capacity {capacity}!")
-		if is_player_in_room_already(self.id) or get_player_state(self.id) == CustomUser.StateOptions.INGAME:
+		capacity = 4 # CHANGE to tournament capacity
+		tournament_id = int(self.scope['url_route']['kwargs'].get('tournament_id'))
+		print(f"Player {self.id} wants to play tournament {tournament_id} with capacity {capacity}!")
+		# Check for valid player_id and tournament_id pair
+		try:
+			player_tournament = PlayerTournament.objects.get(player=self.id, tournament=tournament_id)
+		except ObjectDoesNotExist:
+			print("Reject bcs invalid player_tournament pair.")
+			self.close()
+			return
+		if is_player_in_tournament_room_already(self.id) or get_player_state(self.id) == CustomUser.StateOptions.INGAME:
+			print("Reject bcs already in a tournament")
 			self.close()
 			return 
-		room = find_room_to_join()
-		if not room:
-			room = create_room(capacity)
-		add_player_to_room(room, self.id, self.channel_name)
-		self.room_group_name = room['room_id']
+		print(f"Finding room")
+		tournament_room = find_tournament_room_to_join(tournament_id)
+		if not tournament_room:
+			try:
+				tournament_room = create_tournament_room(tournament_id)
+				print(f"Room {tournament_room.id} created!")
+			except Http404:
+				print("Close bcs no such tournament")
+				self.close()
+				return
+		add_player_to_tournament_room(tournament_room, self.id, self.channel_name, player_tournament.player_tmp_username)
+		self.room_group_name = str(tournament_room.id)
 		async_to_sync(self.channel_layer.group_add)(
 			self.room_group_name, self.channel_name
 		)
 		self.accept()
-		if len(room['players']) == 4:
-			# Get player ids
-			player1_id = get_player_id(0)
-			player2_id = get_player_id(1)
-			player3_id = get_player_id(2)
-			player4_id = get_player_id(3)
+		if len(tournament_room.players) == 4: # CHANGE to tournamet capacity
 			# Create group_names for each round
-			round1_group_name = "round1_" + room['room_id']
-			round2_group_name = "round2_" + room['room_id']
+			round1_group_name = "round1_" + str(tournament_room.id)
+			round2_group_name = "round2_" + str(tournament_room.id)
 			# Assign players to group_names for each round
 			async_to_sync(self.channel_layer.group_add)(
-				round1_group_name, get_channel_name_by_player_id(room, player1_id)
+				round1_group_name, tournament_room.players[0].channel_name
 			)
 			async_to_sync(self.channel_layer.group_add)(
-				round1_group_name, get_channel_name_by_player_id(room, player2_id)
+				round1_group_name, tournament_room.players[1].channel_name
 			)
 			async_to_sync(self.channel_layer.group_add)(
-				round2_group_name, get_channel_name_by_player_id(room, player3_id)
+				round2_group_name, tournament_room.players[2].channel_name
 			)
 			async_to_sync(self.channel_layer.group_add)(
-				round2_group_name, get_channel_name_by_player_id(room, player4_id)
+				round2_group_name, tournament_room.players[3].channel_name
 			)
 			# Create math for round 1 and return match_id to players
 			data1 = {
-				'player1' : player1_id,
-				'player2' : player2_id,
+				'player1' : tournament_room.players[0].id,
+				'player2' : tournament_room.players[1].id,
+				'tournament' : tournament_room.id,
 				'round' : 1
 			}
 			match_serializer1 = MatchSerializer(data=data1)
@@ -107,8 +135,9 @@ class TournamentConsumer(WebsocketConsumer):
 				)
 			# Create math for round 2 and return match_id to players
 			data2 = {
-				'player1' : player3_id,
-				'player2' : player4_id,
+				'player1' : tournament_room.players[2].id,
+				'player2' : tournament_room.players[3].id,
+				'tournament' : tournament_room.id,
 				'round' : 2
 			}
 			match_serializer2 = MatchSerializer(data=data2)
@@ -118,21 +147,21 @@ class TournamentConsumer(WebsocketConsumer):
 					round2_group_name, {"type": "tournament_message", "message": match_serializer2.data['id']}
 				)
 		print("Tournaments after connect:")
-		pprint(tournaments)
+		pprint(tournament_rooms)
 
 	def disconnect(self, close_code):
-		for room in tournaments:
-			for player in room['players']:
-				if self.channel_name in player.values():
+		for tournament_room in tournament_rooms:
+			for player in tournament_room.players:
+				if self.channel_name == player.channel_name:
 					async_to_sync(self.channel_layer.group_discard)(
 						self.room_group_name, self.channel_name
 					)
-					room['players'].remove(player)
-					if not room['players']:
-						tournaments.remove(room)
+					tournament_room.players.remove(player)
+					if not tournament_room.players:
+						tournament_rooms.remove(tournament_room)
 					break
 		print("Tournaments after disconnect:")
-		pprint(tournaments)
+		pprint(tournament_rooms)
 	
 	def receive(self, text_data):
 		text_data_json = json.loads(text_data)
