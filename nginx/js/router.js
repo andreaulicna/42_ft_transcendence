@@ -10,6 +10,7 @@ const routes = {
 	'#searching'	: '/pages/searchingForGame.html',
 	'#game'			: '/pages/game.html',
 	'#tournament'	: '/pages/tournament.html',
+	'#lobby'		: '/pages/tournamentLobby.html',
 	'#profile'		: '/pages/profile.html',
 	'404'			: '/pages/404.html'
 };
@@ -51,6 +52,8 @@ const loadContent = async (path) => {
 			import('/js/gameRemote.js').then(module => module.init(data));
 		} else if (window.location.hash === '#tournament') {
 			import('/js/tournament.js').then(module => module.init());
+		} else if (window.location.hash === '#lobby') {
+			import('/js/tournamentLobby.js').then(module => module.init());
 		}
 	} catch (err) {
 		console.error('Error loading content:', err);

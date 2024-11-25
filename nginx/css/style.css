@@ -44,6 +44,7 @@ body {
 	transition: transform 0.3s ease, color 0.3s ease;
 	color:whitesmoke;
 }
+
 .slide-right:hover {
 	transform: translateX(20px);
 	color: #00babc;

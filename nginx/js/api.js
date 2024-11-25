@@ -88,6 +88,7 @@ export async function apiCallAuthed(url, method = 'GET', headers = {}, payload =
 	try {
 		const response = await fetch(url, options);
 		if (response.ok) {
+			console.log("API CALL RESPONSE", response);
 			return await response.json();
 		} else {
 			const errorData = await response.json();
