@@ -51,7 +51,7 @@ export async function init(data) {
 	let paddle2 = {
 		width: data.default_paddle_width,
 		height: data.default_paddle_height,
-		x: (78 + originalGameWidth / 2) * scaleX,
+		x: (79 + originalGameWidth / 2) * scaleX,
 		y: (0 + originalGameHeight / 2) * scaleY,
 	};
 
@@ -92,10 +92,10 @@ export async function init(data) {
 		const data = event.detail;
 		ball.x = (data.ball_x + originalGameWidth / 2) * scaleX;
 		ball.y = (data.ball_y + originalGameHeight / 2) * scaleY;
-		paddle1.x = (data.paddle1_x + originalGameWidth / 2) * scaleX;
-		paddle1.y = (data.paddle1_y + originalGameHeight / 2) * scaleY;
-		paddle2.x = (data.paddle2_x + originalGameWidth / 2) * scaleX;
-		paddle2.y = (data.paddle2_y + originalGameHeight / 2) * scaleY;
+		paddle1.x = (data.paddle1_x - (paddle1.width / 2) + originalGameWidth / 2) * scaleX;
+		paddle1.y = (data.paddle1_y - (paddle1.height / 2) + originalGameHeight / 2) * scaleY;
+		paddle2.x = (data.paddle2_x - (paddle2.width / 2) + originalGameWidth / 2) * scaleX;
+		paddle2.y = (data.paddle2_y - (paddle2.height / 2) + originalGameHeight / 2) * scaleY;
 		player1.score = data.player1_score;
 		player2.score = data.player2_score;
 
@@ -116,10 +116,10 @@ export async function init(data) {
 		ctx.shadowBlur = 20;
 		ctx.shadowColor = paddle1Color;
 		ctx.fillStyle = paddle1Color;
-		ctx.fillRect(paddle1.x - (paddle1.width / 2), paddle1.y - (paddle2.height / 2), paddle1.width * scaleX, paddle1.height * scaleY);
+		ctx.fillRect(paddle1.x, paddle1.y, paddle1.width * scaleX, paddle1.height * scaleY);
 		ctx.shadowColor = paddle2Color;
 		ctx.fillStyle = paddle2Color;
-		ctx.fillRect(paddle2.x - (paddle2.width / 2), paddle2.y - (paddle2.height / 2), paddle2.width * scaleX, paddle2.height * scaleY);
+		ctx.fillRect(paddle2.x, paddle2.y, paddle2.width * scaleX, paddle2.height * scaleY);
 		ctx.shadowBlur = 0;
 		ctx.shadowColor = 'transparent';
 	}
@@ -139,11 +139,23 @@ export async function init(data) {
 	// PADDLE MOVEMENT
 	function sendPaddleMovement() {
 		let direction = null;
-		if (keys[87] && paddle1.y > 0) {
-			direction = "UP";
-		} else if (keys[83] && paddle1.y < gameHeight - paddle1.height * scaleY) {
-			direction = "DOWN";
+		if (player1Data.id == sessionStorage.getItem("id"))
+		{
+			if (keys[87] && paddle1.y >= 0) {
+				direction = "UP";
+			} else if (keys[83] && paddle1.y <= (gameHeight - paddle1.height) * scaleY) {
+				direction = "DOWN";
+			}
 		}
+		else
+		{
+			if (keys[87] && paddle2.y >= 0) {
+				direction = "UP";
+			} else if (keys[83] && paddle2.y <= (gameHeight - paddle2.height) * scaleY) {
+				direction = "DOWN";
+			}
+		}
+		
 	
 		if (direction) {
 			const paddleMovementEvent = new CustomEvent('paddle_movement', {
