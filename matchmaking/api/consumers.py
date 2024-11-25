@@ -5,6 +5,7 @@ from pprint import pprint # nice printing
 from .models import CustomUser, Match
 import json
 from .serializers import MatchSerializer
+from matchmaking.settings import GAME_CONSTANTS
 
 rooms = []
 
@@ -63,7 +64,11 @@ class MatchmakingConsumer(WebsocketConsumer):
 		if len(room['players']) == 2:
 			data = {
 				'player1' : list(room['players'][0].keys())[0],
-				'player2' : list(room['players'][1].keys())[0]
+				'player2' : list(room['players'][1].keys())[0],
+				'default_ball_size' : GAME_CONSTANTS['BALL_SIZE'],
+				'default_paddle_height' : GAME_CONSTANTS['PADDLE_HEIGHT'],
+				'default_paddle_width' : GAME_CONSTANTS['PADDLE_WIDTH'],
+				'default_paddle_speed' : GAME_CONSTANTS['PADDLE_SPEED']
 			}
 			match_serializer = MatchSerializer(data=data)
 			if match_serializer.is_valid():
