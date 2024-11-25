@@ -38,7 +38,7 @@ export async function init(data) {
 	let ball = {
 		x: (originalGameWidth / 2) * scaleX,
 		y: (originalGameHeight / 2) * scaleX,
-		radius: data.default_ball_size,
+		radius: data.default_ball_size / 2,
 	}
 
 	let paddle1 = {

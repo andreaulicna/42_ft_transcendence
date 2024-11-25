@@ -8,6 +8,7 @@ import random
 from asgiref.sync import sync_to_async
 import asyncio, logging
 from django.conf import settings
+from .utils import Vector2D
 
 match_rooms = []
 
@@ -40,26 +41,23 @@ class PongGame:
 
 class Paddle:
 	def __init__(self, x, game):
-		self.x = x
-		self.y = 0
+		self.position = Vector2D(x, 0)
 		self.paddle_half_height = game.PADDLE_HALF_HEIGHT
 		self.paddle_half_width = game.PADDLE_HALF_WIDTH
 		self.paddle_speed = game.PADDLE_SPEED
 
 	def __repr__(self):
-		return f"Paddle(x={self.x}, y={self.y}, paddle_half_height={self.paddle_half_height}, paddle_half_width={self.paddle_half_width}, paddle_speed={self.paddle_speed})"
+		return f"Paddle(x={self.position.x}, y={self.position.y}, paddle_half_height={self.paddle_half_height}, paddle_half_width={self.paddle_half_width}, paddle_speed={self.paddle_speed})"
 
 class Ball:
 	def __init__(self):
-		self.x = 0
-		self.y = 0
+		self.position = Vector2D(0, 0)
 		self.speed = settings.GAME_CONSTANTS['BALL_SPEED']
-		self.x_direction = random.choice([-1, 1])
-		self.y_direction = random.choice([-1, 1])
-		self.size = 1
+		self.direction = Vector2D(random.choice([-1, 1]), random.choice([-1, 1]))
+		self.size = settings.GAME_CONSTANTS['BALL_SIZE']
 	
 	def __repr__(self):
-		return f"Ball(x={self.x}, y={self.y}, speed={self.speed})"
+		return f"Ball(x={self.position.x}, y={self.position.y}, speed={self.speed}, direction={self.direction.x},{self.direction.y})"
 
 class Player:
 	def __init__(self, player_id, channel_name, username):
@@ -246,15 +244,15 @@ class PongConsumer(AsyncWebsocketConsumer):
 			return
 		paddle_speed = match_room.PADDLE_SPEED
 		if paddle == "paddle1":
-			if direction == "UP" and match_room.paddle1.y > (match_room.GAME_HALF_HEIGHT - match_room.paddle1.paddle_half_height) * (-1):
-				match_room.paddle1.y -= paddle_speed
-			elif direction == "DOWN" and match_room.paddle1.y < (match_room.GAME_HALF_HEIGHT - match_room.paddle1.paddle_half_height):
-				match_room.paddle1.y += paddle_speed
+			if direction == "UP" and match_room.paddle1.position.y > (match_room.GAME_HALF_HEIGHT - match_room.paddle1.paddle_half_height) * (-1):
+				match_room.paddle1.position.y -= paddle_speed
+			elif direction == "DOWN" and match_room.paddle1.position.y < (match_room.GAME_HALF_HEIGHT - match_room.paddle1.paddle_half_height):
+				match_room.paddle1.position.y += paddle_speed
 		elif paddle == "paddle2":
-			if direction == "UP" and match_room.paddle2.y > (match_room.GAME_HALF_HEIGHT - match_room.paddle2.paddle_half_height) * (-1):
-				match_room.paddle2.y -= paddle_speed
-			elif direction == "DOWN" and match_room.paddle2.y < (match_room.GAME_HALF_HEIGHT - match_room.paddle2.paddle_half_height):
-				match_room.paddle2.y += paddle_speed
+			if direction == "UP" and match_room.paddle2.position.y > (match_room.GAME_HALF_HEIGHT - match_room.paddle2.paddle_half_height) * (-1):
+				match_room.paddle2.position.y -= paddle_speed
+			elif direction == "DOWN" and match_room.paddle2.position.y < (match_room.GAME_HALF_HEIGHT - match_room.paddle2.paddle_half_height):
+				match_room.paddle2.position.y += paddle_speed
 
 	async def play_pong(self, match_room):
 		match_database = await sync_to_async(get_object_or_404)(Match, id=match_room.match_id)
@@ -282,42 +280,58 @@ class PongConsumer(AsyncWebsocketConsumer):
 			if match_room.player1 is None or match_room.player2 is None:
 				break
 
-			# Update ball position
-			ball.x += ball.speed * ball.x_direction
-			ball.y += ball.speed * ball.y_direction
-
 			# Ball collision with floor & ceiling
-			if (ball.y >= (match_room.GAME_HALF_HEIGHT - ball.size)) or ((ball.y <= ((match_room.GAME_HALF_HEIGHT - ball.size)) * (-1))):
-				ball.y_direction *= -1
+			if (ball.position.y >= (match_room.GAME_HALF_HEIGHT - ball.size)) or ((ball.position.y <= ((match_room.GAME_HALF_HEIGHT - ball.size)) * (-1))):
+				ball.direction.y *= -1
 			
-			# Ball collision with paddles
-			paddle1_top = paddle1.y + paddle1.paddle_half_height
-			paddle1_bottom = paddle1.y - paddle1.paddle_half_height
-			paddle1_right = paddle1.x + paddle1.paddle_half_width
-			paddle2_top = paddle2.y + paddle2.paddle_half_height
-			paddle2_bottom = paddle2.y - paddle2.paddle_half_height
-			paddle2_left = paddle2.x - paddle2.paddle_half_width
-			ball_right = ball.x + (ball.size / 2)
-			ball_left = ball.x - (ball.size / 2)
-			if (ball_left <= paddle1_right) and (paddle1_bottom <= ball.y <= paddle1_top):
-				logging.info("Bounced from paddle1")
-				ball.x_direction *= -1
-				ball.speed += 0.1
-				ball.x = paddle1_right + (ball.size / 2)
-			elif (ball_left <= (0 - match_room.GAME_HALF_WIDTH)):
-				match_room.player1.score += 1
-				match_database.player1_score += 1
-				await sync_to_async(match_database.save)(update_fields=["player1_score"])
-				match_room.reset()
-				ball = match_room.ball
-				paddle1 = match_room.paddle1
-				paddle2 = match_room.paddle2
-			if (ball_right >= paddle2_left) and (paddle2_bottom <= ball.y <= paddle2_top):
-				logging.info("Bounced from paddle2")
-				ball.x_direction *= -1
-				ball.speed += 0.1
-				ball.x = paddle2_left - (ball.size / 2)
-			elif (ball_right >= (match_room.GAME_HALF_WIDTH)):
+			# top & bottom are y-components, left & right are x-components
+			paddle1_top = paddle1.position.y + paddle1.paddle_half_height
+			paddle1_bottom = paddle1.position.y - paddle1.paddle_half_height
+			paddle1_right = paddle1.position.x + paddle1.paddle_half_width
+			paddle2_top = paddle2.position.y + paddle2.paddle_half_height
+			paddle2_bottom = paddle2.position.y - paddle2.paddle_half_height
+			paddle2_left = paddle2.position.x - paddle2.paddle_half_width
+			ball_right = ball.position.x + (ball.size / 2)
+			ball_left = ball.position.x - (ball.size / 2)
+
+			# Ball x paddle1 (left) collision
+			if ball.direction.x < 0:
+				p = Vector2D(ball_left, ball.position.y)
+				pr = p + (ball.direction * ball.speed) # multiplication of vector (direction) by scalar (speed)
+				q = Vector2D(paddle1_right, paddle1_bottom)
+				qs = Vector2D(paddle1_right, paddle1_top)
+				s = qs - q
+				r = pr - p
+				if (r.cross_product(s) != 0):
+					t = (s.cross_product(q - p)) / (r.cross_product(s))
+					u = ((q - p).cross_product(r)) / (r.cross_product(s))
+					if (0 <= t <= 1 and 0 <= u <= 1):
+						logging.info("Bounced from paddle1")
+						ball.position = p + (r * t)
+						ball.position.x += ball.size / 2
+						ball.direction.x *= -1
+						ball.speed += 0.1
+			
+			# Ball x paddle2 () collision
+			if ball.direction.x > 0:
+				p = Vector2D(ball_right, ball.position.y)
+				pr = p + (ball.direction * ball.speed) # multiplication of vector (direction) by scalar (speed)
+				q = Vector2D(paddle2_left, paddle2_bottom)
+				qs = Vector2D(paddle2_left, paddle2_top)
+				s = qs - q
+				r = pr - p
+				if (r.cross_product(s) != 0):
+					t = (s.cross_product(q - p)) / (r.cross_product(s))
+					u = ((q - p).cross_product(r)) / (r.cross_product(s))
+					if (0 <= t <= 1 and 0 <= u <= 1):
+						logging.info("Bounced from paddle2")
+						ball.position = p + (r * t)
+						ball.position.x -= ball.size / 2
+						ball.direction.x *= -1
+						ball.speed += 0.1
+
+			# Scoring player 2 - ball out of bounds on the left side
+			if (ball_left <= (0 - match_room.GAME_HALF_WIDTH)):
 				match_room.player2.score += 1
 				match_database.player2_score += 1
 				await sync_to_async(match_database.save)(update_fields=["player2_score"])
@@ -325,6 +339,19 @@ class PongConsumer(AsyncWebsocketConsumer):
 				ball = match_room.ball
 				paddle1 = match_room.paddle1
 				paddle2 = match_room.paddle2
+
+			# Scoring player 1 - ball out of bounds on the right side
+			if (ball_right >= (match_room.GAME_HALF_WIDTH)):
+				match_room.player1.score += 1
+				match_database.player1_score += 1
+				await sync_to_async(match_database.save)(update_fields=["player1_score"])
+				match_room.reset()
+				ball = match_room.ball
+				paddle1 = match_room.paddle1
+				paddle2 = match_room.paddle2
+
+			# Update ball position
+			ball.position += ball.direction * ball.speed
 
 			sequence += 1
 			#logging.info(f"Sending draw message to player 1: {match_room.player1.channel_name}")
@@ -334,12 +361,12 @@ class PongConsumer(AsyncWebsocketConsumer):
 					"message": "draw",
 					"sequence": sequence,
 					"for_player": match_room.player1.id,
-					"ball_x": ball.x,
-					"ball_y": ball.y,
-					"paddle1_x": paddle1.x,
-					"paddle1_y": paddle1.y,
-					"paddle2_x": paddle2.x,
-					"paddle2_y": paddle2.y,
+					"ball_x": ball.position.x,
+					"ball_y": ball.position.y,
+					"paddle1_x": paddle1.position.x,
+					"paddle1_y": paddle1.position.y,
+					"paddle2_x": paddle2.position.x,
+					"paddle2_y": paddle2.position.y,
 					"player1_score": match_room.player1.score,
 					"player2_score": match_room.player2.score
 				}
@@ -351,13 +378,13 @@ class PongConsumer(AsyncWebsocketConsumer):
 					"type": "draw",
 					"message": "draw",
 					"sequence": sequence,
-					"for_player": match_room.player2.id,
-					"ball_x": ball.x,
-					"ball_y": ball.y,
-					"paddle1_x": paddle1.x,
-					"paddle1_y": paddle1.y,
-					"paddle2_x": paddle2.x,
-					"paddle2_y": paddle2.y,
+					"for_player": match_room.player1.id,
+					"ball_x": ball.position.x,
+					"ball_y": ball.position.y,
+					"paddle1_x": paddle1.position.x,
+					"paddle1_y": paddle1.position.y,
+					"paddle2_x": paddle2.position.x,
+					"paddle2_y": paddle2.position.y,
 					"player1_score": match_room.player1.score,
 					"player2_score": match_room.player2.score
 				}
