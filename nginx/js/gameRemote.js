@@ -9,10 +9,17 @@ export async function init(data) {
 
 	/* 👇 DEFAULT GAME OBJECTS INITIALIZATON */
 
-	console.log("Match data", data);
+	// CANVAS SIZING
+	const gameBoard = document.getElementById("gameBoard");
+	const ctx = gameBoard.getContext("2d");
 	const originalGameWidth = 160; // Server-side game width
 	const originalGameHeight = 100; // Server-side game height
+	const gameWidth = gameBoard.width;
+	const gameHeight = gameBoard.height;
+	const scaleX = gameWidth / originalGameWidth; // Calculate the drawing scale for client's viewport
+	const scaleY = gameHeight / originalGameHeight;
 
+	console.log("Match data", data);
 	const player1Data = await apiCallAuthed(`api/user/${data.player1}/info`);
 	console.log("Player 1 data", player1Data);
 	const player2Data = await apiCallAuthed(`api/user/${data.player2}/info`);
@@ -29,35 +36,32 @@ export async function init(data) {
 	}
 
 	let ball = {
-		x: originalGameWidth / 2,
-		y: originalGameHeight / 2,
+		x: (originalGameWidth / 2) * scaleX,
+		y: (originalGameHeight / 2) * scaleX,
 		radius: data.default_ball_size,
 	}
 
 	let paddle1 = {
 		width: data.default_paddle_width,
 		height: data.default_paddle_height,
-		x: 80,
-		y: 0,
+		x: (-80 + originalGameWidth / 2) * scaleX,
+		y: (0 + originalGameHeight / 2) * scaleY,
 	};
 
 	let paddle2 = {
 		width: data.default_paddle_width,
 		height: data.default_paddle_height,
-		x: -80,
-		y: 0,
+		x: (78 + originalGameWidth / 2) * scaleX,
+		y: (0 + originalGameHeight / 2) * scaleY,
 	};
 
-	// CANVAS SETTINGS 
-	const gameBoard = document.getElementById("gameBoard");
-	const ctx = gameBoard.getContext("2d");
 	const playerNames = document.getElementById("playerNames");
 	const player1NamePlaceholder = document.getElementById("player1Name");
 	const player2NamePlaceholder = document.getElementById("player2Name");
 	player1NamePlaceholder.textContent = player1.name;
 	player2NamePlaceholder.textContent = player2.name;
 
-	// Uncomment this after the avatar upload is in place
+	// Uncomment the code below after the avatar upload is in place
 
 	// const player1AvatarPlaceholder = document.getElementById("player1Pic");
 	// const player2AvatarPlaceholder = document.getElementById("player2Pic");
@@ -65,15 +69,14 @@ export async function init(data) {
 	// player2AvatarPlaceholder.src = player2Data.avatar;
 
 	const scoreText = document.getElementById("scoreText");
-	const gameWidth = gameBoard.width;
-	const gameHeight = gameBoard.height;
 	const paddle1Color = "#00babc";
 	const paddle2Color = "#df2af7";
 	const ballColor = "whitesmoke";
 
-	// Calculate the drawing scale for client's viewport
-	const scaleX = gameWidth / originalGameWidth;
-	const scaleY = gameHeight / originalGameHeight;
+	// Draw the objects once before the game starts to visually initialize them
+	clearBoard();
+	drawPaddles(paddle1, paddle2);
+	drawBall(ball);
 
 	/* 👇 GAME LOGIC */
 
