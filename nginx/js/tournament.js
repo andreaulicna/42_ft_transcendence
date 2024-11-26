@@ -12,16 +12,12 @@ export function init() {
 		// const tournamentSlots = document.getElementById("tournament-slots").value;
 
 		try {
-			// const headers = {
-			// 	'Content-Type': 'application/json',
-			// };
+			const payload = {
+				'tournament_name': tournamentName,
+				// 'player_tmp_username': "borecek",
+			};
 
-			// const payload = JSON.stringify({
-			// 	tournament_name: tournamentName,
-			// 	player_tmp_username: "borecek",
-			// });
-
-			const response = await apiCallAuthed("/api/tournament/create", "POST");
+			const response = await apiCallAuthed("/api/tournament/create", "POST", null, payload);
 			console.log("Tournament created", response);
 			window.location.hash = '#lobby';
 		} catch (error) {
@@ -35,16 +31,12 @@ export function init() {
 		event.preventDefault();
 
 		try {
-			// const headers = {
-			// 	'Content-Type': 'application/json',
-			// };
+			const payload = {
+				// tournament_name: tournamentName,
+				// player_tmp_username: "borecek",
+			};
 
-			// const payload = JSON.stringify({
-			// 	tournament_name: tournamentName,
-			// 	player_tmp_username: "borecek",
-			// });
-
-			const response = await apiCallAuthed("/api/tournament/join", "POST");
+			const response = await apiCallAuthed("/api/tournament/join", "POST", null, payload);
 			console.log("Tournament joined", response);
 			window.location.hash = '#lobby';
 		} catch (error) {
