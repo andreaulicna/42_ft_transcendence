@@ -52,6 +52,10 @@ body {
 
 /* BOOTSTRAP COMPONENTS CUSTOMIZATION */
 
+.navbar-toggler {
+	filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(93%) contrast(100%);
+}
+
 .btn-prg {
 	background-color: #00babc;
 	color: whitesmoke;
