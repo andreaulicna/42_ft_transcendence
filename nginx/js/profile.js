@@ -5,7 +5,9 @@ export function init(data) {
 	document.getElementById('userName').textContent = '🏓 ' + data.username;
 	document.getElementById('numOfWins').textContent = '👍 ' + data.win_count;
 	document.getElementById('numOfLosses').textContent = '👎 ' + data.loss_count;
-
+	if (data.avatar != null)
+		document.getElementById('profilePic').src = data.avatar;
+	
 	// HANDLE PROFILE PIC UPLOAD
 	const editProfilePicForm = document.getElementById("editProfilePicForm");
 	const profilePicInput = document.getElementById("profilePicInput");
@@ -40,11 +42,8 @@ export function init(data) {
 				};
 				const payload = { 'profilePic': base64String};
 				const response = await apiCallAuthed("api/user/avatar", "PUT", headers, payload);
-				if (response.ok) {
-					profilePic.src = base64String;
-				} else {
-					alert("Failed to upload profile picture.");
-				}
+				console.log("PICTURE SUCCESSFULLY UPLOADED", response);
+				location.reload();
 			} catch (error) {
 				console.error("Error uploading profile picture:", error);
 				alert("An error occurred while uploading the profile picture.");

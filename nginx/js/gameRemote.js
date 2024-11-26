@@ -9,7 +9,6 @@ export async function init(data) {
 
 	/* 👇 DEFAULT GAME OBJECTS INITIALIZATON */
 
-	// CANVAS SIZING
 	const gameBoard = document.getElementById("gameBoard");
 	const ctx = gameBoard.getContext("2d");
 	const originalGameWidth = 160; // Server-side game width
@@ -61,12 +60,12 @@ export async function init(data) {
 	player1NamePlaceholder.textContent = player1.name;
 	player2NamePlaceholder.textContent = player2.name;
 
-	// Uncomment the code below after the avatar upload is in place
-
-	// const player1AvatarPlaceholder = document.getElementById("player1Pic");
-	// const player2AvatarPlaceholder = document.getElementById("player2Pic");
-	// player1AvatarPlaceholder.src = player1Data.avatar;
-	// player2AvatarPlaceholder.src = player2Data.avatar;
+	const player1AvatarPlaceholder = document.getElementById("player1Pic");
+	const player2AvatarPlaceholder = document.getElementById("player2Pic");
+	if (player1Data.avatar != null)
+		player1AvatarPlaceholder.src = player1Data.avatar;
+	if (player2Data.avatar != null)
+		player2AvatarPlaceholder.src = player2Data.avatar;
 
 	const scoreText = document.getElementById("scoreText");
 	const paddle1Color = "#00babc";
