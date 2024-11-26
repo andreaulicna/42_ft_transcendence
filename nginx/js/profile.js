@@ -36,9 +36,9 @@ export function init(data) {
 			// Upload image via API
 			try {
 				const headers = {
-					'Content-Type': 'application/json',
+					'Content-Type': 'application/json'
 				};
-				const payload = JSON.stringify({ profilePic: base64String });
+				const payload = { 'profilePic': base64String};
 				const response = await apiCallAuthed("api/user/avatar", "PUT", headers, payload);
 				if (response.ok) {
 					profilePic.src = base64String;

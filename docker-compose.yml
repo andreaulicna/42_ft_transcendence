@@ -40,6 +40,7 @@ services:
       - transcendence
     volumes:
       - ./authentication:/app
+      - uploaded-volume:/var/www/ft_transcendence/media
     depends_on:
       - authentication
 
@@ -58,7 +59,6 @@ services:
     build: ./authentication/
     volumes:
       - ./authentication:/app
-      - uploaded-volume:/app/mediafiles
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     networks:
