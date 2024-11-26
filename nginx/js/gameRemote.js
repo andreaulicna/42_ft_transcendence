@@ -1,9 +1,15 @@
 import { apiCallAuthed } from './api.js';
 import { initializeTouchControls } from './gameTouchControls.js';
+import { addPaddleMovementListener } from './websockets.js';
 
 export async function init(data) {
+	// Remove event listeners first so subsequent games don't multiply them
+	window.removeEventListener('draw', handleDraw);
+	window.removeEventListener('match_end', showGameOverScreen);
+
 	window.addEventListener('draw', handleDraw);
 	window.addEventListener('match_end', showGameOverScreen);
+	addPaddleMovementListener();
 
 	startCountdown();
 
