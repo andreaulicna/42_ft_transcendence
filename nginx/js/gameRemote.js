@@ -136,6 +136,40 @@ export async function init(data) {
 	}
 
 	// PADDLE MOVEMENT
+	
+	// Throttle function
+	function throttle(func, limit) {
+		let lastFunc;
+		let lastRan;
+		return function(...args) {
+			const context = this;
+			if (!lastRan) {
+				func.apply(context, args);
+				lastRan = Date.now();
+			} else {
+				clearTimeout(lastFunc);
+				lastFunc = setTimeout(function() {
+					if ((Date.now() - lastRan) >= limit) {
+						func.apply(context, args);
+						lastRan = Date.now();
+					}
+				}, limit - (Date.now() - lastRan));
+			}
+		};
+	}
+
+	// Throttled event dispatch function
+	const throttledDispatchEvent = throttle((direction) => {
+		const paddleMovementEvent = new CustomEvent('paddle_movement', {
+			detail: {
+				type: "paddle_movement",
+				direction: direction
+			}
+		});
+		window.dispatchEvent(paddleMovementEvent);
+	}, 10);
+
+	// Listen to inputs and dispatch movement to server
 	function sendPaddleMovement() {
 		let direction = null;
 		if (player1Data.id == sessionStorage.getItem("id"))
@@ -155,15 +189,8 @@ export async function init(data) {
 			}
 		}
 		
-	
 		if (direction) {
-			const paddleMovementEvent = new CustomEvent('paddle_movement', {
-				detail: {
-					type: "paddle_movement",
-					direction: direction
-				}
-			});
-			window.dispatchEvent(paddleMovementEvent);
+			throttledDispatchEvent(direction);
 		}
 	}
 

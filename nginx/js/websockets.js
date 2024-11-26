@@ -29,7 +29,7 @@ async function openWebSocket(url) {
 
 			ws.onmessage = (event) => {
 				const data = JSON.parse(event.data);
-				console.log('WebSocket message received:', data);
+				// console.log('WebSocket message received:', data);
 				// If match found, open Pong WebSocket
 				if (url === "/api/matchmaking/ws/") {
 					sessionStorage.setItem("match_id", data.message);
