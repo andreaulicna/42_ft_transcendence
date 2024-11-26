@@ -5,13 +5,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.generics import ListAPIView
-from pathlib import Path
-from django.core.files import File
-import random
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.http import Http404
-import base64
+import base64, os
 from django.core.files.base import ContentFile
 
 class UserRegistrationView(APIView):
@@ -86,9 +83,17 @@ class UserAvatarUpload(APIView):
 		if not data:
 			return Response({'detail': 'No avatar data provided'}, status=status.HTTP_400_BAD_REQUEST)
 		try:
-			format, imgstr = data.split(';base64,') 
+			format, imgstr = data.split(';base64,')
 			ext = format.split('/')[-1] 
 			avatar_data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
+			# Define the folder where the avatar is stored
+			avatar_folder = os.path.dirname(player.avatar.path)
+
+			# Delete existing files in the folder
+			for filename in os.listdir(avatar_folder):
+				file_path = os.path.join(avatar_folder, filename)
+				if os.path.isfile(file_path):
+					os.remove(file_path)
 			
 			# Save the file to the user's ImageField
 			player.avatar.save(f'avatar.{ext}', avatar_data)
