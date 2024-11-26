@@ -43,14 +43,14 @@ export async function init(data) {
 	let paddle1 = {
 		width: data.default_paddle_width,
 		height: data.default_paddle_height,
-		x: (-79 - (data.default_paddle_width / 2) + originalGameWidth / 2) * scaleX,
+		x: (-80 + originalGameWidth / 2) * scaleX,
 		y: (0 - (data.default_paddle_height / 2) + originalGameHeight / 2) * scaleY,
 	};
 
 	let paddle2 = {
 		width: data.default_paddle_width,
 		height: data.default_paddle_height,
-		x: (79 - (data.default_paddle_width / 2) + originalGameWidth / 2) * scaleX,
+		x: ((80 - data.default_paddle_width) + originalGameWidth / 2) * scaleX,
 		y: (0 - (data.default_paddle_height / 2) + originalGameHeight / 2) * scaleY,
 	};
 
