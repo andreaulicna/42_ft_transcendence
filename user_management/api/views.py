@@ -11,6 +11,8 @@ import random
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.http import Http404
+import base64
+from django.core.files.base import ContentFile
 
 class UserRegistrationView(APIView):
 	permission_classes = [AllowAny]
@@ -74,22 +76,26 @@ class OtherUserInfoView(APIView):
 class UserAvatarUpload(APIView):
 	permission_classes = [IsAuthenticated]
 
-	def post(self, request):
+	def put(self, request):
 		try:
 			player = CustomUser.objects.get(username=request.user)
 		except CustomUser.DoesNotExist:
 			return Response({'detail': 'Player does not exist'}, status=status.HTTP_404_NOT_FOUND)
-
-		# Specify the local file path
-		local_file_path = '/app/test_media/emoji_template.jpg'
-		
-		# Open the local file
-		with open(local_file_path, 'rb') as f:
+		# print(request.data)
+		data = request.data['profilePic']
+		if not data:
+			return Response({'detail': 'No avatar data provided'}, status=status.HTTP_400_BAD_REQUEST)
+		try:
+			format, imgstr = data.split(';base64,') 
+			ext = format.split('/')[-1] 
+			avatar_data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
+			
 			# Save the file to the user's ImageField
-			player.avatar.save(Path(local_file_path).name, File(f))
-		
-		player.save()
-		return Response({'detail': 'Avatar updated successfully'})
+			player.avatar.save(f'avatar.{ext}', avatar_data)
+			player.save()
+			return Response({'detail': 'Avatar updated successfully'})
+		except Exception as e:
+			return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 	
 	def get(self, request):
 		try:
