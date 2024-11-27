@@ -39,6 +39,9 @@ const translations = {
 		tournamentLobbyWait: "Waiting for players to join...",
 		tournamentLobbyStartButton: "Start Game",
 		tournamentLobbyCancelButton: "Cancel Lobby",
+		tournamentWaitingForPlayers: "Waiting for players",
+		tournamentCancelLobby: "Cancel",
+		tournamentjoinRandom: "Join random lobby",
 		// PROFILE
 		tabProfile: "Profile",
 		tabMatches: "Match History",
@@ -88,6 +91,9 @@ const translations = {
 		tournamentLobbyWait: "Čekání na ostatní hráče...",
 		tournamentLobbyStartButton: "Začít hru",
 		tournamentLobbyCancelButton: "Zrušit lobby",
+		tournamentWaitingForPlayers: "Čekám na ostatní hráče",
+		tournamentCancelLobby: "Zrušit",
+		tournamentjoinRandom: "Náhodný turnaj",
 		// PROFILE
 		tabProfile: "Profil",
 		tabMatches: "Historie zápasů",
@@ -137,6 +143,9 @@ const translations = {
 		tournamentLobbyWait: "Čakanie na ostatných hráčov...",
 		tournamentLobbyStartButton: "Začať hru",
 		tournamentLobbyCancelButton: "Zrušiť lobby",
+		tournamentWaitingForPlayers: "Čakám na ostatných hráčov",
+		tournamentCancelLobby: "Zrušiť",
+		tournamentjoinRandom: "Náhodný turnaj",
 		// PROFILE
 		tabProfile: "Profil",
 		tabMatches: "História zápasov",

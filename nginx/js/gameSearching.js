@@ -13,9 +13,9 @@ export function init() {
 	}
 
 	const returnButton = document.getElementById('stopSearchingBtn');
-    if (returnButton) {
-        returnButton.addEventListener('click', returnToMenu);
-    }
+	if (returnButton) {
+		returnButton.addEventListener('click', returnToMenu);
+	}
 
 	// Simple loading animation
 	const loadingAnimation = document.getElementById("loadingAnimation");

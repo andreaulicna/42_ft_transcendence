@@ -57,7 +57,6 @@ export async function loginUser(payload) {
 }
 
 export async function apiCallAuthed(url, method = 'GET', headers = {}, payload = null) {
-	const accessToken = sessionStorage.getItem('access');
 	const accessTokenExpiration = parseInt(sessionStorage.getItem('access_expiration'), 10);
 	const now = Date.now();
 
@@ -87,11 +86,12 @@ export async function apiCallAuthed(url, method = 'GET', headers = {}, payload =
 
 	try {
 		const response = await fetch(url, options);
+		const data = await response.json()
 		if (response.ok) {
-			return await response.json();
+			console.log("API CALL RESPONSE", data);
+			return (data);
 		} else {
-			const errorData = await response.json();
-			throw new Error(errorData.message || 'API call status not OK');
+			throw new Error(data.message || 'API call status not OK');
 		}
 	} catch (error) {
 		console.error('Authenticated API call error:', error);

@@ -10,6 +10,7 @@ const routes = {
 	'#searching'	: '/pages/searchingForGame.html',
 	'#game'			: '/pages/game.html',
 	'#tournament'	: '/pages/tournament.html',
+	'#lobby'		: '/pages/tournamentLobby.html',
 	'#profile'		: '/pages/profile.html',
 	'404'			: '/pages/404.html'
 };
@@ -31,7 +32,7 @@ const loadContent = async (path) => {
 			throw new Error('Not logged in.');
 		}
 
-		// Reroute
+		// Import the page's relevant script
 		let data;
 		if (window.location.hash === '#login' || window.location.hash === '') {
 			import('/js/login.js').then(module => module.init());
@@ -39,7 +40,6 @@ const loadContent = async (path) => {
 			import('/js/register.js').then(module => module.init());
 		} else if (window.location.hash === '#dashboard') {
 			data = await apiCallAuthed('/api/user/info');
-			console.log("User info: ", data);
 			import('/js/dashboard.js').then(module => module.init(data));
 		} else if (window.location.hash === '#profile') {
 			data = await apiCallAuthed('/api/user/info');
@@ -51,6 +51,8 @@ const loadContent = async (path) => {
 			import('/js/gameRemote.js').then(module => module.init(data));
 		} else if (window.location.hash === '#tournament') {
 			import('/js/tournament.js').then(module => module.init());
+		} else if (window.location.hash === '#lobby') {
+			import('/js/tournamentLobby.js').then(module => module.init());
 		}
 	} catch (err) {
 		console.error('Error loading content:', err);

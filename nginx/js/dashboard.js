@@ -3,6 +3,8 @@ export function init(data) {
 
 	// LOAD DYNAMIC DATA
 	document.getElementById('userName').textContent = '🏓 ' + data.username;
+	if (data.avatar != null)
+		document.getElementById('profilePic').src = data.avatar;
 
 	// ADD SELECTED GAME MODE TO LOCAL STORAGE
 	document.querySelectorAll('#menu a').forEach(link => {

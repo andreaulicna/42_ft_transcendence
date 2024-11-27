@@ -1,15 +1,22 @@
 import { apiCallAuthed } from './api.js';
 import { initializeTouchControls } from './gameTouchControls.js';
+import { addPaddleMovementListener } from './websockets.js';
 
 export async function init(data) {
+	// Remove event listeners first so subsequent games don't multiply them
+	window.removeEventListener("keydown", handleKeyDown);
+	window.removeEventListener("keyup", handleKeyUp);
+	window.removeEventListener('draw', handleDraw);
+	window.removeEventListener('match_end', showGameOverScreen);
+
 	window.addEventListener('draw', handleDraw);
 	window.addEventListener('match_end', showGameOverScreen);
+	addPaddleMovementListener();
 
 	startCountdown();
 
 	/* 👇 DEFAULT GAME OBJECTS INITIALIZATON */
 
-	// CANVAS SIZING
 	const gameBoard = document.getElementById("gameBoard");
 	const ctx = gameBoard.getContext("2d");
 	const originalGameWidth = 160; // Server-side game width
@@ -45,14 +52,14 @@ export async function init(data) {
 		width: data.default_paddle_width,
 		height: data.default_paddle_height,
 		x: (-80 + originalGameWidth / 2) * scaleX,
-		y: (0 + originalGameHeight / 2) * scaleY,
+		y: (0 - (data.default_paddle_height / 2) + originalGameHeight / 2) * scaleY,
 	};
 
 	let paddle2 = {
 		width: data.default_paddle_width,
 		height: data.default_paddle_height,
-		x: (79 + originalGameWidth / 2) * scaleX,
-		y: (0 + originalGameHeight / 2) * scaleY,
+		x: ((80 - data.default_paddle_width) + originalGameWidth / 2) * scaleX,
+		y: (0 - (data.default_paddle_height / 2) + originalGameHeight / 2) * scaleY,
 	};
 
 	const playerNames = document.getElementById("playerNames");
@@ -61,12 +68,12 @@ export async function init(data) {
 	player1NamePlaceholder.textContent = player1.name;
 	player2NamePlaceholder.textContent = player2.name;
 
-	// Uncomment the code below after the avatar upload is in place
-
-	// const player1AvatarPlaceholder = document.getElementById("player1Pic");
-	// const player2AvatarPlaceholder = document.getElementById("player2Pic");
-	// player1AvatarPlaceholder.src = player1Data.avatar;
-	// player2AvatarPlaceholder.src = player2Data.avatar;
+	const player1AvatarPlaceholder = document.getElementById("player1Pic");
+	const player2AvatarPlaceholder = document.getElementById("player2Pic");
+	if (player1Data.avatar != null)
+		player1AvatarPlaceholder.src = player1Data.avatar;
+	if (player2Data.avatar != null)
+		player2AvatarPlaceholder.src = player2Data.avatar;
 
 	const scoreText = document.getElementById("scoreText");
 	const paddle1Color = "#00babc";
@@ -82,8 +89,18 @@ export async function init(data) {
 
 	// PLAYER CONTROLS
 	let keys = {};
-	window.addEventListener("keydown", (event) => keys[event.keyCode] = true);
-	window.addEventListener("keyup", (event) => keys[event.keyCode] = false);
+
+	function handleKeyDown(event) {
+		keys[event.keyCode] = true;
+	}
+
+	function handleKeyUp(event) {
+		keys[event.keyCode] = false;
+	}
+	
+	window.addEventListener("keydown", handleKeyDown);
+	window.addEventListener("keyup", handleKeyUp);
+
 	initializeTouchControls(gameBoard, paddle1, paddle2, gameWidth, gameHeight);
 
 	// LISTEN TO DRAW EVENT AND DRAW THE FRAME
@@ -137,6 +154,40 @@ export async function init(data) {
 	}
 
 	// PADDLE MOVEMENT
+	
+	// Throttle function
+	function throttle(func, limit) {
+		let lastFunc;
+		let lastRan;
+		return function(...args) {
+			const context = this;
+			if (!lastRan) {
+				func.apply(context, args);
+				lastRan = Date.now();
+			} else {
+				clearTimeout(lastFunc);
+				lastFunc = setTimeout(function() {
+					if ((Date.now() - lastRan) >= limit) {
+						func.apply(context, args);
+						lastRan = Date.now();
+					}
+				}, limit - (Date.now() - lastRan));
+			}
+		};
+	}
+
+	// Throttled event dispatch function
+	const throttledDispatchEvent = throttle((direction) => {
+		const paddleMovementEvent = new CustomEvent('paddle_movement', {
+			detail: {
+				type: "paddle_movement",
+				direction: direction
+			}
+		});
+		window.dispatchEvent(paddleMovementEvent);
+	}, 10);
+
+	// Listen to inputs and dispatch movement to server
 	function sendPaddleMovement() {
 		let direction = null;
 		if (player1Data.id == sessionStorage.getItem("id"))
@@ -156,15 +207,8 @@ export async function init(data) {
 			}
 		}
 		
-	
 		if (direction) {
-			const paddleMovementEvent = new CustomEvent('paddle_movement', {
-				detail: {
-					type: "paddle_movement",
-					direction: direction
-				}
-			});
-			window.dispatchEvent(paddleMovementEvent);
+			throttledDispatchEvent(direction);
 		}
 	}
 

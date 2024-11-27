@@ -44,12 +44,17 @@ body {
 	transition: transform 0.3s ease, color 0.3s ease;
 	color:whitesmoke;
 }
+
 .slide-right:hover {
 	transform: translateX(20px);
 	color: #00babc;
 }
 
 /* BOOTSTRAP COMPONENTS CUSTOMIZATION */
+
+.navbar-toggler {
+	filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(93%) contrast(100%);
+}
 
 .btn-prg {
 	background-color: #00babc;
