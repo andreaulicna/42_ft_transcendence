@@ -2,20 +2,18 @@ import { apiCallAuthed } from './api.js';
 import { addPaddleMovementListener } from './websockets.js';
 
 export async function init(data) {
-	// Remove event listeners first so subsequent games don't multiply them
-	window.removeEventListener("keydown", handleKeyDown);
-	window.removeEventListener("keyup", handleKeyUp);
-	window.removeEventListener('draw', handleDraw);
-	window.removeEventListener('match_end', showGameOverScreen);
-
+	let keys = {};
+	if (!window.keyListenersAdded) {
+		window.addEventListener("keydown", handleKeyDown);
+		window.addEventListener("keyup", handleKeyUp);
+		window.keyListenersAdded = true;
+	}
 	window.addEventListener('draw', handleDraw);
 	window.addEventListener('match_end', showGameOverScreen);
 	addPaddleMovementListener();
-
 	startCountdown();
 
 	/* 👇 DEFAULT GAME OBJECTS INITIALIZATON */
-
 	const gameMode = localStorage.getItem('gameMode');
 	const gameBoard = document.getElementById("gameBoard");
 	const ctx = gameBoard.getContext("2d");
@@ -88,7 +86,6 @@ export async function init(data) {
 	/* 👇 GAME LOGIC */
 
 	// PLAYER CONTROLS
-	let keys = {};
 
 	function handleKeyDown(event) {
 		keys[event.keyCode] = true;
@@ -97,9 +94,6 @@ export async function init(data) {
 	function handleKeyUp(event) {
 		keys[event.keyCode] = false;
 	}
-	
-	window.addEventListener("keydown", handleKeyDown);
-	window.addEventListener("keyup", handleKeyUp);
 
 	const isTouchDevice = 'ontouchstart' in window;
 

@@ -92,27 +92,14 @@ export function closeMatchmakingWebsocket() {
 	console.log('Closing Matchmaking Websocket');
 }
 
-// // Listen for paddle movement events and send them through the Pong WebSocket
-// window.addEventListener('paddle_movement', (event) => {
-// 	if (pongWebSocket && pongWebSocket.readyState === WebSocket.OPEN) {
-// 		pongWebSocket.send(JSON.stringify(event.detail));
-// 		console.log('PONG WebSocket message sent:', event.detail);
-// 	}
-// });
-
-// Define the event handler function
 function handlePaddleMovement(event) {
-    if (pongWebSocket && pongWebSocket.readyState === WebSocket.OPEN) {
-        pongWebSocket.send(JSON.stringify(event.detail));
-        // console.log('PONG WebSocket message sent:', event.detail);
-    }
+	if (pongWebSocket && pongWebSocket.readyState === WebSocket.OPEN) {
+		pongWebSocket.send(JSON.stringify(event.detail));
+		// console.log('PONG WebSocket message sent:', event.detail);
+	}
 }
 
-// Export a function to add the event listener
+// Export function for gameRemote.js
 export function addPaddleMovementListener() {
-    if (!window.paddleMovementListenerAdded) {
-        window.addEventListener('paddle_movement', handlePaddleMovement);
-        window.paddleMovementListenerAdded = true;
-        console.log('Paddle movement event listener added');
-    }
+		window.addEventListener('paddle_movement', handlePaddleMovement);
 }
