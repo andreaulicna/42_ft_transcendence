@@ -1,5 +1,4 @@
 import { apiCallAuthed } from './api.js';
-import { initializeTouchControls } from './gameTouchControls.js';
 import { addPaddleMovementListener } from './websockets.js';
 
 export async function init(data) {
@@ -17,6 +16,7 @@ export async function init(data) {
 
 	/* 👇 DEFAULT GAME OBJECTS INITIALIZATON */
 
+	const gameMode = localStorage.getItem('gameMode');
 	const gameBoard = document.getElementById("gameBoard");
 	const ctx = gameBoard.getContext("2d");
 	const originalGameWidth = 160; // Server-side game width
@@ -101,7 +101,56 @@ export async function init(data) {
 	window.addEventListener("keydown", handleKeyDown);
 	window.addEventListener("keyup", handleKeyUp);
 
-	initializeTouchControls(gameBoard, paddle1, paddle2, gameWidth, gameHeight);
+	const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+	if (isTouchDevice) {
+		const touchControlsPlayer1 = document.getElementById('touchControlsPlayer1');
+		const touchControlsPlayer2 = document.getElementById('touchControlsPlayer2');
+		const player1Up = document.getElementById('player1Up');
+		const player1Down = document.getElementById('player1Down');
+		const player2Up = document.getElementById('player2Up');
+		const player2Down = document.getElementById('player2Down');
+
+		if (gameMode === 'local') {
+			touchControlsPlayer1.style.display = 'block';
+			touchControlsPlayer2.style.display = 'block';
+		} else {
+			if (player1Data.id == sessionStorage.getItem("id"))
+			{
+				touchControlsPlayer1.style.display = 'block';
+				touchControlsPlayer2.style.display = 'none';
+			}
+			else
+			{
+				touchControlsPlayer1.style.display = 'none';
+				touchControlsPlayer2.style.display = 'block';
+			}
+		}
+
+		function handleTouchStart(event, key) {
+			console.log("touchStart");
+			event.preventDefault();
+			keys[key] = true;
+		}
+
+		function handleTouchEnd(event, key,) {
+			console.log("touchEnd");
+			event.preventDefault();
+			keys[key] = false;
+		}
+
+		player1Up.addEventListener('touchstart', (event) => handleTouchStart(event, 87));
+		player1Up.addEventListener('touchend', (event) => handleTouchEnd(event, 87));
+
+		player1Down.addEventListener('touchstart', (event) => handleTouchStart(event, 83));
+		player1Down.addEventListener('touchend', (event) => handleTouchEnd(event, 83));
+
+		player2Up.addEventListener('touchstart', (event) => handleTouchStart(event, 87));
+		player2Up.addEventListener('touchend', (event) => handleTouchEnd(event, 87));
+
+		player2Down.addEventListener('touchstart', (event) => handleTouchStart(event, 83));
+		player2Down.addEventListener('touchend', (event) => handleTouchEnd(event, 83));
+	}
 
 	// LISTEN TO DRAW EVENT AND DRAW THE FRAME
 
@@ -253,6 +302,11 @@ export async function init(data) {
 		gameBoard.style.display = "none";
 		playerNames.style.visibility = "hidden";
 		scoreText.style.display = "none";
+		if (isTouchDevice)
+		{
+			touchControlsPlayer1.style.display = 'none';
+			touchControlsPlayer2.style.display = 'none';
+		}		
 	}
 
 	// HIDE GAME OVER SCREEN
@@ -261,6 +315,11 @@ export async function init(data) {
 		gameBoard.style.display = "block";
 		playerNames.style.visibility = "visible";
 		scoreText.style.display = "block";
+		if (isTouchDevice)
+			{
+				touchControlsPlayer1.style.display = "block";
+				touchControlsPlayer2.style.display = "block";
+			}
 	}
 
 	replayButton.addEventListener("click", () => {

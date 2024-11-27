@@ -104,7 +104,7 @@ export function closeMatchmakingWebsocket() {
 function handlePaddleMovement(event) {
     if (pongWebSocket && pongWebSocket.readyState === WebSocket.OPEN) {
         pongWebSocket.send(JSON.stringify(event.detail));
-        console.log('PONG WebSocket message sent:', event.detail);
+        // console.log('PONG WebSocket message sent:', event.detail);
     }
 }
 
