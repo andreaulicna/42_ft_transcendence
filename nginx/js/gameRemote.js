@@ -35,18 +35,18 @@ let paddle1Color;
 let paddle2Color;
 let ballColor;
 
-const playerNames = document.getElementById("playerNames");
-const scoreText = document.getElementById("scoreText");
-const player1NamePlaceholder = document.getElementById("player1Name");
-const player2NamePlaceholder = document.getElementById("player2Name");
-const player1AvatarPlaceholder = document.getElementById("player1Pic");
-const player2AvatarPlaceholder = document.getElementById("player2Pic");
-const gameOverScreen = document.getElementById("gameOverScreen");
-const winnerName = document.getElementById("winnerName");
-const replayButton = document.getElementById("replayButton");
-const mainMenuButton = document.getElementById("mainMenuButton");
+let playerNames;
+let scoreText;
+let player1NamePlaceholder;
+let player2NamePlaceholder;
+let player1AvatarPlaceholder;
+let player2AvatarPlaceholder;
+let gameOverScreen;
+let winnerName;
+let replayButton;
+let mainMenuButton;
 
-const isTouchDevice = 'ontouchstart' in window;
+let isTouchDevice;
 
 /* 👇 DATA INITIALIZATION */
 function initGameData(data)
@@ -85,6 +85,19 @@ function initGameData(data)
 	paddle1Color = "#00babc";
 	paddle2Color = "#df2af7";
 	ballColor = "whitesmoke";
+
+	playerNames = document.getElementById("playerNames");
+	scoreText = document.getElementById("scoreText");
+	player1NamePlaceholder = document.getElementById("player1Name");
+	player2NamePlaceholder = document.getElementById("player2Name");
+	player1AvatarPlaceholder = document.getElementById("player1Pic");
+	player2AvatarPlaceholder = document.getElementById("player2Pic");
+	gameOverScreen = document.getElementById("gameOverScreen");
+	winnerName = document.getElementById("winnerName");
+	replayButton = document.getElementById("replayButton");
+	mainMenuButton = document.getElementById("mainMenuButton");
+
+	isTouchDevice = 'ontouchstart' in window;
 }
 
 async function initPlayerData(data)
@@ -121,8 +134,18 @@ function initEventListeners()
 		window.addEventListener("keyup", handleKeyUp);
 		window.keyListenersAdded = true;
 	}
+
 	window.addEventListener('draw', handleDraw);
 	window.addEventListener('match_end', showGameOverScreen);
+
+	replayButton.addEventListener("click", () => {
+		hideGameOverScreen();
+	});
+	
+	mainMenuButton.addEventListener("click", () => {
+		hideGameOverScreen();
+	});
+
 	addPaddleMovementListener();
 }
 
@@ -347,11 +370,3 @@ function hideGameOverScreen() {
 			touchControlsPlayer2.style.display = "block";
 		}
 }
-
-replayButton.addEventListener("click", () => {
-	hideGameOverScreen();
-});
-
-mainMenuButton.addEventListener("click", () => {
-	hideGameOverScreen();
-});
