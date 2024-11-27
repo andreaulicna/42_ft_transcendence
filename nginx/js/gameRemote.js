@@ -101,9 +101,11 @@ export async function init(data) {
 	window.addEventListener("keydown", handleKeyDown);
 	window.addEventListener("keyup", handleKeyUp);
 
-	const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+	const isTouchDevice = 'ontouchstart' in window;
 
 	if (isTouchDevice) {
+		console.log("TOUCH CONTROLS ENABLED")
+		
 		const touchControlsPlayer1 = document.getElementById('touchControlsPlayer1');
 		const touchControlsPlayer2 = document.getElementById('touchControlsPlayer2');
 		const player1Up = document.getElementById('player1Up');
@@ -128,13 +130,13 @@ export async function init(data) {
 		}
 
 		function handleTouchStart(event, key) {
-			console.log("touchStart");
+			// console.log("touchStart");
 			event.preventDefault();
 			keys[key] = true;
 		}
 
 		function handleTouchEnd(event, key,) {
-			console.log("touchEnd");
+			// console.log("touchEnd");
 			event.preventDefault();
 			keys[key] = false;
 		}
