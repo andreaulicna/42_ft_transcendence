@@ -1,4 +1,5 @@
 import { apiCallAuthed } from './api.js';
+import { openTournamentWebsocket } from './websockets.js';
 
 export function init() {
 	// CREATE TOURNAMENT
@@ -18,7 +19,8 @@ export function init() {
 			};
 
 			const response = await apiCallAuthed("/api/tournament/create", "POST", null, payload);
-			console.log("Tournament created", response);
+			console.log("TOURNAMENT ID, ",response.tournament.id);
+			openTournamentWebsocket(response.tournament.id);
 			window.location.hash = '#lobby';
 		} catch (error) {
 			console.error("Error creating tournament:", error);
@@ -37,7 +39,7 @@ export function init() {
 			};
 
 			const response = await apiCallAuthed("/api/tournament/join", "POST", null, payload);
-			console.log("Tournament joined", response);
+			// console.log("Tournament joined", response);
 			window.location.hash = '#lobby';
 		} catch (error) {
 			console.error("Error joining tournament:", error);

@@ -1,6 +1,8 @@
-// import { apiCallAuthed } from './api.js';
+
 
 export function init() {
+
+	
 	
 	const returnButton = document.getElementById('cancelBtn');
 	if (returnButton) {

@@ -3,6 +3,7 @@ import { apiCallAuthed } from './api.js';
 let pongWebSocket;
 let friendlistWebSocket;
 let matchmakingWebSocket;
+let tournamentWebSocket;
 
 async function openWebSocket(url) {
 	return new Promise(async (resolve, reject) => {
@@ -29,13 +30,15 @@ async function openWebSocket(url) {
 
 			ws.onmessage = (event) => {
 				const data = JSON.parse(event.data);
-				// console.log('WebSocket message received:', data);
-				// If match found, open Pong WebSocket
-				if (url === "/api/matchmaking/ws/") {
+				console.log('WebSocket message received:', data);
+				// If match from matchmaking or tournament found, open Pong WebSocket
+				// if (url === "/api/matchmaking/ws/" || /^\/api\/tournament\/ws\/.*/.test(url))
+				if (url === "/api/matchmaking/ws/")
+				{
 					sessionStorage.setItem("match_id", data.message);
 					openPongWebsocket(data.message);
 				}
-				// For an ongoing match, dispatch custom events based on the message type
+				// For an ongoing match, dispatch custom events based on the message type received from server
 				if (data.type === "draw") {
 					const drawEvent = new CustomEvent('draw', { detail: data });
 					window.dispatchEvent(drawEvent);
@@ -66,6 +69,16 @@ export async function openMatchmakingWebsocket() {
 		console.log('Matchmaking WebSocket established');
 	}).catch((error) => {
 		console.error('Failed to establish Matchmaking WebSocket:', error);
+	});
+}
+
+export async function openTournamentWebsocket(match_id) {
+	const url = "/api/tournament/ws/" + match_id + "/";
+	openWebSocket(url).then((ws) => {
+		tournamentWebSocket = ws;
+		console.log('Tournament WebSocket established');
+	}).catch((error) => {
+		console.error('Failed to establish Tournament WebSocket:', error);
 	});
 }
 
