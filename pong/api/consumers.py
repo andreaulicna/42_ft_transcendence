@@ -1,3 +1,15 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    consumers.py                                       :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: plouda <plouda@student.42prague.com>       +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2024/11/28 14:23:42 by plouda            #+#    #+#              #
+#    Updated: 2024/11/28 15:11:21 by plouda           ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from .models import CustomUser, Match
@@ -9,6 +21,7 @@ from asgiref.sync import sync_to_async
 import asyncio, logging
 from django.conf import settings
 from .utils import Vector2D, intersect, get_line_intersection
+import math
 
 match_rooms = []
 
@@ -197,7 +210,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 			elif match_room.player2.id == self.id:
 				paddle = "paddle2"
 			direction = text_data_json["direction"]
-			self.move_paddle(paddle, direction)
+			await self.move_paddle(paddle, direction)
 	
 	async def draw(self, event):
 		await self.send(text_data=json.dumps(
@@ -235,7 +248,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 		))
 		await self.close()
 
-	def move_paddle(self, paddle, direction):
+	async def move_paddle(self, paddle, direction):
 		match_room = None
 		for room in match_rooms:
 			if room.match_id == self.match_group_name:
@@ -253,6 +266,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 				match_room.paddle2.position.y -= paddle_speed
 			elif direction == "DOWN" and match_room.paddle2.position.y < (match_room.GAME_HALF_HEIGHT - match_room.paddle2.paddle_half_height):
 				match_room.paddle2.position.y += paddle_speed
+		await asyncio.sleep(0.01)
 
 	async def play_pong(self, match_room):
 		match_database = await sync_to_async(get_object_or_404)(Match, id=match_room.match_id)
@@ -304,6 +318,12 @@ class PongConsumer(AsyncWebsocketConsumer):
 			ball_next_step_down = Vector2D(ball.position.x, ball_bottom) + (ball.direction * ball.speed)
 			ball_next_step_up = Vector2D(ball.position.x, ball_top) + (ball.direction * ball.speed)
 
+			theta = math.atan2(ball.direction.y, ball.direction.x)
+			x = (ball.size / 2) * math.cos(theta)
+			y = (ball.size / 2) * math.sin(theta)
+			collision_point = Vector2D(x, y) + ball.position
+			#logging.info(f"Ball position: {ball.position}")
+			#logging.info(f"Collision point: {collision_point}")
 
 			if intersection := get_line_intersection(paddle1_right, paddle1_bottom, paddle1_right, paddle1_top, ball_left, ball.position.y, ball_next_step_left.x, ball_next_step_left.y):
 				logging.info("Bounced from paddle1")
@@ -313,24 +333,48 @@ class PongConsumer(AsyncWebsocketConsumer):
 				ball.speed += 0.1
 			elif intersection := get_line_intersection(paddle1_right, paddle1_top, paddle1_left, paddle1_top, ball.position.x, ball_bottom, ball_next_step_down.x, ball_next_step_down.y):
 				logging.info("Bounced from paddle1 top")
-				# logging.info(f"Ball position: {ball.position}")
-				# logging.info(f"Inter: {intersection}")
 				ball.position = intersection
 				ball.position.y -= ball.size / 2
-				ball.direction.x *= -1
 				ball.direction.y *= -1
 				ball.speed += 0.1
 			elif intersection := get_line_intersection(paddle1_right, paddle1_bottom, paddle1_left, paddle1_bottom, ball.position.x, ball_top, ball_next_step_up.x, ball_next_step_up.y):
 				logging.info("Bounced from paddle1 bottom")
-				# logging.info(f"Ball position: {ball.position}")
-				# logging.info(f"Inter: {intersection}")
 				ball.position = intersection
 				ball.position.y += ball.size / 2
-				ball.direction.x *= -1
 				ball.direction.y *= -1
 				ball.speed += 0.1
-			if ball.position.x < -49:
-				logging.info(f"Ball position: {ball.position}")
+			elif intersection := get_line_intersection(paddle1_right, paddle1_top, paddle1_left, paddle1_top, collision_point.x, collision_point.y, ball_next_step_down.x, ball_next_step_down.y):
+				logging.info("Bounced from paddle1 top - top corner")
+				ball.position = intersection
+				# ball.position.x += ball.size / 2
+				ball.position.y -= ball.size / 2
+				# ball.direction.x *= -1
+				ball.direction.y *= -1
+				ball.speed += 0.1
+			elif intersection := get_line_intersection(paddle1_right, paddle1_bottom, paddle1_right, paddle1_top, collision_point.x, collision_point.y, ball_next_step_left.x, ball_next_step_left.y):
+				logging.info("Bounced from paddle1 side - top corner")
+				ball.position = intersection
+				ball.position.x += ball.size / 2
+				# ball.position.y -= ball.size / 2
+				ball.direction.x *= -1
+				# ball.direction.y *= -1
+				ball.speed += 0.1
+			elif intersection := get_line_intersection(paddle1_right, paddle1_bottom, paddle1_left, paddle1_bottom, collision_point.x, collision_point.y, ball_next_step_up.x, ball_next_step_up.y):
+				logging.info("Bounced from paddle1 bottom - bottom corner")
+				ball.position = intersection
+				# ball.position.x += ball.size / 2
+				ball.position.y += ball.size / 2
+				# ball.direction.x *= -1
+				ball.direction.y *= -1
+				ball.speed += 0.1
+			elif intersection := get_line_intersection(paddle1_right, paddle1_bottom, paddle1_right, paddle1_top, collision_point.x, collision_point.y, ball_next_step_up.x, ball_next_step_up.y):
+				logging.info("Bounced from paddle1 side - bottom corner")
+				ball.position = intersection
+				ball.position.x += ball.size / 2
+				# ball.position.y += ball.size / 2
+				ball.direction.x *= -1
+				# ball.direction.y *= -1
+				ball.speed += 0.1
 
 			# Scoring player 2 - ball out of bounds on the left side
 			if (ball_left <= (0 - match_room.GAME_HALF_WIDTH)):
