@@ -6,7 +6,7 @@
 #    By: plouda <plouda@student.42prague.com>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/28 16:33:30 by plouda            #+#    #+#              #
-#    Updated: 2024/11/28 16:35:51 by plouda           ###   ########.fr        #
+#    Updated: 2024/11/28 17:10:40 by plouda           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -70,15 +70,16 @@ def ball_collision_point(ball: Ball) -> Vector2D:
 
 def paddle_collision(ball: Ball, paddle1: Paddle, paddle2: Paddle) -> Ball:
 	# top & bottom are y-components, left & right are x-components
-	paddle1_top = paddle1.position.y - paddle1.paddle_half_height
-	paddle1_bottom = paddle1.position.y + paddle1.paddle_half_height
-	paddle1_right = paddle1.position.x + paddle1.paddle_half_width
-	paddle1_left = paddle1.position.x - paddle1.paddle_half_width
+	float_correction = 0.01 # prevents the corners from letting the ball in
+	paddle1_top = paddle1.position.y - paddle1.paddle_half_height - float_correction
+	paddle1_bottom = paddle1.position.y + paddle1.paddle_half_height + float_correction
+	paddle1_right = paddle1.position.x + paddle1.paddle_half_width + float_correction
+	paddle1_left = paddle1.position.x - paddle1.paddle_half_width - float_correction
 
-	paddle2_top = paddle2.position.y - paddle2.paddle_half_height
-	paddle2_bottom = paddle2.position.y + paddle2.paddle_half_height
-	paddle2_right = paddle2.position.x + paddle2.paddle_half_width
-	paddle2_left = paddle2.position.x - paddle2.paddle_half_width
+	paddle2_top = paddle2.position.y - paddle2.paddle_half_height - float_correction
+	paddle2_bottom = paddle2.position.y + paddle2.paddle_half_height + float_correction
+	paddle2_right = paddle2.position.x + paddle2.paddle_half_width + float_correction
+	paddle2_left = paddle2.position.x - paddle2.paddle_half_width - float_correction
 
 	ball_top = ball.position.y - (ball.size / 2)
 	ball_bottom = ball.position.y + (ball.size / 2)
@@ -93,25 +94,25 @@ def paddle_collision(ball: Ball, paddle1: Paddle, paddle2: Paddle) -> Ball:
 	# compute ball collision point for corners
 	collision_point = ball_collision_point(ball)
 
-	if intersection := get_line_intersection(paddle1_right, paddle1_bottom, paddle1_right, paddle1_top, ball_left, ball.position.y, ball_next_step_left.x, ball_next_step_left.y):
-		logging.debug("Paddle1 side")
-		ball.position = intersection
-		ball.position.x += ball.size / 2
-		ball.direction.x *= -1
-		ball.speed += 0.1
-	elif intersection := get_line_intersection(paddle1_right, paddle1_top, paddle1_left, paddle1_top, ball.position.x, ball_bottom, ball_next_step_down.x, ball_next_step_down.y):
-		logging.debug("Paddle1 top")
-		ball.position = intersection
-		ball.position.y -= ball.size / 2
-		ball.direction.y *= -1
-		ball.speed += 0.1
-	elif intersection := get_line_intersection(paddle1_right, paddle1_bottom, paddle1_left, paddle1_bottom, ball.position.x, ball_top, ball_next_step_up.x, ball_next_step_up.y):
-		logging.debug("Paddle1 bottom")
-		ball.position = intersection
-		ball.position.y += ball.size / 2
-		ball.direction.y *= -1
-		ball.speed += 0.1
-	elif intersection := get_line_intersection(paddle1_right, paddle1_top, paddle1_left, paddle1_top, collision_point.x, collision_point.y, ball_next_step_down.x, ball_next_step_down.y):
+	# if intersection := get_line_intersection(paddle1_right, paddle1_bottom, paddle1_right, paddle1_top, ball_left, ball.position.y, ball_next_step_left.x, ball_next_step_left.y):
+	# 	logging.debug("Paddle1 side")
+	# 	ball.position = intersection
+	# 	ball.position.x += ball.size / 2
+	# 	ball.direction.x *= -1
+	# 	ball.speed += 0.1
+	# elif intersection := get_line_intersection(paddle1_right, paddle1_top, paddle1_left, paddle1_top, ball.position.x, ball_bottom, ball_next_step_down.x, ball_next_step_down.y):
+	# 	logging.debug("Paddle1 top")
+	# 	ball.position = intersection
+	# 	ball.position.y -= ball.size / 2
+	# 	ball.direction.y *= -1
+	# 	ball.speed += 0.1
+	# elif intersection := get_line_intersection(paddle1_right, paddle1_bottom, paddle1_left, paddle1_bottom, ball.position.x, ball_top, ball_next_step_up.x, ball_next_step_up.y):
+	# 	logging.debug("Paddle1 bottom")
+	# 	ball.position = intersection
+	# 	ball.position.y += ball.size / 2
+	# 	ball.direction.y *= -1
+	# 	ball.speed += 0.1
+	if intersection := get_line_intersection(paddle1_right, paddle1_top, paddle1_left, paddle1_top, collision_point.x, collision_point.y, ball_next_step_down.x, ball_next_step_down.y):
 		logging.debug("Paddle1 top - top corner")
 		ball.position = intersection
 		ball.position.y -= ball.size / 2
