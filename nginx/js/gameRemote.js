@@ -1,16 +1,6 @@
 import { apiCallAuthed } from './api.js';
 import { addPaddleMovementListener } from './websockets.js';
 
-export async function init(data) {
-	initGameData(data);
-	initEventListeners();
-	initPlayerData(data);
-	initGameBoardVisual();
-	if (isTouchDevice)
-		initTouchControls();
-	startCountdown();
-}
-
 /* 👇 DATA DECLARATION */
 let gameMode;
 let gameBoard;
@@ -157,10 +147,8 @@ function initGameBoardVisual()
 	drawBall(ball);
 }
 
-function initTouchControls()
-{
-	console.log("TOUCH CONTROLS ENABLED")
-		
+function initTouchControls(player1Data)
+{		
 	const touchControlsPlayer1 = document.getElementById('touchControlsPlayer1');
 	const touchControlsPlayer2 = document.getElementById('touchControlsPlayer2');
 	const player1Up = document.getElementById('player1Up');
@@ -369,4 +357,24 @@ function hideGameOverScreen() {
 			touchControlsPlayer1.style.display = "block";
 			touchControlsPlayer2.style.display = "block";
 		}
+}
+
+/* 👇 GAME INIT */
+
+// Function to create a delay
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+export async function init(data) {
+	startCountdown();
+	initGameData(data);
+	initEventListeners();
+	initPlayerData(data);
+	initGameBoardVisual();
+	if (isTouchDevice) {
+		await delay(100);
+		initTouchControls(player1Data);
+		console.log("TOUCH CONTROLS ENABLED");
+	}
 }

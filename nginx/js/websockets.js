@@ -30,7 +30,7 @@ async function openWebSocket(url) {
 
 			ws.onmessage = (event) => {
 				const data = JSON.parse(event.data);
-				console.log('WebSocket message received:', data);
+				// console.log('WebSocket message received:', data);
 				// If match from matchmaking or tournament found, open Pong WebSocket
 				// if (url === "/api/matchmaking/ws/" || /^\/api\/tournament\/ws\/.*/.test(url))
 				if (url === "/api/matchmaking/ws/")
