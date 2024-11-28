@@ -90,3 +90,4 @@ class Vector2D:
 	def cross_product(self, other):
 		"""Return z-component of the resulting cross-product vector"""
 		return self.x * other.y - self.y * other.x
+		return self.x * other.y - self.y * other.x

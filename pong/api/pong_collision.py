@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    pong_collision.py                                  :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: plouda <plouda@student.42prague.com>       +#+  +:+       +#+         #
+#    By: vbartos <vbartos@student.42prague.com>     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/28 16:33:30 by plouda            #+#    #+#              #
-#    Updated: 2024/11/29 16:13:34 by plouda           ###   ########.fr        #
+#    Updated: 2024/12/04 16:01:05 by vbartos          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
