@@ -47,9 +47,11 @@ export function init(data) {
 
 	// PLAYER CONTROLS
 	let keys = {};
-	window.addEventListener("keydown", (event) => keys[event.keyCode] = true);
-	window.addEventListener("keyup", (event) => keys[event.keyCode] = false);
-	initializeTouchControls(gameBoard, paddle1, paddle2, gameWidth, gameHeight);
+	if (!window.keyListenersAdded) {
+		window.addEventListener("keydown", (event) => keys[event.keyCode] = true);
+		window.addEventListener("keyup", (event) => keys[event.keyCode] = false);
+		window.keyListenersAdded = true;
+	}
 
 
 	// CUSTOMIZABLE GAME SETTINGS

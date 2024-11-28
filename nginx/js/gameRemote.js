@@ -4,6 +4,7 @@ import { addPaddleMovementListener } from './websockets.js';
 
 export async function init(data) {
 	// Remove event listeners first so subsequent games don't multiply them
+	console.log("Calling removing keys")
 	window.removeEventListener("keydown", handleKeyDown);
 	window.removeEventListener("keyup", handleKeyUp);
 	window.removeEventListener('draw', handleDraw);
@@ -98,8 +99,12 @@ export async function init(data) {
 		keys[event.keyCode] = false;
 	}
 	
-	window.addEventListener("keydown", handleKeyDown);
-	window.addEventListener("keyup", handleKeyUp);
+	console.log("Calling adding keys")
+	if (!window.keyListenersAdded) {
+		window.addEventListener("keydown", handleKeyDown);
+		window.addEventListener("keyup", handleKeyUp);
+		window.keyListenersAdded = true;
+	}
 
 	initializeTouchControls(gameBoard, paddle1, paddle2, gameWidth, gameHeight);
 
