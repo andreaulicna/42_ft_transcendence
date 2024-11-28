@@ -6,7 +6,7 @@
 #    By: plouda <plouda@student.42prague.com>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/28 14:23:42 by plouda            #+#    #+#              #
-#    Updated: 2024/11/28 15:11:21 by plouda           ###   ########.fr        #
+#    Updated: 2024/11/28 15:59:25 by plouda           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,61 +16,60 @@ from .models import CustomUser, Match
 from pprint import pprint # nice printing
 import json
 from django.shortcuts import get_object_or_404
-import random
 from asgiref.sync import sync_to_async
 import asyncio, logging
-from django.conf import settings
-from .utils import Vector2D, intersect, get_line_intersection
+from .pong_collision import paddle_collision
 import math
+from .pong_collision import PongGame
 
 match_rooms = []
 
 from pprint import pprint
 
-class PongGame:
-	def __init__(self, match_id):
-		self.match_id = match_id
-		self.GAME_WIDTH = settings.GAME_CONSTANTS['GAME_WIDTH']
-		self.GAME_HEIGHT = settings.GAME_CONSTANTS['GAME_HEIGHT']
-		self.GAME_HALF_WIDTH = self.GAME_WIDTH / 2
-		self.GAME_HALF_HEIGHT = self.GAME_HEIGHT / 2
-		self.PADDLE_HALF_HEIGHT = settings.GAME_CONSTANTS['PADDLE_HEIGHT'] / 2 # adjusted for a half
-		self.PADDLE_HALF_WIDTH = settings.GAME_CONSTANTS['PADDLE_WIDTH'] / 2 # adjusted for a half
-		self.PADDLE_SPEED = settings.GAME_CONSTANTS['PADDLE_SPEED']
-		self.paddle1 = Paddle(x=-80 + self.PADDLE_HALF_WIDTH, game=self)
-		self.paddle2 = Paddle(x=80 - self.PADDLE_HALF_WIDTH, game=self)
-		self.ball = Ball()
-		self.player1 = None
-		self.player2 = None
+# class PongGame:
+# 	def __init__(self, match_id):
+# 		self.match_id = match_id
+# 		self.GAME_WIDTH = settings.GAME_CONSTANTS['GAME_WIDTH']
+# 		self.GAME_HEIGHT = settings.GAME_CONSTANTS['GAME_HEIGHT']
+# 		self.GAME_HALF_WIDTH = self.GAME_WIDTH / 2
+# 		self.GAME_HALF_HEIGHT = self.GAME_HEIGHT / 2
+# 		self.PADDLE_HALF_HEIGHT = settings.GAME_CONSTANTS['PADDLE_HEIGHT'] / 2 # adjusted for a half
+# 		self.PADDLE_HALF_WIDTH = settings.GAME_CONSTANTS['PADDLE_WIDTH'] / 2 # adjusted for a half
+# 		self.PADDLE_SPEED = settings.GAME_CONSTANTS['PADDLE_SPEED']
+# 		self.paddle1 = Paddle(x=-80 + self.PADDLE_HALF_WIDTH, game=self)
+# 		self.paddle2 = Paddle(x=80 - self.PADDLE_HALF_WIDTH, game=self)
+# 		self.ball = Ball()
+# 		self.player1 = None
+# 		self.player2 = None
 
-	def __repr__(self):
-		return (f"PongGame(match_id={self.match_id}, game_width={self.GAME_WIDTH}, "
-				f"game_height={self.GAME_HEIGHT}, paddle1={self.paddle1}, paddle2={self.paddle2}, "
-				f"player1={self.player1}, player2={self.player2})")
-	def reset(self):
-		self.paddle1 = Paddle(x=-80 + self.PADDLE_HALF_WIDTH, game=self)
-		self.paddle2 = Paddle(x=80 - self.PADDLE_HALF_WIDTH, game=self)
-		self.ball = Ball()
+# 	def __repr__(self):
+# 		return (f"PongGame(match_id={self.match_id}, game_width={self.GAME_WIDTH}, "
+# 				f"game_height={self.GAME_HEIGHT}, paddle1={self.paddle1}, paddle2={self.paddle2}, "
+# 				f"player1={self.player1}, player2={self.player2})")
+# 	def reset(self):
+# 		self.paddle1 = Paddle(x=-80 + self.PADDLE_HALF_WIDTH, game=self)
+# 		self.paddle2 = Paddle(x=80 - self.PADDLE_HALF_WIDTH, game=self)
+# 		self.ball = Ball()
 
-class Paddle:
-	def __init__(self, x, game):
-		self.position = Vector2D(x, 0)
-		self.paddle_half_height = game.PADDLE_HALF_HEIGHT
-		self.paddle_half_width = game.PADDLE_HALF_WIDTH
-		self.paddle_speed = game.PADDLE_SPEED
+# class Paddle:
+# 	def __init__(self, x, game):
+# 		self.position = Vector2D(x, 0)
+# 		self.paddle_half_height = game.PADDLE_HALF_HEIGHT
+# 		self.paddle_half_width = game.PADDLE_HALF_WIDTH
+# 		self.paddle_speed = game.PADDLE_SPEED
 
-	def __repr__(self):
-		return f"Paddle(x={self.position.x}, y={self.position.y}, paddle_half_height={self.paddle_half_height}, paddle_half_width={self.paddle_half_width}, paddle_speed={self.paddle_speed})"
+# 	def __repr__(self):
+# 		return f"Paddle(x={self.position.x}, y={self.position.y}, paddle_half_height={self.paddle_half_height}, paddle_half_width={self.paddle_half_width}, paddle_speed={self.paddle_speed})"
 
-class Ball:
-	def __init__(self):
-		self.position = Vector2D(0, 0)
-		self.speed = settings.GAME_CONSTANTS['BALL_SPEED']
-		self.direction = Vector2D(random.choice([-1, -1]), random.choice([-1, 1]))
-		self.size = settings.GAME_CONSTANTS['BALL_SIZE']
+# class Ball:
+# 	def __init__(self):
+# 		self.position = Vector2D(0, 0)
+# 		self.speed = settings.GAME_CONSTANTS['BALL_SPEED']
+# 		self.direction = Vector2D(random.choice([-1, -1]), random.choice([-1, 1]))
+# 		self.size = settings.GAME_CONSTANTS['BALL_SIZE']
 	
-	def __repr__(self):
-		return f"Ball(x={self.position.x}, y={self.position.y}, speed={self.speed}, direction={self.direction.x},{self.direction.y})"
+# 	def __repr__(self):
+# 		return f"Ball(x={self.position.x}, y={self.position.y}, speed={self.speed}, direction={self.direction.x},{self.direction.y})"
 
 class Player:
 	def __init__(self, player_id, channel_name, username):
@@ -297,84 +296,11 @@ class PongConsumer(AsyncWebsocketConsumer):
 			# Ball collision with floor & ceiling
 			if (ball.position.y > (match_room.GAME_HALF_HEIGHT - (ball.size / 2))) or ((ball.position.y < ((match_room.GAME_HALF_HEIGHT - (ball.size / 2))) * (-1))):
 				ball.direction.y *= -1
-			
-			# top & bottom are y-components, left & right are x-components
-			paddle1_top = paddle1.position.y - paddle1.paddle_half_height
-			paddle1_bottom = paddle1.position.y + paddle1.paddle_half_height
-			paddle1_right = paddle1.position.x + paddle1.paddle_half_width
-			paddle1_left = paddle1.position.x - paddle1.paddle_half_width
-			paddle1_top_right = Vector2D(paddle1_right, paddle1_top)
-			paddle1_bottom_right = Vector2D(paddle1_right, paddle1_bottom)
-			#paddle1_top_left = Vector2D()
-			#paddle1_bottom_left = Vector2D()
-			paddle2_top = paddle2.position.y + paddle2.paddle_half_height
-			paddle2_bottom = paddle2.position.y - paddle2.paddle_half_height
-			paddle2_left = paddle2.position.x - paddle2.paddle_half_width
+
+			# might be a source of bugs, watch out
+			ball = paddle_collision(ball, paddle1, paddle2)
 			ball_right = ball.position.x + (ball.size / 2)
 			ball_left = ball.position.x - (ball.size / 2)
-			ball_bottom = ball.position.y + (ball.size / 2)
-			ball_top = ball.position.y - (ball.size / 2)
-			ball_next_step_left = Vector2D(ball_left, ball.position.y) + (ball.direction * ball.speed)
-			ball_next_step_down = Vector2D(ball.position.x, ball_bottom) + (ball.direction * ball.speed)
-			ball_next_step_up = Vector2D(ball.position.x, ball_top) + (ball.direction * ball.speed)
-
-			theta = math.atan2(ball.direction.y, ball.direction.x)
-			x = (ball.size / 2) * math.cos(theta)
-			y = (ball.size / 2) * math.sin(theta)
-			collision_point = Vector2D(x, y) + ball.position
-			#logging.info(f"Ball position: {ball.position}")
-			#logging.info(f"Collision point: {collision_point}")
-
-			if intersection := get_line_intersection(paddle1_right, paddle1_bottom, paddle1_right, paddle1_top, ball_left, ball.position.y, ball_next_step_left.x, ball_next_step_left.y):
-				logging.info("Bounced from paddle1")
-				ball.position = intersection
-				ball.position.x += ball.size / 2
-				ball.direction.x *= -1
-				ball.speed += 0.1
-			elif intersection := get_line_intersection(paddle1_right, paddle1_top, paddle1_left, paddle1_top, ball.position.x, ball_bottom, ball_next_step_down.x, ball_next_step_down.y):
-				logging.info("Bounced from paddle1 top")
-				ball.position = intersection
-				ball.position.y -= ball.size / 2
-				ball.direction.y *= -1
-				ball.speed += 0.1
-			elif intersection := get_line_intersection(paddle1_right, paddle1_bottom, paddle1_left, paddle1_bottom, ball.position.x, ball_top, ball_next_step_up.x, ball_next_step_up.y):
-				logging.info("Bounced from paddle1 bottom")
-				ball.position = intersection
-				ball.position.y += ball.size / 2
-				ball.direction.y *= -1
-				ball.speed += 0.1
-			elif intersection := get_line_intersection(paddle1_right, paddle1_top, paddle1_left, paddle1_top, collision_point.x, collision_point.y, ball_next_step_down.x, ball_next_step_down.y):
-				logging.info("Bounced from paddle1 top - top corner")
-				ball.position = intersection
-				# ball.position.x += ball.size / 2
-				ball.position.y -= ball.size / 2
-				# ball.direction.x *= -1
-				ball.direction.y *= -1
-				ball.speed += 0.1
-			elif intersection := get_line_intersection(paddle1_right, paddle1_bottom, paddle1_right, paddle1_top, collision_point.x, collision_point.y, ball_next_step_left.x, ball_next_step_left.y):
-				logging.info("Bounced from paddle1 side - top corner")
-				ball.position = intersection
-				ball.position.x += ball.size / 2
-				# ball.position.y -= ball.size / 2
-				ball.direction.x *= -1
-				# ball.direction.y *= -1
-				ball.speed += 0.1
-			elif intersection := get_line_intersection(paddle1_right, paddle1_bottom, paddle1_left, paddle1_bottom, collision_point.x, collision_point.y, ball_next_step_up.x, ball_next_step_up.y):
-				logging.info("Bounced from paddle1 bottom - bottom corner")
-				ball.position = intersection
-				# ball.position.x += ball.size / 2
-				ball.position.y += ball.size / 2
-				# ball.direction.x *= -1
-				ball.direction.y *= -1
-				ball.speed += 0.1
-			elif intersection := get_line_intersection(paddle1_right, paddle1_bottom, paddle1_right, paddle1_top, collision_point.x, collision_point.y, ball_next_step_up.x, ball_next_step_up.y):
-				logging.info("Bounced from paddle1 side - bottom corner")
-				ball.position = intersection
-				ball.position.x += ball.size / 2
-				# ball.position.y += ball.size / 2
-				ball.direction.x *= -1
-				# ball.direction.y *= -1
-				ball.speed += 0.1
 
 			# Scoring player 2 - ball out of bounds on the left side
 			if (ball_left <= (0 - match_room.GAME_HALF_WIDTH)):
