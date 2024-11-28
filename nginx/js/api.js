@@ -1,3 +1,6 @@
+import { showLoading } from "./animations.js";
+import { hideLoading } from "./animations.js";
+
 export async function registerUser(payload) {
 	const url = '/api/user/register';
 	const options = {
@@ -9,6 +12,7 @@ export async function registerUser(payload) {
 	};
 
 	try {
+		showLoading();
 		const response = await fetch(url, options);
 		if (response.ok) {
 			return await response.json();
@@ -19,6 +23,8 @@ export async function registerUser(payload) {
 	} catch (error) {
 		console.error('Registration API call error:', error);
 		throw error;
+	} finally {
+		hideLoading();
 	}
 }
 
@@ -33,6 +39,7 @@ export async function loginUser(payload) {
 	};
 
 	try {
+		showLoading();
 		const response = await fetch(url, options);
 		if (response.ok) {
 			const data = await response.json();
@@ -53,6 +60,8 @@ export async function loginUser(payload) {
 	} catch (error) {
 		console.error('Login API call error:', error);
 		throw error;
+	} finally {
+		hideLoading();
 	}
 }
 
@@ -85,6 +94,7 @@ export async function apiCallAuthed(url, method = 'GET', headers = {}, payload =
 	}
 
 	try {
+		showLoading();
 		const response = await fetch(url, options);
 		const data = await response.json()
 		if (response.ok) {
@@ -96,6 +106,8 @@ export async function apiCallAuthed(url, method = 'GET', headers = {}, payload =
 	} catch (error) {
 		console.error('Authenticated API call error:', error);
 		throw error;
+	} finally {
+		hideLoading();
 	}
 }
 

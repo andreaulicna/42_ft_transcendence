@@ -1,4 +1,6 @@
 import { apiCallAuthed } from './api.js';
+import { showLoading } from "./animations.js";
+import { hideLoading } from "./animations.js";
 
 const dynamicContent = document.getElementById('dynamicContent');
 
@@ -17,6 +19,7 @@ const routes = {
 
 const loadContent = async (path) => {
 	try {
+		showLoading();
 		// Load the HTML content
 		const response = await fetch(path);
 		const content = await response.text();
@@ -56,6 +59,8 @@ const loadContent = async (path) => {
 		}
 	} catch (err) {
 		console.error('Error loading content:', err);
+	} finally {
+		hideLoading();
 	}
 };
 
