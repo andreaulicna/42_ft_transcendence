@@ -38,24 +38,24 @@ const loadContent = async (path) => {
 		// Import the page's relevant script
 		let data;
 		if (window.location.hash === '#login' || window.location.hash === '') {
-			import('/js/login.js').then(module => module.init());
+			await import('/js/login.js').then(module => module.init());
 		} else if (window.location.hash === '#register') {
-			import('/js/register.js').then(module => module.init());
+			await import('/js/register.js').then(module => module.init());
 		} else if (window.location.hash === '#dashboard') {
 			data = await apiCallAuthed('/api/user/info');
-			import('/js/dashboard.js').then(module => module.init(data));
+			await import('/js/dashboard.js').then(module => module.init(data));
 		} else if (window.location.hash === '#profile') {
 			data = await apiCallAuthed('/api/user/info');
-			import('/js/profile.js').then(module => module.init(data));
+			await import('/js/profile.js').then(module => module.init(data));
 		} else if (window.location.hash === '#searching') {
-			import('/js/gameSearching.js').then(module => module.init());
+			await import('/js/gameSearching.js').then(module => module.init());
 		} else if (window.location.hash === '#game') {
 			data = await apiCallAuthed(`/api/user/match/${sessionStorage.getItem("match_id")}`);
-			import('/js/gameRemote.js').then(module => module.init(data));
+			await import('/js/gameRemote.js').then(module => module.init(data));
 		} else if (window.location.hash === '#tournament') {
-			import('/js/tournament.js').then(module => module.init());
+			await import('/js/tournament.js').then(module => module.init());
 		} else if (window.location.hash === '#lobby') {
-			import('/js/tournamentLobby.js').then(module => module.init());
+			await import('/js/tournamentLobby.js').then(module => module.init());
 		}
 	} catch (err) {
 		console.error('Error loading content:', err);

@@ -1,5 +1,6 @@
 import { apiCallAuthed } from './api.js';
 import { addPaddleMovementListener } from './websockets.js';
+import { textDynamicLoad } from "./animations.js";
 
 /* 👇 DATA DECLARATION */
 let gameMode;
@@ -108,8 +109,8 @@ async function initPlayerData(data)
 		score: 0,
 	}
 
-	player1NamePlaceholder.textContent = player1.name;
-	player2NamePlaceholder.textContent = player2.name;
+	textDynamicLoad("player1Name", `${player1.name}`);
+	textDynamicLoad("player2Name", `${player2.name}`);
 	
 	if (player1Data.avatar != null)
 		player1AvatarPlaceholder.src = player1Data.avatar;
