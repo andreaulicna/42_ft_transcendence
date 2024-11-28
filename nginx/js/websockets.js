@@ -3,6 +3,7 @@ import { apiCallAuthed } from './api.js';
 let pongWebSocket;
 let friendlistWebSocket;
 let matchmakingWebSocket;
+let tournamentWebSocket;
 
 async function openWebSocket(url) {
 	return new Promise(async (resolve, reject) => {
@@ -29,13 +30,15 @@ async function openWebSocket(url) {
 
 			ws.onmessage = (event) => {
 				const data = JSON.parse(event.data);
-				// console.log('WebSocket message received:', data);
-				// If match found, open Pong WebSocket
-				if (url === "/api/matchmaking/ws/") {
+				console.log('WebSocket message received:', data);
+				// If match from matchmaking or tournament found, open Pong WebSocket
+				// if (url === "/api/matchmaking/ws/" || /^\/api\/tournament\/ws\/.*/.test(url))
+				if (url === "/api/matchmaking/ws/")
+				{
 					sessionStorage.setItem("match_id", data.message);
 					openPongWebsocket(data.message);
 				}
-				// For an ongoing match, dispatch custom events based on the message type
+				// For an ongoing match, dispatch custom events based on the message type received from server
 				if (data.type === "draw") {
 					const drawEvent = new CustomEvent('draw', { detail: data });
 					window.dispatchEvent(drawEvent);
@@ -69,6 +72,16 @@ export async function openMatchmakingWebsocket() {
 	});
 }
 
+export async function openTournamentWebsocket(match_id) {
+	const url = "/api/tournament/ws/" + match_id + "/";
+	openWebSocket(url).then((ws) => {
+		tournamentWebSocket = ws;
+		console.log('Tournament WebSocket established');
+	}).catch((error) => {
+		console.error('Failed to establish Tournament WebSocket:', error);
+	});
+}
+
 export async function openPongWebsocket(match_id) {
 	const url = "/api/pong/ws/" + match_id + "/";
 	openWebSocket(url).then((ws) => {
@@ -92,27 +105,14 @@ export function closeMatchmakingWebsocket() {
 	console.log('Closing Matchmaking Websocket');
 }
 
-// // Listen for paddle movement events and send them through the Pong WebSocket
-// window.addEventListener('paddle_movement', (event) => {
-// 	if (pongWebSocket && pongWebSocket.readyState === WebSocket.OPEN) {
-// 		pongWebSocket.send(JSON.stringify(event.detail));
-// 		console.log('PONG WebSocket message sent:', event.detail);
-// 	}
-// });
-
-// Define the event handler function
 function handlePaddleMovement(event) {
-    if (pongWebSocket && pongWebSocket.readyState === WebSocket.OPEN) {
-        pongWebSocket.send(JSON.stringify(event.detail));
-        console.log('PONG WebSocket message sent:', event.detail);
-    }
+	if (pongWebSocket && pongWebSocket.readyState === WebSocket.OPEN) {
+		pongWebSocket.send(JSON.stringify(event.detail));
+		// console.log('PONG WebSocket message sent:', event.detail);
+	}
 }
 
-// Export a function to add the event listener
+// Export function for gameRemote.js
 export function addPaddleMovementListener() {
-    if (!window.paddleMovementListenerAdded) {
-        window.addEventListener('paddle_movement', handlePaddleMovement);
-        window.paddleMovementListenerAdded = true;
-        console.log('Paddle movement event listener added');
-    }
+		window.addEventListener('paddle_movement', handlePaddleMovement);
 }

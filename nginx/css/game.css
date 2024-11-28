@@ -1,3 +1,5 @@
+/* GAME CONTAINER */
+
 #gameContainer {
 	text-align: center;
 }
@@ -22,4 +24,20 @@
 .redSide {
 	color: #df2af7;
 	text-shadow: 0 0 5px #df2af7, 0 0 15px #df2af7, 0 0 25px #df2af7;
+}
+
+/* TOUCH CONTROLS */
+
+.touch-controls {
+	display:none;
+    width: 100%;
+    text-align: center;
+}
+
+.control-button {
+	cursor: pointer;
+	background-color: whitesmoke;
+    width: 50px;
+    height: 50px;
+    margin: 5px;
 }
