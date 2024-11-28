@@ -8,7 +8,7 @@ import random
 from asgiref.sync import sync_to_async
 import asyncio, logging
 from django.conf import settings
-from .utils import Vector2D
+from .utils import Vector2D, intersect, get_line_intersection
 
 match_rooms = []
 
@@ -53,7 +53,7 @@ class Ball:
 	def __init__(self):
 		self.position = Vector2D(0, 0)
 		self.speed = settings.GAME_CONSTANTS['BALL_SPEED']
-		self.direction = Vector2D(random.choice([-1, 1]), random.choice([-1, 1]))
+		self.direction = Vector2D(random.choice([-1, -1]), random.choice([-1, 1]))
 		self.size = settings.GAME_CONSTANTS['BALL_SIZE']
 	
 	def __repr__(self):
@@ -281,54 +281,56 @@ class PongConsumer(AsyncWebsocketConsumer):
 				break
 
 			# Ball collision with floor & ceiling
-			if (ball.position.y >= (match_room.GAME_HALF_HEIGHT - ball.size)) or ((ball.position.y <= ((match_room.GAME_HALF_HEIGHT - ball.size)) * (-1))):
+			if (ball.position.y > (match_room.GAME_HALF_HEIGHT - (ball.size / 2))) or ((ball.position.y < ((match_room.GAME_HALF_HEIGHT - (ball.size / 2))) * (-1))):
 				ball.direction.y *= -1
 			
 			# top & bottom are y-components, left & right are x-components
-			paddle1_top = paddle1.position.y + paddle1.paddle_half_height
-			paddle1_bottom = paddle1.position.y - paddle1.paddle_half_height
+			paddle1_top = paddle1.position.y - paddle1.paddle_half_height
+			paddle1_bottom = paddle1.position.y + paddle1.paddle_half_height
 			paddle1_right = paddle1.position.x + paddle1.paddle_half_width
+			paddle1_left = paddle1.position.x - paddle1.paddle_half_width
+			paddle1_top_right = Vector2D(paddle1_right, paddle1_top)
+			paddle1_bottom_right = Vector2D(paddle1_right, paddle1_bottom)
+			#paddle1_top_left = Vector2D()
+			#paddle1_bottom_left = Vector2D()
 			paddle2_top = paddle2.position.y + paddle2.paddle_half_height
 			paddle2_bottom = paddle2.position.y - paddle2.paddle_half_height
 			paddle2_left = paddle2.position.x - paddle2.paddle_half_width
 			ball_right = ball.position.x + (ball.size / 2)
 			ball_left = ball.position.x - (ball.size / 2)
+			ball_bottom = ball.position.y + (ball.size / 2)
+			ball_top = ball.position.y - (ball.size / 2)
+			ball_next_step_left = Vector2D(ball_left, ball.position.y) + (ball.direction * ball.speed)
+			ball_next_step_down = Vector2D(ball.position.x, ball_bottom) + (ball.direction * ball.speed)
+			ball_next_step_up = Vector2D(ball.position.x, ball_top) + (ball.direction * ball.speed)
 
-			# Ball x paddle1 (left) collision
-			if ball.direction.x < 0:
-				p = Vector2D(ball_left, ball.position.y)
-				pr = p + (ball.direction * ball.speed) # multiplication of vector (direction) by scalar (speed)
-				q = Vector2D(paddle1_right, paddle1_bottom)
-				qs = Vector2D(paddle1_right, paddle1_top)
-				s = qs - q
-				r = pr - p
-				if (r.cross_product(s) != 0):
-					t = (s.cross_product(q - p)) / (r.cross_product(s))
-					u = ((q - p).cross_product(r)) / (r.cross_product(s))
-					if (0 <= t <= 1 and 0 <= u <= 1):
-						logging.info("Bounced from paddle1")
-						ball.position = p + (r * t)
-						ball.position.x += ball.size / 2
-						ball.direction.x *= -1
-						ball.speed += 0.1
-			
-			# Ball x paddle2 () collision
-			if ball.direction.x > 0:
-				p = Vector2D(ball_right, ball.position.y)
-				pr = p + (ball.direction * ball.speed) # multiplication of vector (direction) by scalar (speed)
-				q = Vector2D(paddle2_left, paddle2_bottom)
-				qs = Vector2D(paddle2_left, paddle2_top)
-				s = qs - q
-				r = pr - p
-				if (r.cross_product(s) != 0):
-					t = (s.cross_product(q - p)) / (r.cross_product(s))
-					u = ((q - p).cross_product(r)) / (r.cross_product(s))
-					if (0 <= t <= 1 and 0 <= u <= 1):
-						logging.info("Bounced from paddle2")
-						ball.position = p + (r * t)
-						ball.position.x -= ball.size / 2
-						ball.direction.x *= -1
-						ball.speed += 0.1
+
+			if intersection := get_line_intersection(paddle1_right, paddle1_bottom, paddle1_right, paddle1_top, ball_left, ball.position.y, ball_next_step_left.x, ball_next_step_left.y):
+				logging.info("Bounced from paddle1")
+				ball.position = intersection
+				ball.position.x += ball.size / 2
+				ball.direction.x *= -1
+				ball.speed += 0.1
+			elif intersection := get_line_intersection(paddle1_right, paddle1_top, paddle1_left, paddle1_top, ball.position.x, ball_bottom, ball_next_step_down.x, ball_next_step_down.y):
+				logging.info("Bounced from paddle1 top")
+				# logging.info(f"Ball position: {ball.position}")
+				# logging.info(f"Inter: {intersection}")
+				ball.position = intersection
+				ball.position.y -= ball.size / 2
+				ball.direction.x *= -1
+				ball.direction.y *= -1
+				ball.speed += 0.1
+			elif intersection := get_line_intersection(paddle1_right, paddle1_bottom, paddle1_left, paddle1_bottom, ball.position.x, ball_top, ball_next_step_up.x, ball_next_step_up.y):
+				logging.info("Bounced from paddle1 bottom")
+				# logging.info(f"Ball position: {ball.position}")
+				# logging.info(f"Inter: {intersection}")
+				ball.position = intersection
+				ball.position.y += ball.size / 2
+				ball.direction.x *= -1
+				ball.direction.y *= -1
+				ball.speed += 0.1
+			if ball.position.x < -49:
+				logging.info(f"Ball position: {ball.position}")
 
 			# Scoring player 2 - ball out of bounds on the left side
 			if (ball_left <= (0 - match_room.GAME_HALF_WIDTH)):
