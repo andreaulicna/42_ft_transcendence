@@ -6,7 +6,7 @@
 #    By: plouda <plouda@student.42prague.com>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/28 14:23:42 by plouda            #+#    #+#              #
-#    Updated: 2024/11/29 12:30:26 by plouda           ###   ########.fr        #
+#    Updated: 2024/11/29 16:11:19 by plouda           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -26,51 +26,6 @@ from .pong_collision import PongGame
 match_rooms = []
 
 from pprint import pprint
-
-# class PongGame:
-# 	def __init__(self, match_id):
-# 		self.match_id = match_id
-# 		self.GAME_WIDTH = settings.GAME_CONSTANTS['GAME_WIDTH']
-# 		self.GAME_HEIGHT = settings.GAME_CONSTANTS['GAME_HEIGHT']
-# 		self.GAME_HALF_WIDTH = self.GAME_WIDTH / 2
-# 		self.GAME_HALF_HEIGHT = self.GAME_HEIGHT / 2
-# 		self.PADDLE_HALF_HEIGHT = settings.GAME_CONSTANTS['PADDLE_HEIGHT'] / 2 # adjusted for a half
-# 		self.PADDLE_HALF_WIDTH = settings.GAME_CONSTANTS['PADDLE_WIDTH'] / 2 # adjusted for a half
-# 		self.PADDLE_SPEED = settings.GAME_CONSTANTS['PADDLE_SPEED']
-# 		self.paddle1 = Paddle(x=-80 + self.PADDLE_HALF_WIDTH, game=self)
-# 		self.paddle2 = Paddle(x=80 - self.PADDLE_HALF_WIDTH, game=self)
-# 		self.ball = Ball()
-# 		self.player1 = None
-# 		self.player2 = None
-
-# 	def __repr__(self):
-# 		return (f"PongGame(match_id={self.match_id}, game_width={self.GAME_WIDTH}, "
-# 				f"game_height={self.GAME_HEIGHT}, paddle1={self.paddle1}, paddle2={self.paddle2}, "
-# 				f"player1={self.player1}, player2={self.player2})")
-# 	def reset(self):
-# 		self.paddle1 = Paddle(x=-80 + self.PADDLE_HALF_WIDTH, game=self)
-# 		self.paddle2 = Paddle(x=80 - self.PADDLE_HALF_WIDTH, game=self)
-# 		self.ball = Ball()
-
-# class Paddle:
-# 	def __init__(self, x, game):
-# 		self.position = Vector2D(x, 0)
-# 		self.paddle_half_height = game.PADDLE_HALF_HEIGHT
-# 		self.paddle_half_width = game.PADDLE_HALF_WIDTH
-# 		self.paddle_speed = game.PADDLE_SPEED
-
-# 	def __repr__(self):
-# 		return f"Paddle(x={self.position.x}, y={self.position.y}, paddle_half_height={self.paddle_half_height}, paddle_half_width={self.paddle_half_width}, paddle_speed={self.paddle_speed})"
-
-# class Ball:
-# 	def __init__(self):
-# 		self.position = Vector2D(0, 0)
-# 		self.speed = settings.GAME_CONSTANTS['BALL_SPEED']
-# 		self.direction = Vector2D(random.choice([-1, -1]), random.choice([-1, 1]))
-# 		self.size = settings.GAME_CONSTANTS['BALL_SIZE']
-	
-# 	def __repr__(self):
-# 		return f"Ball(x={self.position.x}, y={self.position.y}, speed={self.speed}, direction={self.direction.x},{self.direction.y})"
 
 class Player:
 	def __init__(self, player_id, channel_name, username):
