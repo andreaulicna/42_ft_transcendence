@@ -61,22 +61,25 @@ class FriendshipListSerializer(serializers.ModelSerializer):
 			return "ON"
 		return "OFF"
 	
-class TournamentSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = Tournament
-		fields = '__all__'
-	
 class PlayerTournamentSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = PlayerTournament
 		fields = '__all__'
 
-class WaitingTournamentSerializer(serializers.ModelSerializer):
-    free_spaces = serializers.SerializerMethodField()
+class TournamentSerializer(serializers.ModelSerializer):
+    players = PlayerTournamentSerializer(source='playertournament_set', many=True, read_only=True)
 
     class Meta:
         model = Tournament
-        fields = ['id', 'name', 'status', 'free_spaces']
+        fields = ['id', 'name', 'status', 'players']
+	
+class WaitingTournamentSerializer(serializers.ModelSerializer):
+    free_spaces = serializers.SerializerMethodField()
+    players = PlayerTournamentSerializer(source='playertournament_set', many=True, read_only=True)
+
+    class Meta:
+        model = Tournament
+        fields = ['id', 'name', 'status', 'free_spaces', 'players']
 
     def get_free_spaces(self, obj):
         player_count = PlayerTournament.objects.filter(tournament=obj).count()

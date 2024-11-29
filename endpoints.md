@@ -60,8 +60,11 @@ Deleted `/api/user/friendships`, reworked `/api/user/friends` endpoint, updated 
 
 
 ### `/api/tournament`
-| Endpoint | Supported methods | Required input | Return codes | Notes |
-| :--- |---|:---| :---:| :---: |
-| `/create`|POST|`tournament_name`(optional)<br>`player_tmp_username`(optional)|200<br>400<br>404|Creates a tournament and player_tournament database entries
-| `/join`|POST|`tournament_name`(optional)<br>`player_tmp_username`(optional)|200<br>403<br>404|If `tournament_name` -> joins the exact tournament or asks the user to create one<br> If no `tournament_name` -> joins the first tournament with a free spot of asks the user to create one
-| `/ws/<int:tournament_id>/`|non-HTTP|`?uuid=`|Connected<br>Disconnected|Matchmaking for tournament. Returns match_id for pairs of users.
+| Endpoint | Supported methods | Required input | Return codes | Return values | Notes |
+| :--- |---|:---| :---:| :---: | :---: |
+|`/create`|POST|`tournament_name`(optional)<br>`player_tmp_username`(optional)|201<br>400<br>403<br>404|`tournament` object with all info from the database, including a list of `players` in the tournament |Creates a tournament and player_tournament database entries.
+|`/join/<int:tournament_id>/`|POST|`player_tmp_username`(optional)|201<br>400<br>403<br>404|`tournament` object with all info from the database, including a list of `players` in the tournament |Adds `player` into a tournament based on `tournamend_id` in URL.
+|`/join/cancel/<int:tournament_id>/`|POST||200<br>403<br>404|`tournament` object with all info from the database, including a list of `players` in the tournament|Deletes a user from waiting tournament based on `tournament_id` in URL.
+|`/list/waiting` | GET ||200<br>404|list object of all waiting tournaments, including free spaces for players to join ||
+|`/list/for-player` | GET || 200<br>404| list object of all tournaments for a particular user ||
+|`/ws/<int:tournament_id>/`|non-HTTP|`?uuid=`|Connected<br>Disconnected|`match_id` if there is a match to play for the particular `player`|Matchmaking for tournament.
