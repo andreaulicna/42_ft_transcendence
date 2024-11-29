@@ -2,8 +2,6 @@ from rest_framework import serializers
 from .models import CustomUser, Match, Friendship, Tournament, PlayerTournament
 from django.db.models import Q
 
-
-
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = CustomUser
@@ -72,3 +70,15 @@ class PlayerTournamentSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = PlayerTournament
 		fields = '__all__'
+
+class WaitingTournamentSerializer(serializers.ModelSerializer):
+    free_spaces = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Tournament
+        fields = ['id', 'name', 'status', 'free_spaces']
+
+    def get_free_spaces(self, obj):
+        player_count = PlayerTournament.objects.filter(tournament=obj).count()
+        capacity = 4  # CHANGE to tournament capacity
+        return capacity - player_count
