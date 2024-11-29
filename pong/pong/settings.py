@@ -229,10 +229,25 @@ CHANNEL_LAYERS = {
 GAME_CONSTANTS = {
 	'GAME_HEIGHT': 100,
 	'GAME_WIDTH': 160,
-	'BALL_SIZE': 4,
+	'BALL_SIZE': 2,
 	'BALL_SPEED': 0.5,
 	'PADDLE_SPEED': 1,
 }
 
 GAME_CONSTANTS['PADDLE_HEIGHT'] = GAME_CONSTANTS['GAME_HEIGHT'] / 5
 GAME_CONSTANTS['PADDLE_WIDTH'] = 3
+
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
+    },
+}

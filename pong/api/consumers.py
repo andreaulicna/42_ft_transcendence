@@ -6,9 +6,10 @@
 #    By: plouda <plouda@student.42prague.com>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/28 14:23:42 by plouda            #+#    #+#              #
-#    Updated: 2024/11/28 15:59:25 by plouda           ###   ########.fr        #
+#    Updated: 2024/11/29 12:30:26 by plouda           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
+
 
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
@@ -368,7 +369,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 				break
 
 			# Short sleep
-			await asyncio.sleep(0.01)
+			await asyncio.sleep(0.1)
 		await self.channel_layer.group_send(
 				self.match_group_name, {
 					"type" : "match_end",
