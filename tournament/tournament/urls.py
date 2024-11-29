@@ -22,9 +22,11 @@ from django.conf.urls.static import static
 
 urlpatterns = [
 	path('api/tournament/create', views.CreateTournamentView.as_view(), name='create-tournament'),
-	path('api/tournament/join', views.JoinTournamentView.as_view(), name='join-tournament'),
-	path('api/tournament/list', views.TournamentListView.as_view(), name='list-tournaments'),
-	path('api/tournament/player/list', views.PlayerTournamentListView.as_view(), name='list-playertournaments')
+	path('api/tournament/join/<int:tournament_id>/', views.JoinTournamentView.as_view(), name='join-tournament'),
+	path('api/tournament/join/cancel/<int:tournament_id>/', views.CancelJoinTournamentView.as_view(), name='cancel-join-tournament'),
+	path('api/tournament/list', views.TournamentListView.as_view(), name='all-debug-tournaments'),
+	path('api/tournament/player/list', views.PlayerTournamentListView.as_view(), name='list-playertournaments'),
+	path('api/tournament/debug/all', views.AllTournamentListView.as_view(), name='all-debug-tournaments'),
 ]  
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
