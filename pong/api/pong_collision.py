@@ -6,7 +6,7 @@
 #    By: plouda <plouda@student.42prague.com>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/28 16:33:30 by plouda            #+#    #+#              #
-#    Updated: 2024/11/29 15:31:23 by plouda           ###   ########.fr        #
+#    Updated: 2024/11/29 16:13:34 by plouda           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -54,7 +54,7 @@ class Ball:
 	def __init__(self):
 		self.position = Vector2D(0, 0)
 		self.speed = settings.GAME_CONSTANTS['BALL_SPEED']
-		self.direction = Vector2D(random.choice([-1, -1]), random.choice([-1, -1]))
+		self.direction = Vector2D(random.choice([-1, 1]), random.choice([-1, 1]))
 		self.size = settings.GAME_CONSTANTS['BALL_SIZE']
 	
 	def __repr__(self):
@@ -71,7 +71,6 @@ def ball_collision_point(ball: Ball) -> Vector2D:
 
 def paddle_collision(ball: Ball, paddle1: Paddle, paddle2: Paddle) -> Ball:
 	# top & bottom are y-components, left & right are x-components
-	#float_correction = 0.1 # prevents the corners from letting the ball in
 	paddle1_top = paddle1.position.y - paddle1.paddle_half_height
 	paddle1_bottom = paddle1.position.y + paddle1.paddle_half_height 
 	paddle1_right = paddle1.position.x + paddle1.paddle_half_width
@@ -96,14 +95,14 @@ def paddle_collision(ball: Ball, paddle1: Paddle, paddle2: Paddle) -> Ball:
 	collision_point = ball_collision_point(ball)
 	ball_collision_next = collision_point + (ball.direction * ball.speed)
 
-	if -78 < ball.position.x <= -76:
-		logging.info(f"paddle1 top left: [{paddle1_left},{paddle1_top}]")
-		logging.info(f"paddle1 top right: [{paddle1_right},{paddle1_top}]")
-		logging.info(f"paddle1 bottom right: [{paddle1_right},{paddle1_bottom}]")
-		logging.info(f"collision point: {collision_point}")
-		logging.info(f"ball position:: {ball.position}")
-		logging.info(f"next step down: {ball_next_step_down}")
-		logging.info(f"next step left: {ball_next_step_left}")
+	# if -78 < ball.position.x <= -76:
+	# 	logging.info(f"paddle1 top left: [{paddle1_left},{paddle1_top}]")
+	# 	logging.info(f"paddle1 top right: [{paddle1_right},{paddle1_top}]")
+	# 	logging.info(f"paddle1 bottom right: [{paddle1_right},{paddle1_bottom}]")
+	# 	logging.info(f"collision point: {collision_point}")
+	# 	logging.info(f"ball position:: {ball.position}")
+	# 	logging.info(f"next step down: {ball_next_step_down}")
+	# 	logging.info(f"next step left: {ball_next_step_left}")
 
 	if intersection := get_line_intersection(paddle1_right, paddle1_bottom, paddle1_right, paddle1_top, ball_left, ball.position.y, ball_next_step_left.x, ball_next_step_left.y):
 		logging.info("Paddle1 side")
