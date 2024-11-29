@@ -1,4 +1,4 @@
-import math
+import math, logging
 
 # fix for 0 denominator
 # https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
@@ -11,7 +11,8 @@ def get_line_intersection(p0_x, p0_y, p1_x, p1_y, p2_x, p2_y, p3_x, p3_y):
 	s = (-s1_y * (p0_x - p2_x) + s1_x * (p0_y - p2_y)) / (-s2_x * s1_y + s1_x * s2_y)
 	t = (s2_x * (p0_y - p2_y) - s2_y * (p0_x - p2_x)) / (-s2_x * s1_y + s1_x * s2_y)
 
-
+	#logging.info(f"s: {s}")
+	#logging.info(f"t: {t}")
 	if -0.001 <= s <= 1.001 and -0.001 <= t <= 1.001:
 		# Collision detected
 		i_x = p0_x + (t * s1_x)
