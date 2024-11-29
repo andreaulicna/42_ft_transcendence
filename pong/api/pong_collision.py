@@ -6,7 +6,7 @@
 #    By: vbartos <vbartos@student.42prague.com>     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/28 16:33:30 by plouda            #+#    #+#              #
-#    Updated: 2024/12/04 16:01:28 by vbartos          ###   ########.fr        #
+#    Updated: 2024/12/04 16:01:40 by vbartos          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -76,10 +76,10 @@ def paddle_collision(ball: Ball, paddle1: Paddle, paddle2: Paddle) -> Ball:
 	paddle1_right = paddle1.position.x + paddle1.paddle_half_width
 	paddle1_left = paddle1.position.x - paddle1.paddle_half_width
 
-	paddle2_top = paddle2.position.y - paddle2.paddle_half_height - float_correction
-	paddle2_bottom = paddle2.position.y + paddle2.paddle_half_height + float_correction
-	paddle2_right = paddle2.position.x + paddle2.paddle_half_width + float_correction
-	paddle2_left = paddle2.position.x - paddle2.paddle_half_width - float_correction
+	paddle2_top = paddle2.position.y - paddle2.paddle_half_height
+	paddle2_bottom = paddle2.position.y + paddle2.paddle_half_height
+	paddle2_right = paddle2.position.x + paddle2.paddle_half_width
+	paddle2_left = paddle2.position.x - paddle2.paddle_half_width
 
 	ball_top = ball.position.y - (ball.size / 2)
 	ball_bottom = ball.position.y + (ball.size / 2)
