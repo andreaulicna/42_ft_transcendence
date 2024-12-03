@@ -32,8 +32,8 @@ async function openWebSocket(url) {
 				const data = JSON.parse(event.data);
 				// console.log('WebSocket message received:', data);
 				// If match from matchmaking or tournament found, open Pong WebSocket
-				// if (url === "/api/matchmaking/ws/" || /^\/api\/tournament\/ws\/.*/.test(url))
-				if (url === "/api/matchmaking/ws/")
+				// if (url === "/api/matchmaking/ws/")
+				if (url === "/api/matchmaking/ws/" || /^\/api\/tournament\/ws\/.*/.test(url))
 				{
 					sessionStorage.setItem("match_id", data.message);
 					openPongWebsocket(data.message);
@@ -72,8 +72,8 @@ export async function openMatchmakingWebsocket() {
 	});
 }
 
-export async function openTournamentWebsocket(match_id) {
-	const url = "/api/tournament/ws/" + match_id + "/";
+export async function openTournamentWebsocket(tournament_id) {
+	const url = "/api/tournament/ws/" + tournament_id + "/";
 	openWebSocket(url).then((ws) => {
 		tournamentWebSocket = ws;
 		console.log('Tournament WebSocket established');
@@ -103,6 +103,11 @@ function closeWebSocket(ws) {
 export function closeMatchmakingWebsocket() {
 	closeWebSocket(matchmakingWebSocket);
 	console.log('Closing Matchmaking Websocket');
+}
+
+export function closeTournamentWebsocket() {
+	closeWebSocket(tournamentWebSocket);
+	console.log('Closing Tournament Websocket');
 }
 
 function handlePaddleMovement(event) {
