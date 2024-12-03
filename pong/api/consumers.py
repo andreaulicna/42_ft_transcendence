@@ -324,7 +324,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 				break
 
 			# Short sleep
-			await asyncio.sleep(0.1)
+			await asyncio.sleep(0.01)
 		await self.channel_layer.group_send(
 				self.match_group_name, {
 					"type" : "match_end",
