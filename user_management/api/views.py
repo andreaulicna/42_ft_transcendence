@@ -111,7 +111,7 @@ class UserAvatarUpload(APIView):
 		return Response({'avatar' : serializer.data['avatar']})
 		
 class UserListView(ListAPIView):
-	queryset = CustomUser.objects.all()
+	queryset = CustomUser.objects.all().order_by('id')
 	serializer_class = UserSerializer
 	permission_classes = [IsAuthenticated]
 
@@ -121,7 +121,7 @@ class MatchView(ListAPIView):
 
 	def get_queryset(self):
 		user = self.request.user
-		return Match.objects.filter(Q(player1=user.id) | Q(player2=user.id))
+		return Match.objects.filter(Q(player1=user.id) | Q(player2=user.id)).order_by('-id')
 	
 class MatchStartView(APIView):
 	def get(self, request, pk):
@@ -138,7 +138,7 @@ class ActiveFriendshipsListView(ListAPIView):
 
 	def get_queryset(self):
 		user = self.request.user
-		return Friendship.objects.filter(Q(sender=user.id) | Q(receiver=user.id), Q(status=Friendship.StatusOptions.ACCEPTED))
+		return Friendship.objects.filter(Q(sender=user.id) | Q(receiver=user.id), Q(status=Friendship.StatusOptions.ACCEPTED)).order_by('-id')
 
 class FriendshipRequestSentListView(ListAPIView):
 	serializer_class = FriendshipListSerializer
@@ -146,7 +146,7 @@ class FriendshipRequestSentListView(ListAPIView):
 
 	def get_queryset(self):
 		user = self.request.user
-		return Friendship.objects.filter(Q(sender=user.id), Q(status=Friendship.StatusOptions.PENDING))
+		return Friendship.objects.filter(Q(sender=user.id), Q(status=Friendship.StatusOptions.PENDING)).order_by('-id')
 	
 class FriendshipRequestReceivedListView(ListAPIView):
 	serializer_class = FriendshipListSerializer
@@ -154,7 +154,7 @@ class FriendshipRequestReceivedListView(ListAPIView):
 
 	def get_queryset(self):
 		user = self.request.user
-		return Friendship.objects.filter(Q(receiver=user.id), Q(status=Friendship.StatusOptions.PENDING))
+		return Friendship.objects.filter(Q(receiver=user.id), Q(status=Friendship.StatusOptions.PENDING)).order_by('-id')
 
 class FriendshipRequestView(APIView):
 	permission_classes = [IsAuthenticated]
