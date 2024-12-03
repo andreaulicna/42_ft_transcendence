@@ -6,7 +6,7 @@
 #    By: vbartos <vbartos@student.42prague.com>     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/28 14:23:42 by plouda            #+#    #+#              #
-#    Updated: 2024/12/04 16:02:05 by vbartos          ###   ########.fr        #
+#    Updated: 2024/12/04 16:02:23 by vbartos          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -324,7 +324,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 				break
 
 			# Short sleep
-			await asyncio.sleep(0.1)
+			await asyncio.sleep(0.01)
 		await self.channel_layer.group_send(
 				self.match_group_name, {
 					"type" : "match_end",
