@@ -68,11 +68,12 @@ class PlayerTournamentSerializer(serializers.ModelSerializer):
 
 class TournamentSerializer(serializers.ModelSerializer):
     players = PlayerTournamentSerializer(source='playertournament_set', many=True, read_only=True)
-
+	
     class Meta:
         model = Tournament
-        fields = ['id', 'name', 'status', 'players']
-	
+        fields = ['id', 'name', 'status', 'creator', 'players']
+
+
 class WaitingTournamentSerializer(serializers.ModelSerializer):
     free_spaces = serializers.SerializerMethodField()
     players = PlayerTournamentSerializer(source='playertournament_set', many=True, read_only=True)
