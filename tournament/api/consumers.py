@@ -133,16 +133,18 @@ class TournamentConsumer(WebsocketConsumer):
 		print(f"Player {self.id} wants to play tournament {tournament_id} with capacity {capacity}!")
 		# Check for valid player_id and tournament_id pair
 		try:
-			player_tournament = PlayerTournament.objects.get(player=self.id, tournament=tournament_id)
+			tournament = Tournament.objects.get(id=tournament_id)
 		except ObjectDoesNotExist:
-			print("Reject bcs invalid player_tournament pair.")
-			self.close()
-			return
-		# Check that tournament exists
-		if get_tournament_status(tournament_id) is None:
 			print("Close bcs no such tournament")
 			self.close()
 			return
+		if (self.id == tournament.creator.id):
+			try:
+				player_tournament = PlayerTournament.objects.get(player=self.id, tournament=tournament_id)
+			except ObjectDoesNotExist:
+				print("Reject bcs invalid player_tournament pair for creator.")
+				self.close()
+				return
 		# Check for tournament state = FINISHED
 		if get_tournament_status(tournament_id) == Tournament.StatusOptions.FINISHED:
 			print("Reject bcs tournament finished")
