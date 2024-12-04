@@ -17,30 +17,28 @@ class TournamentRoom:
 		self.id = tournament_id
 		self.players = []
 		self.brackets = []
+		self.capacity = 4
 
 	def __repr__(self):
-		return f"TournamentRoom(id={self.id}, players={self.players}, brackets={self.brackets})"
+		return f"TournamentRoom(id={self.id}, players={self.players}, brackets={self.brackets}, capacity={self.capacity})"
 class Player:
 	def __init__(self, player_id, channel_name, tournament_username):
 		self.id = player_id
 		self.channel_name = channel_name
 		self.username = tournament_username
-		self.is_ingame = False 
 
 	def __repr__(self):
-		return f"Player(id={self.id}, channel_name={self.channel_name}, username={self.username}, is_ingame={self.is_ingame})"
+		return f"Player(id={self.id}, channel_name={self.channel_name}, username={self.username})"
 class Match:
-	class StatusOptions(models.TextChoices):
-		INPROGRESS = "IP", gettext_lazy("In progress")
-		FINISHED = "FIN", gettext_lazy("Finished")
 	
-	def __init__(self, round, player1, player2, status=StatusOptions.INPROGRESS):
+	def __init__(self, id, round, player1, player2):
+		self.id = id
 		self.round = round
 		self.players = [player1, player2]
-		self.status = status
+		self.winner = None
 
 	def __repr__(self):
-		return f"Match(round={self.round}, players={self.players}, status={self.status})"
+		return f"Match(id={self.id}, round={self.round}, players={self.players})"
 
 def is_player_in_tournament_room_already(player_id):
 	for tournament_room in tournament_rooms:
@@ -49,7 +47,7 @@ def is_player_in_tournament_room_already(player_id):
 				return True
 	return False
 
-def find_tournament_room(tournament_id):
+def get_tournament_room(tournament_id):
 	for tournament_room in tournament_rooms:
 		if (tournament_room.id == tournament_id):
 			return tournament_room
@@ -88,42 +86,31 @@ def add_player_to_tournament_room(tournament_room, player_id, channel_name, play
 		tournament_username = player.username
 	tournament_room.players.append(Player(player_id, channel_name, tournament_username))
 
-#def count_players_ingame(tournament_room):
-#	count = 0
-#	for player in tournament_room.players:
-#		if player.is_ingame == True:
-#			count += 1
-#	return count
+def get_match(tournament, match_id):
+	for match in tournament.brackets:
+		if match.id == match_id:
+			return match
+	return None
 
-def create_match_and_return_match_id(self, tournament_room, round, player1, player2):
-	# TOURNAMENT_ROOM update
-	match = Match(round, player1, player2)
-	tournament_room.brackets.append(match)
-	player1.is_ingame = True
-	player2.is_ingame = True
-	# DATABASE update
-	# Create group_names for each round
-	round_group_name = "round" + str(round) + "_left_" + str(tournament_room.id)
-	# Assign players to group_names for each round
-	async_to_sync(self.channel_layer.group_add)(
-		round_group_name, player1.channel_name
-	)
-	async_to_sync(self.channel_layer.group_add)(
-		round_group_name, player2.channel_name
-	)
-	# Create math for round 1 and return match_id to players
-	match_data = {
-		'player1' : player1.id,
-		'player2' : player2.id,
-		'tournament' : tournament_room.id,
-		'round' : round
-	}
-	match_serializer1 = MatchSerializer(data=match_data)
-	if match_serializer1.is_valid():
-		match_serializer1.save()
-		async_to_sync(self.channel_layer.group_send)(
-			round_group_name, {"type": "tournament_message", "message": match_serializer1.data['id']}
-		)
+def get_match_index_in_brackets(tournament, match_id):
+	i = 0
+	for match in tournament.brackets:
+		if (match.id == match_id):
+			break
+		i += 1
+	return i
+
+def get_match_by_round(tournament_room, round):
+	for match in tournament_room.brackets:
+		if match.round == round:
+			return match
+	return None
+
+def get_player_from_tournament_room(tournament_room, player_id):
+	for player in tournament_room.players:
+		if player.id == player_id:
+			return player
+	return None
 
 class TournamentConsumer(WebsocketConsumer):
 	def connect(self):
@@ -138,13 +125,12 @@ class TournamentConsumer(WebsocketConsumer):
 			print("Close bcs no such tournament")
 			self.close()
 			return
-		if (self.id == tournament.creator.id):
-			try:
-				player_tournament = PlayerTournament.objects.get(player=self.id, tournament=tournament_id)
-			except ObjectDoesNotExist:
-				print("Reject bcs invalid player_tournament pair for creator.")
-				self.close()
-				return
+		try:
+			player_tournament = PlayerTournament.objects.get(player=self.id, tournament=tournament_id)
+		except ObjectDoesNotExist:
+			print("Reject bcs invalid player_tournament pair.")
+			self.close()
+			return
 		# Check for tournament state = FINISHED
 		if get_tournament_status(tournament_id) == Tournament.StatusOptions.FINISHED:
 			print("Reject bcs tournament finished")
@@ -161,7 +147,7 @@ class TournamentConsumer(WebsocketConsumer):
 			self.close()
 			return
 		# Add player to room or create it
-		tournament_room = find_tournament_room(tournament_id)
+		tournament_room = get_tournament_room(tournament_id)
 		pprint(f'Found tournament room: {tournament_room}')
 		if not tournament_room:
 			tournament_room = create_tournament_room(tournament_id)
@@ -173,12 +159,12 @@ class TournamentConsumer(WebsocketConsumer):
 		)
 		self.accept()
 		# Understand the tournament status
-		# Round 1 match
-		if len(tournament_room.players) >= 2 and len(tournament_room.brackets) == 0:
-			create_match_and_return_match_id(self, tournament_room, 1, tournament_room.players[0], tournament_room.players[1])
-		# Round 2 match
-		if len(tournament_room.players) == 4 and len(tournament_room.brackets) in (0, 1):
-			create_match_and_return_match_id(self, tournament_room, 2, tournament_room.players[2], tournament_room.players[3])
+		# Round 1 and round 2
+		if len(tournament_room.players) == capacity:
+			self.create_match_and_return_match_id(tournament_room, 1, tournament_room.players[0], tournament_room.players[1])
+			self.create_match_and_return_match_id(tournament_room, 2, tournament_room.players[2], tournament_room.players[3])
+		#	self.create_match_and_return_match_id(tournament_room, 3, tournament_room.players[4], tournament_room.players[5])
+		#	self.create_match_and_return_match_id(tournament_room, 4, tournament_room.players[6], tournament_room.players[7])
 		print("Tournaments after connect:")
 		pprint(tournament_rooms)
 
@@ -195,16 +181,137 @@ class TournamentConsumer(WebsocketConsumer):
 					break
 		print("Tournaments after disconnect:")
 		pprint(tournament_rooms)
-	
+
+	def create_match_and_return_match_id(self, tournament_room, round, player1, player2):
+		# DATABASE update
+		# Create group_names for each round
+		round_group_name = "round" + str(round) + str(tournament_room.id)
+		# Assign players to group_names for each round
+		async_to_sync(self.channel_layer.group_add)(
+			round_group_name, player1.channel_name
+		)
+		async_to_sync(self.channel_layer.group_add)(
+			round_group_name, player2.channel_name
+		)
+		# Create math for round 1 and return match_id to players
+		match_data = {
+			'player1' : player1.id,
+			'player2' : player2.id,
+			'tournament' : tournament_room.id,
+			'round' : round
+		}
+		match_serializer1 = MatchSerializer(data=match_data)
+		if match_serializer1.is_valid():
+			match_serializer1.save()
+			# TOURNAMENT_ROOM update
+			match = Match(match_serializer1.data['id'], round, player1, player2)
+			tournament_room.brackets.append(match)
+			async_to_sync(self.channel_layer.group_send)(
+				round_group_name, {"type": "tournament_message", "message": match_serializer1.data['id']}
+			)
+
 	def receive(self, text_data):
 		text_data_json = json.loads(text_data)
-		message = text_data_json["message"]
-		print(f"Message in receive: {message}")
+		message_type = text_data_json["message"]
+		print(f"Message in receive: {message_type}")
 
-		# Send message to room group
-		async_to_sync(self.channel_layer.group_send)(
-			self.room_group_name, {"type": "tournament_message", "message": message}
-		)
+		if message_type == "match_end":
+			match_id = int(text_data_json["match_id"])
+			winner_id = int(text_data_json["winner_id"])
+			self.next_round(match_id, winner_id)
+
+	#	# Send message to room group
+	#	async_to_sync(self.channel_layer.group_send)(
+	#		self.room_group_name, {"type": "tournament_message", "message": message_type}
+	#	)
+
+	def create_match_and_return_match_id_next_round(self, tournament_room, round):
+		match = get_match_by_round(tournament_room, round)
+		if match is None:
+			print("Match not found in tournament room, creating...")
+			player1 = get_player_from_tournament_room(tournament_room, self.id)
+			print(f"Player1: {player1.id}")
+			match = Match(None, round, player1, None)
+			tournament_room.brackets.append(match)
+		else:
+			print("Match found in tournament room, adding player...")
+			player2 = get_player_from_tournament_room(tournament_room, self.id)
+			print(f"Player2: {player2.id}")
+			match.players[1] = player2
+		print(f"Next round match: {match}")
+		player1 = match.players[0]
+		player2 = match.players[1]
+		if (player1 is not None and player2 is not None):
+			print(f"Creating match for round: {match.round}")
+			# DATABASE update
+			# Create group_names for each round
+			round_group_name = "round" + str(round) + str(tournament_room.id)
+			# Assign players to group_names for each round
+			async_to_sync(self.channel_layer.group_add)(
+				round_group_name, player1.channel_name
+			)
+			async_to_sync(self.channel_layer.group_add)(
+				round_group_name, player2.channel_name
+			)
+			# Create math for round 1 and return match_id to players
+			match_data = {
+				'player1' : player1.id,
+				'player2' : player2.id,
+				'tournament' : tournament_room.id,
+				'round' : round
+			}
+			match_serializer1 = MatchSerializer(data=match_data)
+			if match_serializer1.is_valid():
+				match_serializer1.save()
+				match.id = match_serializer1.data['id'] # NoneType winner error
+				async_to_sync(self.channel_layer.group_send)(
+					round_group_name, {"type": "tournament_message", "message": match_serializer1.data['id']}
+			)
+		print("End of next_round")
+
+
+
+	def next_round(self, match_id, winner_id):
+		print("Next round function")
+		tournament_id = int(self.scope['url_route']['kwargs'].get('tournament_id'))
+		tournament_room = get_tournament_room(tournament_id)
+		print(f"Next round function, tournament: {tournament_room}")
+		match = get_match(tournament_room, match_id)
+		# Update match in brackets
+		match.winner = winner_id
+	#	if (match.round <= tournament_room.capacity / 2):
+			# round_number = 1
+			# j = 1
+			# k = 1
+			# while (round_number <= tournament_room.capacity / 2 - 1):
+			# 	if match.round in (j, j+1):
+			# 		self.add_player_to_match_in_tournament_room(tournament_room, tournament_room.capacity / 2 + k)
+			# 		round_number += 1
+
+		print(f"Next round function, match.round: {match.round}")
+		if match.round == tournament_room.capacity - 1:
+			round_group_name = "round" + str(match.round) + str(tournament_room.id)
+			async_to_sync(self.channel_layer.group_send)(
+				round_group_name, {"type": "tournament_message", "message": "tournament_end"}
+			)
+			#do stuff
+		if (match.round in (1, 2)):
+			self.create_match_and_return_match_id_next_round(tournament_room, tournament_room.capacity / 2 + 1)
+		elif (match.round in (3, 4)):
+			self.create_match_and_return_match_id_next_round(tournament_room, tournament_room.capacity / 2 + 2)
+		elif (match.round in (5, 6)):
+			self.create_match_and_return_match_id_next_round(tournament_room, tournament_room.capacity / 2 + 3)
+	#	elif (match.round in (7, 8)):
+	#		self.add_player_to_match_in_tournament_room(tournament_room, tournament_room.capacity / 2 + 4)
+	#	elif (match.round in (9, 10)):
+	#		self.add_player_to_match_in_tournament_room(tournament_room, tournament_room.capacity / 2 + 5)
+	#	elif (match.round in (11, 12)):
+	#		self.add_player_to_match_in_tournament_room(tournament_room, tournament_room.capacity / 2 + 6)
+	#	elif (match.round in (13, 14)):
+	#		self.add_player_to_match_in_tournament_room(tournament_room, tournament_room.capacity / 2 + 7)
+		#elif (match.round <= ):
+				
+			
 	
 	def tournament_message(self, event):
 		message = event["message"]
