@@ -2,7 +2,9 @@ import { closeTournamentWebsocket } from './websockets.js';
 import { textDotLoading } from './animations.js';
 import { apiCallAuthed } from './api.js';
 
-export function init() {
+export function init(data) {
+	console.log("PLAYER DATA IN LOBBY:", data)
+
 	// Close the Tournament Websocket and return to main menu
 	const returnButton = document.getElementById('cancelBtn');
 	if (returnButton) {
