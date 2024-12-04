@@ -1,6 +1,7 @@
 import { apiCallAuthed } from './api.js';
 import { addPaddleMovementListener } from './websockets.js';
 import { textDynamicLoad } from "./animations.js";
+import { openPongWebsocket } from "./websockets.js";
 
 /* 👇 DATA DECLARATION */
 let gameMode;
@@ -14,6 +15,7 @@ let scaleX; // Calculate the drawing scale for client's viewport
 let scaleY;
 let keys;
 
+let matchID;
 let player1Data;
 let player2Data;
 let player1 = {};
@@ -42,6 +44,7 @@ let isTouchDevice;
 /* 👇 DATA INITIALIZATION */
 function initGameData(data)
 {
+	matchID = data.id;
 	gameMode = localStorage.getItem('gameMode');
 	gameBoard = document.getElementById("gameBoard");
 	ctx = gameBoard.getContext("2d");
@@ -130,7 +133,7 @@ function initEventListeners()
 	window.addEventListener('match_end', showGameOverScreen);
 
 	replayButton.addEventListener("click", () => {
-		hideGameOverScreen();
+		replayGame();
 	});
 	
 	mainMenuButton.addEventListener("click", () => {
@@ -309,7 +312,7 @@ function sendPaddleMovement() {
 	}
 }
 
-/* 👇 MENUS & NON-GAME LOGIC */
+/* 👇 MENUS & REMATCH & NON-GAME LOGIC */
 
 function startCountdown() {
 	const countdownModal = new bootstrap.Modal(document.getElementById('countdownModal'));
@@ -358,6 +361,11 @@ function hideGameOverScreen() {
 			touchControlsPlayer1.style.display = "block";
 			touchControlsPlayer2.style.display = "block";
 		}
+}
+
+async function replayGame() {
+	const rematchId = await apiCallAuthed(`api/matchmaking/ws/${matchID}/rematch/`);
+	openPongWebsocket(rematchId);
 }
 
 /* 👇 GAME INIT */
