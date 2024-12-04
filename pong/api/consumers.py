@@ -1,16 +1,3 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    consumers.py                                       :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: plouda <plouda@student.42prague.com>       +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2024/11/28 14:23:42 by plouda            #+#    #+#              #
-#    Updated: 2024/12/03 19:31:12 by plouda           ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
-
-
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from .models import CustomUser, Match

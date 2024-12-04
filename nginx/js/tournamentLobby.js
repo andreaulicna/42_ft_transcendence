@@ -1,28 +1,27 @@
-
+import { closeTournamentWebsocket } from './websockets.js';
+import { textDotLoading } from './animations.js';
+import { apiCallAuthed } from './api.js';
 
 export function init() {
-
-	
-	
+	// Close the Tournament Websocket and return to main menu
 	const returnButton = document.getElementById('cancelBtn');
 	if (returnButton) {
 		returnButton.addEventListener('click', () => {
-			window.location.hash = '#dashboard';
+			apiCallAuthed(`/api/tournament/join/cancel/${sessionStorage.getItem("tournament_id")}/`, "POST")
+				.then(() => {
+					console.log('Leaving tournament');
+				})
+				.catch(error => {
+					console.error('Error leaving tournament:', error);
+					alert("Error leaving a tournament.");
+				})
+				.finally(() => {
+					closeTournamentWebsocket();
+					window.location.hash = '#dashboard';
+				})
+				;
 		});
 	}
 
-	// Simple loading animation
-	const loadingAnimation = document.getElementById("loadingAnimation");
-	let dots = 0;
-	const animationSpeed = 400;
-
-	const intervalId = setInterval(() => {
-		dots = (dots + 1) % 4;
-		loadingAnimation.textContent = '.'.repeat(dots) || '.';
-	}, animationSpeed);
-
-	// Clear the interval when the page unloads
-	window.addEventListener('beforeunload', () => {
-		clearInterval(intervalId);
-	});
+	textDotLoading("loadingAnimation");
 }

@@ -1,15 +1,7 @@
 import { apiCallAuthed } from './api.js';
 import { addPaddleMovementListener } from './websockets.js';
-
-export async function init(data) {
-	initGameData(data);
-	initEventListeners();
-	initPlayerData(data);
-	initGameBoardVisual();
-	if (isTouchDevice)
-		initTouchControls();
-	startCountdown();
-}
+import { textDynamicLoad } from "./animations.js";
+import { openPongWebsocket } from "./websockets.js";
 
 /* 👇 DATA DECLARATION */
 let gameMode;
@@ -23,6 +15,7 @@ let scaleX; // Calculate the drawing scale for client's viewport
 let scaleY;
 let keys;
 
+let matchID;
 let player1Data;
 let player2Data;
 let player1 = {};
@@ -51,6 +44,7 @@ let isTouchDevice;
 /* 👇 DATA INITIALIZATION */
 function initGameData(data)
 {
+	matchID = data.id;
 	gameMode = localStorage.getItem('gameMode');
 	gameBoard = document.getElementById("gameBoard");
 	ctx = gameBoard.getContext("2d");
@@ -118,8 +112,8 @@ async function initPlayerData(data)
 		score: 0,
 	}
 
-	player1NamePlaceholder.textContent = player1.name;
-	player2NamePlaceholder.textContent = player2.name;
+	textDynamicLoad("player1Name", `${player1.name}`);
+	textDynamicLoad("player2Name", `${player2.name}`);
 	
 	if (player1Data.avatar != null)
 		player1AvatarPlaceholder.src = player1Data.avatar;
@@ -139,7 +133,7 @@ function initEventListeners()
 	window.addEventListener('match_end', showGameOverScreen);
 
 	replayButton.addEventListener("click", () => {
-		hideGameOverScreen();
+		replayGame();
 	});
 	
 	mainMenuButton.addEventListener("click", () => {
@@ -157,10 +151,8 @@ function initGameBoardVisual()
 	drawBall(ball);
 }
 
-function initTouchControls()
-{
-	console.log("TOUCH CONTROLS ENABLED")
-		
+function initTouchControls(player1Data)
+{		
 	const touchControlsPlayer1 = document.getElementById('touchControlsPlayer1');
 	const touchControlsPlayer2 = document.getElementById('touchControlsPlayer2');
 	const player1Up = document.getElementById('player1Up');
@@ -320,7 +312,7 @@ function sendPaddleMovement() {
 	}
 }
 
-/* 👇 MENUS & NON-GAME LOGIC */
+/* 👇 MENUS & REMATCH & NON-GAME LOGIC */
 
 function startCountdown() {
 	const countdownModal = new bootstrap.Modal(document.getElementById('countdownModal'));
@@ -369,4 +361,29 @@ function hideGameOverScreen() {
 			touchControlsPlayer1.style.display = "block";
 			touchControlsPlayer2.style.display = "block";
 		}
+}
+
+async function replayGame() {
+	const rematchId = await apiCallAuthed(`api/matchmaking/ws/${matchID}/rematch/`);
+	openPongWebsocket(rematchId);
+}
+
+/* 👇 GAME INIT */
+
+// Function to create a delay
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+export async function init(data) {
+	startCountdown();
+	initGameData(data);
+	initEventListeners();
+	initPlayerData(data);
+	initGameBoardVisual();
+	if (isTouchDevice) {
+		await delay(100);
+		initTouchControls(player1Data);
+		console.log("TOUCH CONTROLS ENABLED");
+	}
 }

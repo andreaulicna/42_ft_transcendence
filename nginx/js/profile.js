@@ -1,10 +1,11 @@
 import { apiCallAuthed } from './api.js';
+import { textDynamicLoad } from "./animations.js";
 
 export function init(data) {
 	// LOAD DYNAMIC DATA
-	document.getElementById('userName').textContent = '🏓 ' + data.username;
-	document.getElementById('numOfWins').textContent = '👍 ' + data.win_count;
-	document.getElementById('numOfLosses').textContent = '👎 ' + data.loss_count;
+	textDynamicLoad("userName", `🏓 ${data.username}`);
+	textDynamicLoad("numOfWins", `👍 ${data.win_count}`);
+	textDynamicLoad("numOfLosses", `👎 ${data.loss_count}`);
 	if (data.avatar != null)
 		document.getElementById('profilePic').src = data.avatar;
 	

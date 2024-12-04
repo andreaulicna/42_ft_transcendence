@@ -1,10 +1,10 @@
 import { apiCallAuthed } from './api.js';
 import { openTournamentWebsocket } from './websockets.js';
 
-export function init() {
+export function init(tournamentList) {
+
 	// CREATE TOURNAMENT
 	const tournamentCreateForm = document.getElementById("create-tournament-form");
-	const tournamentJoinRandom = document.getElementById("join-random-tournament-btn");
 
 	tournamentCreateForm.addEventListener("submit", async (event) => {
 		event.preventDefault();
@@ -26,25 +26,45 @@ export function init() {
 			console.error("Error creating tournament:", error);
 			alert("An error occurred while creating a tournament.");
 		}
-		
 	});
 
-	tournamentJoinRandom.addEventListener("click", async (event) => {
-		event.preventDefault();
+	// LIST TOURNAMENTS
+	const joinableTournaments = document.getElementById("joinable-tournaments");
 
-		try {
-			const payload = {
-				// tournament_name: tournamentName,
-				// player_tmp_username: "borecek",
-			};
+	if (!tournamentList || tournamentList.length === 0)
+		joinableTournaments.innerHTML = '<li class="list-group-item text-center">No available tournaments</li>';
+	else
+	{
+		joinableTournaments.innerHTML = '';
+		tournamentList.forEach(tournament => {
+			if (tournament.free_spaces != 0)
+			{
+				const listItem = document.createElement('li');
+				listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
+				listItem.innerHTML = `
+				${tournament.name}
+				<button class="btn btn-prg btn-sm" data-translate="tournamentJoinButton" data-tournament-id="${tournament.id}">Join</button>
+				`;
+				joinableTournaments.appendChild(listItem);
+			}
+		});
+	}
 
-			const response = await apiCallAuthed("/api/tournament/join", "POST", null, payload);
-			// console.log("Tournament joined", response);
-			window.location.hash = '#lobby';
-		} catch (error) {
-			console.error("Error joining tournament:", error);
-			alert("An error occurred while joining a tournament.");
+	// JOIN LISTED TOURNAMENT
+	joinableTournaments.addEventListener('click', async(event) => {
+		if (event.target && event.target.matches('button[data-tournament-id]')) {
+			const tournamentId = event.target.getAttribute('data-tournament-id');
+			sessionStorage.setItem("tournament_id", tournamentId);
+			apiCallAuthed(`/api/tournament/join/${tournamentId}/`, "POST")
+				.then(response => {
+					openTournamentWebsocket(response.tournament.id);
+					window.location.hash = '#lobby';
+				})
+				.catch(error => {
+					console.error('Error joining tournament:', error);
+					alert("Cannot join a tournament.");
+				});
 		}
-		
 	});
+
 }

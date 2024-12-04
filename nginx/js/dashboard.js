@@ -1,8 +1,10 @@
+import { textDynamicLoad } from "./animations.js";
+
 export function init(data) {
 	sessionStorage.setItem("id", data.id);
 
 	// LOAD DYNAMIC DATA
-	document.getElementById('userName').textContent = '🏓 ' + data.username;
+	textDynamicLoad("userName", `🏓 ${data.username}`);
 	if (data.avatar != null)
 		document.getElementById('profilePic').src = data.avatar;
 
