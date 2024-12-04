@@ -1,7 +1,6 @@
 import { apiCallAuthed } from './api.js';
 import { addPaddleMovementListener } from './websockets.js';
 import { textDynamicLoad } from "./animations.js";
-import { openPongWebsocket } from "./websockets.js";
 
 /* 👇 DATA DECLARATION */
 let gameMode;
@@ -137,7 +136,8 @@ function initEventListeners()
 	});
 	
 	mainMenuButton.addEventListener("click", () => {
-		hideGameOverScreen();
+		window.location.hash = '#dashboard';
+		// hideGameOverScreen();
 	});
 
 	addPaddleMovementListener();
@@ -364,8 +364,9 @@ function hideGameOverScreen() {
 }
 
 async function replayGame() {
-	const rematchId = await apiCallAuthed(`api/matchmaking/ws/${matchID}/rematch/`);
-	openPongWebsocket(rematchId);
+	// hideGameOverScreen();
+	localStorage.setItem("gameMode", "rematch");
+	window.location.hash = '#lobby-game';
 }
 
 /* 👇 GAME INIT */
