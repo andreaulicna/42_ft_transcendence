@@ -9,10 +9,10 @@ const routes = {
 	'#login'		: '/pages/login.html',
 	'#register'		: '/pages/register.html',
 	'#dashboard'	: '/pages/dashboard.html',
-	'#searching'	: '/pages/searchingForGame.html',
+	'#lobby-game'	: '/pages/gameLobby.html',
 	'#game'			: '/pages/game.html',
 	'#tournament'	: '/pages/tournament.html',
-	'#lobby'		: '/pages/tournamentLobby.html',
+	'#lobby-tnmt'	: '/pages/tournamentLobby.html',
 	'#profile'		: '/pages/profile.html',
 	'404'			: '/pages/404.html'
 };
@@ -47,15 +47,15 @@ const loadContent = async (path) => {
 		} else if (window.location.hash === '#profile') {
 			data = await apiCallAuthed('/api/user/info');
 			await import('/js/profile.js').then(module => module.init(data));
-		} else if (window.location.hash === '#searching') {
-			await import('/js/gameSearching.js').then(module => module.init());
+		} else if (window.location.hash === '#lobby-game') {
+			await import('/js/gameLobby.js').then(module => module.init());
 		} else if (window.location.hash === '#game') {
 			data = await apiCallAuthed(`/api/user/match/${sessionStorage.getItem("match_id")}`);
 			await import('/js/gameRemote.js').then(module => module.init(data));
 		} else if (window.location.hash === '#tournament') {
 			data = await apiCallAuthed('api/tournament/list/waiting');
 			await import('/js/tournament.js').then(module => module.init(data));
-		} else if (window.location.hash === '#lobby') {
+		} else if (window.location.hash === '#lobby-tnmt') {
 			// data = await apiCallAuthed('api/tournament/list/for-player');
 			await import('/js/tournamentLobby.js').then(module => module.init());
 		}

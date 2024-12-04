@@ -21,7 +21,7 @@ export function init(tournamentList) {
 			const response = await apiCallAuthed("/api/tournament/create", "POST", null, payload);
 			console.log("TOURNAMENT ID, ",response.tournament.id);
 			openTournamentWebsocket(response.tournament.id);
-			window.location.hash = '#lobby';
+			window.location.hash = '#lobby-tnmt';
 		} catch (error) {
 			console.error("Error creating tournament:", error);
 			alert("An error occurred while creating a tournament.");
@@ -58,7 +58,7 @@ export function init(tournamentList) {
 			apiCallAuthed(`/api/tournament/join/${tournamentId}/`, "POST")
 				.then(response => {
 					openTournamentWebsocket(response.tournament.id);
-					window.location.hash = '#lobby';
+					window.location.hash = '#lobby-tnmt';
 				})
 				.catch(error => {
 					console.error('Error joining tournament:', error);

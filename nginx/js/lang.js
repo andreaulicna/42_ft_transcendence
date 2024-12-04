@@ -23,6 +23,8 @@ const translations = {
 		// SEARCHING FOR GAME
 		searchingForGame: "Searching for game",
 		returnToMenu: "Return to menu",
+		// REMATCH
+		waitingForRematch: "Waiting for rematch",
 		// GAME
 		hasWon: "has won!",
 		buttonReplay: "Replay",
@@ -75,6 +77,8 @@ const translations = {
 		// SEARCHING FOR GAME
 		searchingForGame: "Hledám hru",
 		returnToMenu: "Návrat do hlavního menu",
+		// REMATCH
+		waitingForRematch: "Čekám na protivníka",
 		// GAME
 		hasWon: "je vítěz!",
 		buttonReplay: "Hrát znovu",
@@ -127,6 +131,8 @@ const translations = {
 		// SEARCHING FOR GAME
 		searchingForGame: "Hľadám hru",
 		returnToMenu: "Návrat do hlavného menu",
+		// REMATCH
+		waitingForRematch: "Čakám na protivníka",
 		// GAME
 		hasWon: "has won!",
 		buttonReplay: "Hrať znova",

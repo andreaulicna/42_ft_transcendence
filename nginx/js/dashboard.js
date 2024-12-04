@@ -15,7 +15,7 @@ export function init(data) {
 			localStorage.setItem('gameMode', mode);
 
 			if (mode === 'remote') {
-				window.location.hash = '#searching';
+				window.location.hash = '#lobby-game';
 			}
 		});
 	});

@@ -4,8 +4,9 @@ let pongWebSocket;
 let friendlistWebSocket;
 let matchmakingWebSocket;
 let tournamentWebSocket;
+let rematchWebSocket;
 
-async function openWebSocket(url) {
+async function openWebSocket(url, type) {
 	return new Promise(async (resolve, reject) => {
 		try {
 			const response = await apiCallAuthed('/api/auth/ws-login', 'GET');
@@ -31,9 +32,7 @@ async function openWebSocket(url) {
 			ws.onmessage = (event) => {
 				const data = JSON.parse(event.data);
 				// console.log('WebSocket message received:', data);
-				// If match from matchmaking or tournament found, open Pong WebSocket
-				// if (url === "/api/matchmaking/ws/")
-				if (url === "/api/matchmaking/ws/" || /^\/api\/tournament\/ws\/.*/.test(url))
+				if (type == "matchmaking" || type == "rematch" || type == "tournament")
 				{
 					sessionStorage.setItem("match_id", data.message);
 					openPongWebsocket(data.message);
@@ -56,7 +55,7 @@ async function openWebSocket(url) {
 
 export async function openFriendlistWebsocket() {
 	const url = "/api/auth/ws/init/";
-	openWebSocket(url).then((ws) => {
+	openWebSocket(url, "friend").then((ws) => {
 		friendlistWebSocket = ws;
 		console.log('Friendlist WebSocket established');
 	});
@@ -64,7 +63,7 @@ export async function openFriendlistWebsocket() {
 
 export async function openMatchmakingWebsocket() {
 	const url = "/api/matchmaking/ws/";
-	openWebSocket(url).then((ws) => {
+	openWebSocket(url, "matchmaking").then((ws) => {
 		matchmakingWebSocket = ws;
 		console.log('Matchmaking WebSocket established');
 	}).catch((error) => {
@@ -72,9 +71,19 @@ export async function openMatchmakingWebsocket() {
 	});
 }
 
+export async function openRematchWebsocket(rematch_id) {
+	const url = `api/matchmaking/ws/${rematch_id}/rematch/`;
+	openWebSocket(url, "rematch").then((ws) => {
+		rematchWebSocket = ws;
+		console.log('Rematch WebSocket established');
+	}).catch((error) => {
+		console.error('Failed to establish Rematch WebSocket:', error);
+	});
+}
+
 export async function openTournamentWebsocket(tournament_id) {
 	const url = "/api/tournament/ws/" + tournament_id + "/";
-	openWebSocket(url).then((ws) => {
+	openWebSocket(url, "tournament").then((ws) => {
 		tournamentWebSocket = ws;
 		console.log('Tournament WebSocket established');
 	}).catch((error) => {
@@ -84,7 +93,7 @@ export async function openTournamentWebsocket(tournament_id) {
 
 export async function openPongWebsocket(match_id) {
 	const url = "/api/pong/ws/" + match_id + "/";
-	openWebSocket(url).then((ws) => {
+	openWebSocket(url, "pong").then((ws) => {
 		pongWebSocket = ws;
 		console.log('Pong WebSocket established');
 		window.location.hash = '#game';
@@ -103,6 +112,11 @@ function closeWebSocket(ws) {
 export function closeMatchmakingWebsocket() {
 	closeWebSocket(matchmakingWebSocket);
 	console.log('Closing Matchmaking Websocket');
+}
+
+export function closeRematchWebsocket() {
+	closeWebSocket(rematchWebSocket);
+	console.log('Closing Rematch Websocket');
 }
 
 export function closeTournamentWebsocket() {
