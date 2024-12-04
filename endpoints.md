@@ -66,5 +66,5 @@ Deleted `/api/user/friendships`, reworked `/api/user/friends` endpoint, updated 
 |`/join/<int:tournament_id>/`|POST|`player_tmp_username`(optional)|201<br>400<br>403<br>404|`tournament` object with all info from the database, including a list of `players` in the tournament |Adds `player` into a tournament based on `tournamend_id` in URL.
 |`/join/cancel/<int:tournament_id>/`|POST||200<br>403<br>404|`tournament` object with all info from the database, including a list of `players` in the tournament|Deletes a user from waiting tournament based on `tournament_id` in URL.
 |`/list/waiting` | GET ||200<br>404|list object of all waiting tournaments, including free spaces for players to join ||
-|`/list/for-player` | GET || 200<br>404| list object of all tournaments for a particular user ||
+|`/list/player` | GET || 200<br>404| list object of all tournaments for a particular user ||
 |`/ws/<int:tournament_id>/`|non-HTTP|`?uuid=`|Connected<br>Disconnected|`match_id` if there is a match to play for the particular `player`|Matchmaking for tournament.
