@@ -16,16 +16,16 @@ async function openWebSocket(url, type) {
 			const ws = new WebSocket(url + `?uuid=${uuid}`);
 
 			ws.onopen = () => {
-				console.log('WebSocket connection opened');
+				console.log(`${type} WebSocket connection opened`);
 				resolve(ws); // Resolve the promise when the connection is opened
 			};
 
 			ws.onclose = () => {
-				console.log('WebSocket connection closed');
+				console.log(`${type} WebSocket connection closed`);
 			};
 
 			ws.onerror = (error) => {
-				console.error('WebSocket error:', error);
+				console.error(`${type} WebSocket error:`, error);
 				reject(error); // Reject the promise if there's an error
 			};
 
@@ -38,16 +38,19 @@ async function openWebSocket(url, type) {
 					openPongWebsocket(data.message);
 				}
 				// For an ongoing match, dispatch custom events based on the message type received from server
-				if (data.type === "draw") {
+				if (data.type === "draw")
+				{
 					const drawEvent = new CustomEvent('draw', { detail: data });
 					window.dispatchEvent(drawEvent);
-				} else if (data.type === "match_end") {
+				}
+				else if (data.type === "match_end")
+				{
 					const matchEndEvent = new CustomEvent('match_end');
 					window.dispatchEvent(matchEndEvent);
 				}
 			};
 		} catch (error) {
-			console.error('Error opening WebSocket:', error);
+			console.error(`Error opening WebSocket ${type} :`, error);
 			reject(error);
 		}
 	});
@@ -124,6 +127,7 @@ export function closeTournamentWebsocket() {
 	console.log('Closing Tournament Websocket');
 }
 
+// Send paddle movement from game to Pong websocket
 function handlePaddleMovement(event) {
 	if (pongWebSocket && pongWebSocket.readyState === WebSocket.OPEN) {
 		pongWebSocket.send(JSON.stringify(event.detail));
@@ -131,7 +135,26 @@ function handlePaddleMovement(event) {
 	}
 }
 
-// Export function for gameRemote.js
 export function addPaddleMovementListener() {
 		window.addEventListener('paddle_movement', handlePaddleMovement);
+}
+
+// In tournament mode, let server know when a match ends
+function handleTournamentMatchEnd(event) {
+	console.log("INTERCEPTED MATCH END MSG");
+	if (tournamentWebSocket) {
+		console.log("Tournament WebSocket exists, readyState:", tournamentWebSocket.readyState);
+	} else {
+		console.log("Tournament WebSocket is not initialized");
+	}
+	if (tournamentWebSocket && tournamentWebSocket.readyState === WebSocket.OPEN)
+	{
+		tournamentWebSocket.send(JSON.stringify(event.detail));
+		console.log('Tournament WebSocket message sent:', event.detail);
+	}
+}
+
+export function addTournamentMatchEndListener() {
+	console.log("ADDING MATCH END LISTENER");
+	window.addEventListener('tournamentMatchEnd', handleTournamentMatchEnd);
 }

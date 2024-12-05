@@ -1,5 +1,6 @@
 import { apiCallAuthed } from './api.js';
 import { addPaddleMovementListener } from './websockets.js';
+import { addTournamentMatchEndListener } from './websockets.js';
 import { textDynamicLoad } from "./animations.js";
 
 /* 👇 DATA DECLARATION */
@@ -95,11 +96,11 @@ function initGameData(data)
 
 async function initPlayerData(data)
 {
-	console.log("Match data", data);
+	// console.log("Match data", data);
 	player1Data = await apiCallAuthed(`api/user/${data.player1}/info`);
-	console.log("Player 1 data", player1Data);
+	// console.log("Player 1 data", player1Data);
 	player2Data = await apiCallAuthed(`api/user/${data.player2}/info`);
-	console.log("Player 2 data", player2Data);
+	// console.log("Player 2 data", player2Data);
 
 	player1 = {
 		name: player1Data.username,
@@ -130,6 +131,9 @@ function initEventListeners()
 
 	window.addEventListener('draw', handleDraw);
 	window.addEventListener('match_end', showGameOverScreen);
+
+	if (gameMode == "tournament")
+		addTournamentMatchEndListener();
 
 	// Disable the replay button in tournaments
 	if (gameMode != "tournament")
@@ -353,7 +357,14 @@ function showGameOverScreen() {
 	{
 		touchControlsPlayer1.style.display = 'none';
 		touchControlsPlayer2.style.display = 'none';
-	}		
+	}
+	
+	// If the game is part of a tournament, dispatch a message about the match end to the server
+	if (gameMode == "tournament")
+	{
+		const winnerID = player1.score > player2.score ? player1Data.id : player2Data.id;
+		dispatchTournamentMessage(winnerID, matchID);
+	}
 }
 
 // function hideGameOverScreen() {
@@ -374,11 +385,23 @@ async function replayGame() {
 	window.location.hash = '#lobby-game';
 }
 
+/* 👇 TOURNAMENT LOGIC */
+function dispatchTournamentMessage(winnerId, matchId) {
+	const message ={
+		message: "match_end",
+		match_id: matchId,
+		winner_id: winnerId
+	};
+	const event = new CustomEvent('tournamentMatchEnd', { detail: message });
+	console.log("DISPATCHING END MATCH MSG", message);
+	window.dispatchEvent(event);
+}
+
 /* 👇 GAME INIT */
 
 // Function to create a delay
 function delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 export async function init(data) {
