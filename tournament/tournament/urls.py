@@ -14,14 +14,16 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
-from django.urls import path
+from django.urls import path, register_converter
 from django.conf import settings
 from api import views
 from django.conf.urls.static import static
+from .converters import CapacityConverter
+
+register_converter(CapacityConverter, 'cap')
 
 urlpatterns = [
-	path('api/tournament/create', views.CreateTournamentView.as_view(), name='create-tournament'),
+	path('api/tournament/create/<cap:capacity>/', views.CreateTournamentView.as_view(), name='create-tournament'),
 	path('api/tournament/join/<int:tournament_id>/', views.JoinTournamentView.as_view(), name='join-tournament'),
 	path('api/tournament/join/cancel/<int:tournament_id>/', views.CancelJoinTournamentView.as_view(), name='cancel-join-tournament'),
 	path('api/tournament/list/waiting', views.WaitingTournamentsListView.as_view(), name='list-waiting-tournaments'),

@@ -71,7 +71,7 @@ class TournamentSerializer(serializers.ModelSerializer):
 	
     class Meta:
         model = Tournament
-        fields = ['id', 'name', 'status', 'creator', 'players']
+        fields = ['id', 'name', 'status', 'capacity', 'creator', 'players']
 
 
 class WaitingTournamentSerializer(serializers.ModelSerializer):
@@ -84,5 +84,4 @@ class WaitingTournamentSerializer(serializers.ModelSerializer):
 
     def get_free_spaces(self, obj):
         player_count = PlayerTournament.objects.filter(tournament=obj).count()
-        capacity = 4  # CHANGE to tournament capacity
-        return capacity - player_count
+        return obj.capacity - player_count

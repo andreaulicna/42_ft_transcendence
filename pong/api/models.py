@@ -64,6 +64,7 @@ class Tournament(models.Model):
 	creator = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, related_name="creator", null=True)
 	status = models.CharField(max_length=4, choices=StatusOptions, default=StatusOptions.WAITING)
 	winner = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, related_name="winner_tpurnament", null=True)
+	capacity = models.PositiveIntegerField(blank=False, default=0)
 
 class Match(models.Model):
 	class Meta:

@@ -23,7 +23,7 @@ def player_already_in_inprogress_tournament(tournaments, player_id):
 		players_in_tournament = PlayerTournament.objects.filter(tournament=tournament_iterator.id)
 		for player in players_in_tournament:
 			all_tournament_matches = Match.objects.filter(tournament=tournament_iterator.id)
-			if len(all_tournament_matches) == 4 - 1: # CHANGE to tournament capacity
+			if len(all_tournament_matches) == tournament_iterator.capacity - 1:
 				return True
 			for match in all_tournament_matches:
 				if (player.id in [match.player1_id, match.player2_id]) and (match.status != Match.StatusOptions.FINISHED):
@@ -32,7 +32,10 @@ def player_already_in_inprogress_tournament(tournaments, player_id):
 class CreateTournamentView(APIView):
 	permission_classes = [IsAuthenticated]
 
-	def post(self, request):
+	def post(self, request, *args, **kwargs):
+		# Check max. capacity
+		capacity = self.kwargs.get('capacity')
+		print(f"Capacity in create view: {capacity}")
 		# Get all waiting tournaments
 		waiting_tournaments = Tournament.objects.filter(status=Tournament.StatusOptions.WAITING)
 		# Allow only one waiting tournament
@@ -49,7 +52,10 @@ class CreateTournamentView(APIView):
 		except CustomUser.DoesNotExist:
 			return Response({'detail': 'Player does not exist'}, status=status.HTTP_404_NOT_FOUND)
 		
-		tournament_data = {'creator' : creator.id}
+		tournament_data = {
+			'creator' : creator.id,
+			'capacity' : capacity
+		}
 		tournament_name = request.data.get('tournament_name')
 		if tournament_name:
 			tournament_data['name'] = tournament_name
@@ -100,7 +106,7 @@ class JoinTournamentView(APIView):
 			return Response({"details" : "No such tournament exists!"}, status=status.HTTP_404_NOT_FOUND)
 		
 		players_in_tournament_to_join = PlayerTournament.objects.filter(tournament=tournament_to_join.id)
-		if (len(players_in_tournament_to_join) >= 4): # CHANGE to tournament capacity
+		if (len(players_in_tournament_to_join) >= tournament_to_join.capacity):
 			return Response({"details" : "This tournament is already full!"}, status=status.HTTP_403_FORBIDDEN)
 		player_tournament_data = {
 			'player' : request.user.id,
