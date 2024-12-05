@@ -131,9 +131,14 @@ function initEventListeners()
 	window.addEventListener('draw', handleDraw);
 	window.addEventListener('match_end', showGameOverScreen);
 
-	replayButton.addEventListener("click", () => {
-		replayGame();
-	});
+	// Disable the replay button in tournaments
+	if (gameMode != "tournament")
+	{
+		replayButton.style.display = "block";
+		replayButton.addEventListener("click", () => {
+			replayGame();
+		});
+	}
 	
 	mainMenuButton.addEventListener("click", () => {
 		window.location.hash = '#dashboard';
@@ -351,17 +356,17 @@ function showGameOverScreen() {
 	}		
 }
 
-function hideGameOverScreen() {
-	gameOverScreen.style.display = "none";
-	gameBoard.style.display = "block";
-	playerNames.style.visibility = "visible";
-	scoreText.style.display = "block";
-	if (isTouchDevice)
-		{
-			touchControlsPlayer1.style.display = "block";
-			touchControlsPlayer2.style.display = "block";
-		}
-}
+// function hideGameOverScreen() {
+// 	gameOverScreen.style.display = "none";
+// 	gameBoard.style.display = "block";
+// 	playerNames.style.visibility = "visible";
+// 	scoreText.style.display = "block";
+// 	if (isTouchDevice)
+// 		{
+// 			touchControlsPlayer1.style.display = "block";
+// 			touchControlsPlayer2.style.display = "block";
+// 		}
+// }
 
 async function replayGame() {
 	// hideGameOverScreen();

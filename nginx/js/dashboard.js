@@ -14,9 +14,10 @@ export function init(data) {
 			const mode = this.getAttribute('data-mode');
 			localStorage.setItem('gameMode', mode);
 
-			if (mode === 'remote') {
-				window.location.hash = '#lobby-game';
-			}
+			// The below part is redundant? Commented out for now
+			// if (mode === 'remote') {
+			// 	window.location.hash = '#lobby-game';
+			// }
 		});
 	});
 }
