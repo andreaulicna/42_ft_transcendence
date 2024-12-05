@@ -10,6 +10,7 @@ from django.http import Http404
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy
 from django.db import models
+from tournament.settings import GAME_CONSTANTS
 
 tournament_rooms = []
 class TournamentRoom:
@@ -205,7 +206,11 @@ class TournamentConsumer(WebsocketConsumer):
 			'player1' : player1.id,
 			'player2' : player2.id,
 			'tournament' : tournament_room.id,
-			'round' : round
+			'round' : round,
+			'default_ball_size' : GAME_CONSTANTS['BALL_SIZE'],
+			'default_paddle_height' : GAME_CONSTANTS['PADDLE_HEIGHT'],
+			'default_paddle_width' : GAME_CONSTANTS['PADDLE_WIDTH'],
+			'default_paddle_speed' : GAME_CONSTANTS['PADDLE_SPEED']
 		}
 		match_serializer1 = MatchSerializer(data=match_data)
 		if match_serializer1.is_valid():
@@ -265,7 +270,11 @@ class TournamentConsumer(WebsocketConsumer):
 				'player1' : player1.id,
 				'player2' : player2.id,
 				'tournament' : tournament_room.id,
-				'round' : round
+				'round' : round,
+				'default_ball_size' : GAME_CONSTANTS['BALL_SIZE'],
+				'default_paddle_height' : GAME_CONSTANTS['PADDLE_HEIGHT'],
+				'default_paddle_width' : GAME_CONSTANTS['PADDLE_WIDTH'],
+				'default_paddle_speed' : GAME_CONSTANTS['PADDLE_SPEED']
 			}
 			match_serializer1 = MatchSerializer(data=match_data)
 			if match_serializer1.is_valid():

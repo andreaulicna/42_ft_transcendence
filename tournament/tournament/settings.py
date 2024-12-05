@@ -186,8 +186,8 @@ CSRF_TRUSTED_ORIGINS = ["http://localhost:4200", "http://localhost", "http://loc
 GAME_CONSTANTS = {
 	'GAME_HEIGHT': 100,
 	'GAME_WIDTH': 160,
-	'BALL_SIZE': 4,
-	'BALL_SPEED': 0.3,
+	'BALL_SIZE': 2,
+	'BALL_SPEED': 0.5,
 	'PADDLE_SPEED': 1,
 }
 
