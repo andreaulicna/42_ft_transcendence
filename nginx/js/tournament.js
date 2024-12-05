@@ -10,7 +10,7 @@ export function init(tournamentList) {
 		event.preventDefault();
 
 		const tournamentName = document.getElementById("tournament-name").value;
-		// const tournamentSlots = document.getElementById("tournament-slots").value;
+		const tournamentSlots = document.getElementById("tournament-slots").value;
 
 		try {
 			const payload = {
@@ -18,7 +18,7 @@ export function init(tournamentList) {
 				// 'player_tmp_username': "borecek",
 			};
 
-			const response = await apiCallAuthed("/api/tournament/create", "POST", null, payload);
+			const response = await apiCallAuthed(`/api/tournament/create/${tournamentSlots}/`, "POST", null, payload);
 			console.log("TOURNAMENT ID, ", response.tournament.id);
 			sessionStorage.setItem("tournament_id", response.tournament.id);
 			openTournamentWebsocket(response.tournament.id);

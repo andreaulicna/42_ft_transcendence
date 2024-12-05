@@ -33,7 +33,7 @@ const translations = {
 		tournamentCreate: "Create Tournament",
 		tournamentName: "Tournament Name",
 		tournamentNamePlaceholder: "Enter tournament name",
-		tournamentSlots: "Create Tournament",
+		tournamentSlots: "Player slots",
 		tournamentCreateButton: "Create",
 		tournamentJoin: "Join Tournament",
 		tournamentJoinButton: "Join",
