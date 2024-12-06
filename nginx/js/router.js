@@ -82,13 +82,13 @@ export function redirectToHome(event) {
 	event.preventDefault();
 	
 	const accessToken = sessionStorage.getItem('access');
+	// If user is logged in, go to dashboard, otherwise to login page
 	if (accessToken) {
-		// User is logged in, redirect to dashboard
-		// console.log('Redirecting as a logged in user');
+		// If a player is inside a game, don't allow redirection
+		if (window.location.hash == '#game' || window.location.hash == '#lobby-game' || window.location.hash == '#lobby-tnmt')
+			return;
 		window.location.hash = '#dashboard';
 	} else {
-		// User is not logged in, redirect to login page
-		// console.log('Redirecting as a NON-logged in user');
 		window.location.hash = '#login';
 	}
 }
