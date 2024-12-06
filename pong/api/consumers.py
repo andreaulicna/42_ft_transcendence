@@ -22,7 +22,7 @@ class Player:
 		self.score = 0
 
 	def __repr__(self):
-		return f"Player(id={self.id})"
+		return f"Player(id={self.id}, channel_name={self.channel_name})"
 
 def create_match_room(match_id):
 	match_room = PongGame(match_id)

@@ -30,7 +30,7 @@ class Player:
 		self.username = tournament_username
 
 	def __repr__(self):
-		return f"Player(id={self.id})"
+		return f"Player(id={self.id}, channel_name={self.channel_name})"
 class Match:
 	
 	def __init__(self, id, round, player1, player2):
