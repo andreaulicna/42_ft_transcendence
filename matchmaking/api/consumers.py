@@ -16,7 +16,7 @@ class Player:
 		self.channel_name = channel_name
 
 	def __repr__(self):
-		return f"Player(id={self.id}, channel_name={self.channel_name})"
+		return f"Player(id={self.id})"
 
 class MatchRoom:
 	def __init__(self, prev_match_id=None):

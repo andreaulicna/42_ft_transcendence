@@ -31,7 +31,7 @@ async function openWebSocket(url, type) {
 
 			ws.onmessage = (event) => {
 				const data = JSON.parse(event.data);
-				// console.log('WebSocket message received:', data);
+				console.log('WebSocket message received:', data);
 				if (type == "matchmaking" || type == "rematch" || type == "tournament")
 				{
 					sessionStorage.setItem("match_id", data.message);

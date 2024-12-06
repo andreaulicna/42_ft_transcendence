@@ -10,6 +10,7 @@ from django.http import Http404
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy
 from django.db import models
+import logging
 from tournament.settings import GAME_CONSTANTS
 
 tournament_rooms = []
@@ -29,7 +30,7 @@ class Player:
 		self.username = tournament_username
 
 	def __repr__(self):
-		return f"Player(id={self.id}, channel_name={self.channel_name}, username={self.username})"
+		return f"Player(id={self.id})"
 class Match:
 	
 	def __init__(self, id, round, player1, player2):
@@ -117,42 +118,42 @@ class TournamentConsumer(WebsocketConsumer):
 	def connect(self):
 		self.id = self.scope['user'].id
 		tournament_id = int(self.scope['url_route']['kwargs'].get('tournament_id'))
-		print(f"Player {self.id} wants to play tournament {tournament_id}!")
+		logging.info(f"Player {self.id} wants to play tournament {tournament_id}!")
 		# Check for valid player_id and tournament_id pair
 		try:
 			tournament = Tournament.objects.get(id=tournament_id)
 		except ObjectDoesNotExist:
-			print("Close bcs no such tournament")
+			logging.info("Close bcs no such tournament")
 			self.close()
 			return
-		print(f"Tournament capacity is: {tournament.capacity}")
+		logging.info(f"Tournament capacity is: {tournament.capacity}")
 		try:
 			player_tournament = PlayerTournament.objects.get(player=self.id, tournament=tournament_id)
 		except ObjectDoesNotExist:
-			print("Reject bcs invalid player_tournament pair.")
+			logging.info("Reject bcs invalid player_tournament pair.")
 			self.close()
 			return
 		# Check for tournament state = FINISHED
 		if get_tournament_status(tournament_id) == Tournament.StatusOptions.FINISHED:
-			print("Reject bcs tournament finished")
+			logging.info("Reject bcs tournament finished")
 			self.close()
 			return
 		# Check if player already in room to limit to one tournament ws
 		if is_player_in_tournament_room_already(self.id) is True:
-			print(f"Reject to limit to one tournament ws")
+			logging.info(f"Reject to limit to one tournament ws")
 			self.close()
 			return
 		# Check for player being = INGAME
 		if get_player_state(self.id) == CustomUser.StateOptions.INGAME:
-			print("Reject bcs already in a pong game")
+			logging.info("Reject bcs already in a pong game")
 			self.close()
 			return
 		# Add player to room or create it
 		tournament_room = get_tournament_room(tournament_id)
-		pprint(f'Found tournament room: {tournament_room}')
+		logging.info(f'Found tournament room: {tournament_room}')
 		if not tournament_room:
 			tournament_room = create_tournament_room(tournament_id, tournament.capacity)
-			print(f"Room {tournament_room.id} created!")
+			logging.info(f"Room {tournament_room.id} created!")
 		add_player_to_tournament_room(tournament_room, self.id, self.channel_name, player_tournament.player_tmp_username)
 		self.room_group_name = str(tournament_room.id)
 		async_to_sync(self.channel_layer.group_add)(
@@ -173,8 +174,8 @@ class TournamentConsumer(WebsocketConsumer):
 		#	self.create_match_and_return_match_id(tournament_room, 2, tournament_room.players[2], tournament_room.players[3])
 		#	self.create_match_and_return_match_id(tournament_room, 3, tournament_room.players[4], tournament_room.players[5])
 		#	self.create_match_and_return_match_id(tournament_room, 4, tournament_room.players[6], tournament_room.players[7])
-		print("Tournaments after connect:")
-		pprint(tournament_rooms)
+		logging.info("Tournaments after connect:")
+		logging.info(tournament_rooms)
 
 	def disconnect(self, close_code):
 		for tournament_room in tournament_rooms:
@@ -187,8 +188,8 @@ class TournamentConsumer(WebsocketConsumer):
 					if not tournament_room.players:
 						tournament_rooms.remove(tournament_room)
 					break
-		print("Tournaments after disconnect:")
-		pprint(tournament_rooms)
+		logging.info("Tournaments after disconnect:")
+		logging.info(tournament_rooms)
 
 	def create_match_and_return_match_id(self, tournament_room, round, player1, player2):
 		# DATABASE update
@@ -225,12 +226,13 @@ class TournamentConsumer(WebsocketConsumer):
 	def receive(self, text_data):
 		text_data_json = json.loads(text_data)
 		message_type = text_data_json["message"]
-		print(f"Message in receive: {message_type}")
+		logging.info(f"Message in receive: {message_type}")
 
 		if message_type == "match_end":
 			match_id = int(text_data_json["match_id"])
 			winner_id = int(text_data_json["winner_id"])
-			self.next_round(match_id, winner_id)
+			if (self.id == winner_id):
+				self.next_round(match_id, winner_id)
 
 	#	# Send message to room group
 	#	async_to_sync(self.channel_layer.group_send)(
@@ -240,21 +242,21 @@ class TournamentConsumer(WebsocketConsumer):
 	def create_match_and_return_match_id_next_round(self, tournament_room, round):
 		match = get_match_by_round(tournament_room, round)
 		if match is None:
-			print("Match not found in tournament room, creating...")
+			logging.info("Match not found in tournament room, creating...")
 			player1 = get_player_from_tournament_room(tournament_room, self.id)
-			print(f"Player1: {player1.id}")
+			logging.info(f"Player1: {player1.id}")
 			match = Match(None, round, player1, None)
 			tournament_room.brackets.append(match)
 		else:
-			print("Match found in tournament room, adding player...")
+			logging.info("Match found in tournament room, adding player...")
 			player2 = get_player_from_tournament_room(tournament_room, self.id)
-			print(f"Player2: {player2.id}")
+			logging.info(f"Player2: {player2.id}")
 			match.players[1] = player2
-		print(f"Next round match: {match}")
+		logging.info(f"Next round match: {match}")
 		player1 = match.players[0]
 		player2 = match.players[1]
 		if (player1 is not None and player2 is not None):
-			print(f"Creating match for round: {match.round}")
+			logging.info(f"Creating match for round: {match.round}")
 			# DATABASE update
 			# Create group_names for each round
 			round_group_name = "round" + str(round) + str(tournament_room.id)
@@ -280,19 +282,19 @@ class TournamentConsumer(WebsocketConsumer):
 			if match_serializer1.is_valid():
 				match_serializer1.save()
 				match.id = match_serializer1.data['id'] # NoneType winner error
-				print(f"Group name for match {match.id}: {round_group_name}")
+				logging.info(f"Group name for match {match.id}: {round_group_name}")
 				async_to_sync(self.channel_layer.group_send)(
 					round_group_name, {"type": "tournament_message", "message": match_serializer1.data['id']}
 			)
-		print("End of next_round")
+		logging.info("End of next_round")
 
 
 
 	def next_round(self, match_id, winner_id):
-		print("Next round function")
+		logging.info("Next round function")
 		tournament_id = int(self.scope['url_route']['kwargs'].get('tournament_id'))
 		tournament_room = get_tournament_room(tournament_id)
-		print(f"Next round function, tournament: {tournament_room}")
+		logging.info(f"Next round function, tournament: {tournament_room}")
 		match = get_match(tournament_room, match_id)
 		# Update match in brackets
 		match.winner = winner_id
@@ -305,20 +307,20 @@ class TournamentConsumer(WebsocketConsumer):
 			# 		self.add_player_to_match_in_tournament_room(tournament_room, tournament_room.capacity / 2 + k)
 			# 		round_number += 1
 
-		print(f"Next round function, match.round: {match.round}")
-		print(f"Tournament end check between round {match.round} and capacity calculation {tournament_room.capacity - 1} is: {match.round == tournament_room.capacity - 1}")
+		logging.info(f"Next round function, match.round: {match.round}")
+		logging.info(f"Tournament end check between round {match.round} and capacity calculation {tournament_room.capacity - 1} is: {match.round == tournament_room.capacity - 1}")
 		if match.round == tournament_room.capacity - 1:
-			print("HERE")
+			logging.info("HERE")
 			round_group_name = "round" + str(match.round) + str(tournament_room.id)
-			print(f"Group name: {round_group_name}")
+			logging.info(f"Group name: {round_group_name}")
 			async_to_sync(self.channel_layer.group_send)(
 				round_group_name, {"type": "tournament_message", "message": "tournament_end"}
 			)
-			print(f"Message sent to group: {round_group_name}")
+			logging.info(f"Message sent to group: {round_group_name}")
 
 		increment = 1
 		current_round = 1
-		while(current_round < tournament_room.capacity - 1):
+		while(match.round < tournament_room.capacity - 1):
 			if (match.round in (current_round, current_round + 1)):
 				self.create_match_and_return_match_id_next_round(tournament_room, int(tournament_room.capacity / 2) + increment)
 				break
@@ -345,6 +347,6 @@ class TournamentConsumer(WebsocketConsumer):
 	
 	def tournament_message(self, event):
 		message = event["message"]
-		print(f"Received group message: {message}")
+		logging.info(f"Received group message: {message}")
 		self.send(text_data=json.dumps({"message": message}))
 		#self.close() # closes the websocket once the match_id has been sent to both of the players

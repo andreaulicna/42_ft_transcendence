@@ -360,11 +360,12 @@ function showGameOverScreen() {
 	}
 	
 	// If the game is part of a tournament, dispatch a message about the match end to the server
-	if (gameMode == "tournament")
-	{
-		const winnerID = player1.score > player2.score ? player1Data.id : player2Data.id;
-		dispatchTournamentMessage(winnerID, matchID);
-	}
+    if (gameMode == "tournament")
+    {
+        const winnerID = player1.score > player2.score ? player1Data.id : player2Data.id;
+        if (winnerID == sessionStorage.getItem("id"))
+            dispatchTournamentMessage(winnerID, matchID);
+    }
 }
 
 // function hideGameOverScreen() {

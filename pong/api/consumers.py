@@ -22,7 +22,7 @@ class Player:
 		self.score = 0
 
 	def __repr__(self):
-		return f"Player(id={self.id}, channel_name={self.channel_name})"
+		return f"Player(id={self.id})"
 
 def create_match_room(match_id):
 	match_room = PongGame(match_id)
@@ -39,7 +39,7 @@ def is_player_in_match_room_already(player_id):
 def find_match_room_to_join(match_id):
 	for match_room in match_rooms:
 		if match_room.match_id == match_id and (match_room.player1 is None or match_room.player2 is None):
-			pprint(f'Found match room: {match_room}')
+			logging.info(f'Found match room: {match_room}')
 			return match_room
 	return None
 
@@ -53,12 +53,12 @@ def find_player_in_match_room(player_id):
 @database_sync_to_async
 def add_player_to_room(match_id, match_room, player_id, channel_name):
 	match_database = get_object_or_404(Match, id=match_id)
-	pprint(match_database.__dict__)
-	pprint(f'player2_id: {match_database.player2_id} vs player_id: {player_id}')
+	#logging.info(match_database.__dict__)
 	if match_database.player2_id == player_id:
+		logging.info(f'Added player 2 with id {player_id} to match {match_id}')
 		match_room.player2 = Player(player_id, channel_name, "user1")
 	elif match_database.player1_id == player_id:
-		pprint(f'Added player 1 with id {player_id} to match {match_id}')
+		logging.info(f'Added player 1 with id {player_id} to match {match_id}')
 		match_room.player1 = Player(player_id, channel_name, "user2")
 	else:
 		raise ValueError(f"Player ID {player_id} does not match any players in match {match_id}")
@@ -94,7 +94,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 	async def connect(self):
 		self.id = self.scope['user'].id
 		match_id = self.scope['url_route']['kwargs'].get('match_id')
-		print(f"Player {self.id} is ready to play match {match_id}!")
+		logging.info(f"Player {self.id} is ready to play match {match_id}!")
 		if is_player_in_match_room_already(self.id) or await (get_match_status(match_id)) == Match.StatusOptions.FINISHED:
 			logging.info(f"Player {self.id} in room already or connecting to a finished match")
 			await self.close()
@@ -115,12 +115,12 @@ class PongConsumer(AsyncWebsocketConsumer):
 		)
 		#await set_user_state(self.scope['user'], CustomUser.StateOptions.INGAME)
 		await self.accept()
-		print("Rooms after connect:")
-		pprint(match_rooms)
+		logging.info("Rooms after connect:")
+		logging.info(match_rooms)
 		if (match_room.player1 is not None) and (match_room.player2 is not None):
 			await self.play_pong(match_room)
 		else:
-			print("Waiting for more players to join the match room.")
+			logging.info("Waiting for more players to join the match room.")
 
 	async def disconnect(self, close_code):
 		await set_user_state(self.scope['user'], CustomUser.StateOptions.IDLE)
@@ -136,8 +136,8 @@ class PongConsumer(AsyncWebsocketConsumer):
 			if (match_room.player1 is None) and (match_room.player2 is None):
 				match_rooms.remove(match_room)
 			break
-		print("Rooms after disconnect:")
-		pprint(match_rooms)
+		logging.info("Rooms after disconnect:")
+		logging.info(match_rooms)
 
 	async def receive(self, text_data):
 		text_data_json = json.loads(text_data)
@@ -221,8 +221,8 @@ class PongConsumer(AsyncWebsocketConsumer):
 				"player2": match_room.player2.username
 			}
 		)
-		print(f"Starting game for: ")
-		pprint(match_room)
+		logging.info(f"Starting game for: ")
+		logging.info(match_room)
 		asyncio.create_task(self.game_loop(match_room, match_database))
 
 	async def game_loop(self, match_room, match_database):
@@ -306,7 +306,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 			)
 
 			# Game over
-			if match_database.player1_score >= 5 or match_database.player2_score >= 5:
+			if match_database.player1_score >= 3 or match_database.player2_score >= 3:
 				await set_match_winner(match_database)
 				break
 
