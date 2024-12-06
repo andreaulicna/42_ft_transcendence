@@ -1,4 +1,5 @@
 import { textDynamicLoad } from "./animations.js";
+import { logout } from "./router.js";
 
 export function init(data) {
 	sessionStorage.setItem("id", data.id);
@@ -19,5 +20,11 @@ export function init(data) {
 			// 	window.location.hash = '#lobby-game';
 			// }
 		});
+	});
+
+	// LOGOUT BUTTON LOGIC
+	const logoutBtn = document.getElementById("logoutButton");
+	logoutBtn.addEventListener('click', () => {
+		logout();
 	});
 }
