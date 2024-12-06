@@ -135,7 +135,7 @@ class TournamentConsumer(WebsocketConsumer):
 			return
 		# Check for tournament state = FINISHED
 		if get_tournament_status(tournament_id) == Tournament.StatusOptions.FINISHED:
-			logging.info("Reject bcs tournament finished")
+			logging.info("Reject bscs tournament finished")
 			self.close()
 			return
 		# Check if player already in room to limit to one tournament ws
@@ -178,6 +178,7 @@ class TournamentConsumer(WebsocketConsumer):
 		logging.info(tournament_rooms)
 
 	def disconnect(self, close_code):
+		logging.info(f"Disconnecting player {self.id} from tournament")
 		for tournament_room in tournament_rooms:
 			for player in tournament_room.players:
 				if self.channel_name == player.channel_name:
@@ -231,6 +232,7 @@ class TournamentConsumer(WebsocketConsumer):
 		if message_type == "match_end":
 			match_id = int(text_data_json["match_id"])
 			winner_id = int(text_data_json["winner_id"])
+			logging.info(f"Vojta send: match_id {match_id}, winner_id {winner_id}")
 			if (self.id == winner_id):
 				self.next_round(match_id, winner_id)
 

@@ -45,7 +45,7 @@ def find_match_room_to_join(match_id):
 
 def find_player_in_match_room(player_id):
 	for match_room in match_rooms:
-		if match_room.player1.id == player_id or match_room.player2.id == player_id:
+		if (match_room.player1 is not None and match_room.player1.id == player_id) or (match_room.player2 is not None and match_room.player2.id == player_id):
 			return match_room
 	return None
 
@@ -123,19 +123,20 @@ class PongConsumer(AsyncWebsocketConsumer):
 			logging.info("Waiting for more players to join the match room.")
 
 	async def disconnect(self, close_code):
+		logging.info(f"Disconnecting player {self.id} from pong")
 		await set_user_state(self.scope['user'], CustomUser.StateOptions.IDLE)
 		for match_room in match_rooms:
 			if (match_room.player1 is not None and match_room.player1.channel_name == self.channel_name) or (match_room.player2 is not None and match_room.player2.channel_name == self.channel_name):
 				await self.channel_layer.group_discard(
 					self.match_group_name, self.channel_name
 				)
-			if (match_room.player1 is not None) and (self.id == match_room.player1.id):
-				match_room.player1 = None
-			else:
-				match_room.player2 = None
-			if (match_room.player1 is None) and (match_room.player2 is None):
-				match_rooms.remove(match_room)
-			break
+				if (match_room.player1 is not None) and (self.id == match_room.player1.id):
+					match_room.player1 = None
+				elif (match_room.player2 is not None) and (self.id == match_room.player2.id):
+					match_room.player2 = None
+				if (match_room.player1 is None) and (match_room.player2 is None):
+					match_rooms.remove(match_room)
+				break
 		logging.info("Rooms after disconnect:")
 		logging.info(match_rooms)
 
@@ -312,6 +313,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 			# Short sleep
 			await asyncio.sleep(0.01)
+		logging.info(f"Match end for match {match_room.match_id}")
 		await self.channel_layer.group_send(
 				self.match_group_name, {
 					"type" : "match_end",

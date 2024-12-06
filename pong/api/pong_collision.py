@@ -6,7 +6,7 @@
 #    By: plouda <plouda@student.42prague.com>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/28 16:33:30 by plouda            #+#    #+#              #
-#    Updated: 2024/11/29 16:13:34 by plouda           ###   ########.fr        #
+#    Updated: 2024/12/06 15:22:16 by plouda           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -31,10 +31,14 @@ class PongGame:
 		self.player1 = None
 		self.player2 = None
 
+	# def __repr__(self):
+	# 	return (f"PongGame(match_id={self.match_id}, game_width={self.GAME_WIDTH}, "
+	# 			f"game_height={self.GAME_HEIGHT}, paddle1={self.paddle1}, paddle2={self.paddle2}, "
+	# 			f"player1={self.player1}, player2={self.player2})")
+	
 	def __repr__(self):
-		return (f"PongGame(match_id={self.match_id}, game_width={self.GAME_WIDTH}, "
-				f"game_height={self.GAME_HEIGHT}, paddle1={self.paddle1}, paddle2={self.paddle2}, "
-				f"player1={self.player1}, player2={self.player2})")
+		return (f"PongGame(match_id={self.match_id}, player1={self.player1}, player2={self.player2})")
+	
 	def reset(self):
 		self.paddle1 = Paddle(x=-80 + self.PADDLE_HALF_WIDTH, game=self)
 		self.paddle2 = Paddle(x=80 - self.PADDLE_HALF_WIDTH, game=self)
