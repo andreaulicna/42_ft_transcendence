@@ -3,8 +3,6 @@ import { textDotLoading } from './animations.js';
 import { apiCallAuthed } from './api.js';
 
 export function init(data) {
-	console.log("PLAYER DATA IN LOBBY:", data);
-
 	// Close the Tournament Websocket and return to main menu
 	const returnButton = document.getElementById('cancelBtn');
 	if (returnButton) {
@@ -25,5 +23,31 @@ export function init(data) {
 		});
 	}
 
+	fetchAndUpdatePlayerList();
+	setInterval(fetchAndUpdatePlayerList, 3000);
+
+	// Dot dot dot loading animation
 	textDotLoading("loadingAnimation");
+}
+
+// List joined players (refresh every X seconds) - works with /list/player
+async function fetchAndUpdatePlayerList() {
+	try {
+		const data = await apiCallAuthed('api/tournament/list/player', undefined, undefined, undefined, false);
+		const activeTournament = data[data.length - 1];
+		console.log("ACTIVE TOURNAMENT INFO", activeTournament);
+		const activePlayers = activeTournament.players;
+		const playerListID = document.getElementById("player-list");
+		playerListID.innerHTML = '';
+		activePlayers.forEach(player => {
+			const listItem = document.createElement('li');
+			listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
+			listItem.innerHTML = `
+			${player.player_tmp_username}
+			`;
+			playerListID.appendChild(listItem);
+		});
+	} catch (error) {
+		console.error('Error fetching player list:', error);
+	}
 }
