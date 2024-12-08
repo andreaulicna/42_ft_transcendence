@@ -13,6 +13,10 @@ const translations = {
 		loginOr: "or",
 		firstTime: "First time here?",
 		createAccount: "Make a new account!",
+		// 2FA
+		twoFA: "Two-Factor Authentication",
+		twoFAPlaceholder: "Enter your 2FA code",
+		twoFAVerify: "Verify",
 		// DASHBOARD
 		modeLocal: "Local Player",
 		modeRemote: "Remote Player",
@@ -68,6 +72,10 @@ const translations = {
 		loginOr: "nebo",
 		firstTime: "Jsi tu poprvé?",
 		createAccount: "Vytvoř si účet!",
+		// 2FA
+		twoFA: "Dvoufaktorové ověření",
+		twoFAPlaceholder: "Zadejte kód 2FA",
+		twoFAVerify: "Ověřit",
 		// DASHBOARD
 		modeLocal: "Lokální hráč",
 		modeRemote: "Vzdálený hráč",
@@ -123,6 +131,10 @@ const translations = {
 		loginOr: "alebo",
 		firstTime: "Si tu prvýkrát?",
 		createAccount: "Vytvor si účet!",
+		// 2FA
+		twoFA: "Dvojfaktorové overenie",
+		twoFAPlaceholder: "Zadajte kód 2FA",
+		twoFAVerify: "Overiť",
 		// DASHBOARD
 		modeLocal: "Lokálny hráč",
 		modeRemote: "Vzdialený hráč",
