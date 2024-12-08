@@ -44,6 +44,7 @@ const translations = {
 		tournamentWaitingForPlayers: "Waiting for players",
 		tournamentCancelLobby: "Cancel",
 		tournamentjoinRandom: "Join random lobby",
+		tournamentWinner: "Winner winner chicken dinner",
 		// PROFILE
 		tabProfile: "Profile",
 		tabMatches: "Match History",
@@ -98,6 +99,7 @@ const translations = {
 		tournamentWaitingForPlayers: "Čekám na ostatní hráče",
 		tournamentCancelLobby: "Zrušit",
 		tournamentjoinRandom: "Náhodný turnaj",
+		tournamentWinner: "Sláva vítězi!",
 		// PROFILE
 		tabProfile: "Profil",
 		tabMatches: "Historie zápasů",
@@ -152,6 +154,8 @@ const translations = {
 		tournamentWaitingForPlayers: "Čakám na ostatných hráčov",
 		tournamentCancelLobby: "Zrušiť",
 		tournamentjoinRandom: "Náhodný turnaj",
+		tournamentWinner: "Winner winner chicken dinner",
+		tournamentWinner: "Sláva víťazovi!",
 		// PROFILE
 		tabProfile: "Profil",
 		tabMatches: "História zápasov",
