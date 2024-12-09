@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    pong_collision.py                                  :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: plouda <plouda@student.42prague.com>       +#+  +:+       +#+         #
+#    By: aulicna <aulicna@student.42prague.com>     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/28 16:33:30 by plouda            #+#    #+#              #
-#    Updated: 2024/12/06 15:22:16 by plouda           ###   ########.fr        #
+#    Updated: 2024/12/09 12:10:05 by aulicna          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,6 +18,7 @@ from django.conf import settings
 class PongGame:
 	def __init__(self, match_id):
 		self.match_id = match_id
+		self.match_group_name = str(match_id) + "_match"
 		self.GAME_WIDTH = settings.GAME_CONSTANTS['GAME_WIDTH']
 		self.GAME_HEIGHT = settings.GAME_CONSTANTS['GAME_HEIGHT']
 		self.GAME_HALF_WIDTH = self.GAME_WIDTH / 2
@@ -37,7 +38,7 @@ class PongGame:
 	# 			f"player1={self.player1}, player2={self.player2})")
 	
 	def __repr__(self):
-		return (f"PongGame(match_id={self.match_id}, player1={self.player1}, player2={self.player2})")
+		return (f"PongGame(match_id={self.match_id}, player1={self.player1}, player2={self.player2}), group_name={self.match_group_name}")
 	
 	def reset(self):
 		self.paddle1 = Paddle(x=-80 + self.PADDLE_HALF_WIDTH, game=self)

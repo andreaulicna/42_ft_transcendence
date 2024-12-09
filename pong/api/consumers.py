@@ -108,9 +108,8 @@ class PongConsumer(AsyncWebsocketConsumer):
 			logging.info("VALUE ERROR")
 			await self.close()
 			return
-		self.match_group_name = match_room.match_id
 		await self.channel_layer.group_add(
-			self.match_group_name, 
+			match_room.match_group_name, 
 			self.channel_name
 		)
 		#await set_user_state(self.scope['user'], CustomUser.StateOptions.INGAME)
@@ -128,7 +127,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 		for match_room in match_rooms:
 			if (match_room.player1 is not None and match_room.player1.channel_name == self.channel_name) or (match_room.player2 is not None and match_room.player2.channel_name == self.channel_name):
 				await self.channel_layer.group_discard(
-					self.match_group_name, self.channel_name
+					match_room.match_group_name, self.channel_name
 				)
 				if (match_room.player1 is not None) and (self.id == match_room.player1.id):
 					match_room.player1 = None
@@ -153,7 +152,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 			elif match_room.player2.id == self.id:
 				paddle = "paddle2"
 			direction = text_data_json["direction"]
-			await self.move_paddle(paddle, direction)
+			await self.move_paddle(match_room, paddle, direction)
 	
 	async def draw(self, event):
 		await self.send(text_data=json.dumps(
@@ -191,13 +190,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 		))
 		await self.close()
 
-	async def move_paddle(self, paddle, direction):
-		match_room = None
-		for room in match_rooms:
-			if room.match_id == self.match_group_name:
-				match_room = room
-		if not match_room:
-			return
+	async def move_paddle(self, match_room, paddle, direction):
 		paddle_speed = match_room.PADDLE_SPEED
 		if paddle == "paddle1":
 			if direction == "UP" and match_room.paddle1.position.y > (match_room.GAME_HALF_HEIGHT - match_room.paddle1.paddle_half_height) * (-1):
@@ -215,7 +208,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 		match_database = await sync_to_async(get_object_or_404)(Match, id=match_room.match_id)
 		await set_match_status(match_database, Match.StatusOptions.INPROGRESS)
 		await self.channel_layer.group_send(
-			self.match_group_name, {
+			match_room.match_group_name, {
 				"type": "match_start",
 				"message": "match_start",
 				"player1": match_room.player1.username,
@@ -315,7 +308,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 			await asyncio.sleep(0.01)
 		logging.info(f"Match end for match {match_room.match_id}")
 		await self.channel_layer.group_send(
-				self.match_group_name, {
+				match_room.match_group_name, {
 					"type" : "match_end",
 					"message" : "match_end"
 				}

@@ -20,6 +20,7 @@ class TournamentRoom:
 		self.players = []
 		self.brackets = []
 		self.capacity = capacity
+		self.tournament_group_name = str(tournament_id) + "_tournament"
 
 	def __repr__(self):
 		return f"TournamentRoom(id={self.id}, players={self.players}, brackets={self.brackets}, capacity={self.capacity})"
@@ -32,12 +33,12 @@ class Player:
 	def __repr__(self):
 		return f"Player(id={self.id}, channel_name={self.channel_name})"
 class Match:
-	
-	def __init__(self, id, round, player1, player2):
+	def __init__(self, id, round, player1, player2, tournament_room_id):
 		self.id = id
 		self.round = round
 		self.players = [player1, player2]
 		self.winner = None
+		self.round_group_name = "round" + str(round) + str(tournament_room_id)
 
 	def __repr__(self):
 		return f"Match(id={self.id}, round={self.round}, players={self.players})"
@@ -155,9 +156,8 @@ class TournamentConsumer(WebsocketConsumer):
 			tournament_room = create_tournament_room(tournament_id, tournament.capacity)
 			logging.info(f"Room {tournament_room.id} created!")
 		add_player_to_tournament_room(tournament_room, self.id, self.channel_name, player_tournament.player_tmp_username)
-		self.room_group_name = str(tournament_room.id)
 		async_to_sync(self.channel_layer.group_add)(
-			self.room_group_name, self.channel_name
+			tournament_room.tournament_group_name, self.channel_name
 		)
 		self.accept()
 		# Understand the tournament status
@@ -183,7 +183,7 @@ class TournamentConsumer(WebsocketConsumer):
 			for player in tournament_room.players:
 				if self.channel_name == player.channel_name:
 					async_to_sync(self.channel_layer.group_discard)(
-						self.room_group_name, self.channel_name
+						tournament_room.tournament_group_name, self.channel_name
 					)
 					tournament_room.players.remove(player)
 					if not tournament_room.players:
@@ -195,7 +195,7 @@ class TournamentConsumer(WebsocketConsumer):
 	def create_match_and_return_match_id(self, tournament_room, round, player1, player2):
 		# DATABASE update
 		# Create group_names for each round
-		round_group_name = "round" + str(round) + str(tournament_room.id)
+		round_group_name = tournament_room.tournament_group_name + "_" + str(round) + "_round"
 		# Assign players to group_names for each round
 		async_to_sync(self.channel_layer.group_add)(
 			round_group_name, player1.channel_name
@@ -218,10 +218,17 @@ class TournamentConsumer(WebsocketConsumer):
 		if match_serializer1.is_valid():
 			match_serializer1.save()
 			# TOURNAMENT_ROOM update
-			match = Match(match_serializer1.data['id'], round, player1, player2)
+			match = Match(match_serializer1.data['id'], round, player1, player2, tournament_room.id)
 			tournament_room.brackets.append(match)
 			async_to_sync(self.channel_layer.group_send)(
 				round_group_name, {"type": "tournament_message", "message": match_serializer1.data['id']}
+			)
+		else:
+			# Log the errors
+			logging.error(f"Match serializer errors: {match_serializer1.errors}")
+			# Send error message to the room
+			async_to_sync(self.channel_layer.group_send)(
+			    round_group_name, {"type": "tournament_message", "message": {"error": match_serializer1.errors}}
 			)
 
 	def receive(self, text_data):
@@ -236,18 +243,13 @@ class TournamentConsumer(WebsocketConsumer):
 			if (self.id == winner_id):
 				self.next_round(match_id, winner_id)
 
-	#	# Send message to room group
-	#	async_to_sync(self.channel_layer.group_send)(
-	#		self.room_group_name, {"type": "tournament_message", "message": message_type}
-	#	)
-
 	def create_match_and_return_match_id_next_round(self, tournament_room, round):
 		match = get_match_by_round(tournament_room, round)
 		if match is None:
 			logging.info("Match not found in tournament room, creating...")
 			player1 = get_player_from_tournament_room(tournament_room, self.id)
 			logging.info(f"Player1: {player1.id}")
-			match = Match(None, round, player1, None)
+			match = Match(None, round, player1, None, tournament_room.id)
 			tournament_room.brackets.append(match)
 		else:
 			logging.info("Match found in tournament room, adding player...")
@@ -260,14 +262,12 @@ class TournamentConsumer(WebsocketConsumer):
 		if (player1 is not None and player2 is not None):
 			logging.info(f"Creating match for round: {match.round}")
 			# DATABASE update
-			# Create group_names for each round
-			round_group_name = "round" + str(round) + str(tournament_room.id)
 			# Assign players to group_names for each round
 			async_to_sync(self.channel_layer.group_add)(
-				round_group_name, player1.channel_name
+				match.round_group_name, player1.channel_name
 			)
 			async_to_sync(self.channel_layer.group_add)(
-				round_group_name, player2.channel_name
+				match.round_group_name, player2.channel_name
 			)
 			# Create math for round 1 and return match_id to players
 			match_data = {
@@ -284,9 +284,9 @@ class TournamentConsumer(WebsocketConsumer):
 			if match_serializer1.is_valid():
 				match_serializer1.save()
 				match.id = match_serializer1.data['id'] # NoneType winner error
-				logging.info(f"Group name for match {match.id}: {round_group_name}")
+				logging.info(f"Group name for match {match.id}: {match.round_group_name}")
 				async_to_sync(self.channel_layer.group_send)(
-					round_group_name, {"type": "tournament_message", "message": match_serializer1.data['id']}
+					match.round_group_name, {"type": "tournament_message", "message": match_serializer1.data['id']}
 			)
 		logging.info("End of next_round")
 
@@ -313,12 +313,11 @@ class TournamentConsumer(WebsocketConsumer):
 		logging.info(f"Tournament end check between round {match.round} and capacity calculation {tournament_room.capacity - 1} is: {match.round == tournament_room.capacity - 1}")
 		if match.round == tournament_room.capacity - 1:
 			logging.info("HERE")
-			round_group_name = "round" + str(match.round) + str(tournament_room.id)
-			logging.info(f"Group name: {round_group_name}")
+			logging.info(f"Group name: {match.round_group_name}")
 			async_to_sync(self.channel_layer.group_send)(
-				round_group_name, {"type": "tournament_message", "message": "tournament_end"}
+				match.round_group_name, {"type": "tournament_message", "message": "tournament_end"}
 			)
-			logging.info(f"Message sent to group: {round_group_name}")
+			logging.info(f"Message sent to group: {match.round_group_name}")
 
 		increment = 1
 		current_round = 1
