@@ -3,6 +3,10 @@ import { textDotLoading } from './animations.js';
 import { apiCallAuthed } from './api.js';
 
 export function init(data) {
+	// List joined players (refresh every X seconds) - works with /list/player
+	fetchAndUpdatePlayerList();
+	let refreshInterval = setInterval(fetchAndUpdatePlayerList, 3000);
+
 	// Close the Tournament Websocket and return to main menu
 	const returnButton = document.getElementById('cancelBtn');
 	if (returnButton) {
@@ -18,13 +22,11 @@ export function init(data) {
 				.finally(() => {
 					closeTournamentWebsocket();
 					window.location.hash = '#dashboard';
+					clearInterval(refreshInterval);
 				})
 				;
 		});
 	}
-
-	fetchAndUpdatePlayerList();
-	setInterval(fetchAndUpdatePlayerList, 3000);
 
 	// Dot dot dot loading animation
 	textDotLoading("loadingAnimation");

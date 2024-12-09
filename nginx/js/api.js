@@ -1,7 +1,7 @@
 import { showLoading } from "./animations.js";
 import { hideLoading } from "./animations.js";
 
-export async function apiCallAuthed(url, method = 'GET', headers = {}, payload = null) {
+export async function apiCallAuthed(url, method = 'GET', headers = {}, payload = null, showAnimation = true) {
 	const accessTokenExpiration = parseInt(sessionStorage.getItem('access_expiration'), 10);
 	const now = Date.now();
 
