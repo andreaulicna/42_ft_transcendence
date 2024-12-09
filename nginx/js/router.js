@@ -55,8 +55,7 @@ const loadContent = async (path) => {
 			data = await apiCallAuthed(`/api/user/match/${sessionStorage.getItem("match_id")}`);
 			await import('/js/gameRemote.js').then(module => module.init(data));
 		} else if (window.location.hash === '#tournament') {
-			data = await apiCallAuthed('api/tournament/list/waiting');
-			await import('/js/tournament.js').then(module => module.init(data));
+			await import('/js/tournament.js').then(module => module.init());
 		} else if (window.location.hash === '#lobby-tnmt') {
 			data = await apiCallAuthed('api/tournament/list/player');
 			await import('/js/tournamentLobby.js').then(module => module.init(data));
