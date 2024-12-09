@@ -27,7 +27,8 @@ urlpatterns = [
 	path('api/tournament/join/<int:tournament_id>/', views.JoinTournamentView.as_view(), name='join-tournament'),
 	path('api/tournament/join/cancel/<int:tournament_id>/', views.CancelJoinTournamentView.as_view(), name='cancel-join-tournament'),
 	path('api/tournament/list/waiting', views.WaitingTournamentsListView.as_view(), name='list-waiting-tournaments'),
-	path('api/tournament/list/player', views.TournamentsListOfPlayerView.as_view(), name='list-tournaments-of-player'),
+	path('api/tournament/list/player', views.TournamentListOfPlayerView.as_view(), name='list-tournaments-of-player'),
+	path('api/tournament/info/<int:tournament_id>/', views.TournamentInfoView.as_view(), name='tournament-info-view'),
 	path('api/tournament/debug/playertournament/all', views.PlayerTournamentListView.as_view(), name='debug-list-playertournaments'),
 	path('api/tournament/debug/tournament/all', views.AllTournamentsListView.as_view(), name='debug-list-tournaments'),
 ]  

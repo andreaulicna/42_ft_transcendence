@@ -9,6 +9,7 @@ from pathlib import Path
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.http import Http404
+from rest_framework.generics import RetrieveAPIView
 
 def player_already_in_waiting_tournament(tournaments, player_id):
 	for tournament_iterator in tournaments:
@@ -156,13 +157,25 @@ class WaitingTournamentsListView(APIView):
 		waiting_tournaments = Tournament.objects.filter(status=Tournament.StatusOptions.WAITING)
 		serializer = WaitingTournamentSerializer(waiting_tournaments, many=True)
 		return Response(serializer.data)
-class TournamentsListOfPlayerView(ListAPIView):
+class TournamentListOfPlayerView(ListAPIView):
 	serializer_class = TournamentSerializer
 	permission_classes = [IsAuthenticated]
 
 	def get_queryset(self):
 		user = self.request.user
 		return Tournament.objects.filter(playertournament__player=user).distinct()
+
+class TournamentInfoView(RetrieveAPIView):
+    serializer_class = TournamentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        tournament_id = self.kwargs.get('tournament_id')
+        try:
+            return Tournament.objects.get(id=tournament_id)
+        except Tournament.DoesNotExist:
+            raise Http404("No such tournament exists!")
+
 class AllTournamentsListView(ListAPIView):
 	serializer_class = TournamentSerializer
 	permission_classes = [IsAuthenticated]

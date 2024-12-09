@@ -33,15 +33,14 @@ class Player:
 	def __repr__(self):
 		return f"Player(id={self.id}, channel_name={self.channel_name})"
 class Match:
-	def __init__(self, id, round, player1, player2, tournament_room_id):
+	def __init__(self, id, round, player1, player2, tournament_group_name):
 		self.id = id
 		self.round = round
 		self.players = [player1, player2]
 		self.winner = None
-		self.round_group_name = "round" + str(round) + str(tournament_room_id)
-
+		self.round_group_name = tournament_group_name + "_round_" + str(round)
 	def __repr__(self):
-		return f"Match(id={self.id}, round={self.round}, players={self.players})"
+		return f"Match(id={self.id}, round={self.round}, players={self.players}, round_group_name={self.round_group_name})"
 
 def is_player_in_tournament_room_already(player_id):
 	for tournament_room in tournament_rooms:
@@ -218,7 +217,7 @@ class TournamentConsumer(WebsocketConsumer):
 		if match_serializer1.is_valid():
 			match_serializer1.save()
 			# TOURNAMENT_ROOM update
-			match = Match(match_serializer1.data['id'], round, player1, player2, tournament_room.id)
+			match = Match(match_serializer1.data['id'], round, player1, player2, tournament_room.tournament_group_name)
 			tournament_room.brackets.append(match)
 			async_to_sync(self.channel_layer.group_send)(
 				round_group_name, {"type": "tournament_message", "message": match_serializer1.data['id']}
@@ -249,7 +248,7 @@ class TournamentConsumer(WebsocketConsumer):
 			logging.info("Match not found in tournament room, creating...")
 			player1 = get_player_from_tournament_room(tournament_room, self.id)
 			logging.info(f"Player1: {player1.id}")
-			match = Match(None, round, player1, None, tournament_room.id)
+			match = Match(None, round, player1, None, tournament_room.tournament_group_name)
 			tournament_room.brackets.append(match)
 		else:
 			logging.info("Match found in tournament room, adding player...")
