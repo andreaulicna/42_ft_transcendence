@@ -46,7 +46,6 @@ async function loginUser(payload) {
 	};
 
 	try {
-		showLoading();
 		const response = await fetch(url, options);
 		if (response.ok) {
 			const data = await response.json();
@@ -67,7 +66,5 @@ async function loginUser(payload) {
 	} catch (error) {
 		console.error('Login API call error:', error);
 		throw error;
-	} finally {
-		hideLoading();
 	}
 }

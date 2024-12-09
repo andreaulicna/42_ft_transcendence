@@ -1,8 +1,3 @@
-:root {
-	--bs-toast-bg: rgba(var(--bs-body-bg-rgb), 1);
-	--bs-toast-zindex: 9999;
-}
-
 /* BODY & BACKGROUND */
 
 body {
@@ -126,6 +121,12 @@ body {
 
 .toast-body {
 	color: #242424;
+	--bs-toast-bg: rgba(var(--bs-body-bg-rgb), 1);
+}
+
+.toast {
+	--bs-toast-bg: rgba(var(--bs-body-bg-rgb), 1);
+	--bs-toast-zindex: 9999;
 }
 
 /* MISCELANIOUS */

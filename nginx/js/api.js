@@ -1,7 +1,7 @@
 import { showLoading } from "./animations.js";
 import { hideLoading } from "./animations.js";
 
-export async function apiCallAuthed(url, method = 'GET', headers = {}, payload = null) {
+export async function apiCallAuthed(url, method = 'GET', headers = {}, payload = null, showAnimation = true) {
 	const accessTokenExpiration = parseInt(sessionStorage.getItem('access_expiration'), 10);
 	const now = Date.now();
 
@@ -30,7 +30,8 @@ export async function apiCallAuthed(url, method = 'GET', headers = {}, payload =
 	}
 
 	try {
-		showLoading();
+		if (showAnimation == true)
+			showLoading();
 		const response = await fetch(url, options);
 		const data = await response.json()
 		if (response.ok) {
@@ -43,7 +44,8 @@ export async function apiCallAuthed(url, method = 'GET', headers = {}, payload =
 		console.error('Authenticated API call error:', error);
 		throw error;
 	} finally {
-		hideLoading();
+		if (showAnimation == true)
+			hideLoading();
 	}
 }
 
