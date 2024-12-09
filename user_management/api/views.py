@@ -11,6 +11,10 @@ from django.http import Http404
 import base64, os
 from django.core.files.base import ContentFile
 
+class HealthCheckView(APIView):
+	def get(self, request):
+		return Response({'detail' : 'Healthy'})
+
 class UserRegistrationView(APIView):
 	permission_classes = [AllowAny]
 

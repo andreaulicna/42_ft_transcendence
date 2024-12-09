@@ -19,7 +19,16 @@ restart:
 	@echo "Stopping ${name}\n"
 	@docker compose -f ./docker-compose.yml restart
 
+reset:
+	@echo "Resetting ${name}\n"
+	@docker compose -f ./docker-compose.yml down
+	@docker compose -f ./docker-compose.yml up -d
+
 re: clean all
+
+down:
+	@echo "Disabling ${name}\n"
+	@docker compose -f ./docker-compose.yml down
 
 clean: stop
 	@echo "Cleaning ${name}\n"

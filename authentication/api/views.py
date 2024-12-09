@@ -24,6 +24,10 @@ def get_tokens_for_user(user):
 		'access': str(refresh.access_token),
 	}
 
+class HealthCheckView(APIView):
+	def get(self, request):
+		return Response({'detail' : 'Healthy'})
+
 class LoginView(APIView):
 	permission_classes = []
 	@method_decorator(csrf_exempt)
