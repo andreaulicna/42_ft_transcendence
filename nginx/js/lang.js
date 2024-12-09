@@ -13,6 +13,10 @@ const translations = {
 		loginOr: "or",
 		firstTime: "First time here?",
 		createAccount: "Make a new account!",
+		// 2FA
+		twoFA: "Two-Factor Authentication",
+		twoFAPlaceholder: "Enter your 2FA code",
+		twoFAVerify: "Verify",
 		// DASHBOARD
 		modeLocal: "Local Player",
 		modeRemote: "Remote Player",
@@ -44,6 +48,7 @@ const translations = {
 		tournamentWaitingForPlayers: "Waiting for players",
 		tournamentCancelLobby: "Cancel",
 		tournamentjoinRandom: "Join random lobby",
+		tournamentWinner: "Winner winner chicken dinner",
 		// PROFILE
 		tabProfile: "Profile",
 		tabMatches: "Match History",
@@ -52,6 +57,11 @@ const translations = {
 		profileDisplayName: "Display name",
 		editDisplayName: "Edit Display Name",
 		editProfilePic: "Edit Profile Picture",
+		// ERROR MESSAGES
+		registrationFailed: "Registration failed",
+		registrationUnsuccessful: "Your attempt at registration was unsuccessful.",
+		loginFailed: "Login failed",
+		invalidCredentials: "Invalid username or password",
 	},
 	cz: {
 		// INDEX
@@ -67,6 +77,10 @@ const translations = {
 		loginOr: "nebo",
 		firstTime: "Jsi tu poprvé?",
 		createAccount: "Vytvoř si účet!",
+		// 2FA
+		twoFA: "Dvoufaktorové ověření",
+		twoFAPlaceholder: "Zadejte kód 2FA",
+		twoFAVerify: "Ověřit",
 		// DASHBOARD
 		modeLocal: "Lokální hráč",
 		modeRemote: "Vzdálený hráč",
@@ -98,6 +112,7 @@ const translations = {
 		tournamentWaitingForPlayers: "Čekám na ostatní hráče",
 		tournamentCancelLobby: "Zrušit",
 		tournamentjoinRandom: "Náhodný turnaj",
+		tournamentWinner: "Sláva vítězi!",
 		// PROFILE
 		tabProfile: "Profil",
 		tabMatches: "Historie zápasů",
@@ -106,6 +121,11 @@ const translations = {
 		profileDisplayName: "Přezdívka",
 		editDisplayName: "Změnit přezdívku",
 		editProfilePic: "Změnit profilový obrázek",
+		// ERROR MESSAGES
+		registrationFailed: "Registrace selhala",
+		registrationUnsuccessful: "Váš pokus o registraci byl neúspěšný.",
+		loginFailed: "Neúspěšné přihlášení",
+		invalidCredentials: "Neplatné uživatelské jméno nebo heslo",
 	},
 	sk: {
 		// INDEX
@@ -121,6 +141,10 @@ const translations = {
 		loginOr: "alebo",
 		firstTime: "Si tu prvýkrát?",
 		createAccount: "Vytvor si účet!",
+		// 2FA
+		twoFA: "Dvojfaktorové overenie",
+		twoFAPlaceholder: "Zadajte kód 2FA",
+		twoFAVerify: "Overiť",
 		// DASHBOARD
 		modeLocal: "Lokálny hráč",
 		modeRemote: "Vzdialený hráč",
@@ -152,6 +176,8 @@ const translations = {
 		tournamentWaitingForPlayers: "Čakám na ostatných hráčov",
 		tournamentCancelLobby: "Zrušiť",
 		tournamentjoinRandom: "Náhodný turnaj",
+		tournamentWinner: "Winner winner chicken dinner",
+		tournamentWinner: "Sláva víťazovi!",
 		// PROFILE
 		tabProfile: "Profil",
 		tabMatches: "História zápasov",
@@ -160,6 +186,11 @@ const translations = {
 		profileDisplayName: "Prezývka",
 		editDisplayName: "Zmena prezývky",
 		editProfilePic: "Zmena profilového obrázka",
+		// ERROR MESSAGES
+		registrationFailed: "Registrácia zlyhala",
+		registrationUnsuccessful: "Váš pokus o registráciu bol neúspešný.",
+		loginFailed: "Neúspěšné přihlášenie",
+		invalidCredentials: "Neplatné užívateľské meno alebo heslo",
 	}
 };
 

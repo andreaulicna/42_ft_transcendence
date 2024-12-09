@@ -7,14 +7,16 @@ const dynamicContent = document.getElementById('dynamicContent');
 const routes = {
 	''				: '/pages/login.html',
 	'#login'		: '/pages/login.html',
+	'#2fa'			: '/pages/2fa.html',
 	'#register'		: '/pages/register.html',
 	'#dashboard'	: '/pages/dashboard.html',
 	'#lobby-game'	: '/pages/gameLobby.html',
 	'#game'			: '/pages/game.html',
 	'#tournament'	: '/pages/tournament.html',
 	'#lobby-tnmt'	: '/pages/tournamentLobby.html',
+	'#winner-tnmt'	: '/pages/tournamentWinner.html',
 	'#profile'		: '/pages/profile.html',
-	'404'			: '/pages/404.html'
+	'404'			: '/pages/404.html',
 };
 
 const loadContent = async (path) => {
@@ -58,6 +60,8 @@ const loadContent = async (path) => {
 		} else if (window.location.hash === '#lobby-tnmt') {
 			data = await apiCallAuthed('api/tournament/list/player');
 			await import('/js/tournamentLobby.js').then(module => module.init(data));
+		} else if (window.location.hash === '#2fa') {
+			await import('/js/2fa.js').then(module => module.init());
 		}
 	} catch (err) {
 		console.error('Error loading content:', err);
