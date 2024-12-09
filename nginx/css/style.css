@@ -1,3 +1,8 @@
+:root {
+	--bs-toast-bg: rgba(var(--bs-body-bg-rgb), 1);
+	--bs-toast-zindex: 9999;
+}
+
 /* BODY & BACKGROUND */
 
 body {
@@ -116,6 +121,10 @@ body {
 }
 
 .modal-content, .modal-header, .modal-footer, .modal-body, .list-group {
+	color: #242424;
+}
+
+.toast-body {
 	color: #242424;
 }
 

@@ -57,6 +57,11 @@ const translations = {
 		profileDisplayName: "Display name",
 		editDisplayName: "Edit Display Name",
 		editProfilePic: "Edit Profile Picture",
+		// ERROR MESSAGES
+		registrationFailed: "Registration failed",
+		registrationUnsuccessful: "Your attempt at registration was unsuccessful.",
+		loginFailed: "Login failed",
+		invalidCredentials: "Invalid username or password",
 	},
 	cz: {
 		// INDEX
@@ -116,6 +121,11 @@ const translations = {
 		profileDisplayName: "Přezdívka",
 		editDisplayName: "Změnit přezdívku",
 		editProfilePic: "Změnit profilový obrázek",
+		// ERROR MESSAGES
+		registrationFailed: "Registrace selhala",
+		registrationUnsuccessful: "Váš pokus o registraci byl neúspěšný.",
+		loginFailed: "Neúspěšné přihlášení",
+		invalidCredentials: "Neplatné uživatelské jméno nebo heslo",
 	},
 	sk: {
 		// INDEX
@@ -176,6 +186,11 @@ const translations = {
 		profileDisplayName: "Prezývka",
 		editDisplayName: "Zmena prezývky",
 		editProfilePic: "Zmena profilového obrázka",
+		// ERROR MESSAGES
+		registrationFailed: "Registrácia zlyhala",
+		registrationUnsuccessful: "Váš pokus o registráciu bol neúspešný.",
+		loginFailed: "Neúspěšné přihlášenie",
+		invalidCredentials: "Neplatné užívateľské meno alebo heslo",
 	}
 };
 
