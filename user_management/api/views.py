@@ -10,7 +10,7 @@ from django.shortcuts import get_object_or_404
 from django.http import Http404
 import base64, os
 from django.core.files.base import ContentFile
-import pyotp, qrcode, logging
+# import pyotp, qrcode, logging
 
 class HealthCheckView(APIView):
 	def get(self, request):
@@ -21,7 +21,7 @@ class UserRegistrationView(APIView):
 
 	def post(self, request):
 		serializer = UserSerializer(data=request.data)
-		request.data['two_factor_secret'] = pyotp.random_base32()
+		# request.data['two_factor_secret'] = pyotp.random_base32()
 		if serializer.is_valid():
 			serializer.save()
 			return Response(serializer.data, status=status.HTTP_201_CREATED)
