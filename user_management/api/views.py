@@ -10,6 +10,7 @@ from django.shortcuts import get_object_or_404
 from django.http import Http404
 import base64, os
 from django.core.files.base import ContentFile
+import pyotp, qrcode, logging
 
 class HealthCheckView(APIView):
 	def get(self, request):
@@ -20,6 +21,7 @@ class UserRegistrationView(APIView):
 
 	def post(self, request):
 		serializer = UserSerializer(data=request.data)
+		request.data['two_factor_secret'] = pyotp.random_base32()
 		if serializer.is_valid():
 			serializer.save()
 			return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -34,6 +36,7 @@ class UserInfoView(APIView):
 				return Response({'detail': 'Player does not exist'}, status=status.HTTP_404_NOT_FOUND)
 			serializer = UserSerializer(player)
 			return Response(serializer.data)
+		
 		def put(self, request):
 			try:
 				player = CustomUser.objects.get(username=request.user)
@@ -83,7 +86,7 @@ class UserAvatarUpload(APIView):
 		except CustomUser.DoesNotExist:
 			return Response({'detail': 'Player does not exist'}, status=status.HTTP_404_NOT_FOUND)
 		# print(request.data)
-		data = request.data['profilePic']
+		data = request.data.get('profilePic')
 		if not data:
 			return Response({'detail': 'No avatar data provided'}, status=status.HTTP_400_BAD_REQUEST)
 		try:
@@ -92,13 +95,13 @@ class UserAvatarUpload(APIView):
 			avatar_data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
 			# Define the folder where the avatar is stored
 			avatar_folder = os.path.dirname(player.avatar.path)
-
-			# Delete existing files in the folder
-			for filename in os.listdir(avatar_folder):
-				file_path = os.path.join(avatar_folder, filename)
-				if os.path.isfile(file_path):
-					os.remove(file_path)
-			
+			if player.avatar:
+				# Delete existing files in the folder
+				for filename in os.listdir(avatar_folder):
+					file_path = os.path.join(avatar_folder, filename)
+					if os.path.isfile(file_path):
+						os.remove(file_path)
+				
 			# Save the file to the user's ImageField
 			player.avatar.save(f'avatar.{ext}', avatar_data)
 			player.save()
