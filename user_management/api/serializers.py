@@ -8,7 +8,8 @@ class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = CustomUser
 		fields = '__all__' # returns all parameters
-		extra_kwargs = {'password' : {'write_only': True}} # protects GET user/info/ from exposing the hash of the password in the response
+		extra_kwargs = {'password' : {'write_only': True}, 
+						'two_factor_secret' : {'write_only' : True}} # protects GET user/info/ from exposing the hash of the password in the response
 
 	def create(self, validated_data):
 		user = CustomUser.objects.create_user(**validated_data)
