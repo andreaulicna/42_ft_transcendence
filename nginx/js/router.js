@@ -57,8 +57,7 @@ const loadContent = async (path) => {
 		} else if (window.location.hash === '#tournament') {
 			await import('/js/tournament.js').then(module => module.init());
 		} else if (window.location.hash === '#lobby-tnmt') {
-			data = await apiCallAuthed('api/tournament/list/player');
-			await import('/js/tournamentLobby.js').then(module => module.init(data));
+			await import('/js/tournamentLobby.js').then(module => module.init());
 		} else if (window.location.hash === '#2fa') {
 			await import('/js/2fa.js').then(module => module.init());
 		}

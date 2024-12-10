@@ -2,10 +2,17 @@ import { closeTournamentWebsocket } from './websockets.js';
 import { textDotLoading } from './animations.js';
 import { apiCallAuthed } from './api.js';
 
-export function init(data) {
+export function init() {
 	// List joined players (refresh every X seconds) - works with /list/player
 	fetchAndUpdatePlayerList();
 	let refreshInterval = setInterval(fetchAndUpdatePlayerList, 3000);
+
+	// Clear the list refresh interval when the user exits the page
+	window.addEventListener('hashchange', () => {
+		if (window.location.hash !== '#lobby-tnmt') {
+			clearInterval(refreshInterval);
+		}
+	});
 
 	// Close the Tournament Websocket and return to main menu
 	const returnButton = document.getElementById('cancelBtn');
@@ -22,9 +29,7 @@ export function init(data) {
 				.finally(() => {
 					closeTournamentWebsocket();
 					window.location.hash = '#dashboard';
-					clearInterval(refreshInterval);
-				})
-				;
+				});
 		});
 	}
 
