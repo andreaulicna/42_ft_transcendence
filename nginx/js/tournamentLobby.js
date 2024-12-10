@@ -32,13 +32,12 @@ export function init(data) {
 	textDotLoading("loadingAnimation");
 }
 
-// List joined players (refresh every X seconds) - works with /list/player
+// List joined players (refresh every X seconds)
 async function fetchAndUpdatePlayerList() {
 	try {
-		const data = await apiCallAuthed('api/tournament/list/player', undefined, undefined, undefined, false);
-		const activeTournament = data[data.length - 1];
-		console.log("ACTIVE TOURNAMENT INFO", activeTournament);
-		const activePlayers = activeTournament.players;
+		const data = await apiCallAuthed(`api/tournament/info/${sessionStorage.getItem("tournament_id")}`, undefined, undefined, undefined, false);
+		console.log("ACTIVE TOURNAMENT INFO", data);
+		const activePlayers = data.players;
 		const playerListID = document.getElementById("player-list");
 		playerListID.innerHTML = '';
 		activePlayers.forEach(player => {
