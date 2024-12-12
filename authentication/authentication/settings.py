@@ -169,7 +169,8 @@ INTERNAL_IPS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+#TIME_ZONE = 'CET'
+USE_TZ = True
 
 USE_I18N = True
 
@@ -198,9 +199,9 @@ CSRF_TRUSTED_ORIGINS = ["http://localhost:4200", "http://localhost", "http://loc
 GAME_CONSTANTS = {
 	'GAME_HEIGHT': 100,
 	'GAME_WIDTH': 160,
-	'BALL_SIZE': 4,
-	'BALL_SPEED': 0.3,
-	'PADDLE_SPEED': 1,
+	'BALL_SIZE': float(os.getenv('BALL_SIZE')),
+	'BALL_SPEED': float(os.getenv('BALL_SPEED')),
+	'PADDLE_SPEED': float(os.getenv('PADDLE_SPEED')),
 }
 
 GAME_CONSTANTS['PADDLE_HEIGHT'] = GAME_CONSTANTS['GAME_HEIGHT'] / 5

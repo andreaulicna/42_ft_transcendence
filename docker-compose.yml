@@ -8,8 +8,8 @@ services:
     volumes:
       - ./user_management:/app
       - uploaded-volume:/app/mediafiles
-    environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    env_file:
+      - .env
     networks:
       - transcendence
     restart: unless-stopped
@@ -28,8 +28,8 @@ services:
       retries: 5
     container_name: user_management_db
     image: postgres:16
-    environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    env_file:
+      - .env
     networks:
       - transcendence
     volumes:
@@ -82,8 +82,8 @@ services:
     build: ./authentication/
     volumes:
       - ./authentication:/app
-    environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    env_file:
+      - .env
     networks:
       - transcendence
     restart: unless-stopped
@@ -101,8 +101,8 @@ services:
     build: ./matchmaking/
     volumes:
       - ./matchmaking:/app
-    environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    env_file:
+      - .env
     networks:
       - transcendence
     restart: unless-stopped
@@ -120,8 +120,8 @@ services:
     build: ./pong/
     volumes:
       - ./pong:/app
-    environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    env_file:
+      - .env
     networks:
       - transcendence
     restart: unless-stopped
@@ -139,8 +139,8 @@ services:
     build: ./tournament/
     volumes:
       - ./tournament:/app
-    environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    env_file:
+      - .env
     networks:
       - transcendence
     restart: unless-stopped
