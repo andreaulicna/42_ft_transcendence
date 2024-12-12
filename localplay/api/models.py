@@ -4,7 +4,6 @@ from django.conf import settings
 from rest_framework.authtoken.models import Token
 from django.utils.translation import gettext_lazy
 import uuid
-from django.conf import settings
 
 
 def user_directory_path(instance, filename):
@@ -26,6 +25,8 @@ groups[] (NULL)
 user_permissions[] (NULL)
 '''
 class CustomUser(AbstractUser):
+	class Meta:
+		managed = False
 	class StateOptions(models.TextChoices):
 		# [VALUE IN CODE] = [DB NAME], [human readable name]
 		IDLE = "ID", gettext_lazy("Idle")
@@ -46,6 +47,8 @@ class CustomUser(AbstractUser):
 	two_factor_secret = models.CharField(max_length=32, blank=True, null=True)
 
 class Tournament(models.Model):
+	class Meta:
+		managed = False
 	class StatusOptions(models.TextChoices):
 		WAITING = "WAIT", gettext_lazy("Waiting")
 		INPROGRESS = "IP", gettext_lazy("In progress")
@@ -61,9 +64,8 @@ class Tournament(models.Model):
 	time_created = models.DateTimeField(auto_now_add=True)
 	creator = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, related_name="creator", null=True)
 	status = models.CharField(max_length=4, choices=StatusOptions, default=StatusOptions.WAITING)
-	winner = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, related_name="winner_tpurnament", null=True)
+	winner = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, related_name="winner_tournament", null=True)
 	capacity = models.PositiveIntegerField(blank=False, default=0)
-
 
 class AbstractMatch(models.Model):
 	class Meta:
@@ -99,7 +101,10 @@ class LocalMatch(AbstractMatch):
 	player2_tmp_username = models.CharField(max_length=150, blank=True)
 	winner = models.CharField(max_length=150, blank=True)
 	
+	
 class Friendship(models.Model):
+	class Meta:
+		managed = False
 	class StatusOptions(models.TextChoices):
 		PENDING = "PEN", gettext_lazy("Pending")
 		ACCEPTED = "ACC", gettext_lazy("Accepted")
@@ -110,6 +115,8 @@ class Friendship(models.Model):
 	receiver = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="receiver")
 
 class PlayerTournament(models.Model):
+	class Meta:
+		managed = False
 	id = models.AutoField(primary_key=True)
 	player = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
 	tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)
@@ -119,3 +126,11 @@ class PlayerTournament(models.Model):
 		if not self.player_tmp_username:
 			self.player_tmp_username = self.player.username
 		super().save(*args, **kwargs)
+
+class WebSocketTicket(models.Model):
+	class Meta:
+		managed = False
+	user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+	uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+	created_at = models.DateTimeField(auto_now_add=True)
+	expires_at = models.DateTimeField()
