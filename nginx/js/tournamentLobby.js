@@ -2,10 +2,17 @@ import { closeTournamentWebsocket } from './websockets.js';
 import { textDotLoading } from './animations.js';
 import { apiCallAuthed } from './api.js';
 
-export function init(data) {
+export function init() {
 	// List joined players (refresh every X seconds) - works with /list/player
 	fetchAndUpdatePlayerList();
 	let refreshInterval = setInterval(fetchAndUpdatePlayerList, 3000);
+
+	// Clear the list refresh interval when the user exits the page
+	window.addEventListener('hashchange', () => {
+		if (window.location.hash !== '#lobby-tnmt') {
+			clearInterval(refreshInterval);
+		}
+	});
 
 	// Close the Tournament Websocket and return to main menu
 	const returnButton = document.getElementById('cancelBtn');
@@ -22,9 +29,7 @@ export function init(data) {
 				.finally(() => {
 					closeTournamentWebsocket();
 					window.location.hash = '#dashboard';
-					clearInterval(refreshInterval);
-				})
-				;
+				});
 		});
 	}
 
@@ -32,13 +37,12 @@ export function init(data) {
 	textDotLoading("loadingAnimation");
 }
 
-// List joined players (refresh every X seconds) - works with /list/player
+// List joined players (refresh every X seconds)
 async function fetchAndUpdatePlayerList() {
 	try {
-		const data = await apiCallAuthed('api/tournament/list/player', undefined, undefined, undefined, false);
-		const activeTournament = data[data.length - 1];
-		console.log("ACTIVE TOURNAMENT INFO", activeTournament);
-		const activePlayers = activeTournament.players;
+		const data = await apiCallAuthed(`api/tournament/info/${sessionStorage.getItem("tournament_id")}`, undefined, undefined, undefined, false);
+		console.log("ACTIVE TOURNAMENT INFO", data);
+		const activePlayers = data.players;
 		const playerListID = document.getElementById("player-list");
 		playerListID.innerHTML = '';
 		activePlayers.forEach(player => {
