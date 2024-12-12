@@ -43,6 +43,7 @@ class CustomUser(AbstractUser):
 	status_counter = models.PositiveIntegerField(blank=False, default=0)
 	avatar = models.ImageField(upload_to=user_directory_path, blank=True)
 	two_factor = models.BooleanField(blank=False, default=False)
+	two_factor_secret = models.CharField(max_length=32, blank=True, null=True)
 
 class Tournament(models.Model):
 	class StatusOptions(models.TextChoices):

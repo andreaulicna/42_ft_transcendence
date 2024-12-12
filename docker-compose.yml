@@ -13,6 +13,12 @@ services:
     networks:
       - transcendence
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:8001/healthcheck || exit 1"]
+      interval: 60s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
   
   user_management_db:
     healthcheck:
@@ -42,7 +48,19 @@ services:
       - ./authentication:/app
       - uploaded-volume:/var/www/ft_transcendence/media
     depends_on:
-      - authentication
+      user_management:
+        condition: service_healthy
+      authentication:
+        condition: service_healthy
+      matchmaking:
+        condition: service_healthy
+      pong:
+        condition: service_healthy
+      tournament:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      
 
   redis:
     container_name: redis
@@ -51,6 +69,11 @@ services:
     networks:
       - transcendence
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "redis-cli",  "ping"]
+      interval: 10s
+      retries: 3
+      timeout: 5s
 
   authentication:
     depends_on:
@@ -64,6 +87,12 @@ services:
     networks:
       - transcendence
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:8002/healthcheck || exit 1"]
+      interval: 60s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
 
   matchmaking:
     depends_on:
@@ -77,6 +106,12 @@ services:
     networks:
       - transcendence
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:8003/healthcheck || exit 1"]
+      interval: 60s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
   
   pong:
     depends_on:
@@ -90,6 +125,12 @@ services:
     networks:
       - transcendence
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:8004/healthcheck || exit 1"]
+      interval: 60s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
 
   tournament:
     depends_on:
@@ -103,6 +144,12 @@ services:
     networks:
       - transcendence
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:8005/healthcheck || exit 1"]
+      interval: 60s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
     
 networks:
   transcendence:

@@ -10,16 +10,93 @@ from django.shortcuts import get_object_or_404
 from django.http import Http404
 import base64, os
 from django.core.files.base import ContentFile
+import pyotp, qrcode, logging, io
+
+class HealthCheckView(APIView):
+	def get(self, request):
+		return Response({'detail' : 'Healthy'})
 
 class UserRegistrationView(APIView):
 	permission_classes = [AllowAny]
 
 	def post(self, request):
 		serializer = UserSerializer(data=request.data)
+		# request.data['two_factor_secret'] = pyotp.random_base32() #might be moved somewhere else
 		if serializer.is_valid():
 			serializer.save()
 			return Response(serializer.data, status=status.HTTP_201_CREATED)
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# class QRCodeView(APIView):
+# 	permission_classes = [IsAuthenticated]
+	
+# 	def get(self, request):
+# 		user = request.user
+# 		otp_uri = pyotp.totp.TOTP(user.two_factor_secret).provisioning_uri(name=user.username, issuer_name='42praguescendence')
+# 		qr = qrcode.make(otp_uri)
+# 		buffer = io.BytesIO()
+# 		qr.save(buffer, format="png")
+# 		buffer.seek(0)
+# 		qr_code = base64.b64encode(buffer.getvalue()).decode("utf-8")
+# 		qr_code_data_uri = f"data:image/png;base64,{qr_code}"
+# 		return Response({"qr_code" : qr_code_data_uri})
+
+class Enable2FA(APIView):
+	permission_classes = [IsAuthenticated]
+
+	def get(self, request):
+		user = request.user
+		if user.two_factor_secret is None:
+			user.two_factor_secret = pyotp.random_base32()
+			user.save()
+		otp_uri = pyotp.totp.TOTP(user.two_factor_secret).provisioning_uri(name=user.username, issuer_name='42praguescendence')
+		qr = qrcode.make(otp_uri)
+		buffer = io.BytesIO()
+		qr.save(buffer, format="png")
+		buffer.seek(0)
+		qr_code = base64.b64encode(buffer.getvalue()).decode("utf-8")
+		qr_code_data_uri = f"data:image/png;base64,{qr_code}"
+		return Response({"qr_code" : qr_code_data_uri})
+
+	def post(self, request):
+		user = request.user
+		otp_code = request.data.get('otp_code', None)
+
+		if not otp_code:
+			return Response({'detail' : 'OTP not provided'}, status=status.HTTP_400_BAD_REQUEST)
+		
+		if not user.two_factor_secret:
+			return Response({'detail' : 'Secret has not been generated yet'}, status=status.HTTP_400_BAD_REQUEST)
+		
+		totp = pyotp.TOTP(user.two_factor_secret)
+		if totp.verify(otp_code):
+			user.two_factor = True
+			user.save()
+			return Response({'detail' : '2FA enabled'})
+		
+		return Response({'detail' : 'Invalid OTP'}, status=status.HTTP_403_FORBIDDEN)
+	
+class Disable2FA(APIView):
+	permission_classes = [IsAuthenticated]
+
+	def post(self, request):
+		user = request.user
+		if user.two_factor:
+			otp_code = request.data.get('otp_code', None)
+
+			if not otp_code:
+				return Response({'detail' : 'OTP not provided'}, status=status.HTTP_400_BAD_REQUEST)
+			
+			totp = pyotp.TOTP(user.two_factor_secret)
+			if totp.verify(otp_code):
+				user.two_factor = False
+				user.two_factor_secret = None
+				user.save()
+				return Response({'detail' : '2FA disabled'})
+			
+			return Response({'detail' : 'Invalid OTP'}, status=status.HTTP_403_FORBIDDEN)
+		
+		return Response({'detail' : '2FA has not been enabled'}, status=status.HTTP_400_BAD_REQUEST)
 
 class UserInfoView(APIView):
 		permission_classes = [IsAuthenticated]
@@ -30,6 +107,7 @@ class UserInfoView(APIView):
 				return Response({'detail': 'Player does not exist'}, status=status.HTTP_404_NOT_FOUND)
 			serializer = UserSerializer(player)
 			return Response(serializer.data)
+		
 		def put(self, request):
 			try:
 				player = CustomUser.objects.get(username=request.user)
@@ -79,7 +157,7 @@ class UserAvatarUpload(APIView):
 		except CustomUser.DoesNotExist:
 			return Response({'detail': 'Player does not exist'}, status=status.HTTP_404_NOT_FOUND)
 		# print(request.data)
-		data = request.data['profilePic']
+		data = request.data.get('profilePic')
 		if not data:
 			return Response({'detail': 'No avatar data provided'}, status=status.HTTP_400_BAD_REQUEST)
 		try:
@@ -88,13 +166,13 @@ class UserAvatarUpload(APIView):
 			avatar_data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
 			# Define the folder where the avatar is stored
 			avatar_folder = os.path.dirname(player.avatar.path)
-
-			# Delete existing files in the folder
-			for filename in os.listdir(avatar_folder):
-				file_path = os.path.join(avatar_folder, filename)
-				if os.path.isfile(file_path):
-					os.remove(file_path)
-			
+			if player.avatar:
+				# Delete existing files in the folder
+				for filename in os.listdir(avatar_folder):
+					file_path = os.path.join(avatar_folder, filename)
+					if os.path.isfile(file_path):
+						os.remove(file_path)
+				
 			# Save the file to the user's ImageField
 			player.avatar.save(f'avatar.{ext}', avatar_data)
 			player.save()

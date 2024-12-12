@@ -11,6 +11,10 @@ from django.shortcuts import get_object_or_404
 from django.http import Http404
 from rest_framework.generics import RetrieveAPIView
 
+class HealthCheckView(APIView):
+	def get(self, request):
+		return Response({'detail' : 'Healthy'})
+
 def player_already_in_waiting_tournament(tournaments, player_id):
 	for tournament_iterator in tournaments:
 		players_in_tournament = PlayerTournament.objects.filter(tournament=tournament_iterator.id)

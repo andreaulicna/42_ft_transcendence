@@ -31,6 +31,7 @@ urlpatterns = [
 	path('api/tournament/info/<int:tournament_id>/', views.TournamentInfoView.as_view(), name='tournament-info-view'),
 	path('api/tournament/debug/playertournament/all', views.PlayerTournamentListView.as_view(), name='debug-list-playertournaments'),
 	path('api/tournament/debug/tournament/all', views.AllTournamentsListView.as_view(), name='debug-list-tournaments'),
+	path('healthcheck', views.HealthCheckView.as_view())
 ]  
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

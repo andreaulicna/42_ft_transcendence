@@ -38,6 +38,9 @@ urlpatterns = [
 	path('api/user/friends/<int:pk>/delete', views.FriendshipRequestDeleteView.as_view(), name='friendship-delete'),
 	path('api/user/friends/<int:pk>/accept', views.FriendshipRequestAcceptView.as_view(), name='friendship-request-accept'),
 	path('api/user/friends/<int:pk>/refuse', views.FriendshipRequestRefuseView.as_view(), name='friendship-request-refuse'),
+	path('api/user/2fa-enable', views.Enable2FA.as_view(), name="enable-2fa"),
+	path('api/user/2fa-disable', views.Disable2FA.as_view(), name="disable-2fa"),
+	path('healthcheck', views.HealthCheckView.as_view())
 ]  
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

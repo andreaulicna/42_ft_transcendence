@@ -14,7 +14,9 @@ from django.utils.decorators import method_decorator
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import CustomUser
-
+import pyotp
+import qrcode
+	
 
 def get_tokens_for_user(user):
 	refresh = RefreshToken.for_user(user)
@@ -24,11 +26,14 @@ def get_tokens_for_user(user):
 		'access': str(refresh.access_token),
 	}
 
+class HealthCheckView(APIView):
+	def get(self, request):
+		return Response({'detail' : 'Healthy'})
+
 class LoginView(APIView):
 	permission_classes = []
 	@method_decorator(csrf_exempt)
 	def post(self, request, format=None):
-		print("HELLO WORLD")
 		data = request.data
 		response = Response()
 		username = data.get('username', None)
@@ -36,6 +41,13 @@ class LoginView(APIView):
 		user = authenticate(username=username, password=password)
 		if user is not None:
 			if user.is_active:
+				if user.two_factor:
+					totp = pyotp.TOTP(user.two_factor_secret)
+					otp_code = data.get('otp_code', None)
+					if otp_code is None:
+						return Response({"otp_required" : True, "details" : "OTP is yet to be provided"})
+					if not totp.verify(otp_code):
+						return Response({'detail' : 'Invalid or expired OTP'}, status=status.HTTP_403_FORBIDDEN)
 				data = get_tokens_for_user(user)
 				expires = timezone.now() + settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME']
 				response.set_cookie(
@@ -49,7 +61,6 @@ class LoginView(APIView):
 										)
 				csrf.get_token(request)
 				response.data = {"refresh": data['refresh'], "access" : data['access']}
-				
 				return response
 			else:
 				return Response({"details" : "This account is not active"},status=status.HTTP_404_NOT_FOUND)
