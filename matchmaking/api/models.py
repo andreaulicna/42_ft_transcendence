@@ -100,6 +100,12 @@ class LocalMatch(AbstractMatch):
 	player1_tmp_username = models.CharField(max_length=150, blank=True)
 	player2_tmp_username = models.CharField(max_length=150, blank=True)
 	winner = models.CharField(max_length=150, blank=True)
+
+class AIMatch(AbstractMatch):
+
+	creator = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, related_name="ai_creator", null=True)
+	winner = models.CharField(max_length=150, blank=True)
+
 	
 class Friendship(models.Model):
 	class Meta:
@@ -125,11 +131,3 @@ class PlayerTournament(models.Model):
 		if not self.player_tmp_username:
 			self.player_tmp_username = self.player.username
 		super().save(*args, **kwargs)
-
-class WebSocketTicket(models.Model):
-	class Meta:
-		managed = False
-	user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-	uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-	created_at = models.DateTimeField(auto_now_add=True)
-	expires_at = models.DateTimeField()

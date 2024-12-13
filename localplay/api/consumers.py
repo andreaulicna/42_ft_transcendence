@@ -255,7 +255,7 @@ class LocalPlayConsumer(AsyncWebsocketConsumer):
 				break
 
 			# Short sleep
-			await asyncio.sleep(0.1)
+			await asyncio.sleep(0.01)
 		logging.info(f"Match end for local match {match_room.match_id}")
 		await self.match_end(
 			{

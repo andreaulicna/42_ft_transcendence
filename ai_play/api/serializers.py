@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser, Match, Friendship, LocalMatch, AIMatch, Tournament, PlayerTournament
+from .models import CustomUser, Match, Friendship, LocalMatch, AIMatch
 from django.db.models import Q
 
 
@@ -103,28 +103,3 @@ class FriendshipListSerializer(serializers.ModelSerializer):
 		if friend.status_counter > 0:
 			return "ON"
 		return "OFF"
-	
-class PlayerTournamentSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = PlayerTournament
-		fields = '__all__'
-
-class TournamentSerializer(serializers.ModelSerializer):
-    players = PlayerTournamentSerializer(source='playertournament_set', many=True, read_only=True)
-	
-    class Meta:
-        model = Tournament
-        fields = ['id', 'name', 'status', 'capacity', 'creator', 'players']
-
-
-class WaitingTournamentSerializer(serializers.ModelSerializer):
-    free_spaces = serializers.SerializerMethodField()
-    players = PlayerTournamentSerializer(source='playertournament_set', many=True, read_only=True)
-
-    class Meta:
-        model = Tournament
-        fields = ['id', 'name', 'status', 'free_spaces', 'players']
-
-    def get_free_spaces(self, obj):
-        player_count = PlayerTournament.objects.filter(tournament=obj).count()
-        return obj.capacity - player_count

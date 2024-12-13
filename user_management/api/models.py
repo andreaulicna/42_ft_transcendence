@@ -98,7 +98,12 @@ class LocalMatch(AbstractMatch):
 	player1_tmp_username = models.CharField(max_length=150, blank=True)
 	player2_tmp_username = models.CharField(max_length=150, blank=True)
 	winner = models.CharField(max_length=150, blank=True)
-	
+
+class AIMatch(AbstractMatch):
+
+	creator = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, related_name="ai_creator", null=True)
+	winner = models.CharField(max_length=150, blank=True)
+
 class Friendship(models.Model):
 	class StatusOptions(models.TextChoices):
 		PENDING = "PEN", gettext_lazy("Pending")

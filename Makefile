@@ -2,12 +2,10 @@ name = transcendence
 
 all:
 	@echo "Configuring ${name}\n"
-	@bash ./tools/make_volume.sh
 	@docker compose -f ./docker-compose.yml up -d
 
 build:
 	@echo "Building ${name}\n"
-	@bash ./tools/make_volume.sh
 	@docker compose -f ./docker-compose.yml build
 	@docker compose -f ./docker-compose.yml up -d
 

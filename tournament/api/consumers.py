@@ -289,8 +289,6 @@ class TournamentConsumer(WebsocketConsumer):
 			)
 		logging.info("End of next_round")
 
-
-
 	def next_round(self, match_id, winner_id):
 		logging.info("Next round function")
 		tournament_id = int(self.scope['url_route']['kwargs'].get('tournament_id'))
@@ -342,8 +340,6 @@ class TournamentConsumer(WebsocketConsumer):
 	#	elif (match.round in (13, 14)):
 	#		self.add_player_to_match_in_tournament_room(tournament_room, tournament_room.capacity / 2 + 7)
 		#elif (match.round <= ):
-				
-			
 	
 	def tournament_message(self, event):
 		message = event["message"]
