@@ -50,6 +50,12 @@ async function openWebSocket(url, type) {
 					const matchEndEvent = new CustomEvent('match_end');
 					window.dispatchEvent(matchEndEvent);
 				}
+				else if (data.type === "tournament_message")
+				{
+					const tournamentEndEvent = new CustomEvent('tournament_end');
+					window.dispatchEvent(tournamentEndEvent);
+					window.tournamentEnded = true;
+				}
 			};
 		} catch (error) {
 			console.error(`Error opening WebSocket ${type} :`, error);
@@ -110,7 +116,7 @@ export async function openPongWebsocket(match_id) {
 function closeWebSocket(ws) {
 	if (ws && ws.readyState === WebSocket.OPEN) {
 		ws.close();
-		console.log('WebSocket connection closed manually');
+		// console.log('WebSocket connection closed manually');
 	}
 }
 
@@ -141,7 +147,9 @@ export function addPaddleMovementListener() {
 		window.addEventListener('paddle_movement', handlePaddleMovement);
 }
 
-// In tournament mode, let server know when a match ends
+/* TOURNAMENT LOGIC */
+
+// Let server know when a tournament match ends
 function handleTournamentMatchEnd(event) {
 	console.log("INTERCEPTED MATCH END MSG");
 	if (tournamentWebSocket) {

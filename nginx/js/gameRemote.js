@@ -1,5 +1,5 @@
 import { apiCallAuthed } from './api.js';
-import { addPaddleMovementListener } from './websockets.js';
+import { addPaddleMovementListener, closeTournamentWebsocket } from './websockets.js';
 import { addTournamentMatchEndListener } from './websockets.js';
 import { textDynamicLoad } from "./animations.js";
 
@@ -40,6 +40,7 @@ let replayButton;
 let mainMenuButton;
 
 let isTouchDevice;
+window.tournamentEnded = false;
 
 /* 👇 DATA INITIALIZATION */
 function initGameData(data)
@@ -133,7 +134,10 @@ function initEventListeners()
 	window.addEventListener('match_end', showGameOverScreen);
 
 	if (gameMode == "tournament")
+	{
 		addTournamentMatchEndListener();
+		window.addEventListener('tournamentEnd', handleTournamentEnd);
+	}
 
 	// Disable the replay button in tournaments
 	if (gameMode != "tournament")
@@ -360,25 +364,35 @@ function showGameOverScreen() {
 	}
 	
 	// If the game is part of a tournament, dispatch a message about the match end to the server
-    if (gameMode == "tournament")
-    {
-        const winnerID = player1.score > player2.score ? player1Data.id : player2Data.id;
-        if (winnerID == sessionStorage.getItem("id"))
-            dispatchTournamentMessage(winnerID, matchID);
-    }
+	if (gameMode == "tournament")
+	{
+		const winnerID = player1.score > player2.score ? player1Data.id : player2Data.id;
+		const loserID = player1.score > player2.score ? player2Data.id : player1Data.id;
+		if (sessionStorage.getItem("id") == winnerID)
+		{
+			
+			dispatchWinnerMatchEnd(winnerID, matchID);
+			hideGameOverScreen();
+		}
+		else if (sessionStorage.getItem("id") == loserID)
+		{
+			closeTournamentWebsocket();
+			window.location.hash = '#dashboard';
+		}
+	}
 }
 
-// function hideGameOverScreen() {
-// 	gameOverScreen.style.display = "none";
-// 	gameBoard.style.display = "block";
-// 	playerNames.style.visibility = "visible";
-// 	scoreText.style.display = "block";
-// 	if (isTouchDevice)
-// 		{
-// 			touchControlsPlayer1.style.display = "block";
-// 			touchControlsPlayer2.style.display = "block";
-// 		}
-// }
+function hideGameOverScreen() {
+	gameOverScreen.style.display = "none";
+	gameBoard.style.display = "block";
+	playerNames.style.visibility = "visible";
+	scoreText.style.display = "block";
+	if (isTouchDevice)
+		{
+			touchControlsPlayer1.style.display = "block";
+			touchControlsPlayer2.style.display = "block";
+		}
+}
 
 async function replayGame() {
 	// hideGameOverScreen();
@@ -387,15 +401,29 @@ async function replayGame() {
 }
 
 /* 👇 TOURNAMENT LOGIC */
-function dispatchTournamentMessage(winnerId, matchId) {
+function dispatchWinnerMatchEnd(winnerId, matchId) {
 	const message ={
 		message: "match_end",
 		match_id: matchId,
 		winner_id: winnerId
 	};
 	const event = new CustomEvent('tournamentMatchEnd', { detail: message });
-	console.log("DISPATCHING END MATCH MSG", message);
+	// console.log("DISPATCHING END MATCH MSG", message);
 	window.dispatchEvent(event);
+}
+
+function handleTournamentEnd() {
+	const winnerID = player1.score > player2.score ? player1Data.id : player2Data.id;
+	const loserID = player1.score > player2.score ? player2Data.id : player1Data.id;
+	closeTournamentWebsocket();
+	if (sessionStorage.getItem("id") == winnerID)
+	{
+		window.location.hash = "winner-tnmt";
+	}
+	else if (sessionStorage.getItem("id") == loserID)
+	{
+		window.location.hash = '#dashboard';
+	}
 }
 
 /* 👇 GAME INIT */
