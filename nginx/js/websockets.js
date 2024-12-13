@@ -107,6 +107,17 @@ export async function openPongWebsocket(match_id) {
 	});
 }
 
+export async function openLocalPlayWebsocket(match_id) {
+	const url = "/api/localplay/ws/" + match_id + "/";
+	openWebSocket(url, "localplay").then((ws) => {
+		pongWebSocket = ws;
+		console.log('LocalPlay WebSocket established');
+		window.location.hash = '#game';
+	}).catch((error) => {
+		console.error('Failed to establish LocalPlay WebSocket:', error);
+	});
+}
+
 function closeWebSocket(ws) {
 	if (ws && ws.readyState === WebSocket.OPEN) {
 		ws.close();

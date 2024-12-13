@@ -62,6 +62,12 @@ const translations = {
 		registrationUnsuccessful: "Your attempt at registration was unsuccessful.",
 		loginFailed: "Login failed",
 		invalidCredentials: "Invalid username or password",
+		// LOCAL PLAY
+		localPlayer1TmpUsername: "Player 1 Username",
+		localPlayer2TmpUsername: "Player 2 Username",
+		localPlayCreate: "Create Local Match",
+		localPlayer1TmpUsernamePlaceholder: "Enter player 1 username",
+		localPlayer2TmpUsernamePlaceholder: "Enter player 2 username",
 	},
 	cz: {
 		// INDEX
@@ -126,6 +132,12 @@ const translations = {
 		registrationUnsuccessful: "Váš pokus o registraci byl neúspěšný.",
 		loginFailed: "Neúspěšné přihlášení",
 		invalidCredentials: "Neplatné uživatelské jméno nebo heslo",
+		// LOCAL PLAY
+		localPlayer1TmpUsername: "Hráč 1 Username",
+		localPlayer2TmpUsername: "Hráč 2 Username",
+		localPlayCreate: "Vytvoř zápas",
+		localPlayer1TmpUsernamePlaceholder: "Vlož username pro hráče 1",
+		localPlayer2TmpUsernamePlaceholder: "Vlož username pro hráče 2",
 	},
 	sk: {
 		// INDEX
@@ -191,6 +203,11 @@ const translations = {
 		registrationUnsuccessful: "Váš pokus o registráciu bol neúspešný.",
 		loginFailed: "Neúspěšné přihlášenie",
 		invalidCredentials: "Neplatné užívateľské meno alebo heslo",
+		localPlayer1TmpUsername: "Hráč 1 Username",
+		localPlayer2TmpUsername: "Hráč 2 Username",
+		localPlayCreate: "Vytvor zápas",
+		localPlayer1TmpUsernamePlaceholder: "Zadaj username pre hráča 1",
+		localPlayer2TmpUsernamePlaceholder: "Zadaj username pre hráča 2",
 	}
 };
 
