@@ -54,13 +54,12 @@ const loadContent = async (path) => {
 		} else if (window.location.hash === '#game') {
 			const mode = localStorage.getItem('gameMode');
 			console.log("Mode in router: ", mode)
-			if (mode == "remote") {
-				data = await apiCallAuthed(`/api/user/match/${sessionStorage.getItem("match_id")}`);
-				await import('/js/gameRemote.js').then(module => module.init(data));
-			}
-			else if (mode == "local") {
+			if (mode == "local") {
 				data = await apiCallAuthed(`/api/user/localmatch/${sessionStorage.getItem("match_id")}`);
 				await import('/js/gameLocal.js').then(module => module.init(data));
+			} else {
+				data = await apiCallAuthed(`/api/user/match/${sessionStorage.getItem("match_id")}`);
+				await import('/js/gameRemote.js').then(module => module.init(data));
 			}
 		} else if (window.location.hash === '#tournament') {
 			await import('/js/tournament.js').then(module => module.init());
