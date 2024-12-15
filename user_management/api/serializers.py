@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser, Match, Friendship
+from .models import CustomUser, Match, LocalMatch, Friendship
 from django.db.models import Q
 
 
@@ -43,6 +43,21 @@ class MatchStartSerializer(serializers.ModelSerializer):
 
 	def create(self, validated_data):
 		match = Match.objects.create(**validated_data)
+		return match
+
+class LocalMatchStartSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = LocalMatch
+		fields = ['id', 
+				'player1_tmp_username', 
+				'player2_tmp_username', 
+				'default_ball_size', 
+				'default_paddle_height', 
+				'default_paddle_width', 
+				'default_paddle_speed']
+
+	def create(self, validated_data):
+		match = LocalMatch.objects.create(**validated_data)
 		return match
 
 class FriendshipSerializer(serializers.ModelSerializer):
