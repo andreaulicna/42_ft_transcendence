@@ -4,5 +4,5 @@ from . import consumers
 
 print('hello localplay');
 websocket_urlpatterns = [
-    re_path(r'^api/localplay/ws/(?P<match_id>\d+)/$', consumers.LocalPlayConsumer.as_asgi()),
+    re_path(r'^api/ws/localplay/(?P<match_id>\d+)/$', consumers.LocalPlayConsumer.as_asgi()),
 ]

@@ -59,7 +59,7 @@ async function openWebSocket(url, type) {
 }
 
 export async function openFriendlistWebsocket() {
-	const url = "/api/auth/ws/init/";
+	const url = "/api/ws/auth/init/";
 	openWebSocket(url, "friend").then((ws) => {
 		friendlistWebSocket = ws;
 		console.log('Friendlist WebSocket established');
@@ -67,7 +67,7 @@ export async function openFriendlistWebsocket() {
 }
 
 export async function openMatchmakingWebsocket() {
-	const url = "/api/matchmaking/ws/";
+	const url = "/api/ws/matchmaking/";
 	openWebSocket(url, "matchmaking").then((ws) => {
 		matchmakingWebSocket = ws;
 		console.log('Matchmaking WebSocket established');
@@ -77,7 +77,7 @@ export async function openMatchmakingWebsocket() {
 }
 
 export async function openRematchWebsocket(rematch_id) {
-	const url = `api/matchmaking/ws/${rematch_id}/rematch/`;
+	const url = `api/ws/matchmaking/${rematch_id}/rematch/`;
 	openWebSocket(url, "rematch").then((ws) => {
 		rematchWebSocket = ws;
 		console.log('Rematch WebSocket established');
@@ -87,7 +87,7 @@ export async function openRematchWebsocket(rematch_id) {
 }
 
 export async function openTournamentWebsocket(tournament_id) {
-	const url = "/api/tournament/ws/" + tournament_id + "/";
+	const url = "/api/ws/tournament/" + tournament_id + "/";
 	openWebSocket(url, "tournament").then((ws) => {
 		tournamentWebSocket = ws;
 		console.log('Tournament WebSocket established');
@@ -97,7 +97,7 @@ export async function openTournamentWebsocket(tournament_id) {
 }
 
 export async function openPongWebsocket(match_id) {
-	const url = "/api/pong/ws/" + match_id + "/";
+	const url = "/api/ws/pong/" + match_id + "/";
 	openWebSocket(url, "pong").then((ws) => {
 		pongWebSocket = ws;
 		console.log('Pong WebSocket established');
@@ -108,7 +108,7 @@ export async function openPongWebsocket(match_id) {
 }
 
 export async function openLocalPlayWebsocket(match_id) {
-	const url = "/api/localplay/ws/" + match_id + "/";
+	const url = "/api/ws/localplay/" + match_id + "/";
 	openWebSocket(url, "localplay").then((ws) => {
 		pongWebSocket = ws;
 		console.log('LocalPlay WebSocket established');
