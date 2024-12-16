@@ -40,7 +40,10 @@ let replayButton;
 let mainMenuButton;
 
 let isTouchDevice;
-window.tournamentEnded = false;
+
+let tournamentRoundNumber;
+let tournamentCapacity;
+let tournamentRoundMax;
 
 /* 👇 DATA INITIALIZATION */
 function initGameData(data)
@@ -93,6 +96,13 @@ function initGameData(data)
 	mainMenuButton = document.getElementById("mainMenuButton");
 
 	isTouchDevice = 'ontouchstart' in window;
+
+	if (gameMode == "tournament")
+	{
+		tournamentRoundNumber = 0;
+		tournamentCapacity = parseInt(sessionStorage.getItem("tournament_capacity"), 10);
+		tournamentRoundMax = Math.log2(tournamentCapacity);
+	}
 }
 
 async function initPlayerData(data)
@@ -136,7 +146,7 @@ function initEventListeners()
 	if (gameMode == "tournament")
 	{
 		addTournamentMatchEndListener();
-		window.addEventListener('tournamentEnd', handleTournamentEnd);
+		window.addEventListener('tournament_end', handleTournamentEnd);
 	}
 
 	// Disable the replay button in tournaments
@@ -366,12 +376,17 @@ function showGameOverScreen() {
 	// If the game is part of a tournament, dispatch a message about the match end to the server
 	if (gameMode == "tournament")
 	{
+		matchID = sessionStorage.getItem("match_id");
+		tournamentRoundNumber++;
+		console.log("ROUND NUMBER", tournamentRoundNumber);
+		console.log("MAX ROUNDS", tournamentRoundMax);
 		const winnerID = player1.score > player2.score ? player1Data.id : player2Data.id;
 		const loserID = player1.score > player2.score ? player2Data.id : player1Data.id;
 		if (sessionStorage.getItem("id") == winnerID)
 		{
-			
 			dispatchWinnerMatchEnd(winnerID, matchID);
+			// if (tournamentRoundNumber >= tournamentRoundMax)
+			// 	window.location.hash = "winner-tnmt";
 			hideGameOverScreen();
 		}
 		else if (sessionStorage.getItem("id") == loserID)
@@ -413,8 +428,10 @@ function dispatchWinnerMatchEnd(winnerId, matchId) {
 }
 
 function handleTournamentEnd() {
+	console.log("HANDLING TOURNAMENT END");
 	const winnerID = player1.score > player2.score ? player1Data.id : player2Data.id;
 	const loserID = player1.score > player2.score ? player2Data.id : player1Data.id;
+	console.log(`my ID: ${sessionStorage.getItem("id")}, winner ID: ${winnerID}, loser ID: ${loserID}`);
 	closeTournamentWebsocket();
 	if (sessionStorage.getItem("id") == winnerID)
 	{

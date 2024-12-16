@@ -17,7 +17,7 @@ async function openWebSocket(url, type) {
 
 			ws.onopen = () => {
 				console.log(`${type} WebSocket connection opened`);
-				resolve(ws); // Resolve the promise when the connection is opened
+				resolve(ws);
 			};
 
 			ws.onclose = () => {
@@ -26,7 +26,7 @@ async function openWebSocket(url, type) {
 
 			ws.onerror = (error) => {
 				console.error(`${type} WebSocket error:`, error);
-				reject(error); // Reject the promise if there's an error
+				reject(error);
 			};
 
 			ws.onmessage = (event) => {
@@ -34,10 +34,14 @@ async function openWebSocket(url, type) {
 				// Show all messages except the draw type
 				if (data.type != "draw")
 					console.log('WebSocket message received:', data);
+				// Game initialization
 				if (type == "matchmaking" || type == "rematch" || type == "tournament")
 				{
-					sessionStorage.setItem("match_id", data.message);
-					openPongWebsocket(data.message);
+					if (data.message != "tournament_end")
+					{
+						sessionStorage.setItem("match_id", data.message);
+						openPongWebsocket(data.message);
+					}
 				}
 				// For an ongoing match, dispatch custom events based on the message type received from server
 				if (data.type === "draw")
@@ -50,11 +54,11 @@ async function openWebSocket(url, type) {
 					const matchEndEvent = new CustomEvent('match_end');
 					window.dispatchEvent(matchEndEvent);
 				}
-				else if (data.type === "tournament_message")
+				else if (data.message === "tournament_end")
 				{
 					const tournamentEndEvent = new CustomEvent('tournament_end');
+					console.log("TOURNAMENT END MESSAGE RECEIVED");
 					window.dispatchEvent(tournamentEndEvent);
-					window.tournamentEnded = true;
 				}
 			};
 		} catch (error) {
@@ -134,6 +138,8 @@ export function closeTournamentWebsocket() {
 	closeWebSocket(tournamentWebSocket);
 	console.log('Closing Tournament Websocket');
 }
+
+/* GAME LOGIC */
 
 // Send paddle movement from game to Pong websocket
 function handlePaddleMovement(event) {
