@@ -24,36 +24,8 @@ from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
-from api.models import WebSocketTicket
 from django.core.cache import cache
 from api.views import LoginView, RefreshView, LogoutView, HealthCheckView
-
-from pprint import pprint
-def print_websocket_tickets():
-    tickets = WebSocketTicket.objects.all().values('user__username', 'uuid', 'created_at', 'expires_at')
-    pprint(list(tickets))
-
-# own authentication view that checks the database for the uuid - should be probably moved to views.py
-class WsLoginView(APIView):
-	"""
-		get:
-			custom API view for retrieving ticket to connect to websocket.
-	"""
-	permission_classes = (IsAuthenticated,)
-
-	def get(self, request, *args, **kwargs):
-		ticket_uuid = uuid.uuid4()
-		user_id = request.user.id
-		expires_at = timezone.now() + timedelta(minutes=10)
-		cache.set(ticket_uuid, user_id, 600)
-		
-		WebSocketTicket.objects.create(
-			user=request.user,
-			uuid=ticket_uuid,
-			expires_at=expires_at
-		)
-		#print_websocket_tickets()
-		return Response({'uuid': ticket_uuid})
 
 urlpatterns = [
 	path('admin/', admin.site.urls),

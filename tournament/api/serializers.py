@@ -1,16 +1,24 @@
 from rest_framework import serializers
-from .models import CustomUser, Match, Friendship, Tournament, PlayerTournament
+from .models import CustomUser, Match, Friendship, LocalMatch, AIMatch, Tournament, PlayerTournament
 from django.db.models import Q
+
+
 
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = CustomUser
 		fields = '__all__' # returns all parameters
-		extra_kwargs = {'password' : {'write_only': True}} # protects GET user/info/ from exposing the hash of the password in the response
+		extra_kwargs = {'password' : {'write_only': True}, 
+						'two_factor_secret' : {'write_only' : True}} # protects GET user/info/ from exposing the hash of the password in the response
 
 	def create(self, validated_data):
 		user = CustomUser.objects.create_user(**validated_data)
 		return user
+
+class OtherUserSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = CustomUser
+		fields = ['id', 'username', 'win_count', 'loss_count', 'avatar']
 	
 class MatchSerializer(serializers.ModelSerializer):
 	#match = serializers.SerializerMethodField()
@@ -22,6 +30,41 @@ class MatchSerializer(serializers.ModelSerializer):
 		match = Match.objects.create(**validated_data)
 		return match
 
+class LocalMatchSerializer(serializers.ModelSerializer):
+	#match = serializers.SerializerMethodField()
+	class Meta:
+		model = LocalMatch
+		fields = '__all__' # returns all parameters
+
+	def create(self, validated_data):
+		match = LocalMatch.objects.create(**validated_data)
+		return match
+
+class AIMatchSerializer(serializers.ModelSerializer):
+	#match = serializers.SerializerMethodField()
+	class Meta:
+		model = AIMatch
+		fields = '__all__' # returns all parameters
+
+	def create(self, validated_data):
+		match = AIMatch.objects.create(**validated_data)
+		return match
+
+
+class MatchStartSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Match
+		fields = ['id', 
+				'player1', 
+				'player2', 
+				'default_ball_size', 
+				'default_paddle_height', 
+				'default_paddle_width', 
+				'default_paddle_speed']
+
+	def create(self, validated_data):
+		match = Match.objects.create(**validated_data)
+		return match
 
 class FriendshipSerializer(serializers.ModelSerializer):
 	class Meta:

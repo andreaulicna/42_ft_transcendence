@@ -8,8 +8,8 @@ services:
     volumes:
       - ./user_management:/app
       - uploaded-volume:/app/mediafiles
-    environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    env_file:
+      - .env
     networks:
       - transcendence
     restart: unless-stopped
@@ -28,8 +28,8 @@ services:
       retries: 5
     container_name: user_management_db
     image: postgres:16
-    environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    env_file:
+      - .env
     networks:
       - transcendence
     volumes:
@@ -40,13 +40,14 @@ services:
     container_name: nginx
     build: ./nginx
     ports:
-      - 4200:80
+      - 4200:443
     restart: unless-stopped
     networks:
       - transcendence
     volumes:
-      - ./authentication:/app
+      - ./authentication:/app # in order to have access to certain parts
       - uploaded-volume:/var/www/ft_transcendence/media
+      - ./nginx/certs:/etc/nginx/ssl/
     depends_on:
       user_management:
         condition: service_healthy
@@ -59,6 +60,10 @@ services:
       tournament:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      localplay:
+        condition: service_healthy
+      ai_play:
         condition: service_healthy
       
 
@@ -82,8 +87,8 @@ services:
     build: ./authentication/
     volumes:
       - ./authentication:/app
-    environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    env_file:
+      - .env
     networks:
       - transcendence
     restart: unless-stopped
@@ -101,8 +106,8 @@ services:
     build: ./matchmaking/
     volumes:
       - ./matchmaking:/app
-    environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    env_file:
+      - .env
     networks:
       - transcendence
     restart: unless-stopped
@@ -120,8 +125,8 @@ services:
     build: ./pong/
     volumes:
       - ./pong:/app
-    environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    env_file:
+      - .env
     networks:
       - transcendence
     restart: unless-stopped
@@ -139,13 +144,51 @@ services:
     build: ./tournament/
     volumes:
       - ./tournament:/app
-    environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    env_file:
+      - .env
     networks:
       - transcendence
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:8005/healthcheck || exit 1"]
+      interval: 60s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
+
+  localplay:
+    depends_on:
+    - user_management
+    container_name: localplay
+    build: ./localplay/
+    volumes:
+      - ./localplay:/app
+    env_file:
+      - .env
+    networks:
+      - transcendence
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:8006/healthcheck || exit 1"]
+      interval: 60s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
+
+  ai_play:
+    depends_on:
+    - user_management
+    container_name: ai_play
+    build: ./ai_play/
+    volumes:
+      - ./ai_play:/app
+    env_file:
+      - .env
+    networks:
+      - transcendence
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:8007/healthcheck || exit 1"]
       interval: 60s
       retries: 5
       start_period: 20s

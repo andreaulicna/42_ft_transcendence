@@ -3,6 +3,9 @@ import { closeMatchmakingWebsocket } from './websockets.js';
 import { textDotLoading } from './animations.js';
 import { openRematchWebsocket } from "./websockets.js";
 import { closeRematchWebsocket } from "./websockets.js";
+import { openLocalPlayWebsocket } from "./websockets.js";
+import { apiCallAuthed } from './api.js';
+
 
 export function init() {
 	const mode = localStorage.getItem('gameMode');
@@ -19,6 +22,12 @@ export function init() {
 				<span data-translate="waitingForRematch">Waiting for rematch</span>
 			`;
 		}
+	}
+	if (mode == "local")
+	{
+		showLocalPlayPage();
+		const LocalPlayCreateForm = document.getElementById("create-localplay-form");
+		LocalPlayCreateForm.addEventListener("submit", (e) => createLocalPlay(e));
 	}
 	
 
@@ -45,4 +54,32 @@ export function init() {
 	}
 
 	textDotLoading("loadingAnimation");
+}
+
+// Create a local match
+async function createLocalPlay(event) {
+	event.preventDefault();
+
+	const player1TmpUsername = document.getElementById("local-player1-tmp-username").value;
+	const player2TmpUsername = document.getElementById("local-player2-tmp-username").value;
+
+	try {
+		const payload = {
+			'player1_tmp_username': player1TmpUsername,
+			'player2_tmp_username': player2TmpUsername,
+		};
+
+		const response = await apiCallAuthed(`/api/localplay/match`, "POST", null, payload);
+		console.log("LOCAL PLAY ID ", response.match_id);
+		sessionStorage.setItem("match_id", response.match_id);
+		openLocalPlayWebsocket(response.match_id);
+	} catch (error) {
+		console.error("Error creating local match:", error);
+		alert("An error occurred while creating a local match.");
+	}
+}
+
+function showLocalPlayPage() {
+	const localPlayPage = document.getElementById("localPlayPage");
+    localPlayPage.style.display = 'block';
 }

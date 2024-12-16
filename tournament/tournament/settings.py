@@ -157,7 +157,8 @@ INTERNAL_IPS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+#TIME_ZONE = 'CET'
+USE_TZ = True
 
 USE_I18N = True
 
@@ -167,14 +168,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-print(BASE_DIR)
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-print(STATIC_ROOT)
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'mediafiles')
-print(MEDIA_ROOT)
 
 
 # Default primary key field type
@@ -186,9 +184,9 @@ CSRF_TRUSTED_ORIGINS = ["http://localhost:4200", "http://localhost", "http://loc
 GAME_CONSTANTS = {
 	'GAME_HEIGHT': 100,
 	'GAME_WIDTH': 160,
-	'BALL_SIZE': 2,
-	'BALL_SPEED': 0.5,
-	'PADDLE_SPEED': 1,
+	'BALL_SIZE': float(os.getenv('BALL_SIZE')),
+	'BALL_SPEED': float(os.getenv('BALL_SPEED')),
+	'PADDLE_SPEED': float(os.getenv('PADDLE_SPEED')),
 }
 
 GAME_CONSTANTS['PADDLE_HEIGHT'] = GAME_CONSTANTS['GAME_HEIGHT'] / 5
@@ -209,3 +207,5 @@ CHANNEL_LAYERS = {
 		},
 	},
 }
+
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")

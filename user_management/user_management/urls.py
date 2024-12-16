@@ -30,6 +30,7 @@ urlpatterns = [
 	path('api/user/avatar', views.UserAvatarUpload.as_view(), name='user-avatar-upload'),
 	path('api/user/match', views.MatchView.as_view(), name='match-creation'),
 	path('api/user/match/<int:pk>', views.MatchStartView.as_view(), name='match-info'),
+	path('api/user/localmatch/<int:pk>', views.LocalMatchStartView.as_view(), name='local-match-info'),
 	path('api/user/users-list', views.UserListView.as_view(), name='user-list'),
 	path('api/user/friends', views.ActiveFriendshipsListView.as_view(), name='active-friendships-list'),
 	path('api/user/friends/request/<str:username>', views.FriendshipRequestView.as_view(), name='friend-request'),
@@ -38,6 +39,8 @@ urlpatterns = [
 	path('api/user/friends/<int:pk>/delete', views.FriendshipRequestDeleteView.as_view(), name='friendship-delete'),
 	path('api/user/friends/<int:pk>/accept', views.FriendshipRequestAcceptView.as_view(), name='friendship-request-accept'),
 	path('api/user/friends/<int:pk>/refuse', views.FriendshipRequestRefuseView.as_view(), name='friendship-request-refuse'),
+	path('api/user/2fa-enable', views.Enable2FA.as_view(), name="enable-2fa"),
+	path('api/user/2fa-disable', views.Disable2FA.as_view(), name="disable-2fa"),
 	path('healthcheck', views.HealthCheckView.as_view())
 ]  
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
