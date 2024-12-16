@@ -202,7 +202,6 @@ class PongConsumer(AsyncWebsocketConsumer):
 				match_room.paddle2.position.y -= paddle_speed
 			elif direction == "DOWN" and match_room.paddle2.position.y < (match_room.GAME_HALF_HEIGHT - match_room.paddle2.paddle_half_height):
 				match_room.paddle2.position.y += paddle_speed
-		await asyncio.sleep(0.01)
 
 	async def play_pong(self, match_room):
 		match_database = await sync_to_async(get_object_or_404)(Match, id=match_room.match_id)
