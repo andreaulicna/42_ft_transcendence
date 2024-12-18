@@ -11,7 +11,7 @@ export function init() {
 	const mode = localStorage.getItem('gameMode');
 	const last_match_id = sessionStorage.getItem("match_id");
 
-	// Change loading text if mode is rematch
+	// Change loading text in different modes
 	const loadingTextElement = document.getElementById('loadingText');
 	if (mode == "rematch")
 	{
@@ -23,6 +23,16 @@ export function init() {
 			`;
 		}
 	}
+	else if (mode == "local")
+		{
+			if (loadingTextElement)
+			{
+				loadingTextElement.innerHTML = `
+					<span>👻</span>
+					<span data-translate="localPlayCreate">Create local match</span>
+				`;
+			}
+		}
 	if (mode == "local")
 	{
 		showLocalPlayPage();
