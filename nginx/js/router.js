@@ -53,10 +53,15 @@ const loadContent = async (path) => {
 			await import('/js/gameLobby.js').then(module => module.init());
 		} else if (window.location.hash === '#game') {
 			const mode = localStorage.getItem('gameMode');
+			console.log("Mode in router", mode);
 			if (mode == "local")
 				await import('/js/gameLocal.js').then(module => module.init());
-			else
+			else if (mode == "ai")
+				await import('/js/gameAI.js').then(module => module.init());
+			else if (mode == "remote")
 				await import('/js/gameRemote.js').then(module => module.init());
+			else if (mode == "tournament")
+				await import('/js/gameTournament.js').then(module => module.init());
 		} else if (window.location.hash === '#tournament') {
 			await import('/js/tournament.js').then(module => module.init());
 		} else if (window.location.hash === '#lobby-tnmt') {
@@ -90,8 +95,8 @@ export function redirectToHome(event) {
 	// If user is logged in, go to dashboard, otherwise to login page
 	if (accessToken) {
 		// If a player is inside a game, don't allow redirection
-		if (window.location.hash == '#game' || window.location.hash == '#lobby-game' || window.location.hash == '#lobby-tnmt')
-			return;
+		// if (window.location.hash == '#game' || window.location.hash == '#lobby-game' || window.location.hash == '#lobby-tnmt')
+		// 	return;
 		window.location.hash = '#dashboard';
 	} else {
 		window.location.hash = '#login';

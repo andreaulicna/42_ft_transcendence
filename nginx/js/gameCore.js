@@ -1,44 +1,50 @@
 import { apiCallAuthed } from './api.js';
-import { addPaddleMovementListener, closeTournamentWebsocket } from './websockets.js';
-import { addTournamentMatchEndListener } from './websockets.js';
-import { textDynamicLoad } from "./animations.js";
-import { handleTournamentGameOver } from './gameTournament.js';
+import { addPaddleMovementListener } from './websockets.js';
+import {
+	initTouchControls,
+	touchControlsPlayer1,
+	touchControlsPlayer2,
+} from './gameTouchControls.js';
 
 /* 👇 DATA DECLARATION */
-export let gameMode;
-export let gameBoard;
-export let ctx;
-export let originalGameWidth = 160; // Server-side game width
-export let originalGameHeight = 100; // Server-side game height
-export let gameWidth;
-export let gameHeight;
-export let scaleX; // Calculate the drawing scale for client's viewport
-export let scaleY;
-export let keys = {};
-
+let gameMode;
+let gameBoard;
+let ctx;
+let originalGameWidth = 160; // Server-side game width
+let originalGameHeight = 100; // Server-side game height
+let gameWidth;
+let gameHeight;
+let scaleX; // Calculate the drawing scale for client's viewport
+let scaleY;
 export let matchID;
+let paddle1Keys = {};
+let paddle2Keys = {};
+let lastRan = {};
+let paddleDispatchInterval;
+
+let ball = {};
+let paddle1 = {};
+let paddle2 = {};
+let paddle1Color;
+let paddle2Color;
+let ballColor;
+
+let playerNames;
+let scoreText;
+let gameOverScreen;
+let winnerName;
+export let replayButton;
+let mainMenuButton;
+
 export let player1Data;
 export let player2Data;
 export let player1 = {};
 export let player2 = {};
-
-export let ball = {};
-export let paddle1 = {};
-export let paddle2 = {};
-export let paddle1Color;
-export let paddle2Color;
-export let ballColor;
-
-export let playerNames;
-export let scoreText;
 export let player1AvatarPlaceholder;
 export let player2AvatarPlaceholder;
-export let gameOverScreen;
-export let winnerName;
-export let replayButton;
-export let mainMenuButton;
+export let isTouchDevice;
 
-let listenersAdded = false;
+// let listenersAdded = false;
 
 /* 👇 DATA INITIALIZATION */
 export function initGameData(data) {
@@ -50,7 +56,15 @@ export function initGameData(data) {
 	gameHeight = gameBoard.height;
 	scaleX = gameWidth / originalGameWidth;
 	scaleY = gameHeight / originalGameHeight;
-	keys = {};
+
+	paddle1Keys = {
+		87: false, // W key
+		83: false, // S key
+	};
+	paddle2Keys = {
+		38: false, // Up arrow key
+		40: false, // Down arrow key
+	};
 
 	ball = {
 		x: (originalGameWidth / 2) * scaleX,
@@ -76,10 +90,18 @@ export function initGameData(data) {
 	paddle2Color = "#df2af7";
 	ballColor = "whitesmoke";
 
+	player1 = {
+		name: undefined,
+		score: 0,
+	}
+
+	player2 = {
+		name: undefined,
+		score: 0,
+	}
+
 	playerNames = document.getElementById("playerNames");
 	scoreText = document.getElementById("scoreText");
-	player1NamePlaceholder = document.getElementById("player1Name");
-	player2NamePlaceholder = document.getElementById("player2Name");
 	player1AvatarPlaceholder = document.getElementById("player1Pic");
 	player2AvatarPlaceholder = document.getElementById("player2Pic");
 	gameOverScreen = document.getElementById("gameOverScreen");
@@ -87,34 +109,81 @@ export function initGameData(data) {
 	replayButton = document.getElementById("replayButton");
 	mainMenuButton = document.getElementById("mainMenuButton");
 
+	isTouchDevice = 'ontouchstart' in window;
+
+	// Touch controls need to be reworked
+
+	// if (isTouchDevice) {
+	// 	await delay(100);
+	// 	initTouchControls(player1Data);
+	// 	console.log("TOUCH CONTROLS ENABLED");
+	// }
 }
 
 export function initEventListeners() {
+	window.addEventListener("keydown", handleKeyDown);
+	window.addEventListener("keyup", handleKeyUp);
+	window.addEventListener('draw', handleDraw);
+	window.addEventListener('match_end', showGameOverScreen);
+	window.addEventListener('match_end', clearPaddleDispatchInterval);
+	mainMenuButton.addEventListener("click", () => {
+		window.location.hash = '#dashboard';
+	});
+	replayButton.addEventListener("click", () => {
+		replayGame();
+	});
+	addPaddleMovementListener();
+}
 
-	if (!listenersAdded) {
-		window.addEventListener("keydown", handleKeyDown);
-		window.addEventListener("keyup", handleKeyUp);
-		window.addEventListener('draw', handleDraw);
-		window.addEventListener('match_end', showGameOverScreen);
-		mainMenuButton.addEventListener("click", () => {
-			window.location.hash = '#dashboard';
-		});
-		replayButton.addEventListener("click", () => {
-			replayGame();
-		});
-		addPaddleMovementListener();
+function removeEventListeners() {
+	window.removeEventListener("keydown", handleKeyDown);
+	window.removeEventListener("keyup", handleKeyUp);
+	window.removeEventListener('draw', handleDraw);
+	window.removeEventListener('match_end', showGameOverScreen);
+}
 
-		listenersAdded = true;
-	}
+export async function fetchPlayer1Data(data)
+{
+	player1Data = await apiCallAuthed(`api/user/${data.player1}/info`);
+}
+
+export async function fetchPlayer2Data(data)
+{
+	player2Data = await apiCallAuthed(`api/user/${data.player2}/info`);
+}
+
+export function setPlayer1Name(player1Name)
+{
+	player1.name = player1Name;
+}
+
+export function setPlayer2Name(player2Name)
+{
+	player2.name = player2Name;
+}
+
+export function setMatchID(newMatchID)
+{
+	matchID = newMatchID;
 }
 
 /* 👇 CORE GAME LOGIC */
 function handleKeyDown(event) {
-	keys[event.keyCode] = true;
+    if (paddle1Keys.hasOwnProperty(event.keyCode)) {
+        paddle1Keys[event.keyCode] = true;
+    }
+    if (paddle2Keys.hasOwnProperty(event.keyCode)) {
+        paddle2Keys[event.keyCode] = true;
+    }
 }
 
 function handleKeyUp(event) {
-	keys[event.keyCode] = false;
+    if (paddle1Keys.hasOwnProperty(event.keyCode)) {
+        paddle1Keys[event.keyCode] = false;
+    }
+    if (paddle2Keys.hasOwnProperty(event.keyCode)) {
+        paddle2Keys[event.keyCode] = false;
+    }
 }
 
 function handleDraw(event) {
@@ -129,8 +198,7 @@ function handleDraw(event) {
 	player2.score = data.player2_score;
 
 	drawTick();
-	if (gameMode == "remote")
-		remotePaddleMovement();
+	updateScore();
 }
 
 function clearBoard() {
@@ -161,7 +229,10 @@ function drawBall(ball) {
 }
 
 function updateScore() {
-	scoreText.textContent = `${player1.score} : ${player2.score}`;
+	if (player1.score == undefined || player2.score == undefined)
+		scoreText.textContent = `0 : 0`;
+	else
+		scoreText.textContent = `${player1.score} : ${player2.score}`;
 }
 
 export function drawTick()
@@ -169,63 +240,49 @@ export function drawTick()
 	clearBoard();
 	drawPaddles(paddle1, paddle2);
 	drawBall(ball);
-	updateScore();
 }
 
-/* 👇 REMOTE PLAY SEND MOVEMENT */
+/* 👇 SEND PLAYER MOVEMENT */
 
-function throttle(func, limit) {
-	let lastFunc;
-	let lastRan;
-	return function(...args) {
-		const context = this;
-		if (!lastRan) {
-			func.apply(context, args);
-			lastRan = Date.now();
-		} else {
-			clearTimeout(lastFunc);
-			lastFunc = setTimeout(function() {
-				if ((Date.now() - lastRan) >= limit) {
-					func.apply(context, args);
-					lastRan = Date.now();
-				}
-			}, limit - (Date.now() - lastRan));
-		}
-	};
+function throttledDispatchEventPerKey(key, direction, paddle, limit) {
+    const now = Date.now();
+    if (!lastRan[key] || now - lastRan[key] >= limit) {
+        const paddleMovementEvent = new CustomEvent('paddle_movement', {
+            detail: {
+                type: "paddle_movement",
+                direction: direction,
+                paddle: paddle,
+            },
+        });
+        window.dispatchEvent(paddleMovementEvent);
+        lastRan[key] = now;
+    }
 }
 
-const throttledDispatchEvent = throttle((direction) => {
-	const paddleMovementEvent = new CustomEvent('paddle_movement', {
-		detail: {
-			type: "paddle_movement",
-			direction: direction
-		}
-	});
-	window.dispatchEvent(paddleMovementEvent);
-}, 10);
+function sendPaddleMovement() {
+	const throttleLimit = 10;
 
-function remotePaddleMovement() {
-	let direction = null;
-	if (player1Data.id == sessionStorage.getItem("id"))
-	{
-		if (keys[87] && paddle1.y >= 0) {
-			direction = "UP";
-		} else if (keys[83] && paddle1.y <= (gameHeight - paddle1.height) * scaleY) {
-			direction = "DOWN";
-		}
-	}
-	else
-	{
-		if (keys[87] && paddle2.y >= 0) {
-			direction = "UP";
-		} else if (keys[83] && paddle2.y <= (gameHeight - paddle2.height) * scaleY) {
-			direction = "DOWN";
-		}
-	}
-	
-	if (direction) {
-		throttledDispatchEvent(direction);
-	}
+    for (const key in paddle1Keys) {
+        if (paddle1Keys[key]) {
+            const direction = key == 87 ? "UP" : "DOWN";
+            throttledDispatchEventPerKey(key, direction, "paddle1", throttleLimit);
+        }
+    }
+
+    for (const key in paddle2Keys) {
+        if (paddle2Keys[key]) {
+            const direction = key == 38 ? "UP" : "DOWN";
+            throttledDispatchEventPerKey(key, direction, "paddle2", throttleLimit);
+        }
+    }
+}
+
+export function initPaddleEventDispatch() {
+	paddleDispatchInterval = setInterval(sendPaddleMovement, 16);
+}
+
+function clearPaddleDispatchInterval() {
+	clearInterval(paddleDispatchInterval);
 }
 
 /* 👇 MENUS & REMATCH & NON-GAME LOGIC */
@@ -247,7 +304,7 @@ export function startCountdown() {
 	}, 800);
 }
 
-export function showGameOverScreen() {
+function showGameOverScreen() {
 	let winner = player1.score > player2.score ? player1.name : player2.name;
 	winnerName.textContent = `${winner}`;
 	winnerName.className = player1.score > player2.score ? "blueSide" : "redSide";
@@ -261,12 +318,14 @@ export function showGameOverScreen() {
 		touchControlsPlayer2.style.display = 'none';
 	}
 
-	if (gameMode == "tournament") {
-		handleTournamentGameOver();
-	}
+	removeEventListeners();
+
+	// if (gameMode == "tournament") {
+	// 	handleTournamentGameOver();
+	// }
 }
 
-export function hideGameOverScreen() {
+function hideGameOverScreen() {
 	gameOverScreen.style.display = "none";
 	gameBoard.style.display = "block";
 	playerNames.style.visibility = "visible";
@@ -279,7 +338,6 @@ export function hideGameOverScreen() {
 }
 
 async function replayGame() {
-	// hideGameOverScreen();
 	localStorage.setItem("gameMode", "rematch");
 	window.location.hash = '#lobby-game';
 }
