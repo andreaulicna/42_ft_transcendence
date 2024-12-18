@@ -1,5 +1,7 @@
+import { apiCallAuthed } from './api.js';
 import { addPaddleMovementListener } from './websockets.js';
 import { textDynamicLoad } from "./animations.js";
+import { initTouchControls, isTouchDevice, touchControlsPlayer1, touchControlsPlayer2, player1Up, player1Down, player2Up, player2Down } from './gameTouchControls.js';
 
 /* 👇 DATA DECLARATION */
 let gameMode;
@@ -98,8 +100,6 @@ function initGameData(data)
 	winnerName = document.getElementById("winnerName");
 	replayButton = document.getElementById("replayButton");
 	mainMenuButton = document.getElementById("mainMenuButton");
-
-	isTouchDevice = 'ontouchstart' in window;
 }
 
 async function initPlayerData(data)
@@ -167,59 +167,6 @@ function initGameBoardVisual()
 	clearBoard();
 	drawPaddles(paddle1, paddle2);
 	drawBall(ball);
-}
-
-// Left as-is
-function initTouchControls(player1Data)
-{		
-	const touchControlsPlayer1 = document.getElementById('touchControlsPlayer1');
-	const touchControlsPlayer2 = document.getElementById('touchControlsPlayer2');
-	const player1Up = document.getElementById('player1Up');
-	const player1Down = document.getElementById('player1Down');
-	const player2Up = document.getElementById('player2Up');
-	const player2Down = document.getElementById('player2Down');
-
-	if (gameMode === 'local') {
-		touchControlsPlayer1.style.display = 'block';
-		touchControlsPlayer2.style.display = 'block';
-	}
-	else
-	{
-		if (player1Data.id == sessionStorage.getItem("id"))
-		{
-			touchControlsPlayer1.style.display = 'block';
-			touchControlsPlayer2.style.display = 'none';
-		}
-		else
-		{
-			touchControlsPlayer1.style.display = 'none';
-			touchControlsPlayer2.style.display = 'block';
-		}
-	}
-
-	function handleTouchStart(event, key) {
-		// console.log("touchStart");
-		event.preventDefault();
-		keys[key] = true;
-	}
-
-	function handleTouchEnd(event, key,) {
-		// console.log("touchEnd");
-		event.preventDefault();
-		keys[key] = false;
-	}
-
-	player1Up.addEventListener('touchstart', (event) => handleTouchStart(event, 87));
-	player1Up.addEventListener('touchend', (event) => handleTouchEnd(event, 87));
-
-	player1Down.addEventListener('touchstart', (event) => handleTouchStart(event, 83));
-	player1Down.addEventListener('touchend', (event) => handleTouchEnd(event, 83));
-
-	player2Up.addEventListener('touchstart', (event) => handleTouchStart(event, 87));
-	player2Up.addEventListener('touchend', (event) => handleTouchEnd(event, 87));
-
-	player2Down.addEventListener('touchstart', (event) => handleTouchStart(event, 83));
-	player2Down.addEventListener('touchend', (event) => handleTouchEnd(event, 83));
 }
 
 /* 👇 GAME LOGIC */
@@ -438,7 +385,8 @@ function delay(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export async function init(data) {
+export async function init() {
+	let data = await apiCallAuthed(`/api/user/localmatch/${sessionStorage.getItem("match_id")}`);
 	startCountdown();
 	initGameData(data);
 	initEventListeners();
