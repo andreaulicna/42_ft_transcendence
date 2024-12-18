@@ -169,21 +169,21 @@ export function setMatchID(newMatchID)
 
 /* 👇 CORE GAME LOGIC */
 function handleKeyDown(event) {
-    if (paddle1Keys.hasOwnProperty(event.keyCode)) {
-        paddle1Keys[event.keyCode] = true;
-    }
-    if (paddle2Keys.hasOwnProperty(event.keyCode)) {
-        paddle2Keys[event.keyCode] = true;
-    }
+	if (paddle1Keys.hasOwnProperty(event.keyCode)) {
+		paddle1Keys[event.keyCode] = true;
+	}
+	if (paddle2Keys.hasOwnProperty(event.keyCode)) {
+		paddle2Keys[event.keyCode] = true;
+	}
 }
 
 function handleKeyUp(event) {
-    if (paddle1Keys.hasOwnProperty(event.keyCode)) {
-        paddle1Keys[event.keyCode] = false;
-    }
-    if (paddle2Keys.hasOwnProperty(event.keyCode)) {
-        paddle2Keys[event.keyCode] = false;
-    }
+	if (paddle1Keys.hasOwnProperty(event.keyCode)) {
+		paddle1Keys[event.keyCode] = false;
+	}
+	if (paddle2Keys.hasOwnProperty(event.keyCode)) {
+		paddle2Keys[event.keyCode] = false;
+	}
 }
 
 function handleDraw(event) {
@@ -242,39 +242,43 @@ export function drawTick()
 	drawBall(ball);
 }
 
-/* 👇 SEND PLAYER MOVEMENT */
+/* 👇 PLAYER MOVEMENT */
 
 function throttledDispatchEventPerKey(key, direction, paddle, limit) {
-    const now = Date.now();
-    if (!lastRan[key] || now - lastRan[key] >= limit) {
-        const paddleMovementEvent = new CustomEvent('paddle_movement', {
-            detail: {
-                type: "paddle_movement",
-                direction: direction,
-                paddle: paddle,
-            },
-        });
-        window.dispatchEvent(paddleMovementEvent);
-        lastRan[key] = now;
-    }
+	const now = Date.now();
+	if (!lastRan[key] || now - lastRan[key] >= limit) {
+		const paddleMovementEvent = new CustomEvent('paddle_movement', {
+			detail: {
+				type: "paddle_movement",
+				direction: direction,
+				paddle: paddle,
+			},
+		});
+		window.dispatchEvent(paddleMovementEvent);
+		lastRan[key] = now;
+	}
 }
 
 function sendPaddleMovement() {
 	const throttleLimit = 10;
 
-    for (const key in paddle1Keys) {
-        if (paddle1Keys[key]) {
-            const direction = key == 87 ? "UP" : "DOWN";
-            throttledDispatchEventPerKey(key, direction, "paddle1", throttleLimit);
-        }
-    }
+	for (const key in paddle1Keys) {
+		if (paddle1Keys[key]) {
+			const direction = key == 87 ? "UP" : "DOWN";
+			throttledDispatchEventPerKey(key, direction, "paddle1", throttleLimit);
+		}
+	}
 
-    for (const key in paddle2Keys) {
-        if (paddle2Keys[key]) {
-            const direction = key == 38 ? "UP" : "DOWN";
-            throttledDispatchEventPerKey(key, direction, "paddle2", throttleLimit);
-        }
-    }
+	if (gameMode == "local")
+	{
+		for (const key in paddle2Keys) {
+			if (paddle2Keys[key]) {
+				const direction = key == 38 ? "UP" : "DOWN";
+				throttledDispatchEventPerKey(key, direction, "paddle2", throttleLimit);
+			}
+		}
+	}
+
 }
 
 export function initPaddleEventDispatch() {
@@ -319,10 +323,6 @@ function showGameOverScreen() {
 	}
 
 	removeEventListeners();
-
-	// if (gameMode == "tournament") {
-	// 	handleTournamentGameOver();
-	// }
 }
 
 function hideGameOverScreen() {
