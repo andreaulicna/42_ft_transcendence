@@ -94,9 +94,12 @@ export function redirectToHome(event) {
 	const accessToken = sessionStorage.getItem('access');
 	// If user is logged in, go to dashboard, otherwise to login page
 	if (accessToken) {
-		// If a player is inside a game, don't allow redirection
-		// if (window.location.hash == '#game' || window.location.hash == '#lobby-game' || window.location.hash == '#lobby-tnmt')
-		// 	return;
+		// If a player is inside a lobby, they can only be redirected via the Cancel button
+		if (window.location.hash == '#lobby-game' || window.location.hash == '#lobby-tnmt')
+			return;
+		// If a player is inside a live game, they will be asked to confirm first
+		if (window.location.hash == '#game' && !confirm("Do you really want to leave an ongoing game?"))
+			return;
 		window.location.hash = '#dashboard';
 	} else {
 		window.location.hash = '#login';
