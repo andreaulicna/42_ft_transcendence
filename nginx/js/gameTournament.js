@@ -21,6 +21,9 @@ import {
 	hideGameOverScreen,
 	resetScore,
 
+	replayButton,
+	mainMenuButton,
+
 	isTouchDevice,
 } from './gameCore.js';
 
@@ -47,8 +50,9 @@ export async function init() {
 		initTouchControls(player1Data);
 		console.log("TOUCH CONTROLS ENABLED");
 	}
-	// Replay for tournament disabled
+	// Game over buttons are disabled in tournament mode
 	replayButton.style.display = "none";
+	mainMenuButton.style.display = "none";
 }
 
 async function initMatchData(data) {
@@ -72,6 +76,7 @@ function initTournamentEventListeners()
 	addTournamentMatchEndListener();
 	window.addEventListener('tournament_end', handleTournamentEnd);
 	window.addEventListener('match_end', handleTournamentGameOver);
+	window.addEventListener('match_start', resetGame);
 }
 
 export function handleTournamentGameOver() {
@@ -85,8 +90,6 @@ export function handleTournamentGameOver() {
 		dispatchWinnerMatchEnd(winnerID, matchID);
 		// if (tournamentRoundNumber >= tournamentRoundMax)
 		// 	window.location.hash = "winner-tnmt";
-		hideGameOverScreen();
-		resetGame();
 	} else if (sessionStorage.getItem("id") == loserID) {
 		closeTournamentWebsocket();
 		window.location.hash = '#dashboard';
@@ -113,6 +116,7 @@ function handleTournamentEnd() {
 	if (sessionStorage.getItem("id") == winnerID)
 	{
 		window.location.hash = "winner-tnmt";
+		mainMenuButton.style.display = "block";
 	}
 	else if (sessionStorage.getItem("id") == loserID)
 	{
@@ -125,4 +129,6 @@ async function resetGame() {
 	resetScore();
 	let data = await apiCallAuthed(`/api/user/match/${sessionStorage.getItem("match_id")}`);
 	initMatchData(data);
+	hideGameOverScreen();
+	startCountdown();
 }

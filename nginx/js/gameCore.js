@@ -34,7 +34,7 @@ let scoreText;
 let gameOverScreen;
 let winnerName;
 export let replayButton;
-let mainMenuButton;
+export let mainMenuButton;
 
 export let player1Data;
 export let player2Data;

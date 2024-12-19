@@ -49,6 +49,11 @@ async function openWebSocket(url, type) {
 					const drawEvent = new CustomEvent('draw', { detail: data });
 					window.dispatchEvent(drawEvent);
 				}
+				else if (data.type === "match_start")
+				{
+					const matchStartEvent = new CustomEvent('match_start');
+					window.dispatchEvent(matchStartEvent);
+				}
 				else if (data.type === "match_end")
 				{
 					const matchEndEvent = new CustomEvent('match_end');
