@@ -1,5 +1,5 @@
-from .models import CustomUser, Match, LocalMatch, Friendship
-from .serializers import UserSerializer, MatchSerializer, FriendshipSerializer, FriendshipListSerializer, MatchStartSerializer, LocalMatchStartSerializer, OtherUserSerializer
+from .models import CustomUser, Match, LocalMatch, AIMatch, Friendship
+from .serializers import UserSerializer, MatchSerializer, FriendshipSerializer, FriendshipListSerializer, MatchStartSerializer, LocalMatchStartSerializer, AIMatchStartSerializer, OtherUserSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -215,6 +215,15 @@ class LocalMatchStartView(APIView):
 		try:
 			match = get_object_or_404(LocalMatch, pk=pk)
 			match_serializer = LocalMatchStartSerializer(match)
+			return Response(match_serializer.data)
+		except Http404:
+			return Response({'detail' : 'Match not found'}, status=status.HTTP_404_NOT_FOUND)
+
+class AIMatchStartView(APIView):
+	def get(self, request, pk):
+		try:
+			match = get_object_or_404(AIMatch, pk=pk)
+			match_serializer = AIMatchStartSerializer(match)
 			return Response(match_serializer.data)
 		except Http404:
 			return Response({'detail' : 'Match not found'}, status=status.HTTP_404_NOT_FOUND)

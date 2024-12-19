@@ -152,6 +152,11 @@ export async function fetchPlayer2Data(data)
 	player2Data = await apiCallAuthed(`api/user/${data.player2}/info`);
 }
 
+export async function fetchCreatorData(data)
+{
+	player1Data = await apiCallAuthed(`api/user/${data.creator}/info`);
+}
+
 export function setPlayer1Name(player1Name)
 {
 	player1.name = player1Name;

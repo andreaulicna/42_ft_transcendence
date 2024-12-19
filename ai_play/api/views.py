@@ -25,6 +25,6 @@ class CreateAIMatchView(APIView):
 		match_serializer = AIMatchSerializer(data=data)
 		if match_serializer.is_valid():
 			match_serializer.save()
-			return Response({'detail': 'Local match created and ready to play.', 'match_id': match_serializer.data['id']}, status=status.HTTP_201_CREATED)
+			return Response({'detail': 'AI match created and ready to play.', 'match_id': match_serializer.data['id']}, status=status.HTTP_201_CREATED)
 		else:
 			return Response(match_serializer.errors, status=status.HTTP_400_BAD_REQUEST)

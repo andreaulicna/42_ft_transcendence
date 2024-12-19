@@ -133,6 +133,17 @@ export async function openLocalPlayWebsocket(match_id) {
 	});
 }
 
+export async function openAIPlayWebsocket(match_id) {
+	const url = "/api/ws/ai/" + match_id + "/";
+	openWebSocket(url, "aiplay").then((ws) => {
+		pongWebSocket = ws;
+		console.log('AIPlay WebSocket established');
+		window.location.hash = '#game';
+	}).catch((error) => {
+		console.error('Failed to establish AIPlay WebSocket:', error);
+	});
+}
+
 function closeWebSocket(ws) {
 	if (ws && ws.readyState === WebSocket.OPEN) {
 		ws.close();
