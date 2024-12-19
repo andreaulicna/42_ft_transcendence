@@ -1,6 +1,4 @@
 import { openFriendlistWebsocket } from './websockets.js';
-import { showLoading } from "./animations.js";
-import { hideLoading } from "./animations.js";
 
 export function init() {
 	const form = document.getElementById('loginForm');
@@ -49,6 +47,14 @@ async function loginUser(payload) {
 		const response = await fetch(url, options);
 		if (response.ok) {
 			const data = await response.json();
+			console.log(data);
+			if (data.otp_required)
+			{
+				console.log("ENTERING 2FA");
+				sessionStorage.setItem('login_payload', JSON.stringify(payload));
+				window.location.hash = '#2fa';
+			}
+
 			const accessToken = data.access;
 
 			// Decode the JWT to get the expiration time

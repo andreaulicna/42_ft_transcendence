@@ -9,6 +9,70 @@ export function init(data) {
 		document.getElementById('profilePic').src = data.avatar;
 	
 	handleProfilePicUpload();
+	handle2FA(data);
+}
+
+async function handle2FA(data) {
+	const generateBtn = document.getElementById('generateQrCodeButton');
+	const qrCodeImage = document.getElementById('qrCodeImage');
+	const qrCodeContainer = document.getElementById('qrCodeContainer');
+	const multifactorEnableForm = document.getElementById('2faFormEnable');
+	const multifactorDisableForm = document.getElementById('2faFormDisable');
+
+	if (!data.two_factor)
+	{
+		multifactorEnableForm.style.display = "block";
+		multifactorDisableForm.style.display = "none";
+	}
+	else
+	{
+		multifactorEnableForm.style.display = "none";
+		multifactorDisableForm.style.display = "block";
+	}
+
+	// QR code generation
+	generateBtn.addEventListener('click', async () => {
+		try {
+			const response = await apiCallAuthed("api/user/2fa-enable", "GET");
+			qrCodeImage.src = response.qr_code;
+			qrCodeContainer.style.display = 'block';
+		} catch (error) {
+			console.error("Error generating QR code:", error);
+			alert("An error occurred while generating the QR code.");
+		}
+	});
+
+	multifactorEnableForm.addEventListener('submit', async (event) => {
+		event.preventDefault();
+		const pin = document.getElementById('pairingPinInputEnable').value;
+		try {
+			const headers = {
+				'Content-Type': 'application/json'
+			};
+			const payload = {'otp_code': pin};
+			await apiCallAuthed("api/user/2fa-enable", "POST", headers, payload);
+			alert("2FA Enabled.");
+		} catch (error) {
+			console.error("Error submitting PIN code:", error);
+			alert("An error occurred while submitting the PIN code.");
+		}
+	});
+
+	multifactorDisableForm.addEventListener('submit', async (event) => {
+		event.preventDefault();
+		const pin = document.getElementById('pairingPinInputDisable').value;
+		try {
+			const headers = {
+				'Content-Type': 'application/json'
+			};
+			const payload = {'otp_code': pin};
+			await apiCallAuthed("api/user/2fa-disable", "POST", headers, payload);
+			alert("2FA Disabled.");
+		} catch (error) {
+			console.error("Error submitting PIN code:", error);
+			alert("An error occurred while submitting the PIN code.");
+		}
+	});
 }
 
 async function handleProfilePicUpload() {

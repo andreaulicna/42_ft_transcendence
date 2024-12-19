@@ -32,7 +32,7 @@ const loadContent = async (path) => {
 		setLanguage(preferredLanguage);
 
 		// Check if user is logged in first
-		if ((path != '/pages/login.html' && path != '/pages/register.html' && path != '/pages/404.html') && !sessionStorage.getItem('access')) {
+		if ((path != '/pages/login.html' && path != '/pages/2fa.html' && path != '/pages/register.html' && path != '/pages/404.html') && !sessionStorage.getItem('access')) {
 			window.location.hash = '#login';
 			throw new Error('Not logged in.');
 		}

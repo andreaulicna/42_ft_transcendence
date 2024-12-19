@@ -40,17 +40,27 @@
 		</div>
 		<hr class="my-4 "  style="max-width: 360px">
 		<div class="row mb-2">
-			<form id="2faForm">
+			<form id="2faFormEnable">
 				<div class="mb-3">
 					<p>Setup 2FA</p>
 					<button type="button" id="generateQrCodeButton" class="btn btn-prg">Generate QR Code</button>
 					<div id="qrCodeContainer" class="mt-3" style="display: none;">
 						<img id="qrCodeImage" src="" alt="QR Code" class="img-fluid">
 						<div class="mt-3">
-							<label for="pairingPinInput" class="form-label">Enter Pairing PIN</label>
-							<input type="text" id="pairingPinInput" class="form-control" placeholder="Enter PIN">
-							<button type="submit" class="btn btn-success mt-2">Submit</button>
+							<label for="pairingPinInput" class="form-label">Enter Pairing PIN to Enable 2FA</label>
+							<input type="text" id="pairingPinInputEnable" class="form-control" placeholder="Enter PIN">
+							<button type="submit" class="btn btn-prg mt-2">Submit</button>
 						</div>
+					</div>
+				</div>
+			</form>
+			<form id="2faFormDisable" style="display: none;">
+				<div class="mb-3">
+					<p>Disable 2FA</p>
+					<div class="mt-3">
+						<label for="pairingPinInput" class="form-label">Enter Pairing PIN to Disable 2FA</label>
+						<input type="text" id="pairingPinInputDisable" class="form-control" placeholder="Enter PIN">
+						<button type="submit" class="btn btn-prg mt-2">Submit</button>
 					</div>
 				</div>
 			</form>
