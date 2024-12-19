@@ -2,14 +2,16 @@ import { apiCallAuthed } from './api.js';
 import { textDynamicLoad } from "./animations.js";
 
 export function init(data) {
-	// LOAD DYNAMIC DATA
 	textDynamicLoad("userName", `🏓 ${data.username}`);
 	textDynamicLoad("numOfWins", `👍 ${data.win_count}`);
 	textDynamicLoad("numOfLosses", `👎 ${data.loss_count}`);
 	if (data.avatar != null)
 		document.getElementById('profilePic').src = data.avatar;
 	
-	// HANDLE PROFILE PIC UPLOAD
+	handleProfilePicUpload();
+}
+
+async function handleProfilePicUpload() {
 	const editProfilePicForm = document.getElementById("editProfilePicForm");
 	const profilePicInput = document.getElementById("profilePicInput");
 	const profilePic = document.getElementsByName("profilePic");
@@ -45,6 +47,9 @@ export function init(data) {
 				const response = await apiCallAuthed("api/user/avatar", "PUT", headers, payload);
 				console.log("PICTURE SUCCESSFULLY UPLOADED", response);
 				location.reload();
+				data = await apiCallAuthed('/api/user/info');
+				if (data.avatar != null)
+					profilePic.src = data.avatar;
 			} catch (error) {
 				console.error("Error uploading profile picture:", error);
 				alert("An error occurred while uploading the profile picture.");
@@ -56,7 +61,6 @@ export function init(data) {
 	});
 }
 
-// FILE TO BASE64 CONVERSION
 function convertToBase64(file) {
 	return new Promise((resolve, reject) => {
 		const reader = new FileReader();

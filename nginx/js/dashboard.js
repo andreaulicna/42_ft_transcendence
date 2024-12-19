@@ -6,6 +6,8 @@ export function init(data) {
 
 	// LOAD DYNAMIC DATA
 	textDynamicLoad("userName", `🏓 ${data.username}`);
+	textDynamicLoad("numOfWins", `👍 ${data.win_count}`);
+	textDynamicLoad("numOfLosses", `👎 ${data.loss_count}`);
 	if (data.avatar != null)
 		document.getElementById('profilePic').src = data.avatar;
 

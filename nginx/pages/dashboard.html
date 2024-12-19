@@ -1,9 +1,8 @@
 <div class="container-lg fadeAnimation d-flex flex-column flex-md-row">
 
-	<div class="col-md-6 d-flex flex-column align-items-center align-items-md-start">
-		<div id="userName" class="fs-3">&nbsp;</div>
-		<hr class="my-2 w-25" style="max-width: 360px">
-		<div id="menu" class="container-md d-flex flex-column align-items-center align-items-md-start fs-3 fw-bold text-uppercase">
+	<div class="col-md-6">
+		<div id="menu" class="container-md d-flex flex-column align-items-center justify-content-center fs-3 fw-bold text-uppercase h-100">
+			<hr class="my-2 w-50" style="max-width: 360px">
 			<a href="#lobby-game" id="modeLocal" class="text-decoration-none slide-right" data-mode="local">
 				<span class="fs-1">⌨️</span>
 				<span class="fs-6">vs</span>
@@ -23,7 +22,7 @@
 				<span class="fs-1">🏆</span>
 				<span data-translate="modeTournament">Tournament</span>
 			</a>
-			<hr class="my-2 w-25" style="max-width: 360px">
+			<hr class="my-2 w-50" style="max-width: 360px">
 			<a href="#profile" class="text-decoration-none slide-right">
 				<span class="fs-1">🐱</span>
 				<span data-translate="viewProfile">Profile</span>
@@ -35,6 +34,50 @@
 		</div>
 	</div>
 
-	<div class="col-md-6 d-flex flex-column align-items-center align-items-md-start">
+	<div class="col-md-6">
+		<div id="profile-section" class="container-md d-flex flex-column align-items-center justify-content-center h-100">
+			<img id="profilePic" src="assets/default_user_pfp.png" alt="User profile picture" class="d-block mx-auto p-4" style="width:150px">
+			<div id="userName" class="d-flex justify-content-center fs-4">&nbsp;</div>
+			<div class="container-sm d-flex justify-content-center gap-4">
+				<div id="numOfWins">&nbsp;</div>
+				<div id="numOfLosses">&nbsp;</div>
+			</div>
+			<hr class="my-2 w-50" style="max-width: 360px">
+			<div class="list-group fs-6 w-50">
+				<div class="list-group-item list-group-item-action">
+					<div class="d-flex w-100 justify-content-between gap-4">
+						<p class="mb-1">typeczech</p>
+						<small>🟢 online</small>
+					</div>
+				</div>
+				<div class="list-group-item list-group-item-action">
+					<div class="d-flex w-100 justify-content-between">
+						<p class="mb-1">boreczech</p>
+						<small>🔴 offline</small>
+					</div>
+				</div>
+			</div>
+			<hr class="my-2 w-50 d-flex justify-content-center" style="max-width: 360px">
+			<div class="d-flex justify-content-center list-group fs-6 w-50">
+				<div class="list-group-item list-group-item-action">
+					<div class="d-flex w-100 justify-content-between">
+						<p class="mb-1"><strong>{decision}</strong> vs <strong>{opponent_name}</strong></p>
+						<small>{date}</small>
+					</div>
+				</div>
+				<div class="list-group-item list-group-item-action">
+					<div class="d-flex w-100 justify-content-between">
+						<p class="mb-1"><strong>👍 WIN</strong> vs <strong>typeczech</strong></p>
+						<small>01/01/2020</small>
+					</div>
+				</div>
+				<div class="list-group-item list-group-item-action">
+					<div class="d-flex w-100 justify-content-between">
+						<p class="mb-1"><strong>👎 LOSS</strong> vs <strong>boreczech</strong></p>
+						<small>23/02/2032</small>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 </div>
