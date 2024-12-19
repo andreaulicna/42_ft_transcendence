@@ -228,6 +228,10 @@ function drawBall(ball) {
 	ctx.shadowColor = 'transparent';
 }
 
+export function resetScore() {
+	scoreText.textContent = `0 : 0`;
+}
+
 function updateScore() {
 	if (player1.score == undefined || player2.score == undefined)
 		scoreText.textContent = `0 : 0`;
@@ -278,7 +282,6 @@ function sendPaddleMovement() {
 			}
 		}
 	}
-
 }
 
 export function initPaddleEventDispatch() {
@@ -322,10 +325,10 @@ function showGameOverScreen() {
 		touchControlsPlayer2.style.display = 'none';
 	}
 
-	removeEventListeners();
+	// removeEventListeners();
 }
 
-function hideGameOverScreen() {
+export function hideGameOverScreen() {
 	gameOverScreen.style.display = "none";
 	gameBoard.style.display = "block";
 	playerNames.style.visibility = "visible";

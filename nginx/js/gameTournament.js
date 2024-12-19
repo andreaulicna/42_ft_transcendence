@@ -18,6 +18,8 @@ import {
 	drawTick,
 	delay,
 	startCountdown,
+	hideGameOverScreen,
+	resetScore,
 
 	isTouchDevice,
 } from './gameCore.js';
@@ -25,7 +27,7 @@ import {
 import { initTouchControls } from './gameTouchControls.js';
 import { apiCallAuthed } from './api.js';
 import { textDynamicLoad } from "./animations.js";
-import { addTournamentMatchEndListener } from "./websockets.js";
+import { addTournamentMatchEndListener, closeTournamentWebsocket } from "./websockets.js";
 
 let tournamentRoundNumber = 0;
 const tournamentCapacity = parseInt(sessionStorage.getItem("tournament_capacity"), 10);
@@ -84,6 +86,7 @@ export function handleTournamentGameOver() {
 		// if (tournamentRoundNumber >= tournamentRoundMax)
 		// 	window.location.hash = "winner-tnmt";
 		hideGameOverScreen();
+		resetGame();
 	} else if (sessionStorage.getItem("id") == loserID) {
 		closeTournamentWebsocket();
 		window.location.hash = '#dashboard';
@@ -115,4 +118,11 @@ function handleTournamentEnd() {
 	{
 		window.location.hash = '#dashboard';
 	}
+}
+
+async function resetGame() {
+	drawTick();
+	resetScore();
+	let data = await apiCallAuthed(`/api/user/match/${sessionStorage.getItem("match_id")}`);
+	initMatchData(data);
 }
