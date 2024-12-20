@@ -44,40 +44,75 @@
 				<div id="numOfLosses">&nbsp;</div>
 			</div>
 			<hr class="my-2 w-50" style="max-width: 360px">
-			<div class="list-group fs-6 w-50">
-				<div class="list-group-item list-group-item-action">
-					<div class="d-flex w-100 justify-content-between gap-4">
-						<p class="mb-1">typeczech</p>
-						<small>🟢 online</small>
-					</div>
-				</div>
-				<div class="list-group-item list-group-item-action">
-					<div class="d-flex w-100 justify-content-between">
-						<p class="mb-1">boreczech</p>
-						<small>🔴 offline</small>
-					</div>
-				</div>
+			<div class="d-flex gap-2">
+				<button type="button" id="friendlistButton" class="btn btn-prg" data-bs-toggle="modal" data-bs-target="#friendListModal">Friendlist</button>
+				<button type="button" id="matchHistoryButton" class="btn btn-prg" data-bs-toggle="modal" data-bs-target="#matchHistoryModal">Match History</button>
 			</div>
-			<hr class="my-2 w-50 d-flex justify-content-center" style="max-width: 360px">
-			<div class="d-flex justify-content-center list-group fs-6 w-50">
-				<div class="list-group-item list-group-item-action">
-					<div class="d-flex w-100 justify-content-between">
-						<p class="mb-1"><strong>{decision}</strong> vs <strong>{opponent_name}</strong></p>
-						<small>{date}</small>
-					</div>
+		</div>
+	</div>
+</div>
+
+<!-- Friendlist modal -->
+<div class="modal fade" id="friendListModal" tabindex="-1" aria-labelledby="friendListModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+	  <div class="modal-content">
+		<div class="modal-header">
+		  <h5 class="modal-title" id="friendListModalLabel">Friendlist</h5>
+		  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		</div>
+		<div class="modal-body">
+			<p>Add Friends</p>
+			<form class="mb-4" id="friendAddForm">
+				<div class="form-group d-flex gap-2">
+					<input type="text" class="form-control" id="friendAddInput" placeholder="Provide friend's username">
+					<button type="submit" class="btn btn-prg">Add</button>
 				</div>
-				<div class="list-group-item list-group-item-action">
-					<div class="d-flex w-100 justify-content-between">
-						<p class="mb-1"><strong>👍 WIN</strong> vs <strong>typeczech</strong></p>
-						<small>01/01/2020</small>
-					</div>
-				</div>
-				<div class="list-group-item list-group-item-action">
-					<div class="d-flex w-100 justify-content-between">
-						<p class="mb-1"><strong>👎 LOSS</strong> vs <strong>boreczech</strong></p>
-						<small>23/02/2032</small>
-					</div>
-				</div>
+			</form>
+			<p>Available Friends</p>
+			<ul class="list-group" id="friendlistList">
+
+			</ul>
+		</div>
+	</div>
+</div>
+
+<!-- Match history modal -->
+<div class="modal fade" id="matchHistoryModal" tabindex="-1" aria-labelledby="matchHistoryModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="matchHistoryModalLabel">Match History</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<ul class="list-group">
+					<li class="list-group-item">Friend 1</li>
+					<li class="list-group-item">Friend 2</li>
+					<li class="list-group-item">Friend 3</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Friendship toast -->
+<div class="toast-container position-static">
+	<div class="toast-container position-fixed bottom-0 end-0 p-3">
+		<div id="friendRequestToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+			<div class="toast-header">
+				<strong class="me-auto" id="friendRequestToastHeader">Friend request</strong>
+				<button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+			</div>
+			<div class="toast-body" id="friendRequestToastMsg">
+				Someone wants to be your friend!
+			</div>
+			<div class="d-flex">
+				<button type="button" id="friendAcceptButton" class="btn btn-prg">
+					Accept
+				</button>
+				<button type="button" id="friendRejectButton" class="btn btn-prg">
+					Reject
+				</button>
 			</div>
 		</div>
 	</div>
