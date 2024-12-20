@@ -109,6 +109,9 @@ export function initGameData(data) {
 	replayButton = document.getElementById("replayButton");
 	mainMenuButton = document.getElementById("mainMenuButton");
 
+	replayButton.style.display = "block";
+	mainMenuButton.style.display = "block";
+
 	isTouchDevice = 'ontouchstart' in window;
 
 	// Touch controls need to be reworked
