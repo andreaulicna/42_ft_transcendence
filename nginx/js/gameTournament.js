@@ -52,7 +52,6 @@ export async function init() {
 	}
 	// Game over buttons are disabled in tournament mode
 	replayButton.style.display = "none";
-	mainMenuButton.style.display = "none";
 }
 
 async function initMatchData(data) {
@@ -88,11 +87,12 @@ export function handleTournamentGameOver() {
 	const loserID = player1.score > player2.score ? player2Data.id : player1Data.id;
 	if (sessionStorage.getItem("id") == winnerID) {
 		dispatchWinnerMatchEnd(winnerID, matchID);
+		mainMenuButton.style.display = "none";
 		// if (tournamentRoundNumber >= tournamentRoundMax)
 		// 	window.location.hash = "winner-tnmt";
 	} else if (sessionStorage.getItem("id") == loserID) {
 		closeTournamentWebsocket();
-		window.location.hash = '#dashboard';
+		// window.location.hash = '#dashboard';
 	}
 }
 
@@ -118,10 +118,10 @@ function handleTournamentEnd() {
 		window.location.hash = "winner-tnmt";
 		mainMenuButton.style.display = "block";
 	}
-	else if (sessionStorage.getItem("id") == loserID)
-	{
-		window.location.hash = '#dashboard';
-	}
+	// else if (sessionStorage.getItem("id") == loserID)
+	// {
+	// 	window.location.hash = '#dashboard';
+	// }
 }
 
 async function resetGame() {
@@ -130,5 +130,6 @@ async function resetGame() {
 	let data = await apiCallAuthed(`/api/user/match/${sessionStorage.getItem("match_id")}`);
 	initMatchData(data);
 	hideGameOverScreen();
+	mainMenuButton.style.display = "block";
 	startCountdown();
 }
