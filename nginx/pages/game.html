@@ -10,13 +10,15 @@
 		<canvas id="gameBoard" width="800" height="500"></canvas>
 	</div>
 	<!-- Touch Controls -->
-	<div id="touchControlsPlayer1" class="touch-controls">
-		<button id="player1Up" class="control-button blueSide">🔼</button>
-		<button id="player1Down" class="control-button blueSide">🔽</button>
-	</div>
-	<div id="touchControlsPlayer2" class="touch-controls">
-		<button id="player2Up" class="control-button redSide">🔼</button>
-		<button id="player2Down" class="control-button redSide">🔽</button>
+	<div class="d-flex">
+		<div id="touchControlsPlayer1" class="touch-controls d-flex flex-column align-items-center">
+			<button id="player1Up" class="control-button">🔼</button>
+			<button id="player1Down" class="control-button">🔽</button>
+		</div>
+		<div id="touchControlsPlayer2" class="touch-controls d-flex flex-column align-items-center">
+			<button id="player2Up" class="control-button">🔼</button>
+			<button id="player2Down" class="control-button">🔽</button>
+		</div>
 	</div>
 	<!-- Game Over Screen -->
 	<div id="gameOverScreen" style="display:none">

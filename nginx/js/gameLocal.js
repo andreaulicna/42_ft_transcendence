@@ -1,5 +1,4 @@
 import {
-	player1Data,
 	player1,
 	player2,
 	setPlayer1Name,
@@ -9,14 +8,10 @@ import {
 	initEventListeners,
 	initPaddleEventDispatch,
 	drawTick,
-	delay,
 	startCountdown,
 	replayButton,
-
-	isTouchDevice,
 } from './gameCore.js';
 
-import { initTouchControls } from './gameTouchControls.js';
 import { apiCallAuthed } from './api.js';
 import { textDynamicLoad } from "./animations.js";
 
@@ -28,11 +23,6 @@ export async function init() {
 	initLocalData(data);
 	initPaddleEventDispatch();
 	drawTick();
-	if (isTouchDevice) {
-		await delay(100);
-		initTouchControls(player1Data);
-		console.log("TOUCH CONTROLS ENABLED");
-	}
 	// Replay for local matches disabled (needs to be reworked first)
 	replayButton.style.display = "none";
 }

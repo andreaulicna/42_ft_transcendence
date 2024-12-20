@@ -16,18 +16,14 @@ import {
 	initEventListeners,
 	initPaddleEventDispatch,
 	drawTick,
-	delay,
 	startCountdown,
 	hideGameOverScreen,
 	resetScore,
 
 	replayButton,
 	mainMenuButton,
-
-	isTouchDevice,
 } from './gameCore.js';
 
-import { initTouchControls } from './gameTouchControls.js';
 import { apiCallAuthed } from './api.js';
 import { textDynamicLoad } from "./animations.js";
 import { addTournamentMatchEndListener, closeTournamentWebsocket } from "./websockets.js";
@@ -45,11 +41,6 @@ export async function init() {
 	initMatchData(data);
 	initPaddleEventDispatch();
 	drawTick();
-	if (isTouchDevice) {
-		await delay(100);
-		initTouchControls(player1Data);
-		console.log("TOUCH CONTROLS ENABLED");
-	}
 	// Game over buttons are disabled in tournament mode
 	replayButton.style.display = "none";
 }
