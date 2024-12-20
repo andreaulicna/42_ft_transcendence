@@ -28,6 +28,7 @@ let paddle2 = {};
 let paddle1Color;
 let paddle2Color;
 let ballColor;
+let paddleAnimationFrame;
 
 let playerNames;
 let scoreText;
@@ -124,7 +125,7 @@ export function initEventListeners() {
 	window.addEventListener("keyup", handleKeyUp);
 	window.addEventListener('draw', handleDraw);
 	window.addEventListener('match_end', showGameOverScreen);
-	window.addEventListener('match_end', clearPaddleDispatchInterval);
+	window.addEventListener('match_end', stopPaddleEventDispatch);
 	mainMenuButton.addEventListener("click", () => {
 		window.location.hash = '#dashboard';
 	});
@@ -284,11 +285,18 @@ function sendPaddleMovement() {
 }
 
 export function initPaddleEventDispatch() {
-	paddleDispatchInterval = setInterval(sendPaddleMovement, 16);
+    function sendPaddleMovementFrame() {
+        sendPaddleMovement();
+        paddleAnimationFrame = requestAnimationFrame(sendPaddleMovementFrame);
+    }
+
+    paddleAnimationFrame = requestAnimationFrame(sendPaddleMovementFrame);
 }
 
-function clearPaddleDispatchInterval() {
-	clearInterval(paddleDispatchInterval);
+function stopPaddleEventDispatch() {
+    if (paddleAnimationFrame) {
+        cancelAnimationFrame(paddleAnimationFrame);
+    }
 }
 
 /* 👇 MENUS & REMATCH & NON-GAME LOGIC */
