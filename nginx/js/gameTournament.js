@@ -16,18 +16,14 @@ import {
 	initEventListeners,
 	initPaddleEventDispatch,
 	drawTick,
-	delay,
 	startCountdown,
 	hideGameOverScreen,
 	resetScore,
 
 	replayButton,
 	mainMenuButton,
-
-	isTouchDevice,
 } from './gameCore.js';
 
-import { initTouchControls } from './gameTouchControls.js';
 import { apiCallAuthed } from './api.js';
 import { textDynamicLoad } from "./animations.js";
 import { addTournamentMatchEndListener, closeTournamentWebsocket } from "./websockets.js";
@@ -45,14 +41,8 @@ export async function init() {
 	initMatchData(data);
 	initPaddleEventDispatch();
 	drawTick();
-	if (isTouchDevice) {
-		await delay(100);
-		initTouchControls(player1Data);
-		console.log("TOUCH CONTROLS ENABLED");
-	}
 	// Game over buttons are disabled in tournament mode
 	replayButton.style.display = "none";
-	mainMenuButton.style.display = "none";
 }
 
 async function initMatchData(data) {
@@ -88,11 +78,12 @@ export function handleTournamentGameOver() {
 	const loserID = player1.score > player2.score ? player2Data.id : player1Data.id;
 	if (sessionStorage.getItem("id") == winnerID) {
 		dispatchWinnerMatchEnd(winnerID, matchID);
+		mainMenuButton.style.display = "none";
 		// if (tournamentRoundNumber >= tournamentRoundMax)
 		// 	window.location.hash = "winner-tnmt";
 	} else if (sessionStorage.getItem("id") == loserID) {
 		closeTournamentWebsocket();
-		window.location.hash = '#dashboard';
+		// window.location.hash = '#dashboard';
 	}
 }
 
@@ -118,10 +109,10 @@ function handleTournamentEnd() {
 		window.location.hash = "winner-tnmt";
 		mainMenuButton.style.display = "block";
 	}
-	else if (sessionStorage.getItem("id") == loserID)
-	{
-		window.location.hash = '#dashboard';
-	}
+	// else if (sessionStorage.getItem("id") == loserID)
+	// {
+	// 	window.location.hash = '#dashboard';
+	// }
 }
 
 async function resetGame() {
@@ -130,5 +121,6 @@ async function resetGame() {
 	let data = await apiCallAuthed(`/api/user/match/${sessionStorage.getItem("match_id")}`);
 	initMatchData(data);
 	hideGameOverScreen();
+	mainMenuButton.style.display = "block";
 	startCountdown();
 }

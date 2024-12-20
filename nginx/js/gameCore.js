@@ -17,8 +17,8 @@ let gameHeight;
 let scaleX; // Calculate the drawing scale for client's viewport
 let scaleY;
 export let matchID;
-let paddle1Keys = {};
-let paddle2Keys = {};
+export let paddle1Keys = {};
+export let paddle2Keys = {};
 let lastRan = {};
 let paddleDispatchInterval;
 
@@ -28,6 +28,7 @@ let paddle2 = {};
 let paddle1Color;
 let paddle2Color;
 let ballColor;
+let paddleAnimationFrame;
 
 let playerNames;
 let scoreText;
@@ -109,15 +110,14 @@ export function initGameData(data) {
 	replayButton = document.getElementById("replayButton");
 	mainMenuButton = document.getElementById("mainMenuButton");
 
+	replayButton.style.display = "block";
+	mainMenuButton.style.display = "block";
+
 	isTouchDevice = 'ontouchstart' in window;
-
-	// Touch controls need to be reworked
-
-	// if (isTouchDevice) {
-	// 	await delay(100);
-	// 	initTouchControls(player1Data);
-	// 	console.log("TOUCH CONTROLS ENABLED");
-	// }
+	if (isTouchDevice) {
+		initTouchControls();
+		console.log("TOUCH CONTROLS ENABLED");
+	}
 }
 
 export function initEventListeners() {
@@ -125,7 +125,7 @@ export function initEventListeners() {
 	window.addEventListener("keyup", handleKeyUp);
 	window.addEventListener('draw', handleDraw);
 	window.addEventListener('match_end', showGameOverScreen);
-	window.addEventListener('match_end', clearPaddleDispatchInterval);
+	window.addEventListener('match_end', stopPaddleEventDispatch);
 	mainMenuButton.addEventListener("click", () => {
 		window.location.hash = '#dashboard';
 	});
@@ -290,11 +290,18 @@ function sendPaddleMovement() {
 }
 
 export function initPaddleEventDispatch() {
-	paddleDispatchInterval = setInterval(sendPaddleMovement, 16);
+    function sendPaddleMovementFrame() {
+        sendPaddleMovement();
+        paddleAnimationFrame = requestAnimationFrame(sendPaddleMovementFrame);
+    }
+
+    paddleAnimationFrame = requestAnimationFrame(sendPaddleMovementFrame);
 }
 
-function clearPaddleDispatchInterval() {
-	clearInterval(paddleDispatchInterval);
+function stopPaddleEventDispatch() {
+    if (paddleAnimationFrame) {
+        cancelAnimationFrame(paddleAnimationFrame);
+    }
 }
 
 /* 👇 MENUS & REMATCH & NON-GAME LOGIC */
@@ -326,8 +333,8 @@ function showGameOverScreen() {
 	playerNames.style.visibility = "hidden";
 	scoreText.style.display = "none";
 	if (isTouchDevice) {
-		touchControlsPlayer1.style.display = 'none';
-		touchControlsPlayer2.style.display = 'none';
+		touchControlsPlayer1.style.setProperty('display', 'none', 'important');
+		touchControlsPlayer2.style.setProperty('display', 'none', 'important');
 	}
 
 	// removeEventListeners();
@@ -351,6 +358,6 @@ async function replayGame() {
 }
 
 // Function to create a delay
-export function delay(ms) {
+export async function delay(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
