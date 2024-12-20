@@ -60,6 +60,8 @@ const loadContent = async (path) => {
 				await import('/js/gameAI.js').then(module => module.init());
 			else if (mode == "remote")
 				await import('/js/gameRemote.js').then(module => module.init());
+			else if (mode == "rematch")
+				await import('/js/gameRemote.js').then(module => module.init());
 			else if (mode == "tournament")
 				await import('/js/gameTournament.js').then(module => module.init());
 		} else if (window.location.hash === '#tournament') {
