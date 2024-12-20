@@ -6,10 +6,13 @@ import json
 from django.shortcuts import get_object_or_404
 from asgiref.sync import sync_to_async
 import asyncio, logging
-from .pong_collision import paddle_collision
+from .pong_collision import paddle_collision, ball_collision_point
 import math
 from .pong_collision import PongGame
 import random
+from django.utils import timezone
+import time
+from .utils import Vector2D, get_line_intersection
 
 match_rooms = []
 
@@ -23,6 +26,95 @@ class Player:
 
 	def __repr__(self):
 		return f"Player(id={self.id}, username={self.username})"
+	
+class Prediction:
+	def __init__(self):
+		self.direction = Vector2D(0, 0)
+		self.exact = Vector2D(0, 0)
+		self.position = Vector2D(0, 0)
+		self.since = 0
+		self.size = 0
+
+class AIPlayer:
+	def __init__(self, level):
+		self.levels = [
+			{"aiReaction": 0.3, "aiError":  60}, # 0: ai is losing by 3
+			{"aiReaction": 0.4, "aiError":  70}, # 1: ai is losing by 2
+			{"aiReaction": 0.5, "aiError":  80}, # 2: ai is losing by 1
+			{"aiReaction": 0.6, "aiError":  90}, # 3: tie
+			{"aiReaction": 0.7, "aiError": 100}, # 4: ai is winning by 1
+			{"aiReaction": 0.8, "aiError": 110}, # 5: ai is winning by 2
+			{"aiReaction": 0.9, "aiError": 120}, # 6: ai is winning by 3
+		]
+		self.level = self.levels[level]
+		self.username = "AI"
+		self.score = 0
+		self.prediction = None
+
+
+	def predict(self, dt, ball, paddle):
+		# only re-predict if the ball changed direction, or its been some amount of time since last prediction
+		if (
+			self.prediction and self.prediction.position and
+			(self.prediction.direction.x * ball.direction.x) > 0 and
+			(self.prediction.direction.y * ball.direction.y) > 0 and
+			(self.prediction.since < self.level['aiReaction'])
+		):
+			self.prediction.since += dt
+			return
+		
+		self.prediction = Prediction()
+		paddle_left = paddle.position.x - paddle.paddle_half_width
+		collision_point = ball_collision_point(ball)
+		far_collision_point = collision_point + (ball.direction * 1000) # QUESTION - is such an arbitrary number of?
+		
+		pt = get_line_intersection(paddle_left, -1000, paddle_left, 1000, collision_point.x, collision_point.y, far_collision_point.x, far_collision_point.y)
+		logging.info(f"Ball direction: {ball.direction}")
+		logging.info(f"Paddle position: {paddle.position}")
+		logging.info(f"Paddle left: {paddle_left}")
+		logging.info(f"Collision point: {collision_point}")
+		logging.info(f"Far point: {far_collision_point}")
+		logging.info(f"Intersection point: {pt}")
+
+		if (pt):
+			court_top, court_bottom = -50, 50  # Assuming court boundaries
+			while pt.y < court_top or pt.y > court_bottom:
+				if pt.y < court_top:
+					pt.y = court_top + (court_top - pt.y)
+				elif pt.y > court_bottom:
+					pt.y = court_bottom - (pt.y - court_bottom)
+			self.prediction.position = pt
+		else:
+			self.prediction.position = None
+
+		if (self.prediction.position):
+			self.prediction.since = 0
+			self.prediction.direction.x = ball.direction.x
+			self.prediction.direction.y = ball.direction.y
+			if (ball.direction.x < 0):
+				closeness = (ball.position.x - paddle_left) / 160
+			else:
+				closeness = (paddle_left - ball.position.x) / 160
+			error = self.level['aiError'] * closeness
+			self.prediction.position.y += random.uniform(-error, error)
+			logging.info(f"Prediction made: {self.prediction.position}")
+		else:
+			logging.info("No prediction made.")
+
+	def move_ai_paddle(self, paddle):
+		if not self.prediction.position:
+			return
+
+		paddle_center = paddle.position.y + paddle.paddle_half_height
+
+		if self.prediction.position.y < paddle_center - 5:
+			if paddle.position.y > (50 - paddle.paddle_half_height) * (-1):
+				paddle.position.y -= paddle.paddle_speed
+		elif self.prediction.position.y > paddle_center + 5:
+			if paddle.position.y < (50 - paddle.paddle_half_height):
+				paddle.position.y += paddle.paddle_speed
+		else:
+			pass
 
 @database_sync_to_async
 def create_match_room(match_id, player_id):
@@ -30,7 +122,7 @@ def create_match_room(match_id, player_id):
 	if match_database.creator.id == player_id:
 		logging.info(f'Added creator with id {player_id} to match {match_id}')
 		player1 = Player(player_id, match_database.creator.username)
-		player2 = Player(0, "AI")
+		player2 = AIPlayer(3)
 	else:
 		raise ValueError(f"Player ID {player_id} does not match any players in match {match_id}")
 
@@ -61,13 +153,13 @@ def set_match_status(match, matchStatus):
 	match.save(update_fields=['status'])
 
 @database_sync_to_async
-def set_match_winner(match):
-	if match.player1_score > match.player2_score:
-		match.winner = match.player1_tmp_username
+def set_match_winner(match_database):
+	if match_database.player1_score > match_database.player2_score:
+		match_database.winner = match_database.creator.username
 	else:
-		match.winner = "AI"
-	match.status = AIMatch.StatusOptions.FINISHED
-	match.save(update_fields=['winner', 'status'])
+		match_database.winner = "AI"
+	match_database.status = AIMatch.StatusOptions.FINISHED
+	match_database.save(update_fields=['winner', 'status'])
 
 @database_sync_to_async
 def get_match_status(match_id):
@@ -193,10 +285,16 @@ class AIPlayConsumer(AsyncWebsocketConsumer):
 		ball = match_room.ball
 		paddle1 = match_room.paddle1
 		paddle2 = match_room.paddle2
+		ai_player = match_room.player2
 		
 		while 42:
 			if match_room.player1 is None:
 				break
+
+			match_room.start_timestamp = timezone.now()
+			dt = (match_room.start_timestamp - match_room.last_frame).total_seconds()
+			ai_player.predict(dt, ball, paddle2)
+			ai_player.move_ai_paddle(paddle2)
 
 			# Ball collision with floor & ceiling
 			if (ball.position.y > (match_room.GAME_HALF_HEIGHT - (ball.size / 2))) or ((ball.position.y < ((match_room.GAME_HALF_HEIGHT - (ball.size / 2))) * (-1))):
@@ -253,6 +351,7 @@ class AIPlayConsumer(AsyncWebsocketConsumer):
 			if match_database.player1_score >= 3 or match_database.player2_score >= 3:
 				await set_match_winner(match_database)
 				break
+			match_room.last_frame = match_room.start_timestamp
 
 			# Short sleep
 			await asyncio.sleep(0.01)

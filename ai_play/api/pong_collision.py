@@ -1,6 +1,7 @@
 from .utils import Vector2D, get_line_intersection
 import logging, math, random
 from django.conf import settings
+from django.utils import timezone
 
 
 class PongGame:
@@ -19,6 +20,9 @@ class PongGame:
 		self.ball = Ball()
 		self.player1 = player1
 		self.player2 = player2
+		self.start_timestamp = timezone.now()
+		self.last_frame = self.start_timestamp
+
 
 	# def __repr__(self):
 	# 	return (f"PongGame(match_id={self.match_id}, game_width={self.GAME_WIDTH}, "
