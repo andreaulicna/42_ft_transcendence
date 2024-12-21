@@ -23,11 +23,15 @@ let lastRan = {};
 let paddleDispatchInterval;
 
 let ball = {};
+let ballExactPrediction = {};
+let ballPrediction = {};
 let paddle1 = {};
 let paddle2 = {};
 let paddle1Color;
 let paddle2Color;
 let ballColor;
+let ballExactPredictionColor;
+let ballPredictionColor;
 let paddleAnimationFrame;
 
 let playerNames;
@@ -73,6 +77,18 @@ export function initGameData(data) {
 		radius: data.default_ball_size / 2,
 	};
 
+	ballExactPrediction = {
+		x: 0,
+		y: 0,
+		radius: data.default_ball_size / 2,
+	};
+
+	ballPrediction = {
+		x: 0,
+		y: 0,
+		radius: data.default_ball_size / 2,
+	};
+
 	paddle1 = {
 		width: data.default_paddle_width,
 		height: data.default_paddle_height,
@@ -90,6 +106,8 @@ export function initGameData(data) {
 	paddle1Color = "#00babc";
 	paddle2Color = "#df2af7";
 	ballColor = "whitesmoke";
+	ballExactPredictionColor = "green";
+	ballPredictionColor = "red";
 
 	player1 = {
 		name: undefined,
@@ -195,6 +213,17 @@ function handleDraw(event) {
 	const data = event.detail;
 	ball.x = (data.ball_x + originalGameWidth / 2) * scaleX;
 	ball.y = (data.ball_y + originalGameHeight / 2) * scaleY;
+	if (data.ball_prediction_x == 0 && data.ball_prediction_y == 0) {
+		ballExactPrediction.x = 0
+		ballExactPrediction.y = 0
+		ballPrediction.x = 0
+		ballPrediction.y = 0
+	} else {
+		ballExactPrediction.x = (data.ball_exact_prediction_x + originalGameWidth / 2) * scaleX;
+		ballExactPrediction.y = (data.ball_exact_prediction_y + originalGameHeight / 2) * scaleY;
+		ballPrediction.x = (data.ball_prediction_x + originalGameWidth / 2) * scaleX;
+		ballPrediction.y = (data.ball_prediction_y + originalGameHeight / 2) * scaleY;
+	}
 	paddle1.x = (data.paddle1_x - (paddle1.width / 2) + originalGameWidth / 2) * scaleX;
 	paddle1.y = (data.paddle1_y - (paddle1.height / 2) + originalGameHeight / 2) * scaleY;
 	paddle2.x = (data.paddle2_x - (paddle2.width / 2) + originalGameWidth / 2) * scaleX;
@@ -233,6 +262,34 @@ function drawBall(ball) {
 	ctx.shadowColor = 'transparent';
 }
 
+function drawBallExactPrediction(ballExactPrediction) {
+	//ctx.shadowBlur = 20;
+	//ctx.shadowColor = ballExactPredictionColor;
+	ctx.fillStyle = ballExactPredictionColor;
+	//ctx.strokeStyle = ballExactPredictionColor;
+	//ctx.lineWidth = 1;
+	ctx.beginPath();
+	ctx.arc(ballExactPrediction.x, ballExactPrediction.y, ballExactPrediction.radius * Math.min(scaleX, scaleY), 0, 2 * Math.PI);
+	ctx.fill();
+	//ctx.stroke()
+	ctx.shadowBlur = 0;
+	ctx.shadowColor = 'transparent';
+}
+
+function drawBallPrediction(ballPrediction) {
+	//ctx.shadowBlur = 20;
+	//ctx.shadowColor = ballPredictionColor;
+	ctx.fillStyle = ballPredictionColor;
+	//ctx.strokeStyle = ballPredictionColor;
+	//ctx.lineWidth = 1;
+	ctx.beginPath();
+	ctx.arc(ballPrediction.x, ballPrediction.y, ballPrediction.radius * Math.min(scaleX, scaleY), 0, 2 * Math.PI);
+	ctx.fill();
+	//ctx.stroke()
+	ctx.shadowBlur = 0;
+	ctx.shadowColor = 'transparent';
+}
+
 export function resetScore() {
 	scoreText.textContent = `0 : 0`;
 }
@@ -249,6 +306,10 @@ export function drawTick()
 	clearBoard();
 	drawPaddles(paddle1, paddle2);
 	drawBall(ball);
+	if (ballPrediction.x !== 0 && ballPrediction.y !== 0){
+		drawBallPrediction(ballPrediction)
+		drawBallExactPrediction(ballExactPrediction)
+	}
 }
 
 /* 👇 PLAYER MOVEMENT */

@@ -6,13 +6,14 @@ import json
 from django.shortcuts import get_object_or_404
 from asgiref.sync import sync_to_async
 import asyncio, logging
-from .pong_collision import paddle_collision, ball_collision_point
+from .pong_collision import paddle_collision, ball_collision_point, ball_center_from_collision
 import math
 from .pong_collision import PongGame
 import random
 from django.utils import timezone
 import time
 from .utils import Vector2D, get_line_intersection
+from django.conf import settings
 
 match_rooms = []
 
@@ -30,8 +31,8 @@ class Player:
 class Prediction:
 	def __init__(self):
 		self.direction = Vector2D(0, 0)
-		self.exact = Vector2D(0, 0)
 		self.position = Vector2D(0, 0)
+		self.exact_position = Vector2D(0, 0)
 		self.since = 0
 		self.size = 0
 
@@ -52,7 +53,7 @@ class AIPlayer:
 		self.prediction = None
 
 
-	def predict(self, dt, ball, paddle):
+	def predict(self, dt, ball, paddle, match_room):
 		# only re-predict if the ball changed direction, or its been some amount of time since last prediction
 		if (
 			self.prediction and self.prediction.position and
@@ -65,56 +66,54 @@ class AIPlayer:
 		
 		self.prediction = Prediction()
 		paddle_left = paddle.position.x - paddle.paddle_half_width
-		collision_point = ball_collision_point(ball)
-		far_collision_point = collision_point + (ball.direction * 1000) # QUESTION - is such an arbitrary number of?
+		# assume collision point on ball_left
+		collision_point = Vector2D(ball.position.x + (ball.size / 2), ball.position.y)
+		#collision_point = ball_collision_point(ball)
+		far_collision_point = collision_point + (ball.direction * 10000) # QUESTION - is such an arbitrary number ok?
 		
-		pt = get_line_intersection(paddle_left, -1000, paddle_left, 1000, collision_point.x, collision_point.y, far_collision_point.x, far_collision_point.y)
-		logging.info(f"Ball direction: {ball.direction}")
-		logging.info(f"Paddle position: {paddle.position}")
-		logging.info(f"Paddle left: {paddle_left}")
-		logging.info(f"Collision point: {collision_point}")
-		logging.info(f"Far point: {far_collision_point}")
-		logging.info(f"Intersection point: {pt}")
-
+		pt = get_line_intersection(paddle_left, -10000, paddle_left, 10000, collision_point.x, collision_point.y, far_collision_point.x, far_collision_point.y)
+		
 		if (pt):
-			court_top, court_bottom = -50, 50  # Assuming court boundaries
+			logging.info(f"Prediction exact: {pt}")
+			#pt = ball_center_from_collision(pt, ball.direction, ball.size)
+			# adjust back from ball_left
+			pt.x -= (ball.size / 2)
+			logging.info(f"Prediction exact adjusted: {pt}")
+			court_top = match_room.GAME_HALF_HEIGHT * (-1) + ball.size / 2
+			court_bottom = match_room.GAME_HALF_HEIGHT - ball.size / 2
 			while pt.y < court_top or pt.y > court_bottom:
 				if pt.y < court_top:
 					pt.y = court_top + (court_top - pt.y)
 				elif pt.y > court_bottom:
 					pt.y = court_bottom - (pt.y - court_bottom)
-			self.prediction.position = pt
-		else:
-			self.prediction.position = None
+			self.prediction.exact_position = pt
 
-		if (self.prediction.position):
-			self.prediction.since = 0
-			self.prediction.direction.x = ball.direction.x
-			self.prediction.direction.y = ball.direction.y
 			if (ball.direction.x < 0):
-				closeness = (ball.position.x - paddle_left) / 160
+				closeness = (ball.position.x - paddle_left) / match_room.GAME_WIDTH
 			else:
-				closeness = (paddle_left - ball.position.x) / 160
+				closeness = (paddle_left - ball.position.x) / match_room.GAME_WIDTH
 			error = self.level['aiError'] * closeness
-			self.prediction.position.y += random.uniform(-error, error)
-			logging.info(f"Prediction made: {self.prediction.position}")
+			self.prediction.position = Vector2D(pt.x, pt.y + random.uniform(-error, error))
+			self.prediction.since = 0
+			self.prediction.direction = ball.direction
+			logging.info(f"AI prediction: {self.prediction.position}")
 		else:
-			logging.info("No prediction made.")
+			self.position = Vector2D(0, 0)
+			self.exact_position = Vector2D(0, 0)
 
-	def move_ai_paddle(self, paddle):
+	#	else:
+	#		logging.info("No prediction made.")
+
+	def move_ai_paddle(self, paddle, match_room):
 		if not self.prediction.position:
 			return
 
-		paddle_center = paddle.position.y + paddle.paddle_half_height
-
-		if self.prediction.position.y < paddle_center - 5:
-			if paddle.position.y > (50 - paddle.paddle_half_height) * (-1):
+		if self.prediction.position.y < paddle.position.y - paddle.paddle_half_height:
+			if paddle.position.y > (match_room.GAME_HALF_HEIGHT - paddle.paddle_half_height) * (-1):
 				paddle.position.y -= paddle.paddle_speed
-		elif self.prediction.position.y > paddle_center + 5:
-			if paddle.position.y < (50 - paddle.paddle_half_height):
+		elif self.prediction.position.y > paddle.position.y + paddle.paddle_half_height:
+			if paddle.position.y < (match_room.GAME_HALF_HEIGHT - paddle.paddle_half_height):
 				paddle.position.y += paddle.paddle_speed
-		else:
-			pass
 
 @database_sync_to_async
 def create_match_room(match_id, player_id):
@@ -122,7 +121,7 @@ def create_match_room(match_id, player_id):
 	if match_database.creator.id == player_id:
 		logging.info(f'Added creator with id {player_id} to match {match_id}')
 		player1 = Player(player_id, match_database.creator.username)
-		player2 = AIPlayer(3)
+		player2 = AIPlayer(0)
 	else:
 		raise ValueError(f"Player ID {player_id} does not match any players in match {match_id}")
 
@@ -223,6 +222,10 @@ class AIPlayConsumer(AsyncWebsocketConsumer):
 				"sequence" : event["sequence"],
 				"ball_x": event["ball_x"],
 				"ball_y": event["ball_y"],
+				"ball_exact_prediction_x": event["ball_exact_prediction_x"],
+				"ball_exact_prediction_y": event["ball_exact_prediction_y"],
+				"ball_prediction_x": event["ball_prediction_x"],
+				"ball_prediction_y": event["ball_prediction_y"],
 				"paddle1_x": event["paddle1_x"],
 				"paddle1_y": event["paddle1_y"],
 				"paddle2_x": event["paddle2_x"],
@@ -293,8 +296,8 @@ class AIPlayConsumer(AsyncWebsocketConsumer):
 
 			match_room.start_timestamp = timezone.now()
 			dt = (match_room.start_timestamp - match_room.last_frame).total_seconds()
-			ai_player.predict(dt, ball, paddle2)
-			ai_player.move_ai_paddle(paddle2)
+			ai_player.predict(dt, ball, paddle2, match_room)
+			ai_player.move_ai_paddle(paddle2, match_room)
 
 			# Ball collision with floor & ceiling
 			if (ball.position.y > (match_room.GAME_HALF_HEIGHT - (ball.size / 2))) or ((ball.position.y < ((match_room.GAME_HALF_HEIGHT - (ball.size / 2))) * (-1))):
@@ -338,6 +341,10 @@ class AIPlayConsumer(AsyncWebsocketConsumer):
 					"for_player": match_room.player1.id,
 					"ball_x": ball.position.x,
 					"ball_y": ball.position.y,
+					"ball_exact_prediction_x": ai_player.prediction.exact_position.x,
+					"ball_exact_prediction_y": ai_player.prediction.exact_position.y,
+					"ball_prediction_x": ai_player.prediction.position.x,
+					"ball_prediction_y": ai_player.prediction.position.y,
 					"paddle1_x": paddle1.position.x,
 					"paddle1_y": paddle1.position.y,
 					"paddle2_x": paddle2.position.x,
