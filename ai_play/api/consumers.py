@@ -36,22 +36,40 @@ class Prediction:
 		self.since = 0
 		self.size = 0
 
+class AILevel:
+	def __init__(self, reaction, error):
+		self.reaction = reaction
+		self.error = error
+
+	def __repr__(self):
+		return f"AILevl(reaction={self.reaction}, error={self.error})"
+
+# max_score = 5
+		#	{"aiReaction": 0.1, "aiError":  60},  # 0: ai is losing by 4
+		#	{"aiReaction": 0.2, "aiError":  70},  # 1: ai is losing by 3
+		#	{"aiReaction": 0.3, "aiError":  80},  # 2: ai is losing by 2
+		#	{"aiReaction": 0.4, "aiError":  90},  # 3: ai is losing by 1
+		#	{"aiReaction": 0.5, "aiError":  100}, # 4: tie
+		#	{"aiReaction": 0.6, "aiError": 110},  # 5: ai is winning by 1
+		#	{"aiReaction": 0.7, "aiError": 120},  # 6: ai is winning by 2
+		#	{"aiReaction": 0.8, "aiError": 130},  # 7: ai is winning by 3
+		#	{"aiReaction": 0.9, "aiError": 140},  # 8: ai is winning by 4
+
+# max_score = 3
+		#	{"aiReaction": 0.1, "aiError":  60},  # 0: ai is losing by 2
+		#	{"aiReaction": 0.2, "aiError":  70},  # 1: ai is losing by 1
+		#	{"aiReaction": 0.3, "aiError":  80},  # 2: tie
+		#	{"aiReaction": 0.4, "aiError":  90},  # 3: ai is winning by 1
+		#	{"aiReaction": 0.5, "aiError":  100}, # 4: winning by 2
+
 class AIPlayer:
 	def __init__(self, level):
-		self.levels = [
-			{"aiReaction": 0.3, "aiError":  60}, # 0: ai is losing by 3
-			{"aiReaction": 0.4, "aiError":  70}, # 1: ai is losing by 2
-			{"aiReaction": 0.5, "aiError":  80}, # 2: ai is losing by 1
-			{"aiReaction": 0.6, "aiError":  90}, # 3: tie
-			{"aiReaction": 0.7, "aiError": 100}, # 4: ai is winning by 1
-			{"aiReaction": 0.8, "aiError": 110}, # 5: ai is winning by 2
-			{"aiReaction": 0.9, "aiError": 120}, # 6: ai is winning by 3
-		]
+		self.levels = []
+		self.levels = self.set_initial_levels(level)
 		self.level = self.levels[level]
 		self.username = "AI"
 		self.score = 0
 		self.prediction = None
-
 
 	def predict(self, dt, ball, paddle, match_room):
 		# only re-predict if the ball changed direction, or its been some amount of time since last prediction
@@ -59,11 +77,10 @@ class AIPlayer:
 			self.prediction and self.prediction.position and
 			(self.prediction.direction.x * ball.direction.x) > 0 and
 			(self.prediction.direction.y * ball.direction.y) > 0 and
-			(self.prediction.since < self.level['aiReaction'])
+			(self.prediction.since < self.level.reaction)
 		):
 			self.prediction.since += dt
 			return
-		
 		self.prediction = Prediction()
 		paddle_left = paddle.position.x - paddle.paddle_half_width
 		# assume collision point on ball_left
@@ -92,7 +109,7 @@ class AIPlayer:
 				closeness = (ball.position.x - paddle_left) / match_room.GAME_WIDTH
 			else:
 				closeness = (paddle_left - ball.position.x) / match_room.GAME_WIDTH
-			error = self.level['aiError'] * closeness
+			error = self.level.error * closeness
 			self.prediction.position = Vector2D(pt.x, pt.y + random.uniform(-error, error))
 			self.prediction.since = 0
 			self.prediction.direction = ball.direction
@@ -100,8 +117,6 @@ class AIPlayer:
 		else:
 			self.position = Vector2D(0, 0)
 			self.exact_position = Vector2D(0, 0)
-
-	#	else:
 	#		logging.info("No prediction made.")
 
 	def move_ai_paddle(self, paddle, match_room):
@@ -115,13 +130,42 @@ class AIPlayer:
 			if paddle.position.y < (match_room.GAME_HALF_HEIGHT - paddle.paddle_half_height):
 				paddle.position.y += paddle.paddle_speed
 
+	def set_initial_levels(self, max_score):
+		levels = []
+		reaction = 0
+		reaction_increment = 0.1
+		error = 60
+		error_increment = 10
+		num_of_levels = (max_score - 1) * 2 + 1
+		while (num_of_levels > 0):
+			new_level = AILevel(reaction + reaction_increment, error + error_increment)
+			reaction += reaction_increment
+			error += error_increment
+			levels.append(new_level)
+			num_of_levels -= 1
+		#logging.info(f"Setting these levels: {levels}")
+		return levels
+
+	def update_level(self, ai_player_score, other_player_score):
+		neutral_level = (len(self.levels) // 2) - 1 # integer division to avoid indexing with floats
+		if ai_player_score == other_player_score:
+			self.level = self.levels[neutral_level]
+		elif ai_player_score > other_player_score:
+			self.level = self.levels[neutral_level + (ai_player_score - other_player_score)]
+		elif ai_player_score < other_player_score:
+			self.level = self.levels[neutral_level - (other_player_score - ai_player_score)]
+
+	def __repr__(self):
+		return f"AIPlayer (username={self.username}, levels={self.levels})"
+
+
 @database_sync_to_async
 def create_match_room(match_id, player_id):
 	match_database = get_object_or_404(AIMatch, id=match_id)
 	if match_database.creator.id == player_id:
 		logging.info(f'Added creator with id {player_id} to match {match_id}')
 		player1 = Player(player_id, match_database.creator.username)
-		player2 = AIPlayer(0)
+		player2 = AIPlayer(3)
 	else:
 		raise ValueError(f"Player ID {player_id} does not match any players in match {match_id}")
 
@@ -313,6 +357,7 @@ class AIPlayConsumer(AsyncWebsocketConsumer):
 				match_room.player2.score += 1
 				match_database.player2_score += 1
 				await sync_to_async(match_database.save)(update_fields=["player2_score"])
+				ai_player.update_level(ai_player.score, match_room.player1.score) # CHECK - does it take the update value from match_room.player2.score?
 				match_room.reset()
 				ball = match_room.ball
 				paddle1 = match_room.paddle1
@@ -323,6 +368,7 @@ class AIPlayConsumer(AsyncWebsocketConsumer):
 				match_room.player1.score += 1
 				match_database.player1_score += 1
 				await sync_to_async(match_database.save)(update_fields=["player1_score"])
+				ai_player.update_level(ai_player.score, match_room.player1.score) # CHECK - does it take the update value from match_room.player2.score?
 				match_room.reset()
 				ball = match_room.ball
 				paddle1 = match_room.paddle1

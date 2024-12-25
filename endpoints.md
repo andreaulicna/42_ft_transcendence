@@ -36,7 +36,6 @@ Deleted `/api/user/friendships`, reworked `/api/user/friends` endpoint, updated 
 | `/login/refresh` |POST|| 200<br>400<br>401 | Refreshes `access` token and issues a new `refresh_token` |
 |`login/refresh/logout`| POST | | 200<br>401 | Blacklists `refresh_token` and expires the relevant cookie |
 | `/ws-login` |GET|| 200<br>401 | Returns short-lived `uuid` for websocket use |
-|`/ws/init/`<br>(mind the slash at the end) |non-HTTP|`?uuid=`|Connected<br>Disconnected| Changes user status to ON on connect, and to OFF on disconnect |
 
 
 - `/token` returns both `access` and `refresh` tokens - `access` currently lasts for an hour, `refresh` for 24 hours<br>
@@ -45,18 +44,19 @@ Deleted `/api/user/friendships`, reworked `/api/user/friends` endpoint, updated 
 	1. login as an existing user
 	2. send a request to `/ws-login` with the JWT token
 	3. save the returned `uuid`
-	4. send the WEBSOCKET request to `/ws/init/?uuid=returneduuidnumber`
+	4. send the WEBSOCKET request to `api/ws/auth/init/?uuid=returneduuidnumber`
 	5. profit
 
-### `/api/matchmaking`
+### `/api/localplay`
 | Endpoint | Supported methods | Required input | Return codes | Notes |
 | :--- |---|:---| :---:| :---: |
-| `/ws/`|non-HTTP|`?uuid=`|Connected<br>Disconnected|Pairs players and return their match_id
+| `/match`|POST|`player1_tmp_username`<br>`player2_tmp_username`|201<br>400|Creates a local match in the database and returns its id
+| `/<int>prev_match_id>/rematch/<str:sides_mode>`|POST|-|201<br>400<br>404|Creates rematch of a local match in the database and returns its id.<br> `sides_mode` should be "switch" for a rematch when players want to switch sides and "keep" otherwise.
 
-### `/api/pong`
+### `/api/ai`
 | Endpoint | Supported methods | Required input | Return codes | Notes |
 | :--- |---|:---| :---:| :---: |
-| `/ws/<int:match_id>/`|non-HTTP|`?uuid=`|Connected<br>Disconnected|Waits for players to join & starts the match
+| `/match`|POST||201<br>400|Creates an AI match in the database and returns its id
 
 
 ### `/api/tournament`
@@ -68,4 +68,13 @@ Deleted `/api/user/friendships`, reworked `/api/user/friends` endpoint, updated 
 |`/list/waiting` | GET ||200<br>404|list object of all waiting tournaments, including free spaces for players to join ||
 |`/list/player` | GET || 200<br>404| list object of all tournaments for a particular user ||
 |`/info/<int:tournament_id>/` | GET || 200<br>404| tournament object |provides tournament info based on the id in url, including the list of players |
-|`/ws/<int:tournament_id>/`|non-HTTP|`?uuid=`|Connected<br>Disconnected|`match_id` if there is a match to play for the particular `player`|Matchmaking for tournament.
+
+### `/api/ws`
+| Endpoint | Supported methods | Required input | Return codes | Notes |
+| :--- |:---:|:---| :---:| :--- |
+|`/auth/init/` |non-HTTP|`?uuid=`|Connected<br>Disconnected| Changes user status to ON on connect, and to OFF on disconnect |
+|`/pong/<int:match_id>/`|non-HTTP|`?uuid=`|Connected<br>Disconnected|Waits for players to join & starts the remote match
+|`/matchmaking/`|non-HTTP|`?uuid=`|Connected<br>Disconnected|Pairs players and return their match_id
+|`/localplay/<int:match_id>/`|non-HTTP|`?uuid=`|Connected<br>Disconnected|Waits for players to join & starts the local match
+|`/ai/<int:match_id>/`|non-HTTP|`?uuid=`|Connected<br>Disconnected|Waits for players to join & starts the ai match
+|`/tournament/<int:tournament_id>/`|non-HTTP|`?uuid=`|Connected<br>Disconnected|Matchmaking for tournament. Returns `match_id` if there is a match to play for the particular `player`.

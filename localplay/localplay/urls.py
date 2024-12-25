@@ -16,10 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from api.views import HealthCheckView, CreateMatchView
+from api.views import HealthCheckView, CreateMatchView, CreateRematchView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 	path('healthcheck', HealthCheckView.as_view()),
-	path('api/localplay/match', CreateMatchView.as_view())
+	path('api/localplay/match', CreateMatchView.as_view()),
+	path('api/localplay/<int:prev_match_id>/rematch/<str:sides_mode>', CreateRematchView.as_view())
 ]
