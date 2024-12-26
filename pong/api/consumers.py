@@ -525,7 +525,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 			)
 
 			# Game over
-			if match_database.player1_score >= 3 or match_database.player2_score >= 3:
+			if match_database.player1_score >= GAME_CONSTANTS['MAX_SCORE'] or match_database.player2_score >= GAME_CONSTANTS['MAX_SCORE']:
 				await set_match_winner(match_database)
 				break
 

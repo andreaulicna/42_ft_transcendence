@@ -187,6 +187,7 @@ GAME_CONSTANTS = {
 	'BALL_SIZE': float(os.getenv('BALL_SIZE')),
 	'BALL_SPEED': float(os.getenv('BALL_SPEED')),
 	'PADDLE_SPEED': float(os.getenv('PADDLE_SPEED')),
+	'MAX_SCORE': int(os.getenv('MAX_SCORE')),
 }
 
 GAME_CONSTANTS['PADDLE_HEIGHT'] = GAME_CONSTANTS['GAME_HEIGHT'] / 5

@@ -13,7 +13,7 @@ import random
 from django.utils import timezone
 import time
 from .utils import Vector2D, get_line_intersection
-from django.conf import settings
+from ai_play.settings import GAME_CONSTANTS
 
 match_rooms = []
 
@@ -66,7 +66,7 @@ class AIPlayer:
 	def __init__(self, level):
 		self.levels = []
 		self.levels = self.set_initial_levels(level)
-		self.level = self.levels[level]
+		self.level = self.levels[level - 1]
 		self.username = "AI"
 		self.score = 0
 		self.prediction = None
@@ -91,11 +91,11 @@ class AIPlayer:
 		pt = get_line_intersection(paddle_left, -10000, paddle_left, 10000, collision_point.x, collision_point.y, far_collision_point.x, far_collision_point.y)
 		
 		if (pt):
-			logging.info(f"Prediction exact: {pt}")
+			# logging.info(f"Prediction exact: {pt}")
 			#pt = ball_center_from_collision(pt, ball.direction, ball.size)
 			# adjust back from ball_left
 			pt.x -= (ball.size / 2)
-			logging.info(f"Prediction exact adjusted: {pt}")
+			# logging.info(f"Prediction exact adjusted: {pt}")
 			court_top = match_room.GAME_HALF_HEIGHT * (-1) + ball.size / 2
 			court_bottom = match_room.GAME_HALF_HEIGHT - ball.size / 2
 			while pt.y < court_top or pt.y > court_bottom:
@@ -134,7 +134,7 @@ class AIPlayer:
 		levels = []
 		reaction = 0
 		reaction_increment = 0.1
-		error = 60
+		error = 50
 		error_increment = 10
 		num_of_levels = (max_score - 1) * 2 + 1
 		while (num_of_levels > 0):
@@ -147,7 +147,10 @@ class AIPlayer:
 		return levels
 
 	def update_level(self, ai_player_score, other_player_score):
-		neutral_level = (len(self.levels) // 2) - 1 # integer division to avoid indexing with floats
+		if (ai_player_score == GAME_CONSTANTS['MAX_SCORE'] or other_player_score == GAME_CONSTANTS['MAX_SCORE']):
+			return
+		neutral_level = (len(self.levels) // 2) # integer division to avoid indexing with floats
+		# logging.info(f"Neutral level: {neutral_level}") # should be the level in the middle
 		if ai_player_score == other_player_score:
 			self.level = self.levels[neutral_level]
 		elif ai_player_score > other_player_score:
@@ -232,8 +235,6 @@ class AIPlayConsumer(AsyncWebsocketConsumer):
 		logging.info(match_rooms)
 		if (match_room.player1 is not None):
 			await self.play_pong(match_room)
-		else: #QUESTION - do we need this?
-			logging.info("Waiting for more players to join the match room.")
 
 	async def disconnect(self, close_code):
 		logging.info(f"Disconnecting player {self.id} from pong")
@@ -357,7 +358,7 @@ class AIPlayConsumer(AsyncWebsocketConsumer):
 				match_room.player2.score += 1
 				match_database.player2_score += 1
 				await sync_to_async(match_database.save)(update_fields=["player2_score"])
-				ai_player.update_level(ai_player.score, match_room.player1.score) # CHECK - does it take the update value from match_room.player2.score?
+				ai_player.update_level(ai_player.score, match_room.player1.score)
 				match_room.reset()
 				ball = match_room.ball
 				paddle1 = match_room.paddle1
@@ -368,7 +369,7 @@ class AIPlayConsumer(AsyncWebsocketConsumer):
 				match_room.player1.score += 1
 				match_database.player1_score += 1
 				await sync_to_async(match_database.save)(update_fields=["player1_score"])
-				ai_player.update_level(ai_player.score, match_room.player1.score) # CHECK - does it take the update value from match_room.player2.score?
+				ai_player.update_level(ai_player.score, match_room.player1.score)
 				match_room.reset()
 				ball = match_room.ball
 				paddle1 = match_room.paddle1
@@ -401,7 +402,7 @@ class AIPlayConsumer(AsyncWebsocketConsumer):
 			))
 
 			# Game over
-			if match_database.player1_score >= 3 or match_database.player2_score >= 3:
+			if match_database.player1_score >= GAME_CONSTANTS['MAX_SCORE'] or match_database.player2_score >= GAME_CONSTANTS['MAX_SCORE']:
 				await set_match_winner(match_database)
 				break
 			match_room.last_frame = match_room.start_timestamp

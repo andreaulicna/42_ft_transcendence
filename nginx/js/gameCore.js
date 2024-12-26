@@ -23,14 +23,12 @@ let lastRan = {};
 let paddleDispatchInterval;
 
 let ball = {};
-let ballExactPrediction = {};
-let ballPrediction = {};
 let paddle1 = {};
 let paddle2 = {};
 let paddle1Color;
 let paddle2Color;
 let ballColor;
-let ballExactPredictionColor;
+let ballExactColor;
 let ballPredictionColor;
 let paddleAnimationFrame;
 
@@ -74,18 +72,10 @@ export function initGameData(data) {
 	ball = {
 		x: (originalGameWidth / 2) * scaleX,
 		y: (originalGameHeight / 2) * scaleX,
-		radius: data.default_ball_size / 2,
-	};
-
-	ballExactPrediction = {
-		x: 0,
-		y: 0,
-		radius: data.default_ball_size / 2,
-	};
-
-	ballPrediction = {
-		x: 0,
-		y: 0,
+		xExact: 0,
+		yExact: 0,
+		xPrediction: 0,
+		yPrediction: 0,
 		radius: data.default_ball_size / 2,
 	};
 
@@ -106,7 +96,7 @@ export function initGameData(data) {
 	paddle1Color = "#00babc";
 	paddle2Color = "#df2af7";
 	ballColor = "whitesmoke";
-	ballExactPredictionColor = "green";
+	ballExactColor = "green";
 	ballPredictionColor = "red";
 
 	player1 = {
@@ -214,15 +204,15 @@ function handleDraw(event) {
 	ball.x = (data.ball_x + originalGameWidth / 2) * scaleX;
 	ball.y = (data.ball_y + originalGameHeight / 2) * scaleY;
 	if (data.ball_prediction_x == 0 && data.ball_prediction_y == 0) {
-		ballExactPrediction.x = 0
-		ballExactPrediction.y = 0
-		ballPrediction.x = 0
-		ballPrediction.y = 0
+		ball.xExact = 0;
+		ball.yExact = 0;
+		ball.xPrediction = 0;
+		ball.yPrediction = 0;
 	} else {
-		ballExactPrediction.x = (data.ball_exact_prediction_x + originalGameWidth / 2) * scaleX;
-		ballExactPrediction.y = (data.ball_exact_prediction_y + originalGameHeight / 2) * scaleY;
-		ballPrediction.x = (data.ball_prediction_x + originalGameWidth / 2) * scaleX;
-		ballPrediction.y = (data.ball_prediction_y + originalGameHeight / 2) * scaleY;
+		ball.xExact = (data.ball_exact_prediction_x + originalGameWidth / 2) * scaleX;
+		ball.yExact = (data.ball_exact_prediction_y + originalGameHeight / 2) * scaleY;
+		ball.xPrediction = (data.ball_prediction_x + originalGameWidth / 2) * scaleX;
+		ball.yPrediction = (data.ball_prediction_y + originalGameHeight / 2) * scaleY;
 	}
 	paddle1.x = (data.paddle1_x - (paddle1.width / 2) + originalGameWidth / 2) * scaleX;
 	paddle1.y = (data.paddle1_y - (paddle1.height / 2) + originalGameHeight / 2) * scaleY;
@@ -262,30 +252,20 @@ function drawBall(ball) {
 	ctx.shadowColor = 'transparent';
 }
 
-function drawBallExactPrediction(ballExactPrediction) {
-	//ctx.shadowBlur = 20;
-	//ctx.shadowColor = ballExactPredictionColor;
-	ctx.fillStyle = ballExactPredictionColor;
-	//ctx.strokeStyle = ballExactPredictionColor;
-	//ctx.lineWidth = 1;
+function drawBallExactPrediction(ball) {
+	// Ball exact hit
+	ctx.fillStyle = ballExactColor;
 	ctx.beginPath();
-	ctx.arc(ballExactPrediction.x, ballExactPrediction.y, ballExactPrediction.radius * Math.min(scaleX, scaleY), 0, 2 * Math.PI);
+	ctx.arc(ball.xExact, ball.yExact, ball.radius * Math.min(scaleX, scaleY), 0, 2 * Math.PI);
 	ctx.fill();
-	//ctx.stroke()
 	ctx.shadowBlur = 0;
 	ctx.shadowColor = 'transparent';
-}
 
-function drawBallPrediction(ballPrediction) {
-	//ctx.shadowBlur = 20;
-	//ctx.shadowColor = ballPredictionColor;
+	// Ball predicted hit
 	ctx.fillStyle = ballPredictionColor;
-	//ctx.strokeStyle = ballPredictionColor;
-	//ctx.lineWidth = 1;
 	ctx.beginPath();
-	ctx.arc(ballPrediction.x, ballPrediction.y, ballPrediction.radius * Math.min(scaleX, scaleY), 0, 2 * Math.PI);
+	ctx.arc(ball.xPrediction, ball.yPrediction, ball.radius * Math.min(scaleX, scaleY), 0, 2 * Math.PI);
 	ctx.fill();
-	//ctx.stroke()
 	ctx.shadowBlur = 0;
 	ctx.shadowColor = 'transparent';
 }
@@ -306,9 +286,8 @@ export function drawTick()
 	clearBoard();
 	drawPaddles(paddle1, paddle2);
 	drawBall(ball);
-	if (ballPrediction.x !== 0 && ballPrediction.y !== 0){
-		drawBallPrediction(ballPrediction)
-		drawBallExactPrediction(ballExactPrediction)
+	if (ball.xPrediction != 0 && ball.yPrediction != 0){
+		drawBallExactPrediction(ball)
 	}
 }
 
