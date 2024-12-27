@@ -16,7 +16,7 @@ Deleted `/api/user/friendships`, reworked `/api/user/friends` endpoint, updated 
 | Endpoint | Supported methods | Required input | Return codes | Notes |
 | :--- |---|:---| :---:| :---: |
 | `/register` |POST|`username`<br>`password`<br>`email`| 201<br>400 |  |
-| `/info` |GET, PUT|  `last_name` (PUT)<br> `first_name` (PUT)| 200<br>404 |  |
+| `/info` |GET, PUT|  `last_name` (PUT)<br> `first_name` (PUT)<`username` (PUT)| 200<br>404 |  |
 | `/avatar` | GET, (PUT) | JSON-encoded image | 200 (GET)<br>201 (PUT)<br>404 | currently non-functional |
 | `/match` | GET |  | 200 (GET)<br>400<br>404 | shows history of all matches for a specific user |
 | `/users-list`<sup>2</sup> | GET|  | 200  | &check; |
@@ -24,7 +24,9 @@ Deleted `/api/user/friendships`, reworked `/api/user/friends` endpoint, updated 
 | `/friends/request/<str:username>` | POST |  | 201, 400, 404 | e.g. `/friends/requests/testusr1` sends a friend request to `testusr1`|
 | `/friends/<int:pk>/accept`<br>`/friends/<int:pk>/refuse`<br>| POST| | 200, 404| only related to pending friend requests, it should treat irrelevant or already accepted requests as "Not found" |
 | `/friends/<int:pk>/delete`| DELETE || 200, 404| deletes an active friendship OR, if the user is the sender, a pending friend request (basically withdraws the request) |
-|`/debug/info/reset`| POST | | 200, 404 | Resets user state from any to OFF 
+| `/match-history`| GET || 200, 404| lists all matches a user played, specifying `type` variable to distinguish between them |
+| `/win-loss`| GET || 200, 404| returns overall, remote match and AI match win-loss counts |
+| `/debug/info/reset`| POST | | 200, 404 | Resets user state from any to OFF 
 
 <sup>2</sup> Only available for debugging purposes for now, will net slightly different results for authenticated and non-authenticated users in the future<br>
 

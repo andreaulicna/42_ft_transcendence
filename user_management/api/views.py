@@ -1,5 +1,11 @@
 from .models import CustomUser, Match, LocalMatch, AIMatch, Friendship
-from .serializers import UserSerializer, MatchSerializer, FriendshipSerializer, FriendshipListSerializer, MatchStartSerializer, LocalMatchStartSerializer, AIMatchStartSerializer, OtherUserSerializer
+from .serializers import (
+	UserSerializer, OtherUserSerializer,
+	MatchSerializer, 
+	FriendshipSerializer, FriendshipListSerializer,
+	MatchStartSerializer, LocalMatchStartSerializer, AIMatchStartSerializer, 
+	MatchHistorySerializer, WinLossSerializer
+)
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -11,6 +17,7 @@ from django.http import Http404
 import base64, os
 from django.core.files.base import ContentFile
 import pyotp, qrcode, logging, io
+from django.db import models
 
 class HealthCheckView(APIView):
 	def get(self, request):
@@ -115,13 +122,16 @@ class UserInfoView(APIView):
 				return Response({'detail': 'Player does not exist'}, status=status.HTTP_404_NOT_FOUND)
 			first_name = request.data.get('first_name')
 			last_name = request.data.get('last_name')
-			user_state = request.data.get('state')
+			username = request.data.get('username')
 			if first_name:
 				new_first_name = ' '.join(first_name.split())
 				player.first_name = new_first_name
 			if last_name:
 				new_last_name = ' '.join(last_name.split())
 				player.last_name = new_last_name
+			if username:
+				new_username = ' '.join(username.split())
+				player.username = new_username
 			player.save()
 			return Response({'detail' : 'User info updated'})
 		
@@ -327,3 +337,34 @@ class FriendshipRequestDeleteView(APIView):
 		except Http404:
 			return Response({'detail': 'Friendship not found.'}, status=status.HTTP_404_NOT_FOUND)
 
+class MatchHistoryView(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = MatchHistorySerializer
+
+    def get_queryset(self):
+        user = self.request.user
+
+        # Get all matches that are FINISHED per type
+        matches = Match.objects.filter(
+            (models.Q(player1=user) | models.Q(player2=user)) & models.Q(status=Match.StatusOptions.FINISHED)
+        )
+        local_matches = LocalMatch.objects.filter(
+            models.Q(creator=user) & models.Q(status=Match.StatusOptions.FINISHED)
+        )
+        ai_matches = AIMatch.objects.filter(
+            models.Q(creator=user) & models.Q(status=Match.StatusOptions.FINISHED)
+        )
+
+        # Combine matches into one list
+        combined_matches = list(matches) + list(local_matches) + list(ai_matches)
+        return combined_matches
+
+class WinLossView(APIView):
+    # Remote + AI matches only as for Local we cannot really distinguish which player is the user
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        data = WinLossSerializer.count_win_loss(user)
+        serializer = WinLossSerializer(data)
+        return Response(serializer.data)

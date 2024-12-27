@@ -19,7 +19,6 @@ from django.urls import path
 from django.conf import settings
 from api import views
 from django.conf.urls.static import static
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
     path('api/user/admin', admin.site.urls),
@@ -42,6 +41,8 @@ urlpatterns = [
 	path('api/user/friends/<int:pk>/refuse', views.FriendshipRequestRefuseView.as_view(), name='friendship-request-refuse'),
 	path('api/user/2fa-enable', views.Enable2FA.as_view(), name="enable-2fa"),
 	path('api/user/2fa-disable', views.Disable2FA.as_view(), name="disable-2fa"),
+	path('api/user/match-history', views.MatchHistoryView.as_view(), name='match-history'),
+	path('api/user/win-loss', views.WinLossView.as_view(), name='win-loss'),
 	path('healthcheck', views.HealthCheckView.as_view())
 ]  
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
