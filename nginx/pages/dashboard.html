@@ -68,9 +68,14 @@
 					<button type="submit" class="btn btn-prg">Add</button>
 				</div>
 			</form>
+			<p>Outgoing Requests</p>
+			<ul class="list-group mb-4" id="outgoingFriendList">
+			</ul>
+			<p>Incoming Requests</p>
+			<ul class="list-group mb-4" id="incomingFriendList">
+			</ul>
 			<p>Available Friends</p>
-			<ul class="list-group" id="friendlistList">
-
+			<ul class="list-group mb-4" id="friendlistList">
 			</ul>
 		</div>
 	</div>
@@ -90,29 +95,6 @@
 					<li class="list-group-item">Friend 2</li>
 					<li class="list-group-item">Friend 3</li>
 				</ul>
-			</div>
-		</div>
-	</div>
-</div>
-
-<!-- Friendship toast -->
-<div class="toast-container position-static">
-	<div class="toast-container position-fixed bottom-0 end-0 p-3">
-		<div id="friendRequestToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-			<div class="toast-header">
-				<strong class="me-auto" id="friendRequestToastHeader">Friend request</strong>
-				<button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-			</div>
-			<div class="toast-body" id="friendRequestToastMsg">
-				Someone wants to be your friend!
-			</div>
-			<div class="d-flex">
-				<button type="button" id="friendAcceptButton" class="btn btn-prg">
-					Accept
-				</button>
-				<button type="button" id="friendRejectButton" class="btn btn-prg">
-					Reject
-				</button>
 			</div>
 		</div>
 	</div>
