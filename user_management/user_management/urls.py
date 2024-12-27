@@ -31,6 +31,7 @@ urlpatterns = [
 	path('api/user/match', views.MatchView.as_view(), name='match-creation'),
 	path('api/user/match/<int:pk>', views.MatchStartView.as_view(), name='match-info'),
 	path('api/user/localmatch/<int:pk>', views.LocalMatchStartView.as_view(), name='local-match-info'),
+	path('api/user/aimatch/<int:pk>', views.AIMatchStartView.as_view(), name='ai-match-info'),
 	path('api/user/users-list', views.UserListView.as_view(), name='user-list'),
 	path('api/user/friends', views.ActiveFriendshipsListView.as_view(), name='active-friendships-list'),
 	path('api/user/friends/request/<str:username>', views.FriendshipRequestView.as_view(), name='friend-request'),

@@ -1,6 +1,7 @@
 from .utils import Vector2D, get_line_intersection
 import logging, math, random
 from django.conf import settings
+from django.utils import timezone
 
 
 class PongGame:
@@ -19,6 +20,9 @@ class PongGame:
 		self.ball = Ball()
 		self.player1 = player1
 		self.player2 = player2
+		self.start_timestamp = timezone.now()
+		self.last_frame = self.start_timestamp
+
 
 	# def __repr__(self):
 	# 	return (f"PongGame(match_id={self.match_id}, game_width={self.GAME_WIDTH}, "
@@ -60,6 +64,16 @@ def ball_collision_point(ball: Ball) -> Vector2D:
 	y = (ball.size / 2) * math.sin(theta)
 	collision_point = Vector2D(x, y) + ball.position
 	return collision_point
+
+def ball_center_from_collision(collision_point: Vector2D, direction: Vector2D, ball_size: float) -> Vector2D:
+    theta = math.atan2(direction.y, direction.x)
+    x_offset = (ball_size / 2) * math.cos(theta)
+    y_offset = (ball_size / 2) * math.sin(theta)
+    
+    # Subtract the offset to get the center position
+    ball_center = collision_point - Vector2D(x_offset, y_offset)
+    return ball_center
+
 
 
 def paddle_collision(ball: Ball, paddle1: Paddle, paddle2: Paddle) -> Ball:
@@ -141,44 +155,58 @@ def paddle_collision(ball: Ball, paddle1: Paddle, paddle2: Paddle) -> Ball:
 		ball.speed += 0.1
 	elif intersection := get_line_intersection(paddle2_left, paddle2_bottom, paddle2_left, paddle2_top, ball_right, ball.position.y, ball_next_step_right.x, ball_next_step_right.y):
 		logging.info("Paddle2 side")
+		logging.info(f"Ball hit exact: {intersection}")
 		ball.position = intersection
 		ball.position.x -= ball.size / 2
 		ball.direction.x *= -1
 		ball.speed += 0.1
+		logging.info(f"Ball hit adjusted: {ball.position}")
 	elif intersection := get_line_intersection(paddle2_left, paddle2_top, paddle2_right, paddle2_top, ball.position.x, ball_bottom, ball_next_step_down.x, ball_next_step_down.y):
 		logging.info("Paddle2 top")
+		logging.info(f"Ball hit exact: {intersection}")
 		ball.position = intersection
 		ball.position.y -= ball.size / 2
 		ball.direction.y *= -1
 		ball.speed += 0.1
+		logging.info(f"Ball hit adjusted: {ball.position}")
 	elif intersection := get_line_intersection(paddle2_left, paddle2_bottom, paddle2_right, paddle2_bottom, ball.position.x, ball_top, ball_next_step_up.x, ball_next_step_up.y):
 		logging.info("Paddle2 bottom")
+		logging.info(f"Ball hit exact: {intersection}")
 		ball.position = intersection
 		ball.position.y += ball.size / 2
 		ball.direction.y *= -1
 		ball.speed += 0.1
+		logging.info(f"Ball hit adjusted: {ball.position}")
 	elif intersection := get_line_intersection(paddle2_left, paddle2_top, paddle2_right, paddle2_top, collision_point.x, collision_point.y, ball_collision_next.x, ball_collision_next.y):
 		logging.info("Paddle2 top - top corner")
+		logging.info(f"Ball hit exact: {intersection}")
 		ball.position = intersection
 		ball.position.y -= ball.size / 2
 		ball.direction.y *= -1
+		logging.info(f"Ball hit adjusted: {ball.position}")
 		ball.speed += 0.1
 	elif intersection := get_line_intersection(paddle2_left, paddle2_bottom, paddle2_left, paddle2_top, collision_point.x, collision_point.y, ball_collision_next.x, ball_collision_next.y):
 		logging.info("Paddle2 side - top corner")
+		logging.info(f"Ball hit exact: {intersection}")
 		ball.position = intersection
 		ball.position.x -= ball.size / 2
 		ball.direction.x *= -1
 		ball.speed += 0.1
+		logging.info(f"Ball hit adjusted: {ball.position}")
 	elif intersection := get_line_intersection(paddle2_left, paddle2_bottom, paddle2_right, paddle2_bottom, collision_point.x, collision_point.y, ball_collision_next.x, ball_collision_next.y):
 		logging.info("Paddle2 bottom - bottom corner")
+		logging.info(f"Ball hit exact: {intersection}")
 		ball.position = intersection
 		ball.position.y += ball.size / 2
 		ball.direction.y *= -1
 		ball.speed += 0.1
+		logging.info(f"Ball hit adjusted: {ball.position}")
 	elif intersection := get_line_intersection(paddle2_left, paddle2_bottom, paddle2_left, paddle2_top, collision_point.x, collision_point.y, ball_collision_next.x, ball_collision_next.y):
 		logging.info("Paddle2 side - bottom corner")
+		logging.info(f"Ball hit exact: {intersection}")
 		ball.position = intersection
 		ball.position.x -= ball.size / 2
 		ball.direction.x *= -1
 		ball.speed += 0.1
+		logging.info(f"Ball hit adjusted: {ball.position}")
 	return ball

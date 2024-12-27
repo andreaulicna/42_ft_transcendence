@@ -28,6 +28,8 @@ let paddle2 = {};
 let paddle1Color;
 let paddle2Color;
 let ballColor;
+let ballExactColor;
+let ballPredictionColor;
 let paddleAnimationFrame;
 
 let playerNames;
@@ -70,6 +72,10 @@ export function initGameData(data) {
 	ball = {
 		x: (originalGameWidth / 2) * scaleX,
 		y: (originalGameHeight / 2) * scaleX,
+		xExact: 0,
+		yExact: 0,
+		xPrediction: 0,
+		yPrediction: 0,
 		radius: data.default_ball_size / 2,
 	};
 
@@ -90,6 +96,8 @@ export function initGameData(data) {
 	paddle1Color = "#00babc";
 	paddle2Color = "#df2af7";
 	ballColor = "whitesmoke";
+	ballExactColor = "green";
+	ballPredictionColor = "red";
 
 	player1 = {
 		name: undefined,
@@ -152,6 +160,11 @@ export async function fetchPlayer2Data(data)
 	player2Data = await apiCallAuthed(`api/user/${data.player2}/info`);
 }
 
+export async function fetchCreatorData(data)
+{
+	player1Data = await apiCallAuthed(`api/user/${data.creator}/info`);
+}
+
 export function setPlayer1Name(player1Name)
 {
 	player1.name = player1Name;
@@ -190,6 +203,17 @@ function handleDraw(event) {
 	const data = event.detail;
 	ball.x = (data.ball_x + originalGameWidth / 2) * scaleX;
 	ball.y = (data.ball_y + originalGameHeight / 2) * scaleY;
+	if (data.ball_prediction_x == 0 && data.ball_prediction_y == 0) {
+		ball.xExact = 0;
+		ball.yExact = 0;
+		ball.xPrediction = 0;
+		ball.yPrediction = 0;
+	} else {
+		ball.xExact = (data.ball_exact_prediction_x + originalGameWidth / 2) * scaleX;
+		ball.yExact = (data.ball_exact_prediction_y + originalGameHeight / 2) * scaleY;
+		ball.xPrediction = (data.ball_prediction_x + originalGameWidth / 2) * scaleX;
+		ball.yPrediction = (data.ball_prediction_y + originalGameHeight / 2) * scaleY;
+	}
 	paddle1.x = (data.paddle1_x - (paddle1.width / 2) + originalGameWidth / 2) * scaleX;
 	paddle1.y = (data.paddle1_y - (paddle1.height / 2) + originalGameHeight / 2) * scaleY;
 	paddle2.x = (data.paddle2_x - (paddle2.width / 2) + originalGameWidth / 2) * scaleX;
@@ -228,6 +252,24 @@ function drawBall(ball) {
 	ctx.shadowColor = 'transparent';
 }
 
+function drawBallExactPrediction(ball) {
+	// Ball exact hit
+	ctx.fillStyle = ballExactColor;
+	ctx.beginPath();
+	ctx.arc(ball.xExact, ball.yExact, ball.radius * Math.min(scaleX, scaleY), 0, 2 * Math.PI);
+	ctx.fill();
+	ctx.shadowBlur = 0;
+	ctx.shadowColor = 'transparent';
+
+	// Ball predicted hit
+	ctx.fillStyle = ballPredictionColor;
+	ctx.beginPath();
+	ctx.arc(ball.xPrediction, ball.yPrediction, ball.radius * Math.min(scaleX, scaleY), 0, 2 * Math.PI);
+	ctx.fill();
+	ctx.shadowBlur = 0;
+	ctx.shadowColor = 'transparent';
+}
+
 export function resetScore() {
 	scoreText.textContent = `0 : 0`;
 }
@@ -244,6 +286,9 @@ export function drawTick()
 	clearBoard();
 	drawPaddles(paddle1, paddle2);
 	drawBall(ball);
+	if (ball.xPrediction != 0 && ball.yPrediction != 0){
+		drawBallExactPrediction(ball)
+	}
 }
 
 /* 👇 PLAYER MOVEMENT */
