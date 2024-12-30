@@ -2,7 +2,7 @@ from .models import CustomUser, Match, LocalMatch, AIMatch, Friendship
 from .serializers import (
 	UserSerializer, OtherUserSerializer,
 	MatchSerializer, 
-	FriendshipSerializer, FriendshipListSerializer,
+	FriendshipSerializer, FriendshipListSerializer, UsersStatusListSerializer,
 	MatchStartSerializer, LocalMatchStartSerializer, AIMatchStartSerializer, 
 	MatchHistorySerializer, WinLossSerializer
 )
@@ -368,3 +368,11 @@ class WinLossView(APIView):
         data = WinLossSerializer.count_win_loss(user)
         serializer = WinLossSerializer(data)
         return Response(serializer.data)
+
+class UsersStatusListView(ListAPIView):
+	serializer_class = UsersStatusListSerializer
+	permission_classes = [IsAuthenticated]
+
+	def get_queryset(self):
+		user = self.request.user
+		return CustomUser.objects.exclude(id=user.id).order_by('-id')

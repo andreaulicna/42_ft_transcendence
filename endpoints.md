@@ -26,6 +26,7 @@ Deleted `/api/user/friendships`, reworked `/api/user/friends` endpoint, updated 
 | `/friends/<int:pk>/delete`| DELETE || 200, 404| deletes an active friendship OR, if the user is the sender, a pending friend request (basically withdraws the request) |
 | `/match-history`| GET || 200, 404| lists all matches a user played, specifying `type` variable to distinguish between them |
 | `/win-loss`| GET || 200, 404| returns overall, remote match and AI match win-loss counts |
+| `/users-status`| GET || 200, 404| returns a list of user with their id, username and status (`ON` or `OFF`) based on `status_counter` saved in user object |
 | `/debug/info/reset`| POST | | 200, 404 | Resets user state from any to OFF 
 
 <sup>2</sup> Only available for debugging purposes for now, will net slightly different results for authenticated and non-authenticated users in the future<br>

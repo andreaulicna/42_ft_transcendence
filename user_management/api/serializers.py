@@ -213,3 +213,19 @@ class WinLossSerializer(serializers.Serializer):
 			'ai_match_win': ai_match_win,
 			'ai_match_loss': ai_match_loss,
 		}
+	
+class UsersStatusListSerializer(serializers.ModelSerializer):
+	user_status = serializers.SerializerMethodField()
+
+	class Meta:
+		model = CustomUser
+		fields = ['id', 'username', 'user_status']
+
+	def get_user(self, obj):
+		return CustomUser.objects.get(id=obj.id)
+
+	def get_user_status(self, obj):
+		user = self.get_user(obj)
+		if user.status_counter > 0:
+			return "ON"
+		return "OFF"
