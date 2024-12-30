@@ -51,7 +51,7 @@ export async function init(data) {
 		logout();
 	});
 
-	// Friendlist buttony
+	// Friendlist button
 	friendlistBtn.addEventListener('click', (event) => {
 		event.preventDefault();
 		listOutgoing();
