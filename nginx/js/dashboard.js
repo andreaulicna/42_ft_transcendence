@@ -3,17 +3,21 @@ import { showToast } from "./notifications.js";
 import { logout } from "./router.js";
 import { apiCallAuthed } from "./api.js";
 
+let logoutBtn;
 let friendlistBtn;
+let matchhistBtn;
+
 let friendlistList;
 let outgoingList;
 let incomingList;
-let logoutBtn;
 
 let friendRequestToastElement;
 let friendRequestToast;
 
 let friendAddForm;
 let friendAddInput;
+
+let stats;
 
 export async function init(data) {
 	sessionStorage.setItem("id", data.id);
@@ -23,6 +27,7 @@ export async function init(data) {
 	incomingList = document.getElementById("incomingFriendList");
 	friendlistList = document.getElementById("friendlistList");
 	logoutBtn = document.getElementById("logoutButton");
+	matchhistBtn = document.getElementById("matchHistoryButton");
 
 	friendAddForm = document.getElementById("friendAddForm");
 	friendAddInput = document.getElementById("friendAddInput");
@@ -31,9 +36,10 @@ export async function init(data) {
 	friendRequestToast = new bootstrap.Toast(friendRequestToastElement);
 
 	// Load dynamic data
+	stats = await apiCallAuthed('/api/user/win-loss');
 	textDynamicLoad("userName", `🏓 ${data.username}`);
-	textDynamicLoad("numOfWins", `👍 ${data.win_count}`);
-	textDynamicLoad("numOfLosses", `👎 ${data.loss_count}`);
+	textDynamicLoad("numOfWins", `👍 ${stats.overall_win}`);
+	textDynamicLoad("numOfLosses", `👎 ${stats.overall_loss}`);
 	if (data.avatar != null)
 		document.getElementById('profilePic').src = data.avatar;
 
@@ -68,6 +74,11 @@ export async function init(data) {
 	// Refresh friendlist
 	fetchAndUpdateFriendList()
 	let refreshInterval = setInterval(fetchAndUpdateFriendList, 3000);
+
+	// Match history button
+	matchhistBtn.addEventListener('click', (event) => {
+		event.preventDefault();
+	});
 	
 	// Clear the list refresh interval when the user exits the page
 	window.addEventListener('hashchange', () => {

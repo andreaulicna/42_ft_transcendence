@@ -2,10 +2,14 @@ import { apiCallAuthed } from './api.js';
 import { textDynamicLoad } from "./animations.js";
 import { showToast } from "./notifications.js";
 
-export function init(data) {
+let stats;
+
+export async function init(data) {
+
+	stats = await apiCallAuthed('/api/user/win-loss');
 	textDynamicLoad("userName", `🏓 ${data.username}`);
-	textDynamicLoad("numOfWins", `👍 ${data.win_count}`);
-	textDynamicLoad("numOfLosses", `👎 ${data.loss_count}`);
+	textDynamicLoad("numOfWins", `👍 ${stats.overall_win}`);
+	textDynamicLoad("numOfLosses", `👎 ${stats.overall_loss}`);
 	if (data.avatar != null)
 		document.getElementById('profilePic').src = data.avatar;
 	
