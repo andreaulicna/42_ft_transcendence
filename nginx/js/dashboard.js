@@ -198,9 +198,14 @@ async function listFriends() {
 			friendlistList.innerHTML = '';
 			friendlistReturn.forEach(friend => {
 				const listItem = document.createElement('li');
+				let status;
+				if (friend.friend_status == "ON")
+					status = "🟢";
+				else if (friend.friend_status == "OFF")
+					status = "🔴";
 				listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
 				listItem.innerHTML = `
-				${friend.friend_username}
+				${status} ${friend.friend_username}
 				`;
 				friendlistList.appendChild(listItem);
 			});
