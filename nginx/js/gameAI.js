@@ -14,6 +14,7 @@ import {
 	drawTick,
 	delay,
 	startCountdown,
+	replayButton,
 
 	isTouchDevice,
 } from './gameCore.js';
@@ -24,35 +25,37 @@ import { textDynamicLoad } from "./animations.js";
 import { openAIPlayWebsocket } from "./websockets.js";
 
 export async function init() {
-    try {
-        await createAIPlay();
+	try {
+		await createAIPlay();
 
-        // Ensure match_id is set
-        const match_id = sessionStorage.getItem("match_id");
-        if (!match_id) {
-            throw new Error("Match ID is not set in sessionStorage.");
-        }
+		// Ensure match_id is set
+		const match_id = sessionStorage.getItem("match_id");
+		if (!match_id) {
+			throw new Error("Match ID is not set in sessionStorage.");
+		}
 
-        // Change URL to AI mode below
-        let data = await apiCallAuthed(`/api/user/aimatch/${match_id}`);
+		// Change URL to AI mode below
+		let data = await apiCallAuthed(`/api/user/aimatch/${match_id}`);
 
-        startCountdown();
-        initGameData(data);
-        initEventListeners();
-        initAIData(data);
-        initPaddleEventDispatch();
-        drawTick();
-        if (isTouchDevice) {
-            await delay(100);
-            initTouchControls(player1Data);
-            console.log("TOUCH CONTROLS ENABLED");
-        }
-        // Replay disabled (needs to be reworked first)
-        replayButton.style.display = "none";
-    } catch (error) {
-        console.error("Error initializing AI match:", error);
-        alert("An error occurred while initializing the AI match.");
-    }
+		startCountdown();
+		initGameData(data);
+		initEventListeners();
+		initAIData(data);
+		initPaddleEventDispatch();
+		drawTick();
+		if (isTouchDevice) {
+			await delay(100);
+			initTouchControls(player1Data);
+			console.log("TOUCH CONTROLS ENABLED");
+		}
+
+		replayButton.addEventListener("click", () => {
+			location.reload();
+		});
+	} catch (error) {
+		console.error("Error initializing AI match:", error);
+		alert("An error occurred while initializing the AI match.");
+	}
 }
 
 async function initAIData(data) {

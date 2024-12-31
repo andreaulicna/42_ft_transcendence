@@ -15,6 +15,8 @@ import {
 	initPaddleEventDispatch,
 	drawTick,
 	startCountdown,
+
+	replayButton
 } from './gameCore.js';
 
 import { apiCallAuthed } from './api.js';
@@ -44,4 +46,9 @@ async function initRemoteData(data) {
 		player1AvatarPlaceholder.src = player1Data.avatar;
 	if (player2Data.avatar != null)
 		player2AvatarPlaceholder.src = player2Data.avatar;
+
+	replayButton.addEventListener("click", () => {
+		localStorage.setItem("gameMode", "rematch");
+		window.location.hash = '#lobby-game';
+	});
 }

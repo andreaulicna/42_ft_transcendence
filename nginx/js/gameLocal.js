@@ -23,8 +23,11 @@ export async function init() {
 	initLocalData(data);
 	initPaddleEventDispatch();
 	drawTick();
-	// Replay for local matches disabled (needs to be reworked first)
-	replayButton.style.display = "none";
+
+	replayButton.addEventListener("click", () => {
+		localStorage.setItem("gameMode", "local");
+		window.location.hash = '#lobby-game';
+	});
 }
 
 async function initLocalData(data)

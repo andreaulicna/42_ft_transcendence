@@ -137,9 +137,6 @@ export function initEventListeners() {
 	mainMenuButton.addEventListener("click", () => {
 		window.location.hash = '#dashboard';
 	});
-	replayButton.addEventListener("click", () => {
-		replayGame();
-	});
 	addPaddleMovementListener();
 }
 
@@ -390,11 +387,6 @@ export function hideGameOverScreen() {
 		touchControlsPlayer1.style.display = "block";
 		touchControlsPlayer2.style.display = "block";
 	}
-}
-
-async function replayGame() {
-	localStorage.setItem("gameMode", "rematch");
-	window.location.hash = '#lobby-game';
 }
 
 // Function to create a delay
