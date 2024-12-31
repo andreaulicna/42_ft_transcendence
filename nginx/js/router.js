@@ -114,10 +114,13 @@ window.redirectToHome = redirectToHome;
 // Logout procedure
 export async function logout() {
 	try {
+		window.location.hash = '#login';
 		const response = await apiCallAuthed("/api/auth/login/refresh/logout", "POST");
 		sessionStorage.removeItem('access');
 		sessionStorage.removeItem('access_expiration');
 		sessionStorage.removeItem('uuid');
+		sessionStorage.removeItem('id');
+		sessionStorage.removeItem('match_id');
 		// Cookies.remove('csrftoken');
 		// Cookies.remove('refresh_token', { path: '/', domain: 'yourdomain.com' });
 		console.log('Logged out successfully');
