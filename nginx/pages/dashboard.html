@@ -55,28 +55,29 @@
 <!-- Friendlist modal -->
 <div class="modal fade" id="friendListModal" tabindex="-1" aria-labelledby="friendListModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered">
-	  <div class="modal-content">
-		<div class="modal-header">
-		  <h5 class="modal-title" id="friendListModalLabel">Friendlist</h5>
-		  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-		</div>
-		<div class="modal-body">
-			<p>Add Friends</p>
-			<form class="mb-4" id="friendAddForm">
-				<div class="form-group d-flex gap-2">
-					<input type="text" class="form-control" id="friendAddInput" placeholder="Provide friend's username">
-					<button type="submit" class="btn btn-prg">Add</button>
-				</div>
-			</form>
-			<p>Outgoing Requests</p>
-			<ul class="list-group mb-4" id="outgoingFriendList">
-			</ul>
-			<p>Incoming Requests</p>
-			<ul class="list-group mb-4" id="incomingFriendList">
-			</ul>
-			<p>Available Friends</p>
-			<ul class="list-group mb-4" id="friendlistList">
-			</ul>
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="friendListModalLabel">Friendlist</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<p>Add Friends</p>
+				<form class="mb-4" id="friendAddForm">
+					<div class="form-group d-flex gap-2">
+						<input type="text" class="form-control" id="friendAddInput" placeholder="Provide friend's username">
+						<button type="submit" class="btn btn-prg">Add</button>
+					</div>
+				</form>
+				<p>Outgoing Requests</p>
+				<ul class="list-group mb-4" id="outgoingFriendList">
+				</ul>
+				<p>Incoming Requests</p>
+				<ul class="list-group mb-4" id="incomingFriendList">
+				</ul>
+				<p>Available Friends</p>
+				<ul class="list-group mb-4" id="friendlistList">
+				</ul>
+			</div>
 		</div>
 	</div>
 </div>
@@ -90,10 +91,25 @@
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
-				<ul class="list-group">
-					<li class="list-group-item">Friend 1</li>
-					<li class="list-group-item">Friend 2</li>
-					<li class="list-group-item">Friend 3</li>
+				<ul class="list-group" id="matchHistoryList">
+					<div class="list-group-item list-group-item-action">
+					  <div class="d-flex w-100 justify-content-between">
+						<p class="mb-1"><strong>{decision}</strong> vs <strong>{opponent_name}</strong></p>
+						<small>{date}</small>
+					  </div>
+					</div>
+					<div class="list-group-item list-group-item-action">
+						<div class="d-flex w-100 justify-content-between">
+							<p class="mb-1"><strong>👍 WIN</strong> vs <strong>typeczech</strong></p>
+							<small>01/01/2020</small>
+						</div>
+					</div>
+					<div class="list-group-item list-group-item-action">
+						<div class="d-flex w-100 justify-content-between">
+							<p class="mb-1"><strong>👎 LOSS</strong> vs <strong>boreczech</strong></p>
+							<small>23/02/2032</small>
+						</div>
+					</div>
 				</ul>
 			</div>
 		</div>

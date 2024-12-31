@@ -10,6 +10,7 @@ let matchhistBtn;
 let friendlistList;
 let outgoingList;
 let incomingList;
+let matchhistList;
 
 let friendRequestToastElement;
 let friendRequestToast;
@@ -28,6 +29,7 @@ export async function init(data) {
 	friendlistList = document.getElementById("friendlistList");
 	logoutBtn = document.getElementById("logoutButton");
 	matchhistBtn = document.getElementById("matchHistoryButton");
+	matchhistList = document.getElementById("matchHistoryList");
 
 	friendAddForm = document.getElementById("friendAddForm");
 	friendAddInput = document.getElementById("friendAddInput");
@@ -78,6 +80,7 @@ export async function init(data) {
 	// Match history button
 	matchhistBtn.addEventListener('click', (event) => {
 		event.preventDefault();
+		listMatchHistory();
 	});
 	
 	// Clear the list refresh interval when the user exits the page
@@ -214,4 +217,30 @@ async function addFriend() {
 	} catch (error) {
 		console.error('Error adding friend:', error);
 	}
+}
+
+async function listMatchHistory() {
+	try {
+		const matchhistReturn = await apiCallAuthed("/api/user/match-history");
+
+		if (!matchhistReturn || matchhistReturn.length === 0)
+			matchhistList.innerHTML = `<li class="list-group-item text-center">You haven't played any games yet!</li>`;
+		else
+		{
+			matchhistList.innerHTML = '';
+			matchhistReturn.forEach(match => {
+				const listItem = document.createElement('li');
+				listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
+				listItem.innerHTML = `
+				<p> ${match.player1_score} : ${match.player2_score} </p>
+				<p><strong>${match.player1_name}</strong> vs <strong>${match.player2_name}</strong></p>
+				<p>${match.date.substring(0, 10)}</p>
+				`;
+				matchhistList.appendChild(listItem);
+			});
+		}
+	} catch (error) {
+		console.error('Error fetching friendslist:', error);
+	}
+
 }
