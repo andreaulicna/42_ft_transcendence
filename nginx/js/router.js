@@ -1,6 +1,7 @@
 import { apiCallAuthed } from './api.js';
 import { showLoading } from "./animations.js";
 import { hideLoading } from "./animations.js";
+import { openFriendlistWebsocket } from './websockets.js';
 
 const dynamicContent = document.getElementById('dynamicContent');
 
@@ -130,3 +131,8 @@ export async function logout() {
 }
 
 window.logout = logout;
+
+// Reopen the friendlist ON/OFF status websocket on a reload
+window.addEventListener('load', () => {
+	openFriendlistWebsocket();
+});
