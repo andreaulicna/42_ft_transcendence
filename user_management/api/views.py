@@ -4,7 +4,8 @@ from .serializers import (
 	MatchSerializer, 
 	FriendshipSerializer, FriendshipListSerializer, UsersStatusListSerializer,
 	MatchStartSerializer, LocalMatchStartSerializer, AIMatchStartSerializer, 
-	MatchHistorySerializer, WinLossSerializer
+	HistoryAIMatchSerializer, HistoryLocalMatchSerializer, HistoryMatchSerializer,
+	WinLossSerializer
 )
 from rest_framework import status
 from rest_framework.response import Response
@@ -337,12 +338,11 @@ class FriendshipRequestDeleteView(APIView):
 		except Http404:
 			return Response({'detail': 'Friendship not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-class MatchHistoryView(ListAPIView):
+class MatchHistoryView(APIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = MatchHistorySerializer
 
-    def get_queryset(self):
-        user = self.request.user
+    def get(self, request, *args, **kwargs):
+        user = request.user
 
         # Get all matches that are FINISHED per type
         matches = Match.objects.filter(
@@ -355,9 +355,19 @@ class MatchHistoryView(ListAPIView):
             models.Q(creator=user) & models.Q(status=Match.StatusOptions.FINISHED)
         )
 
-        # Combine matches into one list
-        combined_matches = list(matches) + list(local_matches) + list(ai_matches)
-        return combined_matches
+        # Serialize each category of matches
+        match_serializer = HistoryMatchSerializer(matches, many=True)
+        local_match_serializer = HistoryLocalMatchSerializer(local_matches, many=True)
+        ai_match_serializer = HistoryAIMatchSerializer(ai_matches, many=True)
+
+        # Combine the serialized data into the desired structure
+        response_data = {
+            'remote_matches': match_serializer.data,
+            'local_matches': local_match_serializer.data,
+            'ai_matches': ai_match_serializer.data,
+        }
+
+        return Response(response_data)
 
 class WinLossView(APIView):
     # Remote + AI matches only as for Local we cannot really distinguish which player is the user
