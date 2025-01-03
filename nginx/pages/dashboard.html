@@ -1,7 +1,7 @@
 <div class="container-lg fadeAnimation d-flex flex-column flex-md-row">
 
 	<div class="col-md-6">
-		<div id="menu" class="container-md d-flex flex-column align-items-center justify-content-center fs-3 fw-bold text-uppercase h-100">
+		<div id="menu" class="container-md d-flex flex-column align-items-start justify-content-center fs-3 fw-bold text-uppercase h-100">
 			<span class="fs-1">PLAY</span>
 			<hr class="my-2 w-50" style="max-width: 360px">
 			<a href="#lobby-game" id="modeLocal" class="text-decoration-none slide-right" data-mode="local">
@@ -36,82 +36,8 @@
 	</div>
 
 	<div class="col-md-6">
-		<div id="profile-section" class="container-md d-flex flex-column align-items-center justify-content-center h-100">
-			<img id="profilePic" src="assets/default_user_pfp.png" alt="User profile picture" class="d-block mx-auto p-4" style="width:150px">
-			<div id="userName" class="d-flex justify-content-center fs-4">&nbsp;</div>
-			<div class="container-sm d-flex justify-content-center gap-4">
-				<div id="numOfWins">&nbsp;</div>
-				<div id="numOfLosses">&nbsp;</div>
-			</div>
-			<hr class="my-2 w-50" style="max-width: 360px">
-			<div class="d-flex gap-2">
-				<button type="button" id="friendlistButton" class="btn btn-prg" data-bs-toggle="modal" data-bs-target="#friendListModal">Friendlist</button>
-				<button type="button" id="matchHistoryButton" class="btn btn-prg" data-bs-toggle="modal" data-bs-target="#matchHistoryModal">Match History</button>
-			</div>
-		</div>
-	</div>
-</div>
-
-<!-- Friendlist modal -->
-<div class="modal fade" id="friendListModal" tabindex="-1" aria-labelledby="friendListModalLabel" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-centered">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="friendListModalLabel">Friendlist</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-			</div>
-			<div class="modal-body">
-				<p>Add Friends</p>
-				<form class="mb-4" id="friendAddForm">
-					<div class="form-group d-flex gap-2">
-						<input type="text" class="form-control" id="friendAddInput" placeholder="Provide friend's username">
-						<button type="submit" class="btn btn-prg">Add</button>
-					</div>
-				</form>
-				<p>Outgoing Requests</p>
-				<ul class="list-group mb-4" id="outgoingFriendList">
-				</ul>
-				<p>Incoming Requests</p>
-				<ul class="list-group mb-4" id="incomingFriendList">
-				</ul>
-				<p>Available Friends</p>
-				<ul class="list-group mb-4" id="friendlistList">
-				</ul>
-			</div>
-		</div>
-	</div>
-</div>
-
-<!-- Match history modal -->
-<div class="modal fade" id="matchHistoryModal" tabindex="-1" aria-labelledby="matchHistoryModalLabel" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-centered">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="matchHistoryModalLabel">Match History</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-			</div>
-			<div class="modal-body">
-				<ul class="list-group" id="matchHistoryList">
-					<div class="list-group-item list-group-item-action">
-					  <div class="d-flex w-100 justify-content-between">
-						<p class="mb-1"><strong>{decision}</strong> vs <strong>{opponent_name}</strong></p>
-						<small>{date}</small>
-					  </div>
-					</div>
-					<div class="list-group-item list-group-item-action">
-						<div class="d-flex w-100 justify-content-between">
-							<p class="mb-1"><strong>👍 WIN</strong> vs <strong>typeczech</strong></p>
-							<small>01/01/2020</small>
-						</div>
-					</div>
-					<div class="list-group-item list-group-item-action">
-						<div class="d-flex w-100 justify-content-between">
-							<p class="mb-1"><strong>👎 LOSS</strong> vs <strong>boreczech</strong></p>
-							<small>23/02/2032</small>
-						</div>
-					</div>
-				</ul>
-			</div>
+		<div class="d-flex justify-content-center align-items-center h-100">
+			3D model goes here
 		</div>
 	</div>
 </div>

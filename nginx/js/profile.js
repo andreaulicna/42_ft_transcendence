@@ -3,6 +3,16 @@ import { textDynamicLoad } from "./animations.js";
 import { showToast } from "./notifications.js";
 
 let stats;
+let matchhistList;
+let friendlistList;
+let outgoingList;
+let incomingList;
+
+let friendRequestToastElement;
+let friendRequestToast;
+
+let friendAddForm;
+let friendAddInput;
 
 export async function init(data) {
 
@@ -16,6 +26,227 @@ export async function init(data) {
 	handleProfilePicUpload();
 	handle2FA(data);
 	handleUsernameEdit();
+	handleCustomColors();
+
+	handleMatchHistory();
+	handleFriendlist();
+}
+
+function handleCustomColors(){
+	const colorLeftPaddle = document.getElementById('colorLeftPaddle');
+	const colorRightPaddle = document.getElementById('colorRightPaddle');
+	const colorBall = document.getElementById('colorBall');
+
+	colorLeftPaddle.value = localStorage.getItem('colorLeftPaddle') || '#00babc';
+	colorRightPaddle.value = localStorage.getItem('colorRightPaddle') || '#df2af7';
+	colorBall.value = localStorage.getItem('colorBall') || '#ffffff';
+
+	colorLeftPaddle.addEventListener('input', () => {
+		localStorage.setItem('colorLeftPaddle', colorLeftPaddle.value);
+	});
+
+	colorRightPaddle.addEventListener('input', () => {
+		localStorage.setItem('colorRightPaddle', colorRightPaddle.value);
+	});
+
+	colorBall.addEventListener('input', () => {
+		localStorage.setItem('colorBall', colorBall.value);
+	});
+}
+
+function handleFriendlist(){
+	outgoingList = document.getElementById("outgoingFriendList");
+	incomingList = document.getElementById("incomingFriendList");
+	friendlistList = document.getElementById("friendlistList");
+	friendAddForm = document.getElementById("friendAddForm");
+	friendAddInput = document.getElementById("friendAddInput");
+	friendRequestToastElement = document.getElementById('friendRequestToast');
+	friendRequestToast = new bootstrap.Toast(friendRequestToastElement);
+	listOutgoing();
+	listIncoming();
+	listFriends();
+
+	// Friend add request
+	friendAddForm.addEventListener('submit', (event) => {
+		event.preventDefault();
+		addFriend(friendAddInput.value);
+	});
+
+	// Refresh friendlist
+	fetchAndUpdateFriendList()
+	let refreshInterval = setInterval(fetchAndUpdateFriendList, 3000);
+
+	// Clear the list refresh interval when the user exits the page
+	window.addEventListener('hashchange', () => {
+		if (window.location.hash !== '#profile') {
+			clearInterval(refreshInterval);
+		}
+	});
+}
+
+function handleMatchHistory() {
+	matchhistList = document.getElementById("matchHistoryList");
+	listMatchHistory();
+}
+
+function fetchAndUpdateFriendList() {
+	listOutgoing();
+	listIncoming();
+	listFriends();
+}
+
+
+// List outgoing friend requests
+async function listOutgoing() {
+	try {
+		const outgoingReturn = await apiCallAuthed('/api/user/friends/sent', undefined, undefined, undefined, false);
+
+		if (!outgoingReturn || outgoingReturn.length === 0)
+			outgoingList.innerHTML = '<li class="list-group-item text-center">You have no outgoing friend requests.</li>';
+		else
+		{
+			outgoingList.innerHTML = '';
+			outgoingReturn.forEach(request => {
+				const listItem = document.createElement('li');
+				listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
+				listItem.innerHTML = `
+				${request.friend_username}
+				`;
+				outgoingList.appendChild(listItem);
+			});
+		}
+	} catch (error) {
+		console.error('Error fetching outgoing friend requests:', error);
+	}
+}
+
+// List incoming friend requests
+async function listIncoming() {
+	try {
+		const incomingReturn = await apiCallAuthed('/api/user/friends/received', undefined, undefined, undefined, false);
+
+		if (!incomingReturn || incomingReturn.length === 0)
+			incomingList.innerHTML = '<li class="list-group-item text-center">You have no incoming friend requests.</li>';
+		else
+		{
+			incomingList.innerHTML = '';
+			incomingReturn.forEach(request => {
+				const listItem = document.createElement('li');
+				listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
+				listItem.innerHTML = `
+				${request.friend_username}
+				<div class="d-flex gap-2">
+				<button type="button" class="btn btn-prg friendAcceptButton" data-request-id="${request.id}">
+					✅
+				</button>
+				<button type="button" class="btn btn-prg friendRejectButton" data-request-id="${request.id}">
+					❌
+				</button>
+				</div>
+				`;
+				incomingList.appendChild(listItem);
+			});
+
+			// Add event listeners for accept and reject buttons
+			document.querySelectorAll('.friendAcceptButton').forEach(button => {
+				button.addEventListener('click', handleAccept);
+			});
+			document.querySelectorAll('.friendRejectButton').forEach(button => {
+				button.addEventListener('click', handleReject);
+			});
+		}
+	} catch (error) {
+		console.error('Error fetching incoming friend requests:', error);
+	}
+}
+
+async function handleAccept(event) {
+	const requestId = event.target.getAttribute('data-request-id');
+	try {
+		await apiCallAuthed(`/api/user/friends/${requestId}/accept`, 'POST');
+		showToast('Friend Request Accepted', 'You have accepted the friend request.');
+		listIncoming();
+		listFriends();
+	} catch (error) {
+		console.error('Error accepting friend request:', error);
+		showToast('Error', 'Failed to accept the friend request.');
+	}
+}
+
+async function handleReject(event) {
+	const requestId = event.target.getAttribute('data-user-id');
+	try {
+		await apiCallAuthed(`/api/user/friends/${requestId}/refuse`, 'POST');
+		showToast('Friend Request Rejected', 'You have rejected the friend request.');
+		listIncoming(); // Refresh the list
+	} catch (error) {
+		console.error('Error rejecting friend request:', error);
+		showToast('Error', 'Failed to reject the friend request.');
+	}
+}
+
+// List friends
+async function listFriends() {
+	try {
+		const friendlistReturn = await apiCallAuthed('/api/user/friends', undefined, undefined, undefined, false);
+
+		if (!friendlistReturn || friendlistReturn.length === 0)
+			friendlistList.innerHTML = '<li class="list-group-item text-center">You have no friends :(</li>';
+		else
+		{
+			friendlistList.innerHTML = '';
+			friendlistReturn.forEach(friend => {
+				const listItem = document.createElement('li');
+				let status;
+				if (friend.friend_status == "ON")
+					status = "🟢";
+				else if (friend.friend_status == "OFF")
+					status = "🔴";
+				listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
+				listItem.innerHTML = `
+				${status} ${friend.friend_username}
+				`;
+				friendlistList.appendChild(listItem);
+			});
+		}
+	} catch (error) {
+		console.error('Error fetching friendslist:', error);
+	}
+}
+
+async function addFriend() {
+	try {
+		const addRequest = await apiCallAuthed(`/api/user/friends/request/${friendAddInput.value}`, "POST");
+		showToast('Friend Request', `Friend request to ${friendAddInput.value} sent.`);
+	} catch (error) {
+		console.error('Error adding friend:', error);
+	}
+}
+
+async function listMatchHistory() {
+	try {
+		const matchhistReturn = await apiCallAuthed("/api/user/match-history");
+
+		if (!matchhistReturn || matchhistReturn.length === 0)
+			matchhistList.innerHTML = `<li class="list-group-item text-center">You haven't played any games yet!</li>`;
+		else
+		{
+			matchhistList.innerHTML = '';
+			matchhistReturn.forEach(match => {
+				const listItem = document.createElement('li');
+				listItem.className = 'list-group-item list-group-item-active d-flex flex-column align-items-center';
+				listItem.innerHTML = `
+				<p> ${match.player1_score} : ${match.player2_score} </p>
+				<p><strong>${match.player1_name}</strong> vs <strong>${match.player2_name}</strong></p>
+				<small>${match.date.substring(5, 7)}/${match.date.substring(8, 10)}</small>
+				`;
+				matchhistList.appendChild(listItem);
+			});
+		}
+	} catch (error) {
+		console.error('Error fetching match history', error);
+	}
+
 }
 
 async function handleUsernameEdit() {

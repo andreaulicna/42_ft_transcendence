@@ -134,5 +134,6 @@ window.logout = logout;
 
 // Reopen the friendlist ON/OFF status websocket on a reload
 window.addEventListener('load', () => {
-	openFriendlistWebsocket();
+	if (sessionStorage.getItem("access"))
+		openFriendlistWebsocket();
 });

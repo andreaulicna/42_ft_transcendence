@@ -1,5 +1,9 @@
-/* BODY & BACKGROUND */
+/* CUSTOM VARIABLES */
+:root {
+    --profilePicSize:125px;
+}
 
+/* BODY & BACKGROUND */
 body {
 	background: linear-gradient(90deg, #242424, #185657);
 	background-size: 800% 800%;
@@ -12,7 +16,6 @@ body {
 }
 
 /* ANIMATIONS */
-
 @keyframes gradientAnimation {
 	0% {
 		background-position: 0% 50%;
@@ -75,7 +78,6 @@ body {
 }
 
 /* BOOTSTRAP COMPONENTS CUSTOMIZATION */
-
 .navbar-toggler {
 	filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(93%) contrast(100%);
 }
@@ -129,8 +131,53 @@ body {
 	--bs-toast-zindex: 9999;
 }
 
-/* MISCELANIOUS */
+/* PROFILE PIC */
+.profilePicContainer {
+    position: relative;
+    display: inline-block;
+	text-align: center;
+}
 
+.profilePic {
+    max-width: var(--profilePicSize);
+    border-radius: 50%;
+}
+
+.profilePicContainer::before {
+    content: "";
+    position: absolute;
+	top: 50% - var(--profilePicSize);;
+    left: 50% - var(--profilePicSize);;
+    width: var(--profilePicSize);
+    height: 100%;
+    background-color: rgba(41, 41, 41, 0.95);
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.profilePicContainer:hover::before {
+    opacity: 1;
+	border: 4px solid #00babc;
+	cursor: pointer;
+}
+
+.profilePicText {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+	cursor: pointer;
+}
+
+.profilePicContainer:hover .profilePicText {
+    opacity: 1;
+}
+
+/* MISCELANIOUS */
 .badge-coming-soon {
 	position: relative;
 	display: inline-block;
