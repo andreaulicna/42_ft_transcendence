@@ -33,24 +33,24 @@ export async function init(data) {
 }
 
 function handleCustomColors(){
-	const colorLeftPaddle = document.getElementById('colorLeftPaddle');
-	const colorRightPaddle = document.getElementById('colorRightPaddle');
-	const colorBall = document.getElementById('colorBall');
+	let colorLeftPaddle = document.getElementById('colorLeftPaddle');
+	let colorRightPaddle = document.getElementById('colorRightPaddle');
+	let colorBall = document.getElementById('colorBall');
 
-	colorLeftPaddle.value = localStorage.getItem('colorLeftPaddle') || '#00babc';
-	colorRightPaddle.value = localStorage.getItem('colorRightPaddle') || '#df2af7';
-	colorBall.value = localStorage.getItem('colorBall') || '#ffffff';
+	colorLeftPaddle.value = localStorage.getItem(`${sessionStorage.getItem("id")}_colorLeftPaddle`) || '#00babc';
+	colorRightPaddle.value = localStorage.getItem(`${sessionStorage.getItem("id")}_colorRightPaddle`) || '#df2af7';
+	colorBall.value = localStorage.getItem(`${sessionStorage.getItem("id")}_colorBall`) || '#ffffff';
 
 	colorLeftPaddle.addEventListener('input', () => {
-		localStorage.setItem('colorLeftPaddle', colorLeftPaddle.value);
+		localStorage.setItem(`${sessionStorage.getItem("id")}_colorLeftPaddle`, colorLeftPaddle.value);
 	});
 
 	colorRightPaddle.addEventListener('input', () => {
-		localStorage.setItem('colorRightPaddle', colorRightPaddle.value);
+		localStorage.setItem(`${sessionStorage.getItem("id")}_colorRightPaddle`, colorRightPaddle.value);
 	});
 
 	colorBall.addEventListener('input', () => {
-		localStorage.setItem('colorBall', colorBall.value);
+		localStorage.setItem(`${sessionStorage.getItem("id")}_colorBall`, colorBall.value);
 	});
 }
 
