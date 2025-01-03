@@ -3,16 +3,22 @@ import { textDynamicLoad } from "./animations.js";
 import { showToast } from "./notifications.js";
 
 let stats;
-let matchhistList;
+
 let friendlistList;
 let outgoingList;
 let incomingList;
-
 let friendRequestToastElement;
 let friendRequestToast;
-
 let friendAddForm;
 let friendAddInput;
+
+let matchhistList;
+let filterAiBtn;
+let filterAiCounter;
+let filterLocalBtn;
+let filterLocalCounter;
+let filterRemoteBtn;
+let filterRemoteCounter;
 
 export async function init(data) {
 
@@ -30,6 +36,76 @@ export async function init(data) {
 
 	handleMatchHistory();
 	handleFriendlist();
+}
+
+function handleMatchHistory() {
+	matchhistList = document.getElementById("matchHistoryList");
+	filterAiBtn = document.getElementById("filterAiBtn");
+	filterAiCounter = document.getElementById("filterAiCounter");
+	filterLocalBtn = document.getElementById("filterLocalBtn");
+	filterLocalCounter = document.getElementById("filterLocalCounter");
+	filterRemoteBtn = document.getElementById("filterRemoteBtn");
+	filterRemoteCounter = document.getElementById("filterRemoteCounter");
+
+	filterAiBtn.addEventListener("click", () => {
+		listMatchHistory("ai_matches");
+	})
+
+	filterLocalBtn.addEventListener("click", () => {
+		listMatchHistory("local_matches");
+	})
+
+	filterRemoteBtn.addEventListener("click", () => {
+		listMatchHistory("remote_matches");
+	})
+
+	listMatchHistory("ai_matches");
+}
+
+async function listMatchHistory(type) {
+	try {
+		const matchhistReturn = await apiCallAuthed("/api/user/match-history");
+
+		filterAiCounter.innerHTML = matchhistReturn.ai_matches.length || 0;
+		filterLocalCounter.innerHTML = matchhistReturn.local_matches.length || 0;
+		filterRemoteCounter.innerHTML = matchhistReturn.remote_matches.length || 0;
+
+		const matches = matchhistReturn[type];
+
+		if (!matches || matches.length === 0)
+			matchhistList.innerHTML = `<li class="list-group-item text-center">You haven't played any games yet!</li>`;
+		else
+		{
+			matchhistList.innerHTML = '';
+			matches.reverse().forEach(match => {
+				const listItem = document.createElement('li');
+				let decision;
+				let opponent_name;
+				if ((match.type == "AIMatch" || match.type == "LocalMatch") && (match.player1_score > match.player2_score))
+					decision = "👍 WIN"
+				else
+					decision = "👎 LOSS"
+				opponent_name = match.player2_username;
+				if (match.type == "RemoteMatch")
+				{
+					opponent_name = sessionStorage.getItem("id") == match.player1_id ? match.player2_username : match.player1_username;
+					const ourPlayersScore = sessionStorage.getItem("id") == match.player1_id ? match.player1_score : match.player2_score;
+					if (ourPlayersScore == 3)
+						decision = "👍 WIN"
+					else
+						decision = "👎 LOSS"
+				}
+				listItem.className = 'list-group-item list-group-item-active d-flex w-100 justify-content-between';
+				listItem.innerHTML = `
+					<p class="mb-1"><strong>${decision}</strong> vs <strong>${opponent_name}</strong></p>
+					<small>${match.date.substring(8, 10)}/${match.date.substring(5, 7)}</small>
+				`;
+				matchhistList.appendChild(listItem);
+			});
+		}
+	} catch (error) {
+		console.error('Error fetching match history:', error);
+	}
 }
 
 function handleCustomColors(){
@@ -82,11 +158,6 @@ function handleFriendlist(){
 			clearInterval(refreshInterval);
 		}
 	});
-}
-
-function handleMatchHistory() {
-	matchhistList = document.getElementById("matchHistoryList");
-	listMatchHistory();
 }
 
 function fetchAndUpdateFriendList() {
@@ -221,32 +292,6 @@ async function addFriend() {
 	} catch (error) {
 		console.error('Error adding friend:', error);
 	}
-}
-
-async function listMatchHistory() {
-	try {
-		const matchhistReturn = await apiCallAuthed("/api/user/match-history");
-
-		if (!matchhistReturn || matchhistReturn.length === 0)
-			matchhistList.innerHTML = `<li class="list-group-item text-center">You haven't played any games yet!</li>`;
-		else
-		{
-			matchhistList.innerHTML = '';
-			matchhistReturn.forEach(match => {
-				const listItem = document.createElement('li');
-				listItem.className = 'list-group-item list-group-item-active d-flex flex-column align-items-center';
-				listItem.innerHTML = `
-				<p> ${match.player1_score} : ${match.player2_score} </p>
-				<p><strong>${match.player1_name}</strong> vs <strong>${match.player2_name}</strong></p>
-				<small>${match.date.substring(5, 7)}/${match.date.substring(8, 10)}</small>
-				`;
-				matchhistList.appendChild(listItem);
-			});
-		}
-	} catch (error) {
-		console.error('Error fetching match history', error);
-	}
-
 }
 
 async function handleUsernameEdit() {

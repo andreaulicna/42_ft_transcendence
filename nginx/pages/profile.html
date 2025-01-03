@@ -1,6 +1,6 @@
 <div class="container-sm fadeAnimation">
 	<div class="row g-2">
-		<div class="col">
+		<div class="col-12 col-md-4">
 			<div class="card h-100">
 				<div class="card-body">
 					<h5 class="card-title">⚙️ Profile</h5>
@@ -45,10 +45,24 @@
 				</div>
 			</div>
 		</div>
-		<div class="col">
+		<div class="col-12 col-md-4">
 			<div class="card h-100">
 				<div class="card-body">
 					<h5 class="card-title">⚔️ Match History</h5>
+					<div class="d-flex justify-content-center gap-2 mb-2">
+						<button type="button" class="btn btn-prg" id="filterAiBtn">
+							🤖 <span>AI</span>
+							<span class="badge text-bg-secondary" id="filterAiCounter">0</span>
+						</button>
+						<button type="button" class="btn btn-prg" id="filterLocalBtn">
+							⌨️ <span>Local</span>
+							<span class="badge text-bg-secondary" id="filterLocalCounter">0</span>
+						</button>
+						<button type="button" class="btn btn-prg" id="filterRemoteBtn">
+							⚔️ <span>Remote</span>
+							<span class="badge text-bg-secondary" id="filterRemoteCounter">0</span>
+						</button>
+					</div>
 					<ul class="list-group list-group-flush overflow-auto" id="matchHistoryList" style="max-height: 450px;">
 						<div class="list-group-item list-group-item-action">
 							<div class="d-flex w-100 justify-content-between">
@@ -60,7 +74,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="col">
+		<div class="col-12 col-md-4">
 			<div class="card h-100">
 				<div class="card-body">
 					<h5 class="card-title">👯 Friends</h5>
