@@ -43,6 +43,7 @@ urlpatterns = [
 	path('api/user/2fa-disable', views.Disable2FA.as_view(), name="disable-2fa"),
 	path('api/user/match-history', views.MatchHistoryView.as_view(), name='match-history'),
 	path('api/user/win-loss', views.WinLossView.as_view(), name='win-loss'),
+	path('api/user/users-status', views.UsersStatusListView.as_view(), name='all-users-status'),
 	path('healthcheck', views.HealthCheckView.as_view())
 ]  
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -114,52 +114,52 @@ class FriendshipListSerializer(serializers.ModelSerializer):
 			return "ON"
 		return "OFF"
 
-class MatchHistorySerializer(serializers.ModelSerializer):
-	player1_name = serializers.SerializerMethodField()
-	player2_name = serializers.SerializerMethodField()
+class HistoryMatchSerializer(serializers.ModelSerializer):
+	player1_username = serializers.CharField(source='player1.username', read_only=True)
+	player2_username = serializers.CharField(source='player2.username', read_only=True)
+	player1_id = serializers.IntegerField(source='player1.id', read_only=True)
+	player2_id = serializers.IntegerField(source='player2.id', read_only=True)
 	date = serializers.DateTimeField(source='time_created')
 	type = serializers.SerializerMethodField()
 
-	class MatchTypes(models.TextChoices):
-		MATCH = 'RM', gettext_lazy('Match')
-		LOCAL_MATCH = 'LM', gettext_lazy('LocalMatch')
-		AI_MATCH = 'AIM', gettext_lazy('AIMatch')
-
 	class Meta:
-		model = Match  # Use Match as a base model
-		fields = ['id', 'player1_name', 'player2_name', 'player1_score', 'player2_score', 'date', 'type']
-
-	def get_player1_name(self, obj):
-		if isinstance(obj, Match):
-			return obj.player1.username if obj.player1 else 'Unknown'
-		elif isinstance(obj, LocalMatch):
-			return obj.player1_tmp_username if obj.player1_tmp_username else 'Unknown'
-		elif isinstance(obj, AIMatch):
-			return obj.creator.username if obj.creator else 'Unknown'
-		return 'Unknown'
-
-	def get_player2_name(self, obj):
-		if isinstance(obj, Match):
-			return obj.player2.username if obj.player2 else 'Unknown'
-		elif isinstance(obj, LocalMatch):
-			return obj.player2_tmp_username if obj.player2_tmp_username else 'Unknown'
-		elif isinstance(obj, AIMatch):
-			return 'AI'
-		return 'Unknown'
+		model = Match
+		fields = ['id', 'player1_username', 'player2_username', 'player1_id', 'player2_id', 'player1_score', 'player2_score', 'date', 'type']
 
 	def get_type(self, obj):
-		if isinstance(obj, Match):
-			return self.MatchTypes.MATCH.label
-		elif isinstance(obj, LocalMatch):
-			return self.MatchTypes.LOCAL_MATCH.label
-		elif isinstance(obj, AIMatch):
-			return self.MatchTypes.AI_MATCH.label
-		return 'Unknown'
+		return 'RemoteMatch'
 
-	def to_representation(self, instance):
-		representation = super().to_representation(instance)
-		representation['type'] = self.get_type(instance)
-		return representation
+
+class HistoryLocalMatchSerializer(serializers.ModelSerializer):
+	player1_username = serializers.CharField(source='player1_tmp_username', read_only=True)
+	player2_username = serializers.CharField(source='player2_tmp_username', read_only=True)
+	creator_id = serializers.CharField(source='creator.id', read_only=True)
+	date = serializers.DateTimeField(source='time_created')
+	type = serializers.SerializerMethodField()
+
+	class Meta:
+		model = LocalMatch
+		fields = ['id', 'player1_username', 'player2_username', 'player1_score', 'player2_score', 'date', 'type', 'creator_id']
+
+	def get_type(self, obj):
+		return 'LocalMatch'
+
+class HistoryAIMatchSerializer(serializers.ModelSerializer):
+	player1_username = serializers.CharField(source='creator.username', read_only=True)
+	player2_username = serializers.SerializerMethodField()
+	creator_id = serializers.CharField(source='creator.id', read_only=True)
+	date = serializers.DateTimeField(source='time_created')
+	type = serializers.SerializerMethodField()
+
+	class Meta:
+		model = AIMatch
+		fields = ['id', 'player1_username', 'player2_username', 'player1_score', 'player2_score', 'date', 'type', 'creator_id']
+
+	def get_player2_username(self, obj):
+		return 'AI'
+	
+	def get_type(self, obj):
+		return 'AIMatch'
 
 class WinLossSerializer(serializers.Serializer):
 	overall_win = serializers.IntegerField()
@@ -213,3 +213,19 @@ class WinLossSerializer(serializers.Serializer):
 			'ai_match_win': ai_match_win,
 			'ai_match_loss': ai_match_loss,
 		}
+	
+class UsersStatusListSerializer(serializers.ModelSerializer):
+	user_status = serializers.SerializerMethodField()
+
+	class Meta:
+		model = CustomUser
+		fields = ['id', 'username', 'user_status']
+
+	def get_user(self, obj):
+		return CustomUser.objects.get(id=obj.id)
+
+	def get_user_status(self, obj):
+		user = self.get_user(obj)
+		if user.status_counter > 0:
+			return "ON"
+		return "OFF"
