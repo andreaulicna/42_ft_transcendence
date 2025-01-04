@@ -128,6 +128,12 @@ function handleCustomColors(){
 	colorBall.addEventListener('input', () => {
 		localStorage.setItem(`${sessionStorage.getItem("id")}_colorBall`, colorBall.value);
 	});
+
+	// Change colors in the main menu animation
+	// const root = document.documentElement;
+	// root.style.setProperty('--color-left-paddle', colorLeftPaddle.value);
+	// root.style.setProperty('--color-right-paddle', colorRightPaddle.value);
+	// root.style.setProperty('--color-ball', colorBall.value);
 }
 
 function handleFriendlist(){
