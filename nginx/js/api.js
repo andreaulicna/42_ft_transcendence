@@ -38,7 +38,7 @@ export async function apiCallAuthed(url, method = 'GET', headers = {}, payload =
 			console.log("API CALL RESPONSE", data);
 			return (data);
 		} else {
-			throw new Error(data.message || 'API call status not OK');
+			throw new Error(data.message || data.detail || 'API call status not OK');
 		}
 	} catch (error) {
 		console.error('Authenticated API call error:', error);
