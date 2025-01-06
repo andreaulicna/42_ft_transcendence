@@ -6,7 +6,7 @@ import json
 from django.shortcuts import get_object_or_404
 from asgiref.sync import sync_to_async
 import asyncio, logging
-from .pong_collision import paddle_collision, ball_collision_point, ball_center_from_collision
+from .pong_collision import paddle_collision
 import math
 from .pong_collision import PongGame
 import random
@@ -91,11 +91,7 @@ class AIPlayer:
 		pt = get_line_intersection(paddle_left, -10000, paddle_left, 10000, collision_point.x, collision_point.y, far_collision_point.x, far_collision_point.y)
 		
 		if (pt):
-			# logging.info(f"Prediction exact: {pt}")
-			#pt = ball_center_from_collision(pt, ball.direction, ball.size)
-			# adjust back from ball_left
-			pt.x -= (ball.size / 2)
-			# logging.info(f"Prediction exact adjusted: {pt}")
+			pt.x -= (ball.size / 2) # adjust back from ball_left
 			court_top = match_room.GAME_HALF_HEIGHT * (-1) + ball.size / 2
 			court_bottom = match_room.GAME_HALF_HEIGHT - ball.size / 2
 			while pt.y < court_top or pt.y > court_bottom:
@@ -117,7 +113,6 @@ class AIPlayer:
 		else:
 			self.position = Vector2D(0, 0)
 			self.exact_position = Vector2D(0, 0)
-	#		logging.info("No prediction made.")
 
 	def move_ai_paddle(self, paddle, match_room):
 		if not self.prediction.position:
