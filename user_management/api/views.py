@@ -176,9 +176,9 @@ class UserAvatarUpload(APIView):
 			ext = format.split('/')[-1] 
 			avatar_data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
 			# Define the folder where the avatar is stored
-			avatar_folder = os.path.dirname(player.avatar.path)
 			if player.avatar:
 				# Delete existing files in the folder
+				avatar_folder = os.path.dirname(player.avatar.path)
 				for filename in os.listdir(avatar_folder):
 					file_path = os.path.join(avatar_folder, filename)
 					if os.path.isfile(file_path):
