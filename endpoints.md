@@ -16,7 +16,8 @@ Deleted `/api/user/friendships`, reworked `/api/user/friends` endpoint, updated 
 | Endpoint | Supported methods | Required input | Return codes | Notes |
 | :--- |---|:---| :---:| :---: |
 | `/register` |POST|`username`<br>`password`<br>`email`| 201<br>400 |  |
-| `/info` |GET, PUT|  `last_name` (PUT)<br> `first_name` (PUT)<`username` (PUT)| 200<br>404 |  |
+| `/info` |GET, PUT|  `last_name` (PUT)<br> `first_name` (PUT)<br> `username` (PUT)| 200<br>404 | Current user info |
+| `<int:pk>/info` |GET| | 200<br>404 | User info based on the provided user_id |
 | `/avatar` | GET, (PUT) | JSON-encoded image | 200 (GET)<br>201 (PUT)<br>404 | currently non-functional |
 | `/match` | GET |  | 200 (GET)<br>400<br>404 | shows history of all matches for a specific user |
 | `/users-list`<sup>2</sup> | GET|  | 200  | &check; |
