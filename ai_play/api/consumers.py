@@ -101,10 +101,10 @@ class AIPlayer:
 					pt.y = court_bottom - (pt.y - court_bottom)
 			self.prediction.exact_position = pt
 
-			if (ball.direction.x < 0):
+			if (ball.direction.x > 0):
 				closeness = (ball.position.x - paddle_left) / match_room.GAME_WIDTH
 			else:
-				closeness = (paddle_left - ball.position.x) / match_room.GAME_WIDTH
+				closeness = (paddle_left - ball.position.x) / match_room.GAME_WIDTH # never happens now, should be changed to paddle_right for AI vs AI
 			error = self.level.error * closeness
 			self.prediction.position = Vector2D(pt.x, pt.y + random.uniform(-error, error))
 			self.prediction.since = 0
@@ -118,27 +118,25 @@ class AIPlayer:
 		if not self.prediction.position:
 			return
 
-		if self.prediction.position.y < paddle.position.y - paddle.paddle_half_height:
+		if self.prediction.position.y < paddle.position.y - paddle.paddle_half_height/ 2: 
 			if paddle.position.y > (match_room.GAME_HALF_HEIGHT - paddle.paddle_half_height) * (-1):
 				paddle.position.y -= paddle.paddle_speed
-		elif self.prediction.position.y > paddle.position.y + paddle.paddle_half_height:
+		elif self.prediction.position.y > paddle.position.y + paddle.paddle_half_height / 2:
 			if paddle.position.y < (match_room.GAME_HALF_HEIGHT - paddle.paddle_half_height):
 				paddle.position.y += paddle.paddle_speed
 
 	def set_initial_levels(self, max_score):
 		levels = []
-		reaction = 0
-		reaction_increment = 0.1
-		error = 50
-		error_increment = 10
+		reaction = 0.2
+		error = 10
 		num_of_levels = (max_score - 1) * 2 + 1
 		while (num_of_levels > 0):
-			new_level = AILevel(reaction + reaction_increment, error + error_increment)
-			reaction += reaction_increment
-			error += error_increment
+			new_level = AILevel(reaction, error)
+			reaction += 0.1
+			error += 20
 			levels.append(new_level)
 			num_of_levels -= 1
-		#logging.info(f"Setting these levels: {levels}")
+		logging.info(f"Setting these levels: {levels}")
 		return levels
 
 	def update_level(self, ai_player_score, other_player_score):
