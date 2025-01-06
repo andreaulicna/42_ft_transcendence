@@ -38,6 +38,25 @@ export async function init(data) {
 	handleFriendlist();
 }
 
+// Show a user's profile
+async function showUserProfile(event) {
+	if (event.target && event.target.matches('a[data-user-id]')) {
+		const userId = event.target.getAttribute('data-user-id');
+		apiCallAuthed(`/api/user/${userId}/info`)
+			.then(response => {
+				const userProfile = document.getElementById("userProfileBody");
+				userProfile.innerHTML = `
+					<img class="profilePic" src="${response.avatar}" alt="User profile picture">
+					<div class="text-center fs-3 pb-2">${response.username}</div>
+				`;
+				// console.log(response);
+			})
+			.catch(error => {
+				console.error('Error showing user profile:', error);
+			});
+	}
+}
+
 function handleMatchHistory() {
 	matchhistList = document.getElementById("matchHistoryList");
 	filterAiBtn = document.getElementById("filterAiBtn");
@@ -57,6 +76,10 @@ function handleMatchHistory() {
 
 	filterRemoteBtn.addEventListener("click", () => {
 		listMatchHistory("remote_matches");
+	})
+
+	matchhistList.addEventListener("click", (e) => {
+		showUserProfile(e);
 	})
 
 	listMatchHistory("ai_matches");
@@ -88,8 +111,10 @@ async function listMatchHistory(type) {
 				opponent_name = match.player2_username;
 				if (match.type == "RemoteMatch")
 				{
-					opponent_name = sessionStorage.getItem("id") == match.player1_id ? match.player2_username : match.player1_username;
-					const ourPlayersScore = sessionStorage.getItem("id") == match.player1_id ? match.player1_score : match.player2_score;
+					opponent_name = localStorage.getItem("id") == match.player1_id ? match.player2_username : match.player1_username;
+					const opponent_id = localStorage.getItem("id") == match.player1_id ? match.player2_id : match.player1_id;
+					opponent_name = `<a class="link-prg" data-bs-toggle="modal" data-bs-target="#userProfileModal" data-user-id=${opponent_id}>${opponent_name}</a>`;
+					const ourPlayersScore = localStorage.getItem("id") == match.player1_id ? match.player1_score : match.player2_score;
 					if (ourPlayersScore == 3)
 						decision = "👍 WIN"
 					else
@@ -113,20 +138,20 @@ function handleCustomColors(){
 	let colorRightPaddle = document.getElementById('colorRightPaddle');
 	let colorBall = document.getElementById('colorBall');
 
-	colorLeftPaddle.value = localStorage.getItem(`${sessionStorage.getItem("id")}_colorLeftPaddle`) || '#00babc';
-	colorRightPaddle.value = localStorage.getItem(`${sessionStorage.getItem("id")}_colorRightPaddle`) || '#df2af7';
-	colorBall.value = localStorage.getItem(`${sessionStorage.getItem("id")}_colorBall`) || '#ffffff';
+	colorLeftPaddle.value = localStorage.getItem(`${localStorage.getItem("id")}_colorLeftPaddle`) || '#00babc';
+	colorRightPaddle.value = localStorage.getItem(`${localStorage.getItem("id")}_colorRightPaddle`) || '#df2af7';
+	colorBall.value = localStorage.getItem(`${localStorage.getItem("id")}_colorBall`) || '#ffffff';
 
 	colorLeftPaddle.addEventListener('input', () => {
-		localStorage.setItem(`${sessionStorage.getItem("id")}_colorLeftPaddle`, colorLeftPaddle.value);
+		localStorage.setItem(`${localStorage.getItem("id")}_colorLeftPaddle`, colorLeftPaddle.value);
 	});
 
 	colorRightPaddle.addEventListener('input', () => {
-		localStorage.setItem(`${sessionStorage.getItem("id")}_colorRightPaddle`, colorRightPaddle.value);
+		localStorage.setItem(`${localStorage.getItem("id")}_colorRightPaddle`, colorRightPaddle.value);
 	});
 
 	colorBall.addEventListener('input', () => {
-		localStorage.setItem(`${sessionStorage.getItem("id")}_colorBall`, colorBall.value);
+		localStorage.setItem(`${localStorage.getItem("id")}_colorBall`, colorBall.value);
 	});
 
 	// Change colors in the main menu animation

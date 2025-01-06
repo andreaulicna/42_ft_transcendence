@@ -39,7 +39,7 @@ async function createTournament(event) {
 
 		const response = await apiCallAuthed(`/api/tournament/create/${tournamentSlots}/`, "POST", null, payload);
 		console.log("TOURNAMENT ID, ", response.tournament.id);
-		sessionStorage.setItem("tournament_id", response.tournament.id);
+		localStorage.setItem("tournament_id", response.tournament.id);
 		openTournamentWebsocket(response.tournament.id);
 		window.location.hash = '#lobby-tnmt';
 	} catch (error) {
@@ -52,7 +52,7 @@ async function createTournament(event) {
 async function joinTournament(event) {
 	if (event.target && event.target.matches('button[data-tournament-id]')) {
 		const tournamentId = event.target.getAttribute('data-tournament-id');
-		sessionStorage.setItem("tournament_id", tournamentId);
+		localStorage.setItem("tournament_id", tournamentId);
 		apiCallAuthed(`/api/tournament/join/${tournamentId}/`, "POST")
 			.then(response => {
 				openTournamentWebsocket(response.tournament.id);

@@ -93,9 +93,9 @@ export function initGameData(data) {
 		y: (0 - (data.default_paddle_height / 2) + originalGameHeight / 2) * scaleY,
 	};
 
-	paddle1Color = localStorage.getItem(`${sessionStorage.getItem("id")}_colorLeftPaddle`) || "#00babc";
-	paddle2Color = localStorage.getItem(`${sessionStorage.getItem("id")}_colorRightPaddle`) || "#df2af7";
-	ballColor = localStorage.getItem(`${sessionStorage.getItem("id")}_colorBall`) || "whitesmoke";
+	paddle1Color = localStorage.getItem(`${localStorage.getItem("id")}_colorLeftPaddle`) || "#00babc";
+	paddle2Color = localStorage.getItem(`${localStorage.getItem("id")}_colorRightPaddle`) || "#df2af7";
+	ballColor = localStorage.getItem(`${localStorage.getItem("id")}_colorBall`) || "whitesmoke";
 	ballExactColor = "green";
 	ballPredictionColor = "red";
 

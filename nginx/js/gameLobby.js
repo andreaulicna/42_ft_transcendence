@@ -9,7 +9,7 @@ import { apiCallAuthed } from './api.js';
 
 export function init() {
 	const mode = localStorage.getItem('gameMode');
-	const last_match_id = sessionStorage.getItem("match_id");
+	const last_match_id = localStorage.getItem("match_id");
 
 	// Change loading text in different modes
 	const loadingTextElement = document.getElementById('loadingText');
@@ -81,7 +81,7 @@ async function createLocalPlay(event) {
 
 		const response = await apiCallAuthed(`/api/localplay/match`, "POST", null, payload);
 		console.log("LOCAL PLAY ID ", response.match_id);
-		sessionStorage.setItem("match_id", response.match_id);
+		localStorage.setItem("match_id", response.match_id);
 		openLocalPlayWebsocket(response.match_id);
 	} catch (error) {
 		console.error("Error creating local match:", error);

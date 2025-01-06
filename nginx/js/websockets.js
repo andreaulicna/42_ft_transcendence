@@ -11,7 +11,7 @@ async function openWebSocket(url, type) {
 		try {
 			const response = await apiCallAuthed('/api/auth/ws-login', 'GET');
 			const uuid = response.uuid;
-			sessionStorage.setItem('uuid', uuid);
+			localStorage.setItem('uuid', uuid);
 
 			const ws = new WebSocket(url + `?uuid=${uuid}`);
 
@@ -39,7 +39,7 @@ async function openWebSocket(url, type) {
 				{
 					if (data.message != "tournament_end")
 					{
-						sessionStorage.setItem("match_id", data.message);
+						localStorage.setItem("match_id", data.message);
 						openPongWebsocket(data.message);
 					}
 				}

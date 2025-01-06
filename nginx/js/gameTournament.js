@@ -29,11 +29,11 @@ import { textDynamicLoad } from "./animations.js";
 import { addTournamentMatchEndListener, closeTournamentWebsocket } from "./websockets.js";
 
 let tournamentRoundNumber = 0;
-const tournamentCapacity = parseInt(sessionStorage.getItem("tournament_capacity"), 10);
+const tournamentCapacity = parseInt(localStorage.getItem("tournament_capacity"), 10);
 const tournamentRoundMax = Math.log2(tournamentCapacity);
 
 export async function init() {
-	let data = await apiCallAuthed(`/api/user/match/${sessionStorage.getItem("match_id")}`);
+	let data = await apiCallAuthed(`/api/user/match/${localStorage.getItem("match_id")}`);
 	startCountdown();
 	initGameData(data);
 	initEventListeners();
@@ -70,18 +70,18 @@ function initTournamentEventListeners()
 }
 
 export function handleTournamentGameOver() {
-	setMatchID(sessionStorage.getItem("match_id"));
+	setMatchID(localStorage.getItem("match_id"));
 	tournamentRoundNumber++;
 	console.log("ROUND NUMBER", tournamentRoundNumber);
 	console.log("MAX ROUNDS", tournamentRoundMax);
 	const winnerID = player1.score > player2.score ? player1Data.id : player2Data.id;
 	const loserID = player1.score > player2.score ? player2Data.id : player1Data.id;
-	if (sessionStorage.getItem("id") == winnerID) {
+	if (localStorage.getItem("id") == winnerID) {
 		dispatchWinnerMatchEnd(winnerID, matchID);
 		mainMenuButton.style.display = "none";
 		// if (tournamentRoundNumber >= tournamentRoundMax)
 		// 	window.location.hash = "winner-tnmt";
-	} else if (sessionStorage.getItem("id") == loserID) {
+	} else if (localStorage.getItem("id") == loserID) {
 		closeTournamentWebsocket();
 		// window.location.hash = '#dashboard';
 	}
@@ -102,14 +102,14 @@ function handleTournamentEnd() {
 	console.log("HANDLING TOURNAMENT END");
 	const winnerID = player1.score > player2.score ? player1Data.id : player2Data.id;
 	const loserID = player1.score > player2.score ? player2Data.id : player1Data.id;
-	console.log(`my ID: ${sessionStorage.getItem("id")}, winner ID: ${winnerID}, loser ID: ${loserID}`);
+	console.log(`my ID: ${localStorage.getItem("id")}, winner ID: ${winnerID}, loser ID: ${loserID}`);
 	closeTournamentWebsocket();
-	if (sessionStorage.getItem("id") == winnerID)
+	if (localStorage.getItem("id") == winnerID)
 	{
 		window.location.hash = "winner-tnmt";
 		mainMenuButton.style.display = "block";
 	}
-	// else if (sessionStorage.getItem("id") == loserID)
+	// else if (localStorage.getItem("id") == loserID)
 	// {
 	// 	window.location.hash = '#dashboard';
 	// }
@@ -118,7 +118,7 @@ function handleTournamentEnd() {
 async function resetGame() {
 	drawTick();
 	resetScore();
-	let data = await apiCallAuthed(`/api/user/match/${sessionStorage.getItem("match_id")}`);
+	let data = await apiCallAuthed(`/api/user/match/${localStorage.getItem("match_id")}`);
 	initMatchData(data);
 	hideGameOverScreen();
 	mainMenuButton.style.display = "block";
