@@ -29,9 +29,9 @@ export async function init() {
 		await createAIPlay();
 
 		// Ensure match_id is set
-		const match_id = sessionStorage.getItem("match_id");
+		const match_id = localStorage.getItem("match_id");
 		if (!match_id) {
-			throw new Error("Match ID is not set in sessionStorage.");
+			throw new Error("Match ID is not set in localStorage.");
 		}
 
 		// Change URL to AI mode below
@@ -80,7 +80,7 @@ async function createAIPlay(event) {
 	try {
 		const response = await apiCallAuthed(`/api/ai/match`, "POST", null, null);
 		console.log("AI PLAY ID ", response.match_id);
-		sessionStorage.setItem("match_id", response.match_id);
+		localStorage.setItem("match_id", response.match_id);
 		openAIPlayWebsocket(response.match_id);
 	} catch (error) {
 		console.error("Error creating AI match:", error);

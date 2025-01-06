@@ -19,8 +19,8 @@ export function init() {
 			try {
 				const data = await loginUser(payload);
 				console.log('Login successful:', data);
-				// Store tokens in session storage
-				sessionStorage.setItem('access', data.access);
+				// Store tokens in local storage
+				localStorage.setItem('access', data.access);
 				// Establish friendlist websocket
 				openFriendlistWebsocket();
 				// Redirect to dashboard upon succesful authentization
@@ -51,7 +51,7 @@ async function loginUser(payload) {
 			if (data.otp_required)
 			{
 				console.log("ENTERING 2FA");
-				sessionStorage.setItem('login_payload', JSON.stringify(payload));
+				localStorage.setItem('login_payload', JSON.stringify(payload));
 				window.location.hash = '#2fa';
 			}
 
@@ -61,8 +61,8 @@ async function loginUser(payload) {
 			const accessTokenPayload = JSON.parse(atob(accessToken.split('.')[1]));
 			const accessTokenExpiration = accessTokenPayload.exp * 1000; // Convert to milliseconds
 
-			sessionStorage.setItem('access', accessToken);
-			sessionStorage.setItem('access_expiration', accessTokenExpiration);
+			localStorage.setItem('access', accessToken);
+			localStorage.setItem('access_expiration', accessTokenExpiration);
 
 			return data;
 		} else {

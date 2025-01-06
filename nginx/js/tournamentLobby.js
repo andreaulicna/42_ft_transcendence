@@ -18,7 +18,7 @@ export function init() {
 	const returnButton = document.getElementById('cancelBtn');
 	if (returnButton) {
 		returnButton.addEventListener('click', () => {
-			apiCallAuthed(`/api/tournament/join/cancel/${sessionStorage.getItem("tournament_id")}/`, "POST")
+			apiCallAuthed(`/api/tournament/join/cancel/${localStorage.getItem("tournament_id")}/`, "POST")
 				.then(() => {
 					console.log('Leaving tournament');
 				})
@@ -40,9 +40,9 @@ export function init() {
 // Get tournament info and list joined players (refresh every X seconds)
 async function fetchAndUpdatePlayerList() {
 	try {
-		const data = await apiCallAuthed(`api/tournament/info/${sessionStorage.getItem("tournament_id")}`, undefined, undefined, undefined, false);
+		const data = await apiCallAuthed(`api/tournament/info/${localStorage.getItem("tournament_id")}`, undefined, undefined, undefined, false);
 		console.log("ACTIVE TOURNAMENT INFO", data);
-		sessionStorage.setItem("tournament_capacity", data.capacity);
+		localStorage.setItem("tournament_capacity", data.capacity);
 		const activePlayers = data.players;
 		const playerListID = document.getElementById("player-list");
 		playerListID.innerHTML = '';

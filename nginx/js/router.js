@@ -33,9 +33,14 @@ const loadContent = async (path) => {
 		setLanguage(preferredLanguage);
 
 		// Check if user is logged in first
-		if ((path != '/pages/login.html' && path != '/pages/2fa.html' && path != '/pages/register.html' && path != '/pages/404.html') && !sessionStorage.getItem('access')) {
+		if ((path != '/pages/login.html' && path != '/pages/2fa.html' && path != '/pages/register.html' && path != '/pages/404.html') && !localStorage.getItem('access')) {
 			window.location.hash = '#login';
 			throw new Error('Not logged in.');
+		}
+
+		// If user is logged in, go from #login straight to #dashboard
+		if (path == '/pages/login.html' && localStorage.getItem('access')) {
+			window.location.hash = '#dashboard';
 		}
 
 		// Import the page's relevant script
@@ -94,7 +99,7 @@ window.addEventListener('load', router);
 export function redirectToHome(event) {
 	event.preventDefault();
 	
-	const accessToken = sessionStorage.getItem('access');
+	const accessToken = localStorage.getItem('access');
 	// If user is logged in, go to dashboard, otherwise to login page
 	if (accessToken) {
 		// If a player is inside a lobby, they can only be redirected via the Cancel button
@@ -115,13 +120,15 @@ window.redirectToHome = redirectToHome;
 // Logout procedure
 export async function logout() {
 	try {
-		window.location.hash = '#login';
 		const response = await apiCallAuthed("/api/auth/login/refresh/logout", "POST");
-		sessionStorage.removeItem('access');
-		sessionStorage.removeItem('access_expiration');
-		sessionStorage.removeItem('uuid');
-		sessionStorage.removeItem('id');
-		sessionStorage.removeItem('match_id');
+		localStorage.removeItem('access');
+		localStorage.removeItem('access_expiration');
+		localStorage.removeItem('uuid');
+		localStorage.removeItem('id');
+		localStorage.removeItem('match_id');
+
+		window.location.hash = '#login';
+
 		// Cookies.remove('csrftoken');
 		// Cookies.remove('refresh_token', { path: '/', domain: 'yourdomain.com' });
 		console.log('Logged out successfully');
@@ -134,6 +141,6 @@ window.logout = logout;
 
 // Reopen the friendlist ON/OFF status websocket on a reload
 window.addEventListener('load', () => {
-	if (sessionStorage.getItem("access"))
+	if (localStorage.getItem("access"))
 		openFriendlistWebsocket();
 });

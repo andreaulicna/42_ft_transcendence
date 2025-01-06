@@ -2,7 +2,7 @@ import { showLoading } from "./animations.js";
 import { hideLoading } from "./animations.js";
 
 export async function apiCallAuthed(url, method = 'GET', headers = {}, payload = null, showAnimation = true) {
-	const accessTokenExpiration = parseInt(sessionStorage.getItem('access_expiration'), 10);
+	const accessTokenExpiration = parseInt(localStorage.getItem('access_expiration'), 10);
 	const now = Date.now();
 
 	// Check if the access token is about to expire
@@ -14,7 +14,7 @@ export async function apiCallAuthed(url, method = 'GET', headers = {}, payload =
 		method,
 		headers: {
 			...headers,
-			'Authorization': `Bearer ${sessionStorage.getItem('access')}`,
+			'Authorization': `Bearer ${localStorage.getItem('access')}`,
 			'X-CSRFToken': Cookies.get("csrftoken")
 		}
 	};
@@ -69,8 +69,8 @@ async function refreshAccessToken() {
 			const accessTokenPayload = JSON.parse(atob(accessToken.split('.')[1]));
 			const accessTokenExpiration = accessTokenPayload.exp * 1000; // Convert to milliseconds
 
-			sessionStorage.setItem('access', accessToken);
-			sessionStorage.setItem('access_expiration', accessTokenExpiration);
+			localStorage.setItem('access', accessToken);
+			localStorage.setItem('access_expiration', accessTokenExpiration);
 		} else {
 			const errorData = await response.json();
 			throw new Error(errorData.message || 'Token refresh failed');

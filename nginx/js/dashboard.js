@@ -3,7 +3,7 @@ import { logout } from "./router.js";
 let logoutBtn;
 
 export async function init(data) {
-	sessionStorage.setItem("id", data.id);
+	localStorage.setItem("id", data.id);
 	
 	// Add selected game mode to local storage
 	document.querySelectorAll('#menu a').forEach(link => {
@@ -22,9 +22,9 @@ export async function init(data) {
 
 	// Change animation colors according to user's settings
 	const root = document.documentElement;
-	const colorLeftPaddle = localStorage.getItem(`${sessionStorage.getItem("id")}_colorLeftPaddle`) || "#00babc";
-	const colorRightPaddle = localStorage.getItem(`${sessionStorage.getItem("id")}_colorRightPaddle`) || "#df2af7";
-	const colorBall = localStorage.getItem(`${sessionStorage.getItem("id")}_colorBall`) || "whitesmoke";
+	const colorLeftPaddle = localStorage.getItem(`${localStorage.getItem("id")}_colorLeftPaddle`) || "#00babc";
+	const colorRightPaddle = localStorage.getItem(`${localStorage.getItem("id")}_colorRightPaddle`) || "#df2af7";
+	const colorBall = localStorage.getItem(`${localStorage.getItem("id")}_colorBall`) || "whitesmoke";
     root.style.setProperty('--color-left-paddle', colorLeftPaddle);
     root.style.setProperty('--color-right-paddle', colorRightPaddle);
     root.style.setProperty('--color-ball', colorBall);

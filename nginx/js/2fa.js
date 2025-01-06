@@ -1,8 +1,8 @@
 import { openFriendlistWebsocket } from './websockets.js';
 
 export function init() {
-	const loginPayload = JSON.parse(sessionStorage.getItem("login_payload"));
-	sessionStorage.removeItem("login_payload");
+	const loginPayload = JSON.parse(localStorage.getItem("login_payload"));
+	localStorage.removeItem("login_payload");
     const { username, password } = loginPayload;
 
 	const form = document.getElementById('2faForm');
@@ -20,7 +20,7 @@ export function init() {
 			const data = await login2FA(payload);
 			console.log('Login successful:', data);
 			// Store tokens in session storage
-			sessionStorage.setItem('access', data.access);
+			localStorage.setItem('access', data.access);
 			// Establish friendlist websocket
 			openFriendlistWebsocket();
 			// Redirect to dashboard upon succesful authentization
@@ -53,8 +53,8 @@ async function login2FA(payload) {
 				const accessTokenPayload = JSON.parse(atob(accessToken.split('.')[1]));
 				const accessTokenExpiration = accessTokenPayload.exp * 1000; // Convert to milliseconds
 
-				sessionStorage.setItem('access', accessToken);
-				sessionStorage.setItem('access_expiration', accessTokenExpiration);
+				localStorage.setItem('access', accessToken);
+				localStorage.setItem('access_expiration', accessTokenExpiration);
 
 				return data;
 			} else {
