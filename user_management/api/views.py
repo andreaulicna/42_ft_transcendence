@@ -18,7 +18,8 @@ from django.http import Http404
 import base64, os
 from django.core.files.base import ContentFile
 import pyotp, qrcode, logging, io
-from django.db import models
+from django.db import models, IntegrityError
+
 
 class HealthCheckView(APIView):
 	def get(self, request):
@@ -124,16 +125,19 @@ class UserInfoView(APIView):
 			first_name = request.data.get('first_name')
 			last_name = request.data.get('last_name')
 			username = request.data.get('username')
-			if first_name:
-				new_first_name = ' '.join(first_name.split())
-				player.first_name = new_first_name
-			if last_name:
-				new_last_name = ' '.join(last_name.split())
-				player.last_name = new_last_name
-			if username:
-				new_username = ' '.join(username.split())
-				player.username = new_username
-			player.save()
+			try:
+				if first_name:
+					new_first_name = ' '.join(first_name.split())
+					player.first_name = new_first_name
+				if last_name:
+					new_last_name = ' '.join(last_name.split())
+					player.last_name = new_last_name
+				if username:
+					new_username = ' '.join(username.split())
+					player.username = new_username
+				player.save()
+			except IntegrityError as e:
+				return Response({'detail': 'Username already exists, choose a different one'}, status=status.HTTP_400_BAD_REQUEST)
 			return Response({'detail' : 'User info updated'})
 		
 class UserInfoReset(APIView):
