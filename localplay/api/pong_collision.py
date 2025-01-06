@@ -1,24 +1,12 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    pong_collision.py                                  :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: aulicna <aulicna@student.42prague.com>     +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2024/11/28 16:33:30 by plouda            #+#    #+#              #
-#    Updated: 2024/12/13 11:39:36 by aulicna          ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
-
 from .utils import Vector2D, get_line_intersection
 import logging, math, random
 from django.conf import settings
+import math
 
 
 class PongGame:
 	def __init__(self, match_id, player1, player2):
 		self.match_id = match_id
-	#	self.match_group_name = str(match_id) + "_match"
 		self.GAME_WIDTH = settings.GAME_CONSTANTS['GAME_WIDTH']
 		self.GAME_HEIGHT = settings.GAME_CONSTANTS['GAME_HEIGHT']
 		self.GAME_HALF_WIDTH = self.GAME_WIDTH / 2
@@ -73,6 +61,42 @@ def ball_collision_point(ball: Ball) -> Vector2D:
 	collision_point = Vector2D(x, y) + ball.position
 	return collision_point
 
+# Calculate the rebound angle based on the impact point relative to the paddle's center.
+def calculate_rebound_angle(paddle, ball, max_angle=45) -> float:
+
+	# Calculate the vertical distance between the paddle's center and the ball's position
+	# The result will be a range of -half_paddle_height to half_paddle_height
+	relativeIntersectY = paddle.position.y - ball.position.y
+
+	# Normalize the distance to a range of -1 to 1
+	normalizedRelativeIntersectionY = relativeIntersectY / paddle.paddle_half_height
+
+	# Determine the bounce anfle based on the ball's direcction
+	if (ball.direction.y < 0): # ball going up
+		bounceAngle = normalizedRelativeIntersectionY * max_angle
+	elif (ball.direction.y >= 0): # ball going down
+		bounceAngle = normalizedRelativeIntersectionY * -max_angle
+	return (bounceAngle)
+
+def calculate_ball_direction_after_collision(paddle, ball) -> Vector2D:
+		
+		new_ball_direction = Vector2D(0,0)
+
+		# Calculate the rebound angle
+		rebound_angle = calculate_rebound_angle(paddle, ball)
+
+		# Determine the new y-direction based on the ball's position relative to the paddle
+		if (ball.position.y > paddle.position.y):
+			new_ball_direction.y = -math.sin(math.radians(-rebound_angle)) # ball hit paddle in the bottom half
+		else:
+			new_ball_direction.y = -math.sin(math.radians(rebound_angle)) # ball hit paddle in the top half
+
+		# Determine the new x-direction based on the ball's position
+		if (ball.position.x > 0):
+			new_ball_direction.x = -math.cos(math.radians(rebound_angle)) # ball hit on the right paddle
+		else:
+			new_ball_direction.x = math.cos(math.radians(rebound_angle)) # ball hit on the left paddle
+		return new_ball_direction
 
 def paddle_collision(ball: Ball, paddle1: Paddle, paddle2: Paddle) -> Ball:
 	# top & bottom are y-components, left & right are x-components
@@ -113,7 +137,7 @@ def paddle_collision(ball: Ball, paddle1: Paddle, paddle2: Paddle) -> Ball:
 		logging.info("Paddle1 side")
 		ball.position = intersection
 		ball.position.x += ball.size / 2
-		ball.direction.x *= -1
+		ball.direction = calculate_ball_direction_after_collision(paddle1, ball)
 		ball.speed += 0.1
 	elif intersection := get_line_intersection(paddle1_right, paddle1_top, paddle1_left, paddle1_top, ball.position.x, ball_bottom, ball_next_step_down.x, ball_next_step_down.y):
 		logging.info("Paddle1 top")
@@ -155,7 +179,7 @@ def paddle_collision(ball: Ball, paddle1: Paddle, paddle2: Paddle) -> Ball:
 		logging.info("Paddle2 side")
 		ball.position = intersection
 		ball.position.x -= ball.size / 2
-		ball.direction.x *= -1
+		ball.direction = calculate_ball_direction_after_collision(paddle2, ball)
 		ball.speed += 0.1
 	elif intersection := get_line_intersection(paddle2_left, paddle2_top, paddle2_right, paddle2_top, ball.position.x, ball_bottom, ball_next_step_down.x, ball_next_step_down.y):
 		logging.info("Paddle2 top")
