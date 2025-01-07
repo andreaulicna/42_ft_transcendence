@@ -5,9 +5,8 @@ import math
 
 
 class PongGame:
-	def __init__(self, match_id):
+	def __init__(self, match_id, player1, player2):
 		self.match_id = match_id
-		self.match_group_name = str(match_id) + "_match"
 		self.GAME_WIDTH = settings.GAME_CONSTANTS['GAME_WIDTH']
 		self.GAME_HEIGHT = settings.GAME_CONSTANTS['GAME_HEIGHT']
 		self.GAME_HALF_WIDTH = self.GAME_WIDTH / 2
@@ -18,8 +17,9 @@ class PongGame:
 		self.paddle1 = Paddle(x=-80 + self.PADDLE_HALF_WIDTH, game=self)
 		self.paddle2 = Paddle(x=80 - self.PADDLE_HALF_WIDTH, game=self)
 		self.ball = Ball()
-		self.player1 = None
-		self.player2 = None
+		self.player1 = player1
+		self.player2 = player2
+
 
 	# def __repr__(self):
 	# 	return (f"PongGame(match_id={self.match_id}, game_width={self.GAME_WIDTH}, "
@@ -27,7 +27,7 @@ class PongGame:
 	# 			f"player1={self.player1}, player2={self.player2})")
 	
 	def __repr__(self):
-		return (f"PongGame(match_id={self.match_id}, player1={self.player1}, player2={self.player2}), group_name={self.match_group_name}")
+		return (f"PongGame(match_id={self.match_id}, player1={self.player1}, player2={self.player2}")
 	
 	def reset(self):
 		self.paddle1 = Paddle(x=-80 + self.PADDLE_HALF_WIDTH, game=self)
@@ -63,21 +63,26 @@ def ball_collision_point(ball: Ball) -> Vector2D:
 	return collision_point
 
 # Calculate the rebound angle based on the impact point relative to the paddle's center.
-def calculate_rebound_angle(paddle, ball, max_angle=45) -> float:
+def calculate_rebound_angle(paddle, ball, max_angle=55) -> float:
 
 	# Calculate the vertical distance between the paddle's center and the ball's position
 	# The result will be a range of -half_paddle_height to half_paddle_height
-	relativeIntersectY = paddle.position.y - ball.position.y
+	relative_intersect_y = paddle.position.y - ball.position.y
 
 	# Normalize the distance to a range of -1 to 1
-	normalizedRelativeIntersectionY = relativeIntersectY / paddle.paddle_half_height
+	normalized_relative_intersection_y = relative_intersect_y / paddle.paddle_half_height
 
 	# Determine the bounce anfle based on the ball's direcction
 	if (ball.direction.y < 0): # ball going up
-		bounceAngle = normalizedRelativeIntersectionY * max_angle
+		bounce_angle = normalized_relative_intersection_y * max_angle
 	elif (ball.direction.y >= 0): # ball going down
-		bounceAngle = normalizedRelativeIntersectionY * -max_angle
-	return (bounceAngle)
+		bounce_angle = normalized_relative_intersection_y * -max_angle
+	if (abs(bounce_angle) < 15):
+		if (bounce_angle < 0):
+			bounce_angle = -15
+		else:
+			bounce_angle = 15
+	return (bounce_angle)
 
 def calculate_ball_direction_after_collision(paddle, ball) -> Vector2D:
 		
