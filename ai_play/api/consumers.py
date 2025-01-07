@@ -19,154 +19,16 @@ match_rooms = []
 
 from pprint import pprint
 
-class Player:
-	def __init__(self, player_id, username):
-		self.id = player_id
-		self.username = username
-		self.score = 0
-
-	def __repr__(self):
-		return f"Player(id={self.id}, username={self.username})"
-	
-class Prediction:
-	def __init__(self):
-		self.direction = Vector2D(0, 0)
-		self.position = Vector2D(0, 0)
-		self.exact_position = Vector2D(0, 0)
-		self.since = 0
-		self.size = 0
-
-class AILevel:
-	def __init__(self, reaction, error):
-		self.reaction = reaction
-		self.error = error
-
-	def __repr__(self):
-		return f"AILevl(reaction={self.reaction}, error={self.error})"
-
-# max_score = 5
-		#	{"aiReaction": 0.1, "aiError":  60},  # 0: ai is losing by 4
-		#	{"aiReaction": 0.2, "aiError":  70},  # 1: ai is losing by 3
-		#	{"aiReaction": 0.3, "aiError":  80},  # 2: ai is losing by 2
-		#	{"aiReaction": 0.4, "aiError":  90},  # 3: ai is losing by 1
-		#	{"aiReaction": 0.5, "aiError":  100}, # 4: tie
-		#	{"aiReaction": 0.6, "aiError": 110},  # 5: ai is winning by 1
-		#	{"aiReaction": 0.7, "aiError": 120},  # 6: ai is winning by 2
-		#	{"aiReaction": 0.8, "aiError": 130},  # 7: ai is winning by 3
-		#	{"aiReaction": 0.9, "aiError": 140},  # 8: ai is winning by 4
-
-# max_score = 3
-		#	{"aiReaction": 0.1, "aiError":  60},  # 0: ai is losing by 2
-		#	{"aiReaction": 0.2, "aiError":  70},  # 1: ai is losing by 1
-		#	{"aiReaction": 0.3, "aiError":  80},  # 2: tie
-		#	{"aiReaction": 0.4, "aiError":  90},  # 3: ai is winning by 1
-		#	{"aiReaction": 0.5, "aiError":  100}, # 4: winning by 2
-
-class AIPlayer:
-	def __init__(self, level):
-		self.levels = []
-		self.levels = self.set_initial_levels(level)
-		self.level = self.levels[level - 1]
-		self.username = "AI"
-		self.score = 0
-		self.prediction = None
-
-	def predict(self, dt, ball, paddle, match_room):
-		# only re-predict if the ball changed direction, or its been some amount of time since last prediction
-		if (
-			self.prediction and self.prediction.position and
-			(self.prediction.direction.x * ball.direction.x) > 0 and
-			(self.prediction.direction.y * ball.direction.y) > 0 and
-			(self.prediction.since < self.level.reaction)
-		):
-			self.prediction.since += dt
-			return
-		self.prediction = Prediction()
-		paddle_left = paddle.position.x - paddle.paddle_half_width
-		# assume collision point on ball_left
-		collision_point = Vector2D(ball.position.x + (ball.size / 2), ball.position.y)
-		#collision_point = ball_collision_point(ball)
-		far_collision_point = collision_point + (ball.direction * 10000) # QUESTION - is such an arbitrary number ok?
-		
-		pt = get_line_intersection(paddle_left, -10000, paddle_left, 10000, collision_point.x, collision_point.y, far_collision_point.x, far_collision_point.y)
-		
-		if (pt):
-			pt.x -= (ball.size / 2) # adjust back from ball_left
-			court_top = match_room.GAME_HALF_HEIGHT * (-1) + ball.size / 2
-			court_bottom = match_room.GAME_HALF_HEIGHT - ball.size / 2
-			while pt.y < court_top or pt.y > court_bottom:
-				if pt.y < court_top:
-					pt.y = court_top + (court_top - pt.y)
-				elif pt.y > court_bottom:
-					pt.y = court_bottom - (pt.y - court_bottom)
-			self.prediction.exact_position = pt
-
-			if (ball.direction.x > 0):
-				closeness = (ball.position.x - paddle_left) / match_room.GAME_WIDTH
-			else:
-				closeness = (paddle_left - ball.position.x) / match_room.GAME_WIDTH # never happens now, should be changed to paddle_right for AI vs AI
-			error = self.level.error * closeness
-			self.prediction.position = Vector2D(pt.x, pt.y + random.uniform(-error, error))
-			self.prediction.since = 0
-			self.prediction.direction = ball.direction
-			logging.info(f"AI prediction: {self.prediction.position}")
-		else:
-			self.position = Vector2D(0, 0)
-			self.exact_position = Vector2D(0, 0)
-
-	def move_ai_paddle(self, paddle, match_room):
-		if not self.prediction.position:
-			return
-
-		if self.prediction.position.y < paddle.position.y - paddle.paddle_half_height/ 2: 
-			if paddle.position.y > (match_room.GAME_HALF_HEIGHT - paddle.paddle_half_height) * (-1):
-				paddle.position.y -= paddle.paddle_speed
-		elif self.prediction.position.y > paddle.position.y + paddle.paddle_half_height / 2:
-			if paddle.position.y < (match_room.GAME_HALF_HEIGHT - paddle.paddle_half_height):
-				paddle.position.y += paddle.paddle_speed
-
-	def set_initial_levels(self, max_score):
-		levels = []
-		reaction = 0.2
-		error = 10
-		num_of_levels = (max_score - 1) * 2 + 1
-		while (num_of_levels > 0):
-			new_level = AILevel(reaction, error)
-			reaction += 0.1
-			error += 20
-			levels.append(new_level)
-			num_of_levels -= 1
-		logging.info(f"Setting these levels: {levels}")
-		return levels
-
-	def update_level(self, ai_player_score, other_player_score):
-		if (ai_player_score == GAME_CONSTANTS['MAX_SCORE'] or other_player_score == GAME_CONSTANTS['MAX_SCORE']):
-			return
-		neutral_level = (len(self.levels) // 2) # integer division to avoid indexing with floats
-		# logging.info(f"Neutral level: {neutral_level}") # should be the level in the middle
-		if ai_player_score == other_player_score:
-			self.level = self.levels[neutral_level]
-		elif ai_player_score > other_player_score:
-			self.level = self.levels[neutral_level + (ai_player_score - other_player_score)]
-		elif ai_player_score < other_player_score:
-			self.level = self.levels[neutral_level - (other_player_score - ai_player_score)]
-
-	def __repr__(self):
-		return f"AIPlayer (username={self.username}, levels={self.levels})"
-
-
 @database_sync_to_async
 def create_match_room(match_id, player_id):
 	match_database = get_object_or_404(AIMatch, id=match_id)
 	if match_database.creator.id == player_id:
 		logging.info(f'Added creator with id {player_id} to match {match_id}')
-		player1 = Player(player_id, match_database.creator.username)
-		player2 = AIPlayer(3)
+		match_room = PongGame(match_id, player_id, match_database.creator.username)
+		match_rooms.append(match_room)
 	else:
 		raise ValueError(f"Player ID {player_id} does not match any players in match {match_id}")
 
-	match_room = PongGame(match_id, player1, player2)
-	match_rooms.append(match_room)
 	return match_room
 
 def is_player_in_match_room_already(player_id):
@@ -342,7 +204,7 @@ class AIPlayConsumer(AsyncWebsocketConsumer):
 				ball.direction.y *= -1
 
 			# might be a source of bugs, watch out
-			ball = paddle_collision(ball, paddle1, paddle2)
+			ball = paddle_collision(ball, paddle1, paddle2, ai_player)
 			ball_right = ball.position.x + (ball.size / 2)
 			ball_left = ball.position.x - (ball.size / 2)
 
