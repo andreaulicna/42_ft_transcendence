@@ -115,8 +115,8 @@ class LogoutView(APIView):
 									samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
 									path = settings.SIMPLE_JWT['AUTH_COOKIE_PATH']
 										)
-			player.status_counter = 0
-			player.save(update_fields=["status_counter"])
+			#player.status_counter = 0
+			#player.save(update_fields=["status_counter"])
 			return response
 		except TokenError as e:
 			return Response({"details" : str(e)},status=status.HTTP_401_UNAUTHORIZED)
