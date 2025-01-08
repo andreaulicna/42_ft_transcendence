@@ -120,7 +120,9 @@ window.redirectToHome = redirectToHome;
 // Logout procedure
 export async function logout() {
 	try {
-		closeStatusWebsocket();
+		const broadcastChannel = new BroadcastChannel("ws_channel");
+    	broadcastChannel.postMessage("logout");
+
 		const response = await apiCallAuthed("/api/auth/login/refresh/logout", "POST");
 		localStorage.removeItem('access');
 		localStorage.removeItem('access_expiration');

@@ -77,7 +77,9 @@ export async function openStatusWebsocket() {
 	const url = "/api/ws/auth/init/";
 	openWebSocket(url, "status").then((ws) => {
 		statusWebSocket = ws;
-		console.log('Status WebSocket established');
+		// console.log('Status WebSocket established');
+	}).catch((error) => {
+		console.error('Failed to establish Status WebSocket:', error);
 	});
 }
 
@@ -85,7 +87,7 @@ export async function openMatchmakingWebsocket() {
 	const url = "/api/ws/matchmaking/";
 	openWebSocket(url, "matchmaking").then((ws) => {
 		matchmakingWebSocket = ws;
-		console.log('Matchmaking WebSocket established');
+		// console.log('Matchmaking WebSocket established');
 	}).catch((error) => {
 		console.error('Failed to establish Matchmaking WebSocket:', error);
 	});
@@ -147,31 +149,48 @@ export async function openAIPlayWebsocket(match_id) {
 function closeWebSocket(ws) {
 	if (ws && ws.readyState === WebSocket.OPEN) {
 		ws.close();
-		// console.log('WebSocket connection closed manually');
+		console.log('WebSocket connection closed');
 	}
 }
 
 export function closeStatusWebsocket() {
 	closeWebSocket(statusWebSocket);
-	console.log('Closing Status Websocket');
 }
 
 export function closeMatchmakingWebsocket() {
 	closeWebSocket(matchmakingWebSocket);
-	console.log('Closing Matchmaking Websocket');
 }
 
 export function closeRematchWebsocket() {
 	closeWebSocket(rematchWebSocket);
-	console.log('Closing Rematch Websocket');
 }
 
 export function closeTournamentWebsocket() {
 	closeWebSocket(tournamentWebSocket);
-	console.log('Closing Tournament Websocket');
+}
+
+export function closePongWebsocket() {
+	closeWebSocket(pongWebSocket);
 }
 
 /* ON/OFF STATUS LOGIC */
+
+const broadcastChannel = new BroadcastChannel("ws_channel");
+
+broadcastChannel.onmessage = (event) => {
+	if (event.data == "logout")
+	{
+		// Close all WebSockets
+		closeStatusWebsocket();
+		closeMatchmakingWebsocket();
+		closeRematchWebsocket();
+		closeRematchWebsocket();
+		closeTournamentWebsocket();
+		closePongWebsocket();
+		console.log('WebSockets closed due to user logout.');
+	}
+};
+
 let statusRefreshEventListenerAdded = false;
 
 export function listenStatusRefreshEvent() {
