@@ -1,5 +1,6 @@
 import { showLoading } from "./animations.js";
 import { hideLoading } from "./animations.js";
+import { listenStatusRefreshEvent } from "./websockets.js";
 
 export async function apiCallAuthed(url, method = 'GET', headers = {}, payload = null, showAnimation = true) {
 	const accessTokenExpiration = parseInt(localStorage.getItem('access_expiration'), 10);
@@ -62,6 +63,10 @@ async function refreshAccessToken() {
 	try {
 		const response = await fetch(url, options);
 		if (response.ok) {
+			listenStatusRefreshEvent();
+			const refreshStatusSocketEvent = new CustomEvent('refresh_status');
+			window.dispatchEvent(refreshStatusSocketEvent);
+
 			const data = await response.json();
 			const accessToken = data.access;
 

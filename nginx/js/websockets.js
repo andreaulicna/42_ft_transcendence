@@ -171,6 +171,23 @@ export function closeTournamentWebsocket() {
 	console.log('Closing Tournament Websocket');
 }
 
+/* ON/OFF STATUS LOGIC */
+let statusRefreshEventListenerAdded = false;
+
+export function listenStatusRefreshEvent() {
+	if (!statusRefreshEventListenerAdded)
+	{
+		window.addEventListener('refresh_status', handleStatusRefreshEvent);
+		statusRefreshEventListenerAdded = true;
+	}
+}
+
+function handleStatusRefreshEvent() {
+	if (statusWebSocket && statusWebSocket.readyState === WebSocket.OPEN)
+		statusWebSocket.send(JSON.stringify("refresh"));
+}
+
+
 /* GAME LOGIC */
 
 // Send paddle movement from game to Pong websocket
