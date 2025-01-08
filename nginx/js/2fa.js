@@ -1,4 +1,4 @@
-import { openFriendlistWebsocket } from './websockets.js';
+import { openStatusWebsocket } from './websockets.js';
 
 export function init() {
 	const loginPayload = JSON.parse(localStorage.getItem("login_payload"));
@@ -22,7 +22,7 @@ export function init() {
 			// Store tokens in session storage
 			localStorage.setItem('access', data.access);
 			// Establish friendlist websocket
-			openFriendlistWebsocket();
+			openStatusWebsocket();
 			// Redirect to dashboard upon succesful authentization
 			window.location.hash = '#dashboard';
 		} catch (error) {

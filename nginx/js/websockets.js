@@ -1,7 +1,7 @@
 import { apiCallAuthed } from './api.js';
 
 let pongWebSocket;
-let friendlistWebSocket;
+let statusWebSocket;
 let matchmakingWebSocket;
 let tournamentWebSocket;
 let rematchWebSocket;
@@ -73,11 +73,11 @@ async function openWebSocket(url, type) {
 	});
 }
 
-export async function openFriendlistWebsocket() {
+export async function openStatusWebsocket() {
 	const url = "/api/ws/auth/init/";
-	openWebSocket(url, "friend").then((ws) => {
-		friendlistWebSocket = ws;
-		console.log('Friendlist WebSocket established');
+	openWebSocket(url, "status").then((ws) => {
+		statusWebSocket = ws;
+		console.log('Status WebSocket established');
 	});
 }
 
@@ -149,6 +149,11 @@ function closeWebSocket(ws) {
 		ws.close();
 		// console.log('WebSocket connection closed manually');
 	}
+}
+
+export function closeStatusWebsocket() {
+	closeWebSocket(statusWebSocket);
+	console.log('Closing Status Websocket');
 }
 
 export function closeMatchmakingWebsocket() {
