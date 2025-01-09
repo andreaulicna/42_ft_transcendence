@@ -6,8 +6,9 @@ from rest_framework.views import APIView
 from django.contrib.auth import authenticate
 from django.middleware import csrf
 from django.utils import timezone
+from django.utils.http import urlencode
 from rest_framework_simplejwt.views import TokenRefreshView
-from .serializers import CustomTokenRefreshSerializer
+from .serializers import CustomTokenRefreshSerializer, UserSerializer
 from rest_framework_simplejwt.exceptions import TokenError
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from django.utils.decorators import method_decorator
@@ -16,6 +17,13 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import CustomUser
 import pyotp
 import qrcode
+import secrets
+from django.core.cache import cache
+import logging
+from django.shortcuts import redirect
+import requests
+from django.urls import reverse
+from django.contrib.auth.hashers import make_password
 	
 
 def get_tokens_for_user(user):
@@ -115,8 +123,104 @@ class LogoutView(APIView):
 									samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
 									path = settings.SIMPLE_JWT['AUTH_COOKIE_PATH']
 										)
-			player.status_counter = 0
-			player.save(update_fields=["status_counter"])
+			#player.status_counter = 0
+			#player.save(update_fields=["status_counter"])
 			return response
 		except TokenError as e:
 			return Response({"details" : str(e)},status=status.HTTP_401_UNAUTHORIZED)
+
+#handle expiration of cached state
+class IntraAuthorizationView(APIView):
+	permission_classes = [AllowAny]
+	def get(self, request):
+		state = secrets.token_urlsafe(32)
+		cache.set(state, "exists", 600)
+		query_string = urlencode({"client_id" : f"{settings.INTRA_APP_UID}",
+								"redirect_uri": f"{settings.PUBLIC_AUTH_URL}" + reverse('intra-callback'),
+								"response_type" : "code",
+								"state" : f"{state}"})
+		authorization_url = "https://api.intra.42.fr/oauth/authorize?" + query_string
+		logging.info(f"Authorization URL: {authorization_url}")
+		return redirect(authorization_url)
+	
+# What if they are already authenticated?
+# handle 2FA?
+# redirect on failure instead of 4xx?
+# resolve avatar issues
+# resolve identical username to an existing one when creating acc through intra
+class IntraCallbackView(APIView):
+	permission_classes = [AllowAny]
+
+	def get(self, request):
+
+		returned_state = request.query_params.get('state', None)
+		cached_state = cache.get(returned_state, None)
+		if cached_state == None:
+			return Response({"details" : "Invalid state parameter, try again"}, status=status.HTTP_403_FORBIDDEN)
+		else:
+			cache.delete(cached_state)
+
+		code = request.query_params.get('code', None)
+		error_msg = request.query_params.get('error', None)
+		if error_msg is not None:
+			return Response({"details" : error_msg}, status=status.HTTP_401_UNAUTHORIZED)
+		if code is None:
+			return Response({"details" : "Code was not provided by 42 OAuth"}, status=status.HTTP_401_UNAUTHORIZED)
+
+		token_request_data = {
+			'grant_type' : 'authorization_code',
+			'client_id' : settings.INTRA_APP_UID,
+			'client_secret' : settings.INTRA_APP_SECRET,
+			'code' : code,
+			'redirect_uri' : f"{settings.PUBLIC_AUTH_URL}" + reverse('intra-callback')
+		}
+		token_response = requests.post("https://api.intra.42.fr/oauth/token", data=token_request_data)
+		if not token_response.ok:
+			return Response({"details" : "Token was not provided by 42 OAuth"}, status=status.HTTP_401_UNAUTHORIZED)
+		access_token = token_response.json().get('access_token', None)
+
+		current_user_response = requests.get("https://api.intra.42.fr/v2/me",
+        	headers={"Authorization": f"Bearer {access_token}"})
+		if not current_user_response.ok:
+			return Response({"details" : "Token provided by 42 OAuth is invalid or has expired"}, status=status.HTTP_401_UNAUTHORIZED)
+		
+		# needs protection if image is empty
+		player_info =  {
+			"email": current_user_response.json().get('email'),
+			"username": current_user_response.json().get('login'),
+			"first_name": current_user_response.json().get('first_name'),
+			"last_name": current_user_response.json().get('last_name'),
+			#"avatar": current_user_response.json()['image']['link']
+   		}
+		
+		email = player_info['email']
+		if email == None:
+			return Response({"details" : "Intra account does not have a valid e-mail address associated with it"}, status=status.HTTP_404_NOT_FOUND)
+		try:
+
+			player = CustomUser.objects.get(email=email)
+			existing_info = UserSerializer(player)
+			logging.info(f"Existing player info: {existing_info.data}")
+			logging.info(f"New info for existing: {player_info}")
+
+			# Update the player's info
+			for key, value in player_info.items():
+				if value is not None and (getattr(player, key) is None or getattr(player, key) is ''):
+					setattr(player, key, value)
+			player.save()
+
+			updated_info = UserSerializer(player)
+			logging.info(f"Existing player info after update: {updated_info.data}")
+
+			return Response({'detail': updated_info.data})
+
+		except CustomUser.DoesNotExist:
+			player_info['password'] = make_password(None)
+			new_player = UserSerializer(data=player_info)
+			if new_player.is_valid():
+				logging.info(f"New player info: {new_player.validated_data}")
+				new_player.save()
+				return Response({'detail' : new_player.data})
+			return Response(new_player.errors, status=status.HTTP_400_BAD_REQUEST)
+
+

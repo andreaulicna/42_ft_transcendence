@@ -1,6 +1,9 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from .models import CustomUser
+import logging
+from django.db.models import F, Case, When, Value, PositiveIntegerField
+
 
 #{
 # 'type': 'websocket', 
@@ -32,22 +35,26 @@ def set_user_state(user, userState):
 
 @database_sync_to_async
 def increment_user_status_counter(user):
-	user.status_counter += 1
+	user.status_counter = F('status_counter') + 1
 	user.save(update_fields=["status_counter"])
 
 @database_sync_to_async
 def decrement_user_status_counter(user):
-	if (user.status_counter > 0):
-		user.status_counter -= 1
-		user.save(update_fields=["status_counter"])
+	#user.refresh_from_db(fields=["status_counter"])
+    user.status_counter = Case(
+        When(status_counter__gt=0, then=F('status_counter') - 1),
+        default=F('status_counter'),
+        output_field=PositiveIntegerField()
+    )
+    user.save(update_fields=["status_counter"])
 
 class UserConsumer(AsyncWebsocketConsumer):
 	async def connect(self):
 		self.id = self.scope['user'].id
-		print(f"Player {self.id} says hello from authentication!")
+		logging.info(f"Player {self.id} says hello from authentication!")
 		await increment_user_status_counter(self.scope['user'])
 		await self.accept()
 
 	async def disconnect(self, close_code):
 		await decrement_user_status_counter(self.scope['user'])
-		print(f"Player {self.id} says goodbye!")
+		logging.info(f"Player {self.id} says goodbye!")
