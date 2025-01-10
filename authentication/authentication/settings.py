@@ -193,6 +193,15 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'mediafiles')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CSRF_TRUSTED_ORIGINS = ["http://localhost:4200", "http://localhost", "http://localhost:5500"]
 
+CHANNEL_LAYERS = {
+	"default": {
+		"BACKEND": "channels_redis.core.RedisChannelLayer",
+		"CONFIG": {
+			"hosts": [("redis", 6379)],
+		},
+	},
+}
+
 GAME_CONSTANTS = {
 	'GAME_HEIGHT': 100,
 	'GAME_WIDTH': 160,

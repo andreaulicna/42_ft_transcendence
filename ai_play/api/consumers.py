@@ -105,9 +105,9 @@ class AIPlayConsumer(AsyncWebsocketConsumer):
 	async def receive(self, text_data):
 		text_data_json = json.loads(text_data)
 		message_type = text_data_json["type"]
-		paddle = text_data_json["paddle"]
 
 		if message_type == "paddle_movement":
+			paddle = text_data_json["paddle"]
 			match_room = find_player_in_match_room(self.id)
 			if not match_room:
 				return
