@@ -5,3 +5,4 @@ staticfiles/
 .DS_STORE
 cert.pem
 key.pem
+pgadmin

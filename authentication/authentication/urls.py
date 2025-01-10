@@ -25,7 +25,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from django.core.cache import cache
-from api.views import LoginView, RefreshView, LogoutView, HealthCheckView
+from api.views import LoginView, RefreshView, LogoutView, HealthCheckView, IntraAuthorizationView, IntraCallbackView
 
 urlpatterns = [
 	path('admin/', admin.site.urls),
@@ -35,6 +35,8 @@ urlpatterns = [
 	path('api/auth/login/refresh', RefreshView.as_view(),name = "login-refresh"),
 	path('api/auth/ws-login', AsgiValidateTokenView.as_view(), name = "websocket-login"),
 	path('api/auth/login/refresh/logout', LogoutView.as_view(), name = "logout"),
+	path('api/auth/intra', IntraAuthorizationView.as_view(), name = "intra-authorization"),
+	path('api/auth/intra/callback', IntraCallbackView.as_view(), name = "intra-callback"),
 	path('healthcheck', HealthCheckView.as_view())
 ]
 
