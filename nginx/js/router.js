@@ -1,7 +1,7 @@
 import { apiCallAuthed } from './api.js';
 import { showLoading } from "./animations.js";
 import { hideLoading } from "./animations.js";
-import { openFriendlistWebsocket } from './websockets.js';
+import { openStatusWebsocket, closeStatusWebsocket } from './websockets.js';
 
 const dynamicContent = document.getElementById('dynamicContent');
 
@@ -120,6 +120,9 @@ window.redirectToHome = redirectToHome;
 // Logout procedure
 export async function logout() {
 	try {
+		const broadcastChannel = new BroadcastChannel("ws_channel");
+    	broadcastChannel.postMessage("logout");
+
 		const response = await apiCallAuthed("/api/auth/login/refresh/logout", "POST");
 		localStorage.removeItem('access');
 		localStorage.removeItem('access_expiration');
@@ -142,5 +145,5 @@ window.logout = logout;
 // Reopen the friendlist ON/OFF status websocket on a reload
 window.addEventListener('load', () => {
 	if (localStorage.getItem("access"))
-		openFriendlistWebsocket();
+		openStatusWebsocket();
 });

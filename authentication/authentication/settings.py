@@ -209,4 +209,4 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 INTRA_APP_UID = os.getenv('INTRA_APP_UID')
 INTRA_APP_SECRET = os.getenv('INTRA_APP_SECRET')
-PUBLIC_AUTH_URL = 'https://www.42praguescendence.com:4200'
+PUBLIC_AUTH_URL = f'https://{os.getenv("WWW_DOMAIN", "www.42praguescendence.com")}:4200'

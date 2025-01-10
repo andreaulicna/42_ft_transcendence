@@ -1,7 +1,7 @@
 import { apiCallAuthed } from './api.js';
 
 let pongWebSocket;
-let friendlistWebSocket;
+let statusWebSocket;
 let matchmakingWebSocket;
 let tournamentWebSocket;
 let rematchWebSocket;
@@ -73,11 +73,13 @@ async function openWebSocket(url, type) {
 	});
 }
 
-export async function openFriendlistWebsocket() {
+export async function openStatusWebsocket() {
 	const url = "/api/ws/auth/init/";
-	openWebSocket(url, "friend").then((ws) => {
-		friendlistWebSocket = ws;
-		console.log('Friendlist WebSocket established');
+	openWebSocket(url, "status").then((ws) => {
+		statusWebSocket = ws;
+		// console.log('Status WebSocket established');
+	}).catch((error) => {
+		console.error('Failed to establish Status WebSocket:', error);
 	});
 }
 
@@ -85,7 +87,7 @@ export async function openMatchmakingWebsocket() {
 	const url = "/api/ws/matchmaking/";
 	openWebSocket(url, "matchmaking").then((ws) => {
 		matchmakingWebSocket = ws;
-		console.log('Matchmaking WebSocket established');
+		// console.log('Matchmaking WebSocket established');
 	}).catch((error) => {
 		console.error('Failed to establish Matchmaking WebSocket:', error);
 	});
@@ -147,24 +149,63 @@ export async function openAIPlayWebsocket(match_id) {
 function closeWebSocket(ws) {
 	if (ws && ws.readyState === WebSocket.OPEN) {
 		ws.close();
-		// console.log('WebSocket connection closed manually');
+		console.log('WebSocket connection closed');
 	}
+}
+
+export function closeStatusWebsocket() {
+	closeWebSocket(statusWebSocket);
 }
 
 export function closeMatchmakingWebsocket() {
 	closeWebSocket(matchmakingWebSocket);
-	console.log('Closing Matchmaking Websocket');
 }
 
 export function closeRematchWebsocket() {
 	closeWebSocket(rematchWebSocket);
-	console.log('Closing Rematch Websocket');
 }
 
 export function closeTournamentWebsocket() {
 	closeWebSocket(tournamentWebSocket);
-	console.log('Closing Tournament Websocket');
 }
+
+export function closePongWebsocket() {
+	closeWebSocket(pongWebSocket);
+}
+
+/* ON/OFF STATUS LOGIC */
+
+const broadcastChannel = new BroadcastChannel("ws_channel");
+
+broadcastChannel.onmessage = (event) => {
+	if (event.data == "logout")
+	{
+		// Close all WebSockets
+		closeStatusWebsocket();
+		closeMatchmakingWebsocket();
+		closeRematchWebsocket();
+		closeRematchWebsocket();
+		closeTournamentWebsocket();
+		closePongWebsocket();
+		console.log('WebSockets closed due to user logout.');
+	}
+};
+
+let statusRefreshEventListenerAdded = false;
+
+export function listenStatusRefreshEvent() {
+	if (!statusRefreshEventListenerAdded)
+	{
+		window.addEventListener('refresh_status', handleStatusRefreshEvent);
+		statusRefreshEventListenerAdded = true;
+	}
+}
+
+function handleStatusRefreshEvent() {
+	if (statusWebSocket && statusWebSocket.readyState === WebSocket.OPEN)
+		statusWebSocket.send(JSON.stringify("refresh"));
+}
+
 
 /* GAME LOGIC */
 
@@ -181,7 +222,7 @@ export function addPaddleMovementListener() {
 }
 
 /* TOURNAMENT LOGIC */
-
+	
 // Let server know when a tournament match ends
 function handleTournamentMatchEnd(event) {
 	console.log("INTERCEPTED MATCH END MSG");

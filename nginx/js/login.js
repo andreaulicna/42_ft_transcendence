@@ -1,10 +1,13 @@
-import { openFriendlistWebsocket } from './websockets.js';
+import { openStatusWebsocket } from './websockets.js';
+
+let form = document.getElementById('loginForm');
+let errorToastElement = document.getElementById('errorLoginToast');
+let errorToast = new bootstrap.Toast(errorToastElement);
+let loginIntraBtn = document.getElementById("loginIntra");
 
 export function init() {
-	const form = document.getElementById('loginForm');
-	const errorToastElement = document.getElementById('errorLoginToast');
-	const errorToast = new bootstrap.Toast(errorToastElement);
-	
+	checkForAccessToken();
+
 	if (form) {
 		form.addEventListener('submit', async function(event) {
 			event.preventDefault();
@@ -22,7 +25,7 @@ export function init() {
 				// Store tokens in local storage
 				localStorage.setItem('access', data.access);
 				// Establish friendlist websocket
-				openFriendlistWebsocket();
+				openStatusWebsocket();
 				// Redirect to dashboard upon succesful authentization
 				window.location.hash = '#dashboard';
 			} catch (error) {
@@ -30,6 +33,49 @@ export function init() {
 				errorToast.show();
 			}
 		});
+	}
+
+	loginIntraBtn.addEventListener("click", loginIntra);
+}
+
+function checkForAccessToken() {
+	const urlParams = new URLSearchParams(window.location.search);
+	const accessToken = urlParams.get('access_token');
+	if (accessToken) {
+		const accessTokenPayload = JSON.parse(atob(accessToken.split('.')[1]));
+		const accessTokenExpiration = accessTokenPayload.exp * 1000;
+
+		localStorage.setItem('access', accessToken);
+		localStorage.setItem('access_expiration', accessTokenExpiration);
+
+		const newUrl = window.location.origin + window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+		window.location.hash = '#dashboard';
+	}
+}
+
+async function loginIntra() {
+	const url = "/api/auth/intra";
+	const options = {
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+	};
+	
+	try {
+		const response = await fetch(url, options);
+		if (response.ok) {
+			const data = await response.json();
+			console.log(data);
+			window.location.href = data.URL;
+		}
+		else {
+			throw new Error(response.status);
+		}
+	} catch (error) {
+		console.error('Intra login failed:', error);
+		errorToast.show();
 	}
 }
 

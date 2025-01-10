@@ -26,6 +26,8 @@ from django.contrib.auth.hashers import make_password
 from string import ascii_letters
 import random
 
+from django.http import HttpResponseRedirect
+
 def get_tokens_for_user(user):
 	refresh = RefreshToken.for_user(user)
 		
@@ -170,7 +172,7 @@ class IntraAuthorizationView(APIView):
 								"state" : f"{state}"})
 		authorization_url = "https://api.intra.42.fr/oauth/authorize?" + query_string
 		logging.info(f"Authorization URL: {authorization_url}")
-		return redirect(authorization_url)
+		return Response({"URL": authorization_url})
 	
 # What if they are already authenticated?
 # handle 2FA?
@@ -208,7 +210,7 @@ class IntraCallbackView(APIView):
 		access_token = token_response.json().get('access_token', None)
 
 		current_user_response = requests.get("https://api.intra.42.fr/v2/me",
-        	headers={"Authorization": f"Bearer {access_token}"})
+			headers={"Authorization": f"Bearer {access_token}"})
 		if not current_user_response.ok:
 			return Response({"details" : "Token provided by 42 OAuth is invalid or has expired"}, status=status.HTTP_401_UNAUTHORIZED)
 		
@@ -236,8 +238,8 @@ class IntraCallbackView(APIView):
 					setattr(player, key, value)
 			player.save()
 
-			updated_info = UserSerializer(player)
-			logging.info(f"Existing player info after update: {updated_info.data}")
+			# updated_info = UserSerializer(player)
+			# logging.info(f"Existing player info after update: {updated_info.data}")
 
 			response = set_response_cookie(request, player, is_redirect=True)
 			return response
@@ -254,6 +256,7 @@ class IntraCallbackView(APIView):
 			else:
 				return Response(player.errors, status=status.HTTP_400_BAD_REQUEST)
 			
+			player = CustomUser.objects.get(email=player_info['email'])
 			response = set_response_cookie(request, player, is_redirect=True)
 			return response
 
