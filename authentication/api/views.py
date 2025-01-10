@@ -38,7 +38,7 @@ def set_response_cookie(request, player, is_redirect = False):
 	data = get_tokens_for_user(player)
 	expires = timezone.now() + settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME']
 	if is_redirect:
-		response = redirect(f"{settings.PUBLIC_AUTH_URL}")
+		response = redirect(f"{settings.PUBLIC_AUTH_URL}" + "?access_token=" + f"{data['access']}")
 	else:
 		response = Response()
 	response.set_cookie(
