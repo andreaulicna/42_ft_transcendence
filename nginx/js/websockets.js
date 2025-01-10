@@ -222,7 +222,7 @@ export function addPaddleMovementListener() {
 }
 
 /* TOURNAMENT LOGIC */
-
+	
 // Let server know when a tournament match ends
 function handleTournamentMatchEnd(event) {
 	console.log("INTERCEPTED MATCH END MSG");
