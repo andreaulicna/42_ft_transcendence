@@ -16,7 +16,6 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import CustomUser
 import pyotp
-import qrcode
 import secrets
 from django.core.cache import cache
 import logging
@@ -24,7 +23,8 @@ from django.shortcuts import redirect
 import requests
 from django.urls import reverse
 from django.contrib.auth.hashers import make_password
-	
+from string import ascii_letters
+import random
 
 def get_tokens_for_user(user):
 	refresh = RefreshToken.for_user(user)
@@ -33,6 +33,35 @@ def get_tokens_for_user(user):
 		'refresh': str(refresh),
 		'access': str(refresh.access_token),
 	}
+
+def set_response_cookie(request, player, is_redirect = False):
+	data = get_tokens_for_user(player)
+	expires = timezone.now() + settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME']
+	if is_redirect:
+		response = redirect(f"{settings.PUBLIC_AUTH_URL}" + "?access_token=" + f"{data['access']}")
+	else:
+		response = Response()
+	response.set_cookie(
+						key = settings.SIMPLE_JWT['AUTH_COOKIE'], 
+						value = data["refresh"],
+						expires = expires,
+						secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
+						httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
+						samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
+						path = settings.SIMPLE_JWT['AUTH_COOKIE_PATH']
+						)
+	csrf.get_token(request)
+	# response.data = {"refresh": data['refresh'], "access" : data['access']}
+	return response
+
+# optimize the call so that it only accesses the database once
+def find_valid_random_username(current_username):
+	rand_suffix = ''.join(random.choice(ascii_letters) for _ in range(4))
+	suffixed_username = current_username + '_' + rand_suffix
+	while CustomUser.objects.filter(username=suffixed_username).exists():
+		rand_suffix = ''.join(random.choice(ascii_letters) for _ in range(4))
+		suffixed_username = current_username + '_' + rand_suffix
+	return suffixed_username
 
 class HealthCheckView(APIView):
 	def get(self, request):
@@ -147,7 +176,6 @@ class IntraAuthorizationView(APIView):
 # handle 2FA?
 # redirect on failure instead of 4xx?
 # resolve avatar issues
-# resolve identical username to an existing one when creating acc through intra
 class IntraCallbackView(APIView):
 	permission_classes = [AllowAny]
 
@@ -192,12 +220,11 @@ class IntraCallbackView(APIView):
 			"last_name": current_user_response.json().get('last_name'),
 			#"avatar": current_user_response.json()['image']['link']
    		}
-		
 		email = player_info['email']
 		if email == None:
 			return Response({"details" : "Intra account does not have a valid e-mail address associated with it"}, status=status.HTTP_404_NOT_FOUND)
+		
 		try:
-
 			player = CustomUser.objects.get(email=email)
 			existing_info = UserSerializer(player)
 			logging.info(f"Existing player info: {existing_info.data}")
@@ -212,15 +239,22 @@ class IntraCallbackView(APIView):
 			updated_info = UserSerializer(player)
 			logging.info(f"Existing player info after update: {updated_info.data}")
 
-			return Response({'detail': updated_info.data})
+			response = set_response_cookie(request, player, is_redirect=True)
+			return response
 
 		except CustomUser.DoesNotExist:
+			if CustomUser.objects.filter(username=player_info['username']).exists():
+				player_info['username'] = find_valid_random_username(player_info['username'])
 			player_info['password'] = make_password(None)
-			new_player = UserSerializer(data=player_info)
-			if new_player.is_valid():
-				logging.info(f"New player info: {new_player.validated_data}")
-				new_player.save()
-				return Response({'detail' : new_player.data})
-			return Response(new_player.errors, status=status.HTTP_400_BAD_REQUEST)
+
+			player = UserSerializer(data=player_info)
+			if player.is_valid():
+				logging.info(f"New player info: {player.validated_data}")
+				player.save()
+			else:
+				return Response(player.errors, status=status.HTTP_400_BAD_REQUEST)
+			
+			response = set_response_cookie(request, player, is_redirect=True)
+			return response
 
 
