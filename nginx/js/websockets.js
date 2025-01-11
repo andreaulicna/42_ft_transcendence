@@ -1,4 +1,5 @@
 import { apiCallAuthed } from './api.js';
+import { handleFriendStatusUpdate } from './profile.js';
 
 let pongWebSocket;
 let statusWebSocket;
@@ -6,6 +7,7 @@ let matchmakingWebSocket;
 let tournamentWebSocket;
 let rematchWebSocket;
 
+// Refactor this catch-all function so it doesn't handle multiple websocket types?
 async function openWebSocket(url, type) {
 	return new Promise(async (resolve, reject) => {
 		try {
@@ -64,6 +66,10 @@ async function openWebSocket(url, type) {
 					const tournamentEndEvent = new CustomEvent('tournament_end');
 					console.log("TOURNAMENT END MESSAGE RECEIVED");
 					window.dispatchEvent(tournamentEndEvent);
+				}
+				else if (data.type === "user_status_update")
+				{
+					handleFriendStatusUpdate(data);
 				}
 			};
 		} catch (error) {
