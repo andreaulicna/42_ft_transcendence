@@ -48,8 +48,13 @@ async function showUserProfile(event) {
 				userProfile.innerHTML = `
 					<img class="profilePic" src="${response.avatar}" alt="User profile picture">
 					<div class="text-center fs-3 pb-2">${response.username}</div>
+					<button type="button" id="addInspectedFriendBtn" class="btn btn-prg">Add Friend</button>
 				`;
-				// console.log(response);
+
+				const addUserBtn = document.getElementById("addInspectedFriendBtn");
+				addUserBtn.addEventListener("click", () => {
+					addFriend(response.username)
+				})
 			})
 			.catch(error => {
 				console.error('Error showing user profile:', error);
@@ -326,10 +331,10 @@ export function handleFriendStatusUpdate(data) {
 	}
 }
 
-async function addFriend() {
+async function addFriend(username) {
 	try {
-		const addRequest = await apiCallAuthed(`/api/user/friends/request/${friendAddInput.value}`, "POST");
-		showToast('Friend Request', `Friend request to ${friendAddInput.value} sent.`);
+		const addRequest = await apiCallAuthed(`/api/user/friends/request/${username}`, "POST");
+		showToast('Friend Request', `Friend request to ${username} sent.`);
 	} catch (error) {
 		console.error('Error adding friend:', error);
 	}
