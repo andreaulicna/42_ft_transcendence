@@ -133,7 +133,7 @@ async function listMatchHistory(type) {
 	}
 }
 
-function handleCustomColors(){
+function handleCustomColors() {
 	let colorLeftPaddle = document.getElementById('colorLeftPaddle');
 	let colorRightPaddle = document.getElementById('colorRightPaddle');
 	let colorBall = document.getElementById('colorBall');
@@ -153,15 +153,9 @@ function handleCustomColors(){
 	colorBall.addEventListener('input', () => {
 		localStorage.setItem(`${localStorage.getItem("id")}_colorBall`, colorBall.value);
 	});
-
-	// Change colors in the main menu animation
-	// const root = document.documentElement;
-	// root.style.setProperty('--color-left-paddle', colorLeftPaddle.value);
-	// root.style.setProperty('--color-right-paddle', colorRightPaddle.value);
-	// root.style.setProperty('--color-ball', colorBall.value);
 }
 
-function handleFriendlist(){
+function handleFriendlist() {
 	outgoingList = document.getElementById("outgoingFriendList");
 	incomingList = document.getElementById("incomingFriendList");
 	friendlistList = document.getElementById("friendlistList");
@@ -194,7 +188,6 @@ function handleFriendlist(){
 function fetchAndUpdateFriendList() {
 	listOutgoing();
 	listIncoming();
-	listFriends();
 }
 
 
@@ -288,31 +281,48 @@ async function handleReject(event) {
 }
 
 // List friends
+let friends = [];
+
 async function listFriends() {
 	try {
 		const friendlistReturn = await apiCallAuthed('/api/user/friends', undefined, undefined, undefined, false);
 
-		if (!friendlistReturn || friendlistReturn.length === 0)
+		if (!friendlistReturn || friendlistReturn.length === 0) {
 			friendlistList.innerHTML = '<li class="list-group-item text-center">You have no friends :(</li>';
-		else
-		{
+		} else {
 			friendlistList.innerHTML = '';
+			friends = friendlistReturn; // Store the friend list
 			friendlistReturn.forEach(friend => {
 				const listItem = document.createElement('li');
-				let status;
-				if (friend.friend_status == "ON")
-					status = "🟢";
-				else if (friend.friend_status == "OFF")
-					status = "🔴";
+				let statusIcon = friend.friend_status === "ON" ? "🟢" : "🔴";
 				listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
 				listItem.innerHTML = `
-				${status} ${friend.friend_username}
+				${statusIcon} ${friend.friend_username}
 				`;
 				friendlistList.appendChild(listItem);
 			});
 		}
 	} catch (error) {
 		console.error('Error fetching friendslist:', error);
+	}
+}
+
+// Find the friend in the list and update their status with data from the Status websocket
+export function handleFriendStatusUpdate(data) {
+	const { id, status, username } = data;
+
+	const friend = friends.find(friend => friend.friend_username === username);
+	if (friend) {
+		friend.friend_status = status;
+
+		// Update the DOM
+		const listItem = Array.from(friendlistList.children).find(item => item.textContent.includes(username));
+		if (listItem) {
+			let statusIcon = status === "ON" ? "🟢" : "🔴";
+			listItem.innerHTML = `
+			${statusIcon} ${username}
+			`;
+		}
 	}
 }
 
