@@ -3,13 +3,13 @@
 	<hr class="my-3 w-50 mx-auto"  style="max-width: 360px">
 	<form class="w-50 mx-auto" style="max-width: 360px" id="registrationForm">
 		<div class="mb-3">
-		  <input type="username" class="form-control" id="inputUsername" placeholder="Your username">
+		  <input type="username" required pattern="[A-Za-z0-9]{3,20}" class="form-control" id="inputUsernameRegister" placeholder="Your username">
 		</div>
 		<div class="mb-3">
-			<input type="email" class="form-control" id="inputEmail" placeholder="Your email">
+			<input type="email" required class="form-control" id="inputEmailRegister" placeholder="Your email">
 		</div>
 		<div class="mb-3">
-		  <input type="password" class="form-control" id="inputPassword"  placeholder="Your password">
+		  <input type="password" required pattern="[A-Za-z0-9!@#$%&*_?.]{6,20}" class="form-control" id="inputPasswordRegister"  placeholder="Your password">
 		</div>
 		<button type="submit" id="login-email" class="btn btn-prg w-100">
 			<span class="fs-5">📩</span> Register

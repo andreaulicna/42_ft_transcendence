@@ -10,9 +10,9 @@ export function init() {
 	if (form) {
 		form.addEventListener('submit', async function(event) {
 			event.preventDefault();
-			const username = document.getElementById('inputUsername').value;
-			const email = document.getElementById('inputEmail').value;
-			const password = document.getElementById('inputPassword').value;
+			const username = document.getElementById('inputUsernameRegister').value;
+			const email = document.getElementById('inputEmailRegister').value;
+			const password = document.getElementById('inputPasswordRegister').value;
 
 			const payload = {
 				username: username,

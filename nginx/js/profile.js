@@ -342,16 +342,10 @@ async function addFriend(username) {
 
 async function handleUsernameEdit() {
 	const editUsernameForm = document.getElementById("editUsernameForm");
-	const minLength = 3;
-	const maxLength = 25;
 
 	editUsernameForm.addEventListener('submit', async () => {
 		const editUsernameInput = document.getElementById("editUsernameInput");
 		try {
-			if (editUsernameInput.value.length < minLength)
-				throw("Your username must be atleast 3 characters long.");
-			else if (editUsernameInput.value.length > maxLength)
-				throw("Your username mustn't be more than 25 characters long.");
 			const payload = {'username': editUsernameInput.value};
 			await apiCallAuthed("api/user/info", "PUT", undefined, payload);
 			textDynamicLoad("userName", `🏓 ${editUsernameInput.value}`);

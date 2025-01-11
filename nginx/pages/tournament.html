@@ -9,7 +9,7 @@
 					<form id="create-tournament-form">
 						<div class="form-group mb-3">
 							<label for="tournament-name" data-translate="tournamentName">Tournament Name</label>
-							<input type="text" class="form-control" id="tournament-name" placeholder="Enter tournament name" data-translate="tournamentNamePlaceholder">
+							<input type="text" required pattern="[A-Za-z0-9]{3,20}" class="form-control" id="tournament-name" placeholder="Enter tournament name" data-translate="tournamentNamePlaceholder">
 						</div>
 						<div class="form-group  mb-3">
 							<label for="tournament-slots" data-translate="tournamentSlots">Slots</label>

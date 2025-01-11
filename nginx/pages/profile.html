@@ -81,7 +81,7 @@
 					<p>Add Friends</p>
 					<form class="mb-4" id="friendAddForm">
 						<div class="form-group d-flex gap-2">
-							<input type="text" class="form-control" id="friendAddInput" placeholder="Provide friend's username">
+							<input type="text" required pattern="[A-Za-z0-9]{3,20}" class="form-control" id="friendAddInput" placeholder="Provide friend's username">
 							<button type="submit" class="btn btn-prg">Add</button>
 						</div>
 					</form>
@@ -126,7 +126,7 @@
 			<div class="modal-body">
 				<form class="mb-4" id="editUsernameForm">
 					<div class="form-group d-flex gap-2">
-						<input type="text" class="form-control" id="editUsernameInput" placeholder="New username">
+						<input type="text" required pattern="[A-Za-z0-9]{3,20}" class="form-control" id="editUsernameInput" placeholder="New username">
 						<button type="submit" class="btn btn-prg">Update</button>
 					</div>
 				</form>
@@ -147,7 +147,7 @@
 				<form id="editProfilePicForm" class="d-flex flex-column">
 					<div class="mb-3">
 						<label for="profilePicInput" class="form-label">Upload a new profile picture</label>
-						<input class="form-control" type="file" id="profilePicInput" accept="image/*">
+						<input type="file" class="form-control" id="profilePicInput" accept="image/jpeg">
 						<small>Maximum size: 800x800px</small>
 					</div>
 					<button type="submit" class="btn btn-prg">Submit</button>
@@ -174,7 +174,7 @@
 							<img id="qrCodeImage" src="" alt="QR Code" class="img-fluid">
 							<div class="mt-3">
 								<label for="pairingPinInput" class="form-label">Enter Pairing PIN to Enable 2FA</label>
-								<input type="text" id="pairingPinInputEnable" class="form-control" placeholder="Enter PIN">
+								<input type="number" id="pairingPinInputEnable" class="form-control" placeholder="Enter PIN">
 								<button type="submit" class="btn btn-prg mt-2">Submit</button>
 							</div>
 						</div>
@@ -185,7 +185,7 @@
 						<p>Disable 2FA</p>
 						<div class="mt-3">
 							<label for="pairingPinInput" class="form-label">Enter Pairing PIN to Disable 2FA</label>
-							<input type="text" id="pairingPinInputDisable" class="form-control" placeholder="Enter PIN">
+							<input type="number" id="pairingPinInputDisable" class="form-control" placeholder="Enter PIN">
 							<button type="submit" class="btn btn-prg mt-2">Submit</button>
 						</div>
 					</div>
