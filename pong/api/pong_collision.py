@@ -5,8 +5,9 @@ import math
 
 
 class PongGame:
-	def __init__(self, match_id, player1, player2):
+	def __init__(self, match_id):
 		self.match_id = match_id
+		self.match_group_name = str(match_id) + "_match"
 		self.GAME_WIDTH = settings.GAME_CONSTANTS['GAME_WIDTH']
 		self.GAME_HEIGHT = settings.GAME_CONSTANTS['GAME_HEIGHT']
 		self.GAME_HALF_WIDTH = self.GAME_WIDTH / 2
@@ -17,8 +18,8 @@ class PongGame:
 		self.paddle1 = Paddle(x=-80 + self.PADDLE_HALF_WIDTH, game=self)
 		self.paddle2 = Paddle(x=80 - self.PADDLE_HALF_WIDTH, game=self)
 		self.ball = Ball()
-		self.player1 = player1
-		self.player2 = player2
+		self.player1 = None
+		self.player2 = None
 
 
 	# def __repr__(self):
