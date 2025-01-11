@@ -101,7 +101,7 @@ class UserConsumer(AsyncWebsocketConsumer):
 			await self.channel_layer.group_send(
 				online_room.group_name,
 				{
-					"type": "user_status_update",
+					"type": "user_status",
 					"id": self.id,
 					"username": player.username,
 					"status": "ON"
@@ -125,7 +125,7 @@ class UserConsumer(AsyncWebsocketConsumer):
 					await self.channel_layer.group_send(
 						online_room.group_name,
 						{
-							"type": "user_status_update",
+							"type": "user_status",
 							"id": self.id,
 							"username": player.username,
 							"status": "OFF"
@@ -151,9 +151,9 @@ class UserConsumer(AsyncWebsocketConsumer):
 		except asyncio.CancelledError:
 			pass
 	
-	async def user_status_update(self, event):
+	async def user_status(self, event):
 		message = {
-			"type": "user_status_update",
+			"type": "user_status",
 			"id": event["id"],
 			"username": event["username"],
 			"status": event["status"]
