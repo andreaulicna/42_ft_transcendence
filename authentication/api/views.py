@@ -83,6 +83,8 @@ class LoginView(APIView):
 						return Response({'detail' : 'State not tied to user'}, status=status.HTTP_401_UNAUTHORIZED)
 				except CustomUser.DoesNotExist:
 					user = None
+			else:
+				return Response({'detail' : 'Request timed out, log in again'}, status=status.HTTP_403_FORBIDDEN)
 		if user is not None:
 			if user.is_active:
 				if user.two_factor:
