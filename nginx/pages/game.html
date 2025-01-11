@@ -1,13 +1,18 @@
 <div class=" fadeAnimation">
 	<div id="gameContainer" class="container-sm">
-		<div id="playerNames" class="d-flex justify-content-center gap-2">
-			<img id="player1Pic" src="assets/default_user_pfp.png" alt="User profile picture" class="d-block mx-auto p-4" style="width:100px">
-			<div id="player1Name" class="blueSide">&nbsp;</div>
-			<div id="player2Name" class="redSide">&nbsp;</div>
-			<img id="player2Pic" src="assets/default_user_pfp.png" alt="User profile picture" class="d-block mx-auto p-4" style="width:100px">
+		<div id="playerNames" class="d-flex justify-content-center align-items-center gap-2">
+			<div class="d-flex flex-column">
+				<img id="player1Pic" src="assets/default_user_pfp.png" alt="User profile picture" class="d-block mx-auto p-2" style="width:125px">
+				<div id="player1Name" class="blueSide fs-3">&nbsp;</div>
+			</div>
+			<span class="fs-1">⚔️</span>
+			<div class="d-flex flex-column">
+				<img id="player2Pic" src="assets/default_user_pfp.png" alt="User profile picture" class="d-block mx-auto p-2" style="width:125px">
+				<div id="player2Name" class="redSide fs-3">&nbsp;</div>
+			</div>
 		</div>
-		<div id="scoreText" class="fs-1">0 : 0</div>
 		<canvas id="gameBoard" width="800" height="500"></canvas>
+		<div id="scoreText" class="fs-1">0 : 0</div>
 	</div>
 	<!-- Touch Controls -->
 	<div class="d-flex">
