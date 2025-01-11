@@ -26,8 +26,6 @@ from django.contrib.auth.hashers import make_password
 from string import ascii_letters
 import random
 
-from django.http import HttpResponseRedirect
-
 def get_tokens_for_user(user):
 	refresh = RefreshToken.for_user(user)
 		
@@ -36,24 +34,18 @@ def get_tokens_for_user(user):
 		'access': str(refresh.access_token),
 	}
 
-def set_response_cookie(request, player, is_redirect = False):
-	data = get_tokens_for_user(player)
-	expires = timezone.now() + settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME']
-	if is_redirect:
-		response = redirect(f"{settings.PUBLIC_AUTH_URL}" + "?access_token=" + f"{data['access']}")
-	else:
-		response = Response()
-	response.set_cookie(
-						key = settings.SIMPLE_JWT['AUTH_COOKIE'], 
-						value = data["refresh"],
-						expires = expires,
-						secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
-						httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
-						samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
-						path = settings.SIMPLE_JWT['AUTH_COOKIE_PATH']
-						)
-	csrf.get_token(request)
-	# response.data = {"refresh": data['refresh'], "access" : data['access']}
+def set_response_cookie(response, data = None):
+	if data is not None:
+		expires = timezone.now() + settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME']
+		response.set_cookie(
+							key = settings.SIMPLE_JWT['AUTH_COOKIE'], 
+							value = data["refresh"],
+							expires = expires,
+							secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
+							httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
+							samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
+							path = settings.SIMPLE_JWT['AUTH_COOKIE_PATH']
+							)
 	return response
 
 # optimize the call so that it only accesses the database once
@@ -76,8 +68,21 @@ class LoginView(APIView):
 		data = request.data
 		response = Response()
 		username = data.get('username', None)
-		password = data.get('password', None)
-		user = authenticate(username=username, password=password)
+		twofa_state = data.get('twofa_state', None)
+		if twofa_state is None:
+			password = data.get('password', None)
+			user = authenticate(username=username, password=password)
+		else:
+			cached_twofa_state = cache.get(twofa_state, None)
+			if cached_twofa_state is not None:
+				try:
+					user = CustomUser.objects.get(username=username)
+					if user.id == cached_twofa_state:
+						cache.delete(cached_twofa_state)
+					else:
+						return Response({'detail' : 'State not tied to user'}, status=status.HTTP_401_UNAUTHORIZED)
+				except CustomUser.DoesNotExist:
+					user = None
 		if user is not None:
 			if user.is_active:
 				if user.two_factor:
@@ -238,10 +243,15 @@ class IntraCallbackView(APIView):
 					setattr(player, key, value)
 			player.save()
 
-			# updated_info = UserSerializer(player)
-			# logging.info(f"Existing player info after update: {updated_info.data}")
-
-			response = set_response_cookie(request, player, is_redirect=True)
+			if player.two_factor:
+				twofa_state_string = secrets.token_urlsafe(16)
+				cache.set(twofa_state_string, player.id, 60)
+				response = redirect(f"{settings.PUBLIC_AUTH_URL}" + "?twofa_state=" + f"{twofa_state_string}")
+			else:
+				data = get_tokens_for_user(player)
+				response = redirect(f"{settings.PUBLIC_AUTH_URL}" + "?access_token=" + f"{data['access']}")
+				response = set_response_cookie(response, data=data)
+			csrf.get_token(request)
 			return response
 
 		except CustomUser.DoesNotExist:
@@ -257,7 +267,10 @@ class IntraCallbackView(APIView):
 				return Response(player.errors, status=status.HTTP_400_BAD_REQUEST)
 			
 			player = CustomUser.objects.get(email=player_info['email'])
-			response = set_response_cookie(request, player, is_redirect=True)
+			data = get_tokens_for_user(player)
+			response = redirect(f"{settings.PUBLIC_AUTH_URL}" + "?access_token=" + f"{data['access']}")
+			response = set_response_cookie(response, data=data)
+			csrf.get_token(request)
 			return response
 
 
