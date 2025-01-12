@@ -168,6 +168,8 @@ function handleFriendlist() {
 	friendAddInput = document.getElementById("friendAddInput");
 	friendRequestToastElement = document.getElementById('friendRequestToast');
 	friendRequestToast = new bootstrap.Toast(friendRequestToastElement);
+	const refreshFriendlistBtn = document.getElementById("refreshFriendlistBtn");
+
 	listOutgoing();
 	listIncoming();
 	listFriends();
@@ -178,21 +180,11 @@ function handleFriendlist() {
 		addFriend(friendAddInput.value);
 	});
 
-	// Refresh friendlist
-	fetchAndUpdateFriendList()
-	let refreshInterval = setInterval(fetchAndUpdateFriendList, 3000);
-
-	// Clear the list refresh interval when the user exits the page
-	window.addEventListener('hashchange', () => {
-		if (window.location.hash !== '#profile') {
-			clearInterval(refreshInterval);
-		}
+	refreshFriendlistBtn.addEventListener("click", () => {
+		listOutgoing();
+		listIncoming();
+		listFriends();
 	});
-}
-
-function fetchAndUpdateFriendList() {
-	listOutgoing();
-	listIncoming();
 }
 
 
@@ -274,7 +266,7 @@ async function handleAccept(event) {
 }
 
 async function handleReject(event) {
-	const requestId = event.target.getAttribute('data-user-id');
+	const requestId = event.target.getAttribute('data-request-id');
 	try {
 		await apiCallAuthed(`/api/user/friends/${requestId}/refuse`, 'POST');
 		showToast('Friend Request Rejected', 'You have rejected the friend request.');
@@ -334,6 +326,7 @@ export function handleFriendStatusUpdate(data) {
 async function addFriend(username) {
 	try {
 		const addRequest = await apiCallAuthed(`/api/user/friends/request/${username}`, "POST");
+		listOutgoing();
 		showToast('Friend Request', `Friend request to ${username} sent.`);
 	} catch (error) {
 		console.error('Error adding friend:', error);

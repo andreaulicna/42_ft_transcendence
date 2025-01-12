@@ -77,21 +77,24 @@
 		<div class="col-12 col-md-4">
 			<div class="card h-100">
 				<div class="card-body">
-					<h5 class="card-title">👯 Friends</h5>
-					<p>Add Friends</p>
+					<span class="d-flex justify-content-between align-items-center">
+						<h5 class="card-title">👯 Friends</h5>
+						<button id="refreshFriendlistBtn" class="btn">🔁</button>
+					</span>
+					<span>Add Friends</span>
 					<form class="mb-4" id="friendAddForm">
 						<div class="form-group d-flex gap-2">
 							<input type="text" required pattern="[A-Za-z0-9]{3,20}" class="form-control" id="friendAddInput" placeholder="Provide friend's username">
 							<button type="submit" class="btn btn-prg">Add</button>
 						</div>
 					</form>
-					<p>Outgoing Requests</p>
+					<span>Outgoing Requests</span>
 					<ul class="list-group mb-4" id="outgoingFriendList">
 					</ul>
-					<p>Incoming Requests</p>
+					<span>Incoming Requests</span>
 					<ul class="list-group mb-4" id="incomingFriendList">
 					</ul>
-					<p>Available Friends</p>
+					<span>Available Friends</span>
 					<ul class="list-group mb-4" id="friendlistList">
 					</ul>
 				</div>
