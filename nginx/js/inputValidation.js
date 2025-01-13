@@ -75,4 +75,9 @@ document.addEventListener("DOMContentLoaded", () => {
 		patternMismatch: "The tournament name can only have letters or numbers (3–20 chars).",
 		valueMissing: "A tournament name is required."
 	});
+
+	applyValidationWhenAvailable("#add-player-form-input", {
+		patternMismatch: "A username can only have letters or numbers (3–20 chars).",
+		valueMissing: "A username is required."
+	});
 });

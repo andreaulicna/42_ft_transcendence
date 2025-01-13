@@ -1,17 +1,22 @@
 import { apiCallAuthed } from "./api.js";
-import { openTournamentWebsocket } from "./websockets.js";
+import { openLocalTournamentWebsocket } from "./websockets.js";
 import { showToast } from "./notifications.js";
 
 let tournamentCreateForm;
 let tournamentSlots;
 let capacity;
 let addPlayerBtn;
+let addPlayerInput;
 let players = [];
 
 export function init() {
 		tournamentCreateForm = document.getElementById("create-tournament-form");
 		tournamentSlots = document.getElementById("tournament-slots");
 		addPlayerBtn = document.getElementById("add-player-button");
+		addPlayerInput = document.getElementById("add-player-form-input");
+
+		// Clear players array on page load
+		players = [];
 
 		renderTournamentBracket();
 		addPlayerBtn.addEventListener("click", addPlayerToList);
@@ -20,9 +25,14 @@ export function init() {
 }
 
 function addPlayerToList() {
-	const playerInput = document.getElementById("add-player-form-input");
-	const playerName = playerInput.value.trim();
+	const playerName = addPlayerInput.value.trim();
 	capacity = parseInt(tournamentSlots.value);
+
+	// Manually trigger validation
+	if (!addPlayerInput.checkValidity()) {
+		addPlayerInput.reportValidity();
+		return;
+	}
 
 	try {
 		if (players.length >= capacity)
@@ -39,8 +49,12 @@ function addPlayerToList() {
 				}
 			});
 			players.push(playerName);
-			playerInput.value = ""; // Clear the input field
+			addPlayerInput.value = ""; // Clear the input field
 			renderTournamentBracket();
+
+			// Temporarily disable the required attribute on the 'Add Player' input so the form can submit
+			if (players.length == capacity)
+				addPlayerInput.required = false;
 		} else {
 			showToast("Error adding player", "Player name cannot be empty.");
 			throw new Error("Player name cannot be empty.");
@@ -98,21 +112,27 @@ async function createTournament(event) {
 	event.preventDefault();
 
 	const tournamentName = document.getElementById("tournament-name").value;
-	const tournamentSlots = document.getElementById("tournament-slots").value;
+
+	if (players.length < capacity)
+	{
+		showToast("Error creating tournament", `You must add ${capacity} players.`);
+		return;
+	}
 
 	try {
 		const payload = {
-			"tournament_name": tournamentName,
-			// "player_tmp_username": "borecek",
+			"tournament_name" : tournamentName,
+			"players" : players.slice(0, capacity),
 		};
 
-		const response = await apiCallAuthed(`/api/tournament/create/${tournamentSlots}/`, "POST", null, payload);
-		console.log("TOURNAMENT ID, ", response.tournament.id);
-		localStorage.setItem("tournament_id", response.tournament.id);
-		openTournamentWebsocket(response.tournament.id);
-		window.location.hash = "#lobby-tnmt";
+		const response = await apiCallAuthed(`/api/tournament/local/create/${capacity}/`, "POST", null, payload);
+		// console.log("TOURNAMENT INFO, ", response);
+		localStorage.setItem("tournament_id", response.local_tournament.id);
+		openLocalTournamentWebsocket(response.local_tournament.id);
+		// openTournamentWebsocket(response.tournament.id);
+		// window.location.hash = "#lobby-tnmt";
 	} catch (error) {
 		console.error("Error creating tournament:", error);
-		alert("An error occurred while creating a tournament.");
+		showToast("Error creating tournament", `An error occurred while creating the tournament.`);
 	}
 }
