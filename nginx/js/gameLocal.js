@@ -10,6 +10,7 @@ import {
 	drawTick,
 	startCountdown,
 	replayButton,
+	replayButtonSwitch,
 } from './gameCore.js';
 
 import { apiCallAuthed } from './api.js';
@@ -26,6 +27,11 @@ export async function init() {
 
 	replayButton.addEventListener("click", () => {
 		localStorage.setItem("gameMode", "local");
+		window.location.hash = '#lobby-game';
+	});
+
+	replayButtonSwitch.addEventListener("click", () => {
+		localStorage.setItem("gameMode", "local-rematch");
 		window.location.hash = '#lobby-game';
 	});
 }
