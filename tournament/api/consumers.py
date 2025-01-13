@@ -352,8 +352,7 @@ class TournamentConsumer(WebsocketConsumer):
 
 class LocalTournamentConsumer(WebsocketConsumer):
 	def connect(self):
-		#self.id = self.scope['user'].id
-		self.id = 2
+		self.id = self.scope['user'].id
 		local_tournament_id = int(self.scope['url_route']['kwargs'].get('local_tournament_id'))
 		logging.info(f"Player {self.id} wants to play tournament {local_tournament_id}!")
 		# Check if tournament exists
