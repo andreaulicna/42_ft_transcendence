@@ -1,5 +1,5 @@
 from .models import Tournament, PlayerTournament, CustomUser, Match
-from .serializers import TournamentSerializer, PlayerTournamentSerializer, WaitingTournamentSerializer
+from .serializers import TournamentSerializer, PlayerTournamentSerializer, WaitingTournamentSerializer, LocalTournamentSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -170,15 +170,15 @@ class TournamentListOfPlayerView(ListAPIView):
 		return Tournament.objects.filter(playertournament__player=user).distinct()
 
 class TournamentInfoView(RetrieveAPIView):
-    serializer_class = TournamentSerializer
-    permission_classes = [IsAuthenticated]
+	serializer_class = TournamentSerializer
+	permission_classes = [IsAuthenticated]
 
-    def get_object(self):
-        tournament_id = self.kwargs.get('tournament_id')
-        try:
-            return Tournament.objects.get(id=tournament_id)
-        except Tournament.DoesNotExist:
-            raise Http404("No such tournament exists!")
+	def get_object(self):
+		tournament_id = self.kwargs.get('tournament_id')
+		try:
+			return Tournament.objects.get(id=tournament_id)
+		except Tournament.DoesNotExist:
+			raise Http404("No such tournament exists!")
 
 class AllTournamentsListView(ListAPIView):
 	serializer_class = TournamentSerializer
@@ -189,3 +189,46 @@ class PlayerTournamentListView(ListAPIView):
 	serializer_class = PlayerTournamentSerializer
 	permission_classes = [IsAuthenticated]
 	queryset = PlayerTournament.objects.all()
+
+
+def get_players_based_on_capacity(request, capacity):
+	players = request.data.get('players', [])
+	if len(players) != capacity:
+		raise ValueError("Wrong number of players for the tournament capacity")
+	return players[:capacity]
+class CreateLocalTournamentView(APIView):
+
+	permission_classes = [IsAuthenticated]
+
+	def post(self, request, *args, **kwargs):
+		# Check max. capacity
+		capacity = self.kwargs.get('capacity')
+		print(f"Capacity in create view for local tournament: {capacity}")
+
+		# CHECK: Needs protection against creating multiple tournaments/ being in game (match or tournament)
+
+		try:
+			creator = CustomUser.objects.get(username=request.user)
+		except CustomUser.DoesNotExist:
+			return Response({'detail': 'Player does not exist'}, status=status.HTTP_404_NOT_FOUND)
+		try:
+			players = get_players_based_on_capacity(request, capacity)
+		except ValueError as e:
+			return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+		local_tournament_data = {
+			'creator': creator.id,
+			'capacity': capacity,
+			'players': players
+		}
+		local_tournament_name = request.data.get('tournament_name')
+		if local_tournament_name:
+			local_tournament_data['name'] = local_tournament_name
+		local_tournament_serializer = LocalTournamentSerializer(data=local_tournament_data)
+		if local_tournament_serializer.is_valid():
+			local_tournament = local_tournament_serializer.save()
+			return Response({'detail': 'Local tournament created.',
+							'local_tournament': local_tournament_serializer.data},
+							status=status.HTTP_201_CREATED)
+		else:
+			return Response(local_tournament_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+

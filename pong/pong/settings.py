@@ -64,7 +64,8 @@ INSTALLED_APPS = [
 	'api',
 	'corsheaders',
 	'channels',
-	'rest_framework_simplejwt.token_blacklist'
+	'rest_framework_simplejwt.token_blacklist',
+	'django.contrib.postgres'
 ]
 
 ASGI_APPLICATION = "pong.asgi.application"

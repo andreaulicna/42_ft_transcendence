@@ -46,7 +46,8 @@ INSTALLED_APPS = [
 	'rest_framework.authtoken',
 	'api',
 	'corsheaders',
-	'rest_framework_simplejwt.token_blacklist'
+	'rest_framework_simplejwt.token_blacklist',
+	'django.contrib.postgres'
 ]
 
 AUTH_USER_MODEL = 'api.CustomUser'
