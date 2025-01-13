@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Test</title>
+</head>
+<body>
+    <h1>WebSocket Test</h1>
+    <button id="connectBtn">Connect</button>
+    <div>
+        <input type="text" id="messageInput" placeholder="Type your message here">
+        <button id="sendBtn">Send Message</button>
+    </div>
+    <div id="messages"></div>
+
+    <script>
+        let ws;
+
+        async function getUUID() {
+            return 'ccfb6d2b-0726-4917-9f3b-50ddc4fb6197';
+        }
+
+        document.getElementById('connectBtn').onclick = async function() {
+            const uuid = await getUUID();
+            localStorage.setItem('uuid', uuid);
+
+            ws = new WebSocket(`wss://localhost:4200/api/ws/tournament/local/5/?uuid=${uuid}`);
+            ws.onopen = function() {
+                console.log('WebSocket connection opened');
+                document.getElementById('messages').innerHTML += '<p>WebSocket connection opened</p>';
+            };
+            ws.onmessage = function(event) {
+                console.log('Message received:', event.data);
+                document.getElementById('messages').innerHTML += '<p>Message received: ' + event.data + '</p>';
+            };
+            ws.onclose = function() {
+                console.log('WebSocket connection closed');
+                document.getElementById('messages').innerHTML += '<p>WebSocket connection closed</p>';
+            };
+            ws.onerror = function(error) {
+                console.error('WebSocket error:', error);
+                document.getElementById('messages').innerHTML += '<p>WebSocket error: ' + JSON.stringify(error) + '</p>';
+            };
+        };
+
+        document.getElementById('sendBtn').onclick = function() {
+            const message = document.getElementById('messageInput').value;
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(message);
+                console.log('Message sent:', message);
+                document.getElementById('messages').innerHTML += '<p>Message sent: ' + message + '</p>';
+                document.getElementById('messageInput').value = ''; // Clear the input field
+            } else {
+                console.log('WebSocket is not open');
+                document.getElementById('messages').innerHTML += '<p>WebSocket is not open</p>';
+            }
+        };
+    </script>
+</body>
+</html>

@@ -79,6 +79,7 @@ def add_player_to_online_room(player_id, player_channel_name):
 	player_database = get_object_or_404(CustomUser, id=player_id)
 	online_player = OnlinePlayer(player_id, player_channel_name, player_database.username)
 	online_room.players.append(online_player)
+	return online_player
 
 @database_sync_to_async
 def is_status_counter_zero(player_id):
@@ -92,11 +93,21 @@ class UserConsumer(AsyncWebsocketConsumer):
 	async def connect(self):
 		self.id = self.scope['user'].id
 		logging.info(f"Player {self.id} says hello from authentication!")
-		await increment_user_status_counter(self.scope['user'])
-		await add_player_to_online_room(self.id, self.channel_name)
+		player = await add_player_to_online_room(self.id, self.channel_name)
 		await self.channel_layer.group_add(
 			online_room.group_name, self.channel_name
 		)
+		if await is_status_counter_zero(self.id):
+			await self.channel_layer.group_send(
+				online_room.group_name,
+				{
+					"type": "user_status",
+					"id": self.id,
+					"username": player.username,
+					"status": "ON"
+				}
+			)
+		await increment_user_status_counter(self.scope['user'])
 		await self.accept()
 		logging.info("Online room after connect:")
 		logging.info(online_room)
@@ -114,7 +125,7 @@ class UserConsumer(AsyncWebsocketConsumer):
 					await self.channel_layer.group_send(
 						online_room.group_name,
 						{
-							"type": "player_offline",
+							"type": "user_status",
 							"id": self.id,
 							"username": player.username,
 							"status": "OFF"
@@ -140,9 +151,9 @@ class UserConsumer(AsyncWebsocketConsumer):
 		except asyncio.CancelledError:
 			pass
 	
-	async def player_offline(self, event):
+	async def user_status(self, event):
 		message = {
-			"type": "user_status_update",
+			"type": "user_status",
 			"id": event["id"],
 			"username": event["username"],
 			"status": event["status"]
