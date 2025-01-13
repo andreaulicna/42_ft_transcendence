@@ -19,6 +19,7 @@ import base64, os
 from django.core.files.base import ContentFile
 import pyotp, qrcode, logging, io
 from django.db import models, IntegrityError
+from django.core.exceptions import ValidationError
 
 
 class HealthCheckView(APIView):
@@ -135,9 +136,12 @@ class UserInfoView(APIView):
 				if username:
 					new_username = ' '.join(username.split())
 					player.username = new_username
+				player.full_clean()
 				player.save()
 			except IntegrityError as e:
 				return Response({'detail': 'Username already exists, choose a different one'}, status=status.HTTP_400_BAD_REQUEST)
+			except ValidationError as e:
+				return Response({"details" : str(e)},status=status.HTTP_400_BAD_REQUEST)
 			return Response({'detail' : 'User info updated'})
 		
 class UserInfoReset(APIView):
