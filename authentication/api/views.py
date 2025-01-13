@@ -267,7 +267,7 @@ class IntraCallbackView(APIView):
 			player.save()
 
 			if player.two_factor:
-				response = redirect(f"{settings.PUBLIC_AUTH_URL}" + "?oauth_twofa=True")
+				response = redirect(f"{settings.PUBLIC_AUTH_URL}" + '?username=' + player.username)
 				response = set_twofa_state_cookie(response, player.id)
 				# twofa_state_string = secrets.token_urlsafe(16)
 				# cache.set(twofa_state_string, player.id, 60)
