@@ -39,6 +39,11 @@ export function init() {
 		const LocalPlayCreateForm = document.getElementById("create-localplay-form");
 		LocalPlayCreateForm.addEventListener("submit", (e) => createLocalPlay(e));
 	}
+	if (mode == "local-rematch")
+	{
+		showLocalPlayPage();
+		createLocalPlayRematchSwitch();
+	}
 	
 
 	// Open corresponding Websocket
@@ -86,6 +91,23 @@ async function createLocalPlay(event) {
 	} catch (error) {
 		console.error("Error creating local match:", error);
 		alert("An error occurred while creating a local match.");
+	}
+}
+
+// Create a local match rematch (switch sides)
+async function createLocalPlayRematchSwitch(event) {
+	event.preventDefault();
+	const prev_match_id = localStorage.getItem("match_id")
+
+	try {
+		const url = "/api/localplay/" + prev_match_id + "/rematch/switch" 
+		const response = await apiCallAuthed(url, "POST", null, null);
+		console.log("LOCAL PLAY rematch ID ", response.match_id);
+		localStorage.setItem("match_id", response.match_id);
+		openLocalPlayWebsocket(response.match_id);
+	} catch (error) {
+		console.error("Error creating local rematch (switch sides):", error);
+		alert("An error occurred while creating a local rematch (switch sides).");
 	}
 }
 

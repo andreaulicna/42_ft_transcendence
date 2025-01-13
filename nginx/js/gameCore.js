@@ -37,6 +37,7 @@ let scoreText;
 let gameOverScreen;
 let winnerName;
 export let replayButton;
+export let replayButtonSwitch;
 export let mainMenuButton;
 
 export let player1Data;
@@ -116,9 +117,11 @@ export function initGameData(data) {
 	gameOverScreen = document.getElementById("gameOverScreen");
 	winnerName = document.getElementById("winnerName");
 	replayButton = document.getElementById("replayButton");
+	replayButtonSwitch = document.getElementById("replayButtonSwitch");
 	mainMenuButton = document.getElementById("mainMenuButton");
 
 	replayButton.style.display = "block";
+	replayButtonSwitcch.style.display = "block";
 	mainMenuButton.style.display = "block";
 
 	isTouchDevice = 'ontouchstart' in window;
