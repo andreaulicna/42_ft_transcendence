@@ -25,6 +25,8 @@ from django.urls import reverse
 from django.contrib.auth.hashers import make_password
 from string import ascii_letters
 import random
+from datetime import timedelta
+
 
 def get_tokens_for_user(user):
 	refresh = RefreshToken.for_user(user)
@@ -37,16 +39,35 @@ def get_tokens_for_user(user):
 def set_response_cookie(response, data = None):
 	if data is not None:
 		expires = timezone.now() + settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME']
-		response.set_cookie(
-							key = settings.SIMPLE_JWT['AUTH_COOKIE'], 
+		response.set_cookie(key = settings.SIMPLE_JWT['AUTH_COOKIE'], 
 							value = data["refresh"],
 							expires = expires,
 							secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
 							httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
 							samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
-							path = settings.SIMPLE_JWT['AUTH_COOKIE_PATH']
-							)
+							path = settings.SIMPLE_JWT['AUTH_COOKIE_PATH'])
 	return response
+
+def set_twofa_state_cookie(response, player_id):
+	twofa_state_string = secrets.token_urlsafe(16)
+	cache.set(twofa_state_string, player_id, 60)
+	expires = timezone.now() + timedelta(seconds=60)
+	response.set_cookie(key = 'twofa_state',
+						value = twofa_state_string,
+						expires = expires,
+						secure = True,
+						httponly = True,
+						samesite = 'Lax',
+						path = reverse('login'))
+	return response
+
+def two_factor_auth(user, data):
+	otp_code = data.get('otp_code', None)
+	if otp_code is None:
+		return Response({"otp_required" : True, "details" : "OTP is yet to be provided"})
+	totp = pyotp.TOTP(user.two_factor_secret)
+	if not totp.verify(otp_code):
+		return Response({'detail' : 'Invalid or expired OTP'}, status=status.HTTP_403_FORBIDDEN)
 
 # optimize the call so that it only accesses the database once
 def find_valid_random_username(current_username):
@@ -68,48 +89,45 @@ class LoginView(APIView):
 		data = request.data
 		response = Response()
 		username = data.get('username', None)
-		twofa_state = data.get('twofa_state', None)
-		if twofa_state is None:
-			password = data.get('password', None)
-			user = authenticate(username=username, password=password)
-		else:
-			cached_twofa_state = cache.get(twofa_state, None)
-			if cached_twofa_state is not None:
-				try:
-					user = CustomUser.objects.get(username=username)
-					if user.id == cached_twofa_state:
-						cache.delete(cached_twofa_state)
-					else:
-						return Response({'detail' : 'State not tied to user'}, status=status.HTTP_401_UNAUTHORIZED)
-				except CustomUser.DoesNotExist:
-					user = None
-			else:
-				return Response({'detail' : 'Request timed out, log in again'}, status=status.HTTP_403_FORBIDDEN)
+		#twofa_state = data.get('twofa_state', None)
+		password = data.get('password', None)
+		user = authenticate(username=username, password=password)
 		if user is not None:
 			if user.is_active:
 				if user.two_factor:
-					totp = pyotp.TOTP(user.two_factor_secret)
 					otp_code = data.get('otp_code', None)
 					if otp_code is None:
 						return Response({"otp_required" : True, "details" : "OTP is yet to be provided"})
+					totp = pyotp.TOTP(user.two_factor_secret)
 					if not totp.verify(otp_code):
 						return Response({'detail' : 'Invalid or expired OTP'}, status=status.HTTP_403_FORBIDDEN)
 				data = get_tokens_for_user(user)
-				expires = timezone.now() + settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME']
-				response.set_cookie(
-									key = settings.SIMPLE_JWT['AUTH_COOKIE'], 
-									value = data["refresh"],
-									expires = expires,
-									secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
-									httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
-									samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
-									path = settings.SIMPLE_JWT['AUTH_COOKIE_PATH']
-										)
+				response = set_response_cookie(response, data=data)
 				csrf.get_token(request)
 				response.data = {"refresh": data['refresh'], "access" : data['access']}
 				return response
 			else:
 				return Response({"details" : "This account is not active"},status=status.HTTP_404_NOT_FOUND)
+		elif user is None and request.COOKIES.get('twofa_state') is not None:
+			twofa_state_cookie = request.COOKIES.get('twofa_state')
+			cached_twofa_state = cache.get(twofa_state_cookie, None)
+			if cached_twofa_state is not None:
+				try:
+					user = CustomUser.objects.get(username=username)
+					otp_code = data.get('otp_code', None)
+					if otp_code is None:
+						return Response({"otp_required" : True, "details" : "OTP is yet to be provided"})
+					totp = pyotp.TOTP(user.two_factor_secret)
+					if not totp.verify(otp_code):
+						return Response({'detail' : 'Invalid or expired OTP'}, status=status.HTTP_403_FORBIDDEN)
+					if user.id == cached_twofa_state:
+							cache.delete(cached_twofa_state)
+					else:
+						return Response({'detail' : 'State not tied to user'}, status=status.HTTP_401_UNAUTHORIZED)
+				except CustomUser.DoesNotExist:
+					return Response({"details" : "Invalid username provided"},status=status.HTTP_404_NOT_FOUND)
+			else:
+				return Response({'detail' : 'Request timed out, log in again'}, status=status.HTTP_403_FORBIDDEN)
 		else:
 			return Response({"details" : "Invalid username or password"},status=status.HTTP_404_NOT_FOUND)
 
@@ -123,16 +141,17 @@ class RefreshView(TokenRefreshView):
 			response = Response()
 			if serializer.is_valid():
 				data = serializer.validated_data
-				expires = timezone.now() + settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME']
-				response.set_cookie(
-									key = settings.SIMPLE_JWT['AUTH_COOKIE'],
-									value = data["refresh"],
-									expires = expires,
-									secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
-									httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
-									samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
-									path = settings.SIMPLE_JWT['AUTH_COOKIE_PATH']
-									)
+				response = set_response_cookie(response, data=data)
+				# expires = timezone.now() + settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME']
+				# response.set_cookie(
+				# 					key = settings.SIMPLE_JWT['AUTH_COOKIE'],
+				# 					value = data["refresh"],
+				# 					expires = expires,
+				# 					secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
+				# 					httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
+				# 					samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
+				# 					path = settings.SIMPLE_JWT['AUTH_COOKIE_PATH']
+				# 					)
 				#csrf.get_token(request)
 				response.data = data
 
@@ -152,16 +171,18 @@ class LogoutView(APIView):
 			token = RefreshToken(request.COOKIES.get('refresh_token'))
 			token.blacklist()
 			response = Response({"detail": "Successfully logged out"})
-			response.set_cookie(
-									key = settings.SIMPLE_JWT['AUTH_COOKIE'], 
-									value = token,
-									expires = timezone.now(),
-									secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
-									httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
-									samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
-									path = settings.SIMPLE_JWT['AUTH_COOKIE_PATH']
-										)
-			#player.status_counter = 0
+			response.delete_cookie(settings.SIMPLE_JWT['AUTH_COOKIE'])
+			response.delete_cookie('twofa_state')
+			# response.set_cookie(
+			# 						key = settings.SIMPLE_JWT['AUTH_COOKIE'], 
+			# 						value = token,
+			# 						expires = timezone.now(),
+			# 						secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
+			# 						httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
+			# 						samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
+			# 						path = settings.SIMPLE_JWT['AUTH_COOKIE_PATH']
+			# 							)
+			# #player.status_counter = 0
 			#player.save(update_fields=["status_counter"])
 			return response
 		except TokenError as e:
@@ -241,14 +262,16 @@ class IntraCallbackView(APIView):
 
 			# Update the player's info
 			for key, value in player_info.items():
-				if value is not None and (getattr(player, key) is None or getattr(player, key) is ''):
+				if value is not None and (getattr(player, key) is None or getattr(player, key) == ''):
 					setattr(player, key, value)
 			player.save()
 
 			if player.two_factor:
-				twofa_state_string = secrets.token_urlsafe(16)
-				cache.set(twofa_state_string, player.id, 60)
-				response = redirect(f"{settings.PUBLIC_AUTH_URL}" + "?twofa_state=" + f"{twofa_state_string}")
+				response = redirect(f"{settings.PUBLIC_AUTH_URL}" + "?oauth_twofa=True")
+				response = set_twofa_state_cookie(response, player.id)
+				# twofa_state_string = secrets.token_urlsafe(16)
+				# cache.set(twofa_state_string, player.id, 60)
+				# response = redirect(f"{settings.PUBLIC_AUTH_URL}" + "?twofa_state=" + f"{twofa_state_string}")
 			else:
 				data = get_tokens_for_user(player)
 				response = redirect(f"{settings.PUBLIC_AUTH_URL}" + "?access_token=" + f"{data['access']}")
