@@ -82,4 +82,5 @@ Deleted `/api/user/friendships`, reworked `/api/user/friends` endpoint, updated 
 |`/matchmaking/`|non-HTTP|`?uuid=`|Connected<br>Disconnected|Pairs players and return their match_id
 |`/localplay/<int:match_id>/`|non-HTTP|`?uuid=`|Connected<br>Disconnected|Waits for players to join & starts the local match
 |`/ai/<int:match_id>/`|non-HTTP|`?uuid=`|Connected<br>Disconnected|Waits for players to join & starts the ai match
-|`/tournament/<int:tournament_id>/`|non-HTTP|`?uuid=`|Connected<br>Disconnected|Matchmaking for tournament. Returns `match_id` if there is a match to play for the particular `player`.
+|`/tournament/<int:tournament_id>/`|non-HTTP|`?uuid=`|Connected<br>Disconnected|Matchmaking for tournament. Returns `match_id` (that is to be used to connect to `/pong/<int:match_id>/`) if there is a match to play for the particular `player`.
+|`/tournament/local/<int:tournament_id>/`|non-HTTP|`?uuid=`|Connected<br>Disconnected|Matchmaking for local tournament. Returns `match_id` (that is to be used to connect to `/localplay/<int:match_id>/`) if there is a local match to play in the particular tournament.
