@@ -122,6 +122,7 @@ class LoginView(APIView):
 						return Response({'detail' : 'Invalid or expired OTP'}, status=status.HTTP_403_FORBIDDEN)
 					if user.id == cached_twofa_state:
 							cache.delete(cached_twofa_state)
+							response.delete_cookie('twofa_state')
 					else:
 						return Response({'detail' : 'State not tied to user'}, status=status.HTTP_401_UNAUTHORIZED)
 				except CustomUser.DoesNotExist:
