@@ -1,0 +1,39 @@
+<div class="container-sm fadeAnimation mt-4">
+    <div id="defaultTournamentPage" class="d-flex flex-column justify-content-center align-items-center">
+        <div class="card w-75">
+            <div class="card-header">
+                <h2 class="section-title" data-translate="tournamentCreate">Create Tournament</h2>
+            </div>
+            <div class="card-body">
+                <form id="create-tournament-form">
+                    <div class="form-group mb-3">
+                        <label for="tournament-name" data-translate="tournamentName">Tournament Name</label>
+                        <input type="text" required pattern="[A-Za-z0-9]{3,20}" class="form-control" id="tournament-name" placeholder="Enter tournament name" data-translate="tournamentNamePlaceholder">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="tournament-slots" data-translate="tournamentSlots">Slots</label>
+                        <select class="form-control" id="tournament-slots">
+                            <option value="4">4</option>
+                            <option value="8">8</option>
+                            <option value="16">16</option>
+                        </select>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="add-player-form-input">Add Player</label>
+                        <div class="d-flex gap-2">
+                            <input type="text" required pattern="[A-Za-z0-9]{3,20}" class="form-control" id="add-player-form-input" placeholder="Provide a player's username">
+                            <button type="button" class="btn btn-prg" id="add-player-button">Add</button>
+                        </div>
+                    </div>
+                    <div id="username-inputs-container" class="form-group mb-3"></div>
+                    <div class="d-flex justify-content-center mb-3">
+                        <button type="submit" class="btn btn-prg" data-translate="tournamentCreateButton">Create</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div id="bracket-container">
+            <!-- Dynamically generated tournament bracket will go here -->
+        </div>
+    </div>
+</div>

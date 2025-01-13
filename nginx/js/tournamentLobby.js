@@ -39,7 +39,6 @@ export function init() {
 
 function renderTournamentBracket(activePlayers, capacity) {
 	const bracketContainer = document.getElementById("bracket-container");
-	bracketContainer.id = "bracket-container";
 	bracketContainer.innerHTML = ""; // Clear previous brackets
 	bracketContainer.classList.add("d-flex", "justify-content-center", "align-items-center", "bracket-style");
 
