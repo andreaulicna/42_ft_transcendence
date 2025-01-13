@@ -6,7 +6,7 @@ let errorToast = new bootstrap.Toast(errorToastElement);
 let loginIntraBtn = document.getElementById("loginIntra");
 
 export function init() {
-	checkForAccessToken();
+	checkForIntraLoginArg();
 
 	if (form) {
 		form.addEventListener('submit', async function(event) {
@@ -38,19 +38,31 @@ export function init() {
 	loginIntraBtn.addEventListener("click", loginIntra);
 }
 
-function checkForAccessToken() {
+function checkForIntraLoginArg() {
 	const urlParams = new URLSearchParams(window.location.search);
-	const accessToken = urlParams.get('access_token');
-	if (accessToken) {
-		const accessTokenPayload = JSON.parse(atob(accessToken.split('.')[1]));
-		const accessTokenExpiration = accessTokenPayload.exp * 1000;
+	if (urlParams.get("username"))
+	{
+		const payload = {
+			username: urlParams.get('username'),
+		};
+		localStorage.setItem('login_payload', JSON.stringify(payload));
+		window.location.hash = '#2fa';
+	}
+	if (urlParams.get("access_token"))
+	{
+		const accessToken = urlParams.get('access_token');
+		if (accessToken)
+		{
+			const accessTokenPayload = JSON.parse(atob(accessToken.split('.')[1]));
+			const accessTokenExpiration = accessTokenPayload.exp * 1000;
 
-		localStorage.setItem('access', accessToken);
-		localStorage.setItem('access_expiration', accessTokenExpiration);
+			localStorage.setItem('access', accessToken);
+			localStorage.setItem('access_expiration', accessTokenExpiration);
 
-		const newUrl = window.location.origin + window.location.pathname;
-        window.history.replaceState({}, document.title, newUrl);
-		window.location.hash = '#dashboard';
+			const newUrl = window.location.origin + window.location.pathname;
+			window.history.replaceState({}, document.title, newUrl);
+			window.location.hash = '#dashboard';
+		}
 	}
 }
 

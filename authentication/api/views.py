@@ -123,6 +123,11 @@ class LoginView(APIView):
 					if user.id == cached_twofa_state:
 							cache.delete(cached_twofa_state)
 							response.delete_cookie('twofa_state')
+							data = get_tokens_for_user(user)
+							response = set_response_cookie(response, data=data)
+							csrf.get_token(request)
+							response.data = {"refresh": data['refresh'], "access" : data['access']}
+							return response
 					else:
 						return Response({'detail' : 'State not tied to user'}, status=status.HTTP_401_UNAUTHORIZED)
 				except CustomUser.DoesNotExist:
