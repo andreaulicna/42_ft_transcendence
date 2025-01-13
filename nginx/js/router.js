@@ -61,7 +61,7 @@ const loadContent = async (path) => {
 		} else if (window.location.hash === '#game') {
 			const mode = localStorage.getItem('gameMode');
 			console.log("Mode in router", mode);
-			if (mode == "local" || mode == "local-rematch")
+			if (mode == "local" || mode == "local-rematch" || mode == "local-rematch-switch")
 				await import('/js/gameLocal.js').then(module => module.init());
 			else if (mode == "ai")
 				await import('/js/gameAI.js').then(module => module.init());

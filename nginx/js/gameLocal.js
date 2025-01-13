@@ -24,17 +24,19 @@ export async function init() {
 	initLocalData(data);
 	initPaddleEventDispatch();
 	drawTick();
+	replayButtonSwitch.style.display = "block";
 
 	replayButton.addEventListener("click", () => {
-		localStorage.setItem("gameMode", "local");
+		localStorage.setItem("gameMode", "local-rematch");
 		window.location.hash = '#lobby-game';
 	});
 
 	replayButtonSwitch.addEventListener("click", () => {
-		localStorage.setItem("gameMode", "local-rematch");
+		localStorage.setItem("gameMode", "local-rematch-switch");
 		window.location.hash = '#lobby-game';
 	});
 }
+
 
 async function initLocalData(data)
 {
