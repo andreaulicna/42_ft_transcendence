@@ -6,25 +6,10 @@
 		<div class="card-body">
 			<form id="2faForm">
 				<div class="mb-3">
-					<input type="text" class="form-control" id="2faCode" data-translate="twoFAPlaceholder" placeholder="Enter your 2FA code" required>
+					<input type="number" class="form-control" id="2faCode" data-translate="twoFAPlaceholder" placeholder="Enter your 2FA code" required>
 				</div>
 				<button type="submit" class="btn btn-prg w-100" data-translate="twoFAVerify">Verify</button>
 			</form>
-		</div>
-	</div>
-</div>
-
-<!-- Toast Container -->
-<div class="toast-container position-static">
-	<div class="toast-container position-fixed bottom-0 end-0 p-3">
-		<div id="errorLoginToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-			<div class="toast-header">
-				<strong class="me-auto" data-translate="loginFailed">2FA Login failed</strong>
-				<button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-			</div>
-			<div class="toast-body" id="errorLoginToastMsg" data-translate="invalidCredentials">
-				Invalid 2FA code.
-			</div>
 		</div>
 	</div>
 </div>

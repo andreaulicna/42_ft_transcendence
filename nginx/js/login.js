@@ -1,18 +1,20 @@
-import { openStatusWebsocket } from './websockets.js';
+import { openStatusWebsocket } from "./websockets.js";
+import { showToast } from "./notifications.js";
 
-let form = document.getElementById('loginForm');
-let errorToastElement = document.getElementById('errorLoginToast');
-let errorToast = new bootstrap.Toast(errorToastElement);
-let loginIntraBtn = document.getElementById("loginIntra");
+let form;
+let loginIntraBtn;
 
 export function init() {
-	checkForAccessToken();
+	form = document.getElementById("loginForm");
+	loginIntraBtn = document.getElementById("loginIntra");
+
+	checkForIntraLoginArg();
 
 	if (form) {
-		form.addEventListener('submit', async function(event) {
+		form.addEventListener("submit", async function(event) {
 			event.preventDefault();
-			const username = document.getElementById('inputUsername').value;
-			const password = document.getElementById('inputPassword').value;
+			const username = document.getElementById("inputUsernameLogin").value;
+			const password = document.getElementById("inputPasswordLogin").value;
 
 			const payload = {
 				username: username,
@@ -21,16 +23,16 @@ export function init() {
 
 			try {
 				const data = await loginUser(payload);
-				console.log('Login successful:', data);
+				console.log("Login successful:", data);
 				// Store tokens in local storage
-				localStorage.setItem('access', data.access);
+				localStorage.setItem("access", data.access);
 				// Establish friendlist websocket
 				openStatusWebsocket();
 				// Redirect to dashboard upon succesful authentization
-				window.location.hash = '#dashboard';
+				window.location.hash = "#dashboard";
 			} catch (error) {
-				console.error('Login failed:', error);
-				errorToast.show();
+				console.error("Login failed:", error);
+				showToast("Login failed", error);
 			}
 		});
 	}
@@ -38,28 +40,40 @@ export function init() {
 	loginIntraBtn.addEventListener("click", loginIntra);
 }
 
-function checkForAccessToken() {
+function checkForIntraLoginArg() {
 	const urlParams = new URLSearchParams(window.location.search);
-	const accessToken = urlParams.get('access_token');
-	if (accessToken) {
-		const accessTokenPayload = JSON.parse(atob(accessToken.split('.')[1]));
-		const accessTokenExpiration = accessTokenPayload.exp * 1000;
+	if (urlParams.get("username"))
+	{
+		const payload = {
+			username: urlParams.get("username"),
+		};
+		localStorage.setItem("login_payload", JSON.stringify(payload));
+		window.location.hash = "#2fa";
+	}
+	if (urlParams.get("access_token"))
+	{
+		const accessToken = urlParams.get("access_token");
+		if (accessToken)
+		{
+			const accessTokenPayload = JSON.parse(atob(accessToken.split(".")[1]));
+			const accessTokenExpiration = accessTokenPayload.exp * 1000;
 
-		localStorage.setItem('access', accessToken);
-		localStorage.setItem('access_expiration', accessTokenExpiration);
+			localStorage.setItem("access", accessToken);
+			localStorage.setItem("access_expiration", accessTokenExpiration);
 
-		const newUrl = window.location.origin + window.location.pathname;
-        window.history.replaceState({}, document.title, newUrl);
-		window.location.hash = '#dashboard';
+			const newUrl = window.location.origin + window.location.pathname;
+			window.history.replaceState({}, document.title, newUrl);
+			window.location.hash = "#dashboard";
+		}
 	}
 }
 
 async function loginIntra() {
 	const url = "/api/auth/intra";
 	const options = {
-		method: 'GET',
+		method: "GET",
 		headers: {
-			'Content-Type': 'application/json',
+			"Content-Type": "application/json",
 		},
 	};
 	
@@ -74,17 +88,17 @@ async function loginIntra() {
 			throw new Error(response.status);
 		}
 	} catch (error) {
-		console.error('Intra login failed:', error);
-		errorToast.show();
+		console.error("Intra login failed:", error);
+		showToast("Intra login failed", error);
 	}
 }
 
 async function loginUser(payload) {
-	const url = '/api/auth/login';
+	const url = "/api/auth/login";
 	const options = {
-		method: 'POST',
+		method: "POST",
 		headers: {
-			'Content-Type': 'application/json'
+			"Content-Type": "application/json"
 		},
 		body: JSON.stringify(payload)
 	};
@@ -97,18 +111,18 @@ async function loginUser(payload) {
 			if (data.otp_required)
 			{
 				console.log("ENTERING 2FA");
-				localStorage.setItem('login_payload', JSON.stringify(payload));
-				window.location.hash = '#2fa';
+				localStorage.setItem("login_payload", JSON.stringify(payload));
+				window.location.hash = "#2fa";
 			}
 
 			const accessToken = data.access;
 
 			// Decode the JWT to get the expiration time
-			const accessTokenPayload = JSON.parse(atob(accessToken.split('.')[1]));
+			const accessTokenPayload = JSON.parse(atob(accessToken.split(".")[1]));
 			const accessTokenExpiration = accessTokenPayload.exp * 1000; // Convert to milliseconds
 
-			localStorage.setItem('access', accessToken);
-			localStorage.setItem('access_expiration', accessTokenExpiration);
+			localStorage.setItem("access", accessToken);
+			localStorage.setItem("access_expiration", accessTokenExpiration);
 
 			return data;
 		} else {
@@ -116,7 +130,7 @@ async function loginUser(payload) {
 			throw new Error(errorData.details);
 		}
 	} catch (error) {
-		console.error('Login API call error:', error);
+		console.error("Login API call error:", error);
 		throw error;
 	}
 }

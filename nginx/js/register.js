@@ -1,18 +1,16 @@
 import { showLoading } from "./animations.js";
 import { hideLoading } from "./animations.js";
+import { showToast } from "./notifications.js";
 
 export function init() {
 	const form = document.getElementById('registrationForm');
-	const errorToastElement = document.getElementById('errorRegisterToast');
-	const errorToastMsgElement = document.getElementById('errorRegisterToastMsg');
-	const errorToast = new bootstrap.Toast(errorToastElement);
 
 	if (form) {
 		form.addEventListener('submit', async function(event) {
 			event.preventDefault();
-			const username = document.getElementById('inputUsername').value;
-			const email = document.getElementById('inputEmail').value;
-			const password = document.getElementById('inputPassword').value;
+			const username = document.getElementById('inputUsernameRegister').value;
+			const email = document.getElementById('inputEmailRegister').value;
+			const password = document.getElementById('inputPasswordRegister').value;
 
 			const payload = {
 				username: username,
@@ -27,8 +25,7 @@ export function init() {
 				window.location.hash = '#login';
 			} catch (error) {
 				console.error('Registration failed:', error);
-				errorToastMsgElement.textContent = error;
-				errorToast.show();
+				showToast('Registration failed', error);
 			}
 		});
 	}

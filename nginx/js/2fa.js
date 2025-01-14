@@ -1,4 +1,5 @@
 import { openStatusWebsocket } from './websockets.js';
+import { showToast } from "./notifications.js";
 
 export function init() {
 	const loginPayload = JSON.parse(localStorage.getItem("login_payload"));
@@ -24,10 +25,12 @@ export function init() {
 			// Establish friendlist websocket
 			openStatusWebsocket();
 			// Redirect to dashboard upon succesful authentization
+			const newUrl = window.location.origin + window.location.pathname;
+			window.history.replaceState({}, document.title, newUrl);
 			window.location.hash = '#dashboard';
 		} catch (error) {
 			console.error('Login failed:', error);
-			errorToast.show();
+			showToast("Login failed", error);
 		}
 	});
 }

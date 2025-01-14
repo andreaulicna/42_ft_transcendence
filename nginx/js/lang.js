@@ -21,7 +21,8 @@ const translations = {
 		modeLocal: "Local Player",
 		modeRemote: "Remote Player",
 		modeAI: "AI Player",
-		modeTournament: "Tournament",
+		modeTournamentLocal: "Local Tournament",
+		modeTournamentRemote: "Remote Tournament",
 		viewProfile: "Profile",
 		logout: "Logout",
 		// SEARCHING FOR GAME
@@ -92,7 +93,8 @@ const translations = {
 		modeLocal: "Lokální hráč",
 		modeRemote: "Vzdálený hráč",
 		modeAI: "AI hráč",
-		modeTournament: "Turnaj",
+		modeTournamentLocal: "Lokální turnaj",
+		modeTournamentRemote: "Online turnaj",
 		viewProfile: "Profil",
 		logout: "Odhlásit se",
 		// SEARCHING FOR GAME
@@ -163,7 +165,8 @@ const translations = {
 		modeLocal: "Lokálny hráč",
 		modeRemote: "Vzdialený hráč",
 		modeAI: "AI hráč",
-		modeTournament: "Turnaj",
+		modeTournamentLocal: "Lokálny turnaj",
+		modeTournamentRemote: "Online turnaj",
 		viewProfile: "Profil",
 		logout: "Odhlásiť sa",
 		// SEARCHING FOR GAME

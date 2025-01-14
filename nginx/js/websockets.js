@@ -5,6 +5,7 @@ let pongWebSocket;
 let statusWebSocket;
 let matchmakingWebSocket;
 let tournamentWebSocket;
+let localTournamentWebSocket;
 let rematchWebSocket;
 
 // Refactor this catch-all function so it doesn't handle multiple websocket types?
@@ -37,7 +38,7 @@ async function openWebSocket(url, type) {
 				if (data.type != "draw")
 					console.log('WebSocket message received:', data);
 				// Game initialization
-				if (type == "matchmaking" || type == "rematch" || type == "tournament")
+				if (type == "matchmaking" || type == "rematch" || type == "tournament" || type === "local_tournament")
 				{
 					if (data.message != "tournament_end")
 					{
@@ -116,6 +117,17 @@ export async function openTournamentWebsocket(tournament_id) {
 		console.log('Tournament WebSocket established');
 	}).catch((error) => {
 		console.error('Failed to establish Tournament WebSocket:', error);
+	});
+}
+
+export async function openLocalTournamentWebsocket(tournament_id) {
+	const url = "/api/ws/tournament/local/" + tournament_id + "/";
+	openWebSocket(url, "local_tournament").then((ws) => {
+		localTournamentWebSocket = ws;
+		window.location.hash = '#game';
+		console.log('Local Tournament WebSocket established');
+	}).catch((error) => {
+		console.error('Failed to establish Local Tournament WebSocket:', error);
 	});
 }
 
