@@ -3,6 +3,7 @@ import { openTournamentWebsocket } from './websockets.js';
 
 let tournamentCreateForm;
 let joinableTournaments;
+let refreshTournamentsBtn;
 
 export function init() {
 	tournamentCreateForm = document.getElementById("create-tournament-form");
@@ -10,18 +11,12 @@ export function init() {
 
 	joinableTournaments = document.getElementById("joinable-tournaments");
 
-	// List available tournaments (refresh every X seconds)
 	fetchAndUpdateTournamentList()
-	let refreshInterval = setInterval(fetchAndUpdateTournamentList, 3000);
+	refreshTournamentsBtn = document.getElementById("refreshTournamentsBtn");
+	refreshTournamentsBtn.addEventListener("click", fetchAndUpdateTournamentList);
 
 	joinableTournaments.addEventListener('click', (e) => joinTournament(e));
-	
-	// Clear the list refresh interval when the user exits the page
-	window.addEventListener('hashchange', () => {
-		if (window.location.hash !== '#tournament') {
-			clearInterval(refreshInterval);
-		}
-	});
+
 }
 
 // Create a tournament
