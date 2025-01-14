@@ -1,4 +1,5 @@
 import { openStatusWebsocket } from './websockets.js';
+import { showToast } from "./notifications.js";
 
 export function init() {
 	const loginPayload = JSON.parse(localStorage.getItem("login_payload"));
@@ -29,7 +30,7 @@ export function init() {
 			window.location.hash = '#dashboard';
 		} catch (error) {
 			console.error('Login failed:', error);
-			errorToast.show();
+			showToast("Login failed", error);
 		}
 	});
 }

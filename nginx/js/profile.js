@@ -7,8 +7,6 @@ let stats;
 let friendlistList;
 let outgoingList;
 let incomingList;
-let friendRequestToastElement;
-let friendRequestToast;
 let friendAddForm;
 let friendAddInput;
 
@@ -166,8 +164,6 @@ function handleFriendlist() {
 	friendlistList = document.getElementById("friendlistList");
 	friendAddForm = document.getElementById("friendAddForm");
 	friendAddInput = document.getElementById("friendAddInput");
-	friendRequestToastElement = document.getElementById('friendRequestToast');
-	friendRequestToast = new bootstrap.Toast(friendRequestToastElement);
 	const refreshFriendlistBtn = document.getElementById("refreshFriendlistBtn");
 
 	listOutgoing();
