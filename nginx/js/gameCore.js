@@ -37,6 +37,7 @@ let scoreText;
 let gameOverScreen;
 let winnerName;
 export let replayButton;
+export let replayButtonSwitch;
 export let mainMenuButton;
 
 export let player1Data;
@@ -68,7 +69,7 @@ export function initGameData(data) {
 		38: false, // Up arrow key
 		40: false, // Down arrow key
 	};
-
+	
 	ball = {
 		x: (originalGameWidth / 2) * scaleX,
 		y: (originalGameHeight / 2) * scaleX,
@@ -116,9 +117,11 @@ export function initGameData(data) {
 	gameOverScreen = document.getElementById("gameOverScreen");
 	winnerName = document.getElementById("winnerName");
 	replayButton = document.getElementById("replayButton");
+	replayButtonSwitch = document.getElementById("replayButtonSwitch");
 	mainMenuButton = document.getElementById("mainMenuButton");
 
 	replayButton.style.display = "block";
+	replayButtonSwitch.style.display = "none";
 	mainMenuButton.style.display = "block";
 
 	isTouchDevice = 'ontouchstart' in window;
@@ -315,7 +318,7 @@ function sendPaddleMovement() {
 		}
 	}
 
-	if (gameMode == "local")
+	if (gameMode == "local" || gameMode == "local-rematch" || gameMode == "local-rematch-switch")
 	{
 		for (const key in paddle2Keys) {
 			if (paddle2Keys[key]) {

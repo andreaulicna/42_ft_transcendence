@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser, Match, Friendship, LocalMatch, AIMatch, Tournament, PlayerTournament
+from .models import CustomUser, Match, Friendship, LocalMatch, AIMatch, Tournament, PlayerTournament, LocalTournament
 from django.db.models import Q
 
 
@@ -21,7 +21,6 @@ class OtherUserSerializer(serializers.ModelSerializer):
 		fields = ['id', 'username', 'win_count', 'loss_count', 'avatar']
 	
 class MatchSerializer(serializers.ModelSerializer):
-	#match = serializers.SerializerMethodField()
 	class Meta:
 		model = Match
 		fields = '__all__' # returns all parameters
@@ -31,7 +30,6 @@ class MatchSerializer(serializers.ModelSerializer):
 		return match
 
 class LocalMatchSerializer(serializers.ModelSerializer):
-	#match = serializers.SerializerMethodField()
 	class Meta:
 		model = LocalMatch
 		fields = '__all__' # returns all parameters
@@ -41,7 +39,6 @@ class LocalMatchSerializer(serializers.ModelSerializer):
 		return match
 
 class AIMatchSerializer(serializers.ModelSerializer):
-	#match = serializers.SerializerMethodField()
 	class Meta:
 		model = AIMatch
 		fields = '__all__' # returns all parameters
@@ -115,6 +112,11 @@ class TournamentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tournament
         fields = ['id', 'name', 'status', 'capacity', 'creator', 'players']
+
+class LocalTournamentSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = LocalTournament
+		fields = '__all__'
 
 
 class WaitingTournamentSerializer(serializers.ModelSerializer):

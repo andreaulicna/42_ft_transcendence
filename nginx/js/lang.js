@@ -32,6 +32,7 @@ const translations = {
 		// GAME
 		hasWon: "has won!",
 		buttonReplay: "Replay",
+		buttonReplaySwitch: "Replay (switch sides)",
 		buttonMenu: "Main Menu",
 		// TOURNAMENT
 		tournamentCreate: "Create Tournament",
@@ -102,6 +103,7 @@ const translations = {
 		// GAME
 		hasWon: "je vítěz!",
 		buttonReplay: "Hrát znovu",
+		buttonReplaySwitch: "Hrát znovu (vymenit strany)",
 		buttonMenu: "Hlavní menu",
 		// TOURNAMENT
 		tournamentCreate: "Vytvoř turnaj",
@@ -172,6 +174,7 @@ const translations = {
 		// GAME
 		hasWon: "has won!",
 		buttonReplay: "Hrať znova",
+		buttonReplaySwitch: "Hrát znovu (vymenit strany)",
 		buttonMenu: "Hlavné menu",
 		// TOURNAMENT
 		tournamentCreate: "Vytvor turnaj",

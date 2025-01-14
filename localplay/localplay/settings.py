@@ -45,7 +45,8 @@ INSTALLED_APPS = [
 	'api',
 	'corsheaders',
 	'channels',
-	'rest_framework_simplejwt.token_blacklist'
+	'rest_framework_simplejwt.token_blacklist',
+	'django.contrib.postgres'
 ]
 
 ASGI_APPLICATION = 'localplay.asgi.application'
@@ -164,7 +165,7 @@ INTERNAL_IPS = [
 
 LANGUAGE_CODE = 'en-us'
 
-#TIME_ZONE = 'CET'
+TIME_ZONE = 'CET'
 USE_TZ = True
 
 USE_I18N = True

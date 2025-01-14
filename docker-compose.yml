@@ -39,21 +39,21 @@ services:
       - user-db:/var/lib/postgresql/data
     restart: unless-stopped
 
-  pg_admin:
-    container_name: pg_admin
-    image: dpage/pgadmin4
-    env_file:
-      - .env
-    networks:
-      - transcendence
-    volumes:
-      - ./pgadmin:/var/lib/pgadmin
-    ports:
-      - 80:80
-    restart: unless-stopped
-    depends_on:
-      user_management_db:
-        condition: service_healthy
+#  pg_admin:
+#    container_name: pg_admin
+#    image: dpage/pgadmin4
+#    env_file:
+#      - .env
+#    networks:
+#      - transcendence
+#    volumes:
+#      - ./pgadmin:/var/lib/pgadmin
+#    ports:
+#      - 80:80
+#    restart: unless-stopped
+#    depends_on:
+#      user_management_db:
+#        condition: service_healthy
 
   nginx:
     container_name: nginx

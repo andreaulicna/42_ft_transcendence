@@ -66,7 +66,8 @@ Deleted `/api/user/friendships`, reworked `/api/user/friends` endpoint, updated 
 ### `/api/tournament`
 | Endpoint | Supported methods | Required input | Return codes | Return values | Notes |
 | :--- |---|:---| :---:| :---: | :---: |
-|`/create`|POST|`tournament_name`(optional)<br>`player_tmp_username`(optional)|201<br>400<br>403<br>404|`tournament` object with all info from the database, including a list of `players` in the tournament |Creates a tournament and player_tournament database entries.
+|`/create/<cap:capacity>/`|POST|`tournament_name`(optional)<br>`player_tmp_username`(optional)|201<br>400<br>403<br>404|`tournament` object with all info from the database |Creates a tournament and player_tournament database entries.
+|`/local/create/<cap:capacity>/`|POST|`players = ["usr1", "usr2', "usr3", "usr4"]`<br>`tournament_name`(optional)|201<br>400<br>403<br>404|`local_tournament` object with all info from the database |Creates a local tournament database entries.
 |`/join/<int:tournament_id>/`|POST|`player_tmp_username`(optional)|201<br>400<br>403<br>404|`tournament` object with all info from the database, including a list of `players` in the tournament |Adds `player` into a tournament based on `tournamend_id` in URL.
 |`/join/cancel/<int:tournament_id>/`|POST||200<br>403<br>404|`tournament` object with all info from the database, including a list of `players` in the tournament|Deletes a user from waiting tournament based on `tournament_id` in URL.
 |`/list/waiting` | GET ||200<br>404|list object of all waiting tournaments, including free spaces for players to join ||
@@ -81,4 +82,5 @@ Deleted `/api/user/friendships`, reworked `/api/user/friends` endpoint, updated 
 |`/matchmaking/`|non-HTTP|`?uuid=`|Connected<br>Disconnected|Pairs players and return their match_id
 |`/localplay/<int:match_id>/`|non-HTTP|`?uuid=`|Connected<br>Disconnected|Waits for players to join & starts the local match
 |`/ai/<int:match_id>/`|non-HTTP|`?uuid=`|Connected<br>Disconnected|Waits for players to join & starts the ai match
-|`/tournament/<int:tournament_id>/`|non-HTTP|`?uuid=`|Connected<br>Disconnected|Matchmaking for tournament. Returns `match_id` if there is a match to play for the particular `player`.
+|`/tournament/<int:tournament_id>/`|non-HTTP|`?uuid=`|Connected<br>Disconnected|Matchmaking for tournament. Returns `match_id` (that is to be used to connect to `/pong/<int:match_id>/`) if there is a match to play for the particular `player`.
+|`/tournament/local/<int:tournament_id>/`|non-HTTP|`?uuid=`|Connected<br>Disconnected|Matchmaking for local tournament. Returns `match_id` (that is to be used to connect to `/localplay/<int:match_id>/`) if there is a local match to play in the particular tournament.

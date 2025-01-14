@@ -436,8 +436,6 @@ class PongConsumer(AsyncWebsocketConsumer):
 			pong_room.match_group_name, {
 				"type": "match_start",
 				"message": "match_start",
-			#	"player1": pong_room.player1.username,
-			#	"player2": pong_room.player2.username
 			}
 		)
 		logging.info(f"Starting game for: ")
