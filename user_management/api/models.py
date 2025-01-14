@@ -89,7 +89,6 @@ class AbstractMatch(models.Model):
 	default_paddle_height = models.FloatField(blank=False, default=0)
 	default_paddle_width = models.FloatField(blank=False, default=0)
 	default_paddle_speed = models.FloatField(blank=False, default=0)
-	tournament = models.ForeignKey(Tournament, on_delete=models.SET_NULL, null=True)
 	round_number = models.PositiveIntegerField(blank=False, default=0)
 
 class Match(AbstractMatch):
@@ -97,6 +96,8 @@ class Match(AbstractMatch):
 	player1 = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, related_name="player1", null=True)
 	player2 = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, related_name="player2", null=True)
 	winner = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, related_name="winner_match", null=True)
+	tournament = models.ForeignKey(Tournament, on_delete=models.SET_NULL, null=True)
+
 
 class LocalMatch(AbstractMatch):
 
@@ -104,6 +105,7 @@ class LocalMatch(AbstractMatch):
 	player1_tmp_username = models.CharField(max_length=150, blank=True)
 	player2_tmp_username = models.CharField(max_length=150, blank=True)
 	winner = models.CharField(max_length=150, blank=True)
+	tournament = models.ForeignKey(LocalTournament, on_delete=models.SET_NULL, null=True)
 
 class AIMatch(AbstractMatch):
 
