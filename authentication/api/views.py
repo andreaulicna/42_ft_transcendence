@@ -144,21 +144,10 @@ class RefreshView(TokenRefreshView):
 	def post (self, request):
 		try:
 			serializer = self.serializer_class(data=request.data, context={'request': request})
-			response = Response()
 			if serializer.is_valid():
+				response = Response()
 				data = serializer.validated_data
 				response = set_response_cookie(response, data=data)
-				# expires = timezone.now() + settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME']
-				# response.set_cookie(
-				# 					key = settings.SIMPLE_JWT['AUTH_COOKIE'],
-				# 					value = data["refresh"],
-				# 					expires = expires,
-				# 					secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
-				# 					httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
-				# 					samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
-				# 					path = settings.SIMPLE_JWT['AUTH_COOKIE_PATH']
-				# 					)
-				#csrf.get_token(request)
 				response.data = data
 
 				return response
@@ -179,20 +168,9 @@ class LogoutView(APIView):
 			response = Response({"detail": "Successfully logged out"})
 			response.delete_cookie(settings.SIMPLE_JWT['AUTH_COOKIE'])
 			response.delete_cookie('twofa_state')
-			# response.set_cookie(
-			# 						key = settings.SIMPLE_JWT['AUTH_COOKIE'], 
-			# 						value = token,
-			# 						expires = timezone.now(),
-			# 						secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
-			# 						httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
-			# 						samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
-			# 						path = settings.SIMPLE_JWT['AUTH_COOKIE_PATH']
-			# 							)
-			# #player.status_counter = 0
-			#player.save(update_fields=["status_counter"])
 			return response
 		except TokenError as e:
-			return Response({"details" : str(e)},status=status.HTTP_401_UNAUTHORIZED)
+			return Response({"details" : 'Already logged out'},status=status.HTTP_401_UNAUTHORIZED)
 
 #handle expiration of cached state
 class IntraAuthorizationView(APIView):
