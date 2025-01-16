@@ -47,10 +47,10 @@ async function createTournament(event) {
 async function joinTournament(event) {
 	if (event.target && event.target.matches('button[data-tournament-id]')) {
 		const tournamentId = event.target.getAttribute('data-tournament-id');
-		localStorage.setItem("tournament_id", tournamentId);
 		apiCallAuthed(`/api/tournament/join/${tournamentId}/`, "POST")
 			.then(response => {
 				openTournamentWebsocket(response.tournament.id);
+				localStorage.setItem("tournament_id", tournamentId);
 				window.location.hash = '#lobby-tnmt';
 			})
 			.catch(error => {
