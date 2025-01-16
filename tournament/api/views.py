@@ -44,13 +44,13 @@ class CreateTournamentView(APIView):
 		# Get all waiting tournaments
 		waiting_tournaments = Tournament.objects.filter(status=Tournament.StatusOptions.WAITING)
 		# Allow only one waiting tournament
-	#	if player_already_in_waiting_tournament(waiting_tournaments, request.user.id):
-	#		return Response({"details" : "You are already in a waiting tournament, you cannot created another one!"}, status=status.HTTP_403_FORBIDDEN)
-	#	# Get all inprogress tournaments
+		if player_already_in_waiting_tournament(waiting_tournaments, request.user.id):
+			return Response({"details" : "You are already in a waiting tournament, you cannot created another one!"}, status=status.HTTP_403_FORBIDDEN)
+		# Get all inprogress tournaments
 		inprogress_tournaments = Tournament.objects.filter(status=Tournament.StatusOptions.INPROGRESS)
-	#	# Allow only one in-progress tournament
-	#	if player_already_in_inprogress_tournament(inprogress_tournaments, request.user.id):
-	#		return Response({"details" : "You are in an inprogress tournament and have matches to play, you cannot created another one!"}, status=status.HTTP_403_FORBIDDEN)
+		# Allow only one in-progress tournament
+		if player_already_in_inprogress_tournament(inprogress_tournaments, request.user.id):
+			return Response({"details" : "You are in an inprogress tournament and have matches to play, you cannot created another one!"}, status=status.HTTP_403_FORBIDDEN)
 
 		try:
 			creator = CustomUser.objects.get(username=request.user)
@@ -94,16 +94,16 @@ class JoinTournamentView(APIView):
 		player_tmp_username = request.data.get('player_tmp_username')
 		tournament_id = self.kwargs.get('tournament_id')
 
-	#	# Get all waiting tournaments
-	#	waiting_tournaments = Tournament.objects.filter(status=Tournament.StatusOptions.WAITING)
-	#	# Allow only one waiting tournament
-	#	if player_already_in_waiting_tournament(waiting_tournaments, request.user.id):
-	#		return Response({"details" : "You are alredy in a waiting tournament, you cannot join another one!"}, status=status.HTTP_403_FORBIDDEN)
-	#	# Get all inprogress tournaments
-	#	inprogress_tournaments = Tournament.objects.filter(status=Tournament.StatusOptions.INPROGRESS)
-	#	# Allow only one in-progress tournament
-	#	if player_already_in_inprogress_tournament(inprogress_tournaments, request.user.id):
-	#		return Response({"details" : "You are in an inprogress tournament and have matches to play!"}, status=status.HTTP_403_FORBIDDEN)
+		# Get all waiting tournaments
+		waiting_tournaments = Tournament.objects.filter(status=Tournament.StatusOptions.WAITING)
+		# Allow only one waiting tournament
+		if player_already_in_waiting_tournament(waiting_tournaments, request.user.id):
+			return Response({"details" : "You are alredy in a waiting tournament, you cannot join another one!"}, status=status.HTTP_403_FORBIDDEN)
+		# Get all inprogress tournaments
+		inprogress_tournaments = Tournament.objects.filter(status=Tournament.StatusOptions.INPROGRESS)
+		# Allow only one in-progress tournament
+		if player_already_in_inprogress_tournament(inprogress_tournaments, request.user.id):
+			return Response({"details" : "You are in an inprogress tournament and have matches to play!"}, status=status.HTTP_403_FORBIDDEN)
 		# Add to tournament based on id
 		try:
 			tournament_to_join = Tournament.objects.get(id=tournament_id)
@@ -146,10 +146,17 @@ class CancelJoinTournamentView(APIView):
 			return Response({"details": "This tournament has already finished, you cannot cancel joining!"}, status=status.HTTP_403_FORBIDDEN)
 
 		try:
-			player_tournament = PlayerTournament.objects.get(player=user_id, tournament=tournament_id)
-			player_tournament.delete()
+			tournament_in_return = TournamentSerializer(tournament_to_cancel_join).data
+			if (user_id == tournament_to_cancel_join.creator.id):
+				player_delete = PlayerTournament.objects.filter(tournament=tournament_id)
+				for player in player_delete:
+					player.delete()
+				tournament_to_cancel_join.delete()
+			else:
+				player_tournament = PlayerTournament.objects.get(player=user_id, tournament=tournament_id)
+				player_tournament.delete()
 			return Response({"details": "You have successfully canceled joining the tournament.",
-					   		'tournament': TournamentSerializer(tournament_to_cancel_join).data,},
+					   		'tournament': tournament_in_return,},
 							status=status.HTTP_200_OK)
 		except PlayerTournament.DoesNotExist:
 			return Response({"details": "You are not part of this tournament."}, status=status.HTTP_404_NOT_FOUND)

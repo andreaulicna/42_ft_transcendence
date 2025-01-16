@@ -38,7 +38,8 @@ async function openWebSocket(url, type) {
 				if (data.type != "draw")
 					console.log('WebSocket message received:', data);
 				// Game initialization
-				if (type == "matchmaking" || type == "rematch" || type == "tournament" || type === "local_tournament")
+				if (type == "matchmaking" || type == "rematch"
+					|| (type == "tournament" && data.type != "remote_tournament_lobby_update") || type === "local_tournament")
 				{
 					if (data.message != "tournament_end")
 					{
@@ -71,6 +72,10 @@ async function openWebSocket(url, type) {
 				else if (data.type === "user_status_update")
 				{
 					handleFriendStatusUpdate(data);
+				}
+				else if (data.type === "remote_tournament_lobby_update")
+				{
+					// Some Vojta's magic
 				}
 			};
 		} catch (error) {
