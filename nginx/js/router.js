@@ -136,7 +136,7 @@ export async function logout() {
 		const response = await apiCallAuthed("/api/auth/login/refresh/logout", "POST");
 		localStorage.removeItem('access');
 		localStorage.removeItem('access_expiration');
-		localStorage.removeItem('uuid');
+		sessionStorage.removeItem('uuid');
 		localStorage.removeItem('id');
 		localStorage.removeItem('match_id');
 

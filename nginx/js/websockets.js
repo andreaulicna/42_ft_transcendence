@@ -15,7 +15,7 @@ async function openWebSocket(url, type) {
 		try {
 			const response = await apiCallAuthed('/api/auth/ws-login', 'GET');
 			const uuid = response.uuid;
-			localStorage.setItem('uuid', uuid);
+			sessionStorage.setItem('uuid', uuid);
 
 			const ws = new WebSocket(url + `?uuid=${uuid}`);
 

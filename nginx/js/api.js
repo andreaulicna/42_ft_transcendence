@@ -82,7 +82,7 @@ async function refreshAccessToken() {
 			// Effectively log out the user (cannot use logout function as it requires authorization)
 			localStorage.removeItem('access');
 			localStorage.removeItem('access_expiration');
-			localStorage.removeItem('uuid');
+			sessionStorage.removeItem('uuid');
 			localStorage.removeItem('id');
 			localStorage.removeItem('match_id');
 
