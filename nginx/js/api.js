@@ -80,11 +80,11 @@ async function refreshAccessToken() {
 			const errorData = await response.json();
 			
 			// Effectively log out the user (cannot use logout function as it requires authorization)
-			localStorage.removeItem('access');
-			localStorage.removeItem('access_expiration');
-			sessionStorage.removeItem('uuid');
-			localStorage.removeItem('id');
-			localStorage.removeItem('match_id');
+			// localStorage.removeItem('access');
+			// localStorage.removeItem('access_expiration');
+			// sessionStorage.removeItem('uuid');
+			// localStorage.removeItem('id');
+			// localStorage.removeItem('match_id');
 
 			throw new Error(errorData.message || 'Token refresh failed');
 		}

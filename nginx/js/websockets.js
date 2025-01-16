@@ -284,7 +284,7 @@ function handleLocalTournamentMatchEnd(event) {
 }
 
 export function addLocalTournamentMatchEndListener() {
-	console.log("ADDING MATCH END LISTENER");
+	console.log("ADDING TOURNAMENT MATCH END LISTENER");
 	window.addEventListener('localTournamentMatchEnd', handleLocalTournamentMatchEnd);
 }
 
