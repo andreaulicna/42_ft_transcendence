@@ -111,7 +111,12 @@ export function redirectToHome(event) {
 		if (window.location.hash == '#lobby-game' || window.location.hash == '#lobby-tnmt')
 			return;
 		// If a player is inside a live game, they will be asked to confirm first
-		if (window.location.hash == '#game' && !confirm("Do you really want to leave an ongoing game?"))
+		if (window.location.hash == '#game' && confirm("Do you really want to leave an ongoing game?"))
+		{
+			if (localStorage.getItem("in_game"))
+				localStorage.setItem("in_game", "NO");
+		}
+		else
 			return;
 		window.location.hash = '#dashboard';
 	} else {

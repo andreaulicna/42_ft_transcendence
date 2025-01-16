@@ -129,8 +129,6 @@ async function createTournament(event) {
 		// console.log("TOURNAMENT INFO, ", response);
 		localStorage.setItem("tournament_id", response.local_tournament.id);
 		openLocalTournamentWebsocket(response.local_tournament.id);
-		// openTournamentWebsocket(response.tournament.id);
-		// window.location.hash = "#lobby-tnmt";
 	} catch (error) {
 		console.error("Error creating tournament:", error);
 		showToast("Error creating tournament", `An error occurred while creating the tournament.`);

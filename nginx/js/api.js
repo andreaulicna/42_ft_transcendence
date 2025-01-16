@@ -78,6 +78,14 @@ async function refreshAccessToken() {
 			localStorage.setItem('access_expiration', accessTokenExpiration);
 		} else {
 			const errorData = await response.json();
+			
+			// Effectively log out the user (cannot use logout function as it requires authorization)
+			localStorage.removeItem('access');
+			localStorage.removeItem('access_expiration');
+			localStorage.removeItem('uuid');
+			localStorage.removeItem('id');
+			localStorage.removeItem('match_id');
+
 			throw new Error(errorData.message || 'Token refresh failed');
 		}
 	} catch (error) {

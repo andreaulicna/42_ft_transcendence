@@ -39,6 +39,7 @@ let winnerName;
 export let replayButton;
 export let replayButtonSwitch;
 export let mainMenuButton;
+export let continueButton;
 
 export let player1Data;
 export let player2Data;
@@ -52,6 +53,8 @@ export let isTouchDevice;
 
 /* 👇 DATA INITIALIZATION */
 export function initGameData(data) {
+	localStorage.setItem("in_game", "YES");
+
 	matchID = data.id;
 	gameMode = localStorage.getItem('gameMode');
 	gameBoard = document.getElementById("gameBoard");
@@ -119,10 +122,12 @@ export function initGameData(data) {
 	replayButton = document.getElementById("replayButton");
 	replayButtonSwitch = document.getElementById("replayButtonSwitch");
 	mainMenuButton = document.getElementById("mainMenuButton");
+	continueButton = document.getElementById("continueButton");
 
 	replayButton.style.display = "block";
 	replayButtonSwitch.style.display = "none";
 	mainMenuButton.style.display = "block";
+	continueButton.style.display = "none";
 
 	isTouchDevice = 'ontouchstart' in window;
 	if (isTouchDevice) {
@@ -132,6 +137,7 @@ export function initGameData(data) {
 }
 
 export function initEventListeners() {
+	window.addEventListener('match_start', startCountdown);
 	window.addEventListener("keydown", handleKeyDown);
 	window.addEventListener("keyup", handleKeyUp);
 	window.addEventListener('draw', handleDraw);
@@ -364,6 +370,9 @@ export function startCountdown() {
 }
 
 function showGameOverScreen() {
+	if (localStorage.getItem("in_game"))
+		localStorage.setItem("in_game", "NO");
+
 	let winner = player1.score > player2.score ? player1.name : player2.name;
 	winnerName.textContent = `${winner}`;
 	winnerName.className = player1.score > player2.score ? "blueSide" : "redSide";
