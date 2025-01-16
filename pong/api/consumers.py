@@ -15,6 +15,7 @@ from .serializers import MatchSerializer
 matchmaking_rooms = [] # matchmaking rooms
 rematch_rooms = [] # matchmaking rematch rooms
 pong_rooms = [] # pong rooms
+grace_period_dict = {}
 
 
 #######################
@@ -176,6 +177,23 @@ def set_match_winner(match):
 		match.winner = match.player1
 	else:
 		match.winner = match.player2
+	match.status = Match.StatusOptions.FINISHED
+	match.save(update_fields=['winner', 'status'])
+
+@database_sync_to_async
+def set_match_winner_on_dc(match, pong_room):
+	if pong_room.player1 is None:
+		match.winner = match.player2
+		match.status = Match.StatusOptions.FINISHED
+		match.save(update_fields=['winner', 'status'])
+	elif pong_room.player2 is None:
+		match.winner = match.player1
+		match.status = Match.StatusOptions.FINISHED
+		match.save(update_fields=['winner', 'status'])
+
+@database_sync_to_async
+def set_match_to_tie(match):
+	match.winner = None
 	match.status = Match.StatusOptions.FINISHED
 	match.save(update_fields=['winner', 'status'])
 
@@ -349,6 +367,20 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 	async def disconnect(self, close_code):
 		logging.info(f"Disconnecting player {self.id} from pong")
+		pong_room_grace = find_player_in_pong_room(self.id)
+		if pong_room_grace is not None:
+			match_database = await sync_to_async(get_object_or_404)(Match, id=pong_room_grace.match_id)
+			if pong_room_grace.match_id not in grace_period_dict:
+				grace_period_dict[pong_room_grace.match_id] = asyncio.create_task(self.grace_period_handler(pong_room_grace, match_database))
+			else:
+				logging.info(f"Both players disconnected, setting winner to the one who disconnected last")
+				grace_period_task = grace_period_dict[pong_room_grace.match_id]
+				logging.info("Cancelling grace period from disconnect...")
+				grace_period_task.cancel()
+				grace_period_dict.pop(pong_room_grace.match_id)
+				await set_match_winner_on_dc(match_database, pong_room_grace)
+				#await set_match_to_tie(match_database)
+
 		await set_user_state(self.scope['user'], CustomUser.StateOptions.IDLE)
 		for pong_room in pong_rooms:
 			if (pong_room.player1 is not None and pong_room.player1.channel_name == self.channel_name) or (pong_room.player2 is not None and pong_room.player2.channel_name == self.channel_name):
@@ -399,6 +431,13 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 	async def match_start(self, event):
 		logging.info("match_start called")
+		pong_room = find_player_in_pong_room(self.id)
+		if pong_room is not None:
+			grace_period_task = grace_period_dict.get(pong_room.match_id)
+		if grace_period_task is not None:
+			logging.info("Cancelling grace period...")
+			grace_period_task.cancel()
+			grace_period_dict.pop(pong_room.match_id)
 		await self.send(text_data=json.dumps(
 			{
 				"type": event["message"],
@@ -409,6 +448,13 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 	async def match_end(self, event):
 		logging.info("match_end called")
+		pong_room = find_player_in_pong_room(self.id)
+		if pong_room is not None:
+			grace_period_task = grace_period_dict.get(pong_room.match_id)
+		if grace_period_task is not None:
+			logging.info("Cancelling grace period...")
+			grace_period_task.cancel()
+			grace_period_dict.pop(pong_room.match_id)
 		await self.send(text_data=json.dumps(
 			{
 				"type": event["message"]
@@ -451,6 +497,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 		
 		while 42:
 			if pong_room.player1 is None or pong_room.player2 is None:
+				#grace_period_dict[pong_room.match_id] = asyncio.create_task(self.grace_period_handler(pong_room, match_database))
 				break
 
 			# Ball collision with floor & ceiling
@@ -529,10 +576,25 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 			# Short sleep
 			await asyncio.sleep(0.01)
-		logging.info(f"Match end for match {pong_room.match_id}")
-		await self.channel_layer.group_send(
-				pong_room.match_group_name, {
-					"type" : "match_end",
-					"message" : "match_end"
-				}
-			)
+		if match_database.winner:
+			logging.info(f"Match end for match {pong_room.match_id}")
+			await self.channel_layer.group_send(
+					pong_room.match_group_name, {
+						"type" : "match_end",
+						"message" : "match_end"
+					}
+				)
+	async def grace_period_handler(self, pong_room, match):
+		try:
+			logging.info("Starting grace period...")
+			await asyncio.sleep(30)
+			await set_match_winner_on_dc(match, pong_room)
+			logging.info(f"Match end (win by default) for match {pong_room.match_id}")
+			await self.channel_layer.group_send(
+					pong_room.match_group_name, {
+						"type" : "match_end",
+						"message" : "match_end"
+					}
+				)
+		except asyncio.CancelledError:
+			pass
