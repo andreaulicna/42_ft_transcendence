@@ -10,6 +10,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.http import Http404
 from rest_framework.generics import RetrieveAPIView
+import logging
 
 class HealthCheckView(APIView):
 	def get(self, request):

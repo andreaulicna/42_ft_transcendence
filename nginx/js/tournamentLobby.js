@@ -83,7 +83,7 @@ function renderTournamentBracket(activePlayers, capacity) {
 // Update fetchAndUpdatePlayerList to render the bracket
 async function fetchAndUpdatePlayerList() {
 	try {
-		const data = await apiCallAuthed(`api/tournament/info/${localStorage.getItem("tournament_id")}`, undefined, undefined, undefined, false);
+		const data = await apiCallAuthed(`api/tournament/info/${localStorage.getItem("tournament_id")}/`, undefined, undefined, undefined, false);
 		console.log("ACTIVE TOURNAMENT INFO", data);
 
 		localStorage.setItem("tournament_capacity", data.capacity);

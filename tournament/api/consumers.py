@@ -321,23 +321,25 @@ class TournamentConsumer(WebsocketConsumer):
 		logging.info("End of next_round")
 
 	def next_round(self, match_id, winner_id):
-		logging.info("Next round function")
 		tournament_id = int(self.scope['url_route']['kwargs'].get('tournament_id'))
 		tournament_room = get_remote_or_local_tournament_room(tournament_rooms, tournament_id)
-		logging.info(f"Next round function, tournament: {tournament_room}")
 		match = get_match(tournament_room, match_id)
 		# Update match in brackets
 		match.winner = winner_id
 
-		logging.info(f"Next round function, match.round: {match.round}")
-		logging.info(f"Tournament end check between round {match.round} and capacity calculation {tournament_room.capacity - 1} is: {match.round == tournament_room.capacity - 1}")
 		if match.round == tournament_room.capacity - 1:
-			logging.info("HERE")
-			logging.info(f"Group name: {match.round_group_name}")
 			async_to_sync(self.channel_layer.group_send)(
 				match.round_group_name, {"type": "tournament_message", "message": "tournament_end"}
 			)
 			logging.info(f"Message sent to group: {match.round_group_name}")
+			try:
+				tournament_database = Tournament.objects.get(id=tournament_id)
+				tournament_database.status = Tournament.StatusOptions.FINISHED
+				tournament_database.save()
+			except ObjectDoesNotExist:
+				logging.info("Close bcs no such tournament")
+				self.close()
+				return
 
 		increment = 1
 		current_round = 1
