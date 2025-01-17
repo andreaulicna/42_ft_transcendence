@@ -166,9 +166,7 @@ function handleFriendlist() {
 	friendAddInput = document.getElementById("friendAddInput");
 	const refreshFriendlistBtn = document.getElementById("refreshFriendlistBtn");
 
-	listOutgoing();
-	listIncoming();
-	listFriends();
+	loadFriendlist();
 
 	// Friend add request
 	friendAddForm.addEventListener('submit', (event) => {
@@ -177,12 +175,19 @@ function handleFriendlist() {
 	});
 
 	refreshFriendlistBtn.addEventListener("click", () => {
-		listOutgoing();
-		listIncoming();
-		listFriends();
+		loadFriendlist();
 	});
 }
 
+async function loadFriendlist() {
+	try {
+		await listOutgoing();
+		await listIncoming();
+		await listFriends();
+	} catch (error) {
+		console.error('Error loading profile data:', error);
+	}
+}
 
 // List outgoing friend requests
 async function listOutgoing() {

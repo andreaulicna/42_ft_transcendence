@@ -13,6 +13,7 @@ import {
 	startCountdown,
 	hideGameOverScreen,
 	resetScore,
+	delay,
 
 	replayButton,
 	mainMenuButton,
@@ -56,11 +57,12 @@ function initTournamentEventListeners()
 {
 	addLocalTournamentMatchEndListener();
 	window.addEventListener('tournament_end', handleTournamentEnd);
-	window.addEventListener('match_end', dispatchWinnerMatchEnd);
 
 	continueButton.addEventListener("click", () => {
-		nextGame();
+		dispatchWinnerMatchEnd();
 	});
+
+	window.addEventListener("match_start", nextGame);
 }
 
 function dispatchWinnerMatchEnd() {
@@ -70,13 +72,11 @@ function dispatchWinnerMatchEnd() {
 		match_id: matchID,
 		winner_username: winner,
 	};
-	const event = new CustomEvent('tournamentMatchEnd', { detail: message });
-	// console.log("DISPATCHING END MATCH MSG", message);
+	const event = new CustomEvent('localTournamentMatchEnd', { detail: message });
 	window.dispatchEvent(event);
 }
 
 function handleTournamentEnd() {
-	console.log("HANDLING TOURNAMENT END");
 	closeLocalTournamentWebsocket();
 	window.location.hash = "winner-tnmt";
 }
@@ -84,8 +84,9 @@ function handleTournamentEnd() {
 async function nextGame() {
 	drawTick();
 	resetScore();
-	data = await apiCallAuthed(`/api/user/match/${localStorage.getItem("match_id")}`);
-	initMatchData(data);
+	await delay(100);
+	setMatchID(localStorage.getItem("match_id"));
+	data = await apiCallAuthed(`/api/user/localmatch/${matchID}`);
+	initLocalData(data);
 	hideGameOverScreen();
-	startCountdown();
 }
