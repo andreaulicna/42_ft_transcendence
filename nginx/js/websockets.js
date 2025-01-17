@@ -6,6 +6,7 @@ let statusWebSocket;
 let matchmakingWebSocket;
 let tournamentWebSocket;
 let localTournamentWebSocket;
+let localWebSocket;
 let rematchWebSocket;
 
 // Refactor this catch-all function so it doesn't handle multiple websocket types?
@@ -45,6 +46,14 @@ async function openWebSocket(url, type) {
 					{
 						localStorage.setItem("match_id", data.message);
 						openPongWebsocket(data.message);
+					}
+				}
+				if (data.type == "local_tournament_message")
+				{
+					if (data.message != "tournament_end")
+					{
+						localStorage.setItem("match_id", data.message);
+						openLocalPlayWebsocket(data.message);
 					}
 				}
 				// For an ongoing match, dispatch custom events based on the message type received from server
@@ -129,7 +138,6 @@ export async function openLocalTournamentWebsocket(tournament_id) {
 	const url = "/api/ws/tournament/local/" + tournament_id + "/";
 	openWebSocket(url, "local_tournament").then((ws) => {
 		localTournamentWebSocket = ws;
-		window.location.hash = '#game';
 		console.log('Local Tournament WebSocket established');
 	}).catch((error) => {
 		console.error('Failed to establish Local Tournament WebSocket:', error);
@@ -150,7 +158,7 @@ export async function openPongWebsocket(match_id) {
 export async function openLocalPlayWebsocket(match_id) {
 	const url = "/api/ws/localplay/" + match_id + "/";
 	openWebSocket(url, "localplay").then((ws) => {
-		pongWebSocket = ws;
+		localWebSocket = ws;
 		console.log('LocalPlay WebSocket established');
 		window.location.hash = '#game';
 	}).catch((error) => {
@@ -190,6 +198,10 @@ export function closeRematchWebsocket() {
 
 export function closeTournamentWebsocket() {
 	closeWebSocket(tournamentWebSocket);
+}
+
+export function closeLocalTournamentWebsocket() {
+	closeWebSocket(localTournamentWebSocket);
 }
 
 export function closePongWebsocket() {
@@ -265,3 +277,19 @@ export function addTournamentMatchEndListener() {
 	console.log("ADDING MATCH END LISTENER");
 	window.addEventListener('tournamentMatchEnd', handleTournamentMatchEnd);
 }
+
+/* LOCAL TOURNAMENT LOGIC */
+	
+function handleLocalTournamentMatchEnd(event) {
+	if (localTournamentWebSocket && localTournamentWebSocket.readyState === WebSocket.OPEN)
+	{
+		localTournamentWebSocket.send(JSON.stringify(event.detail));
+		console.log('Local Tournament WebSocket message sent:', event.detail);
+	}
+}
+
+export function addLocalTournamentMatchEndListener() {
+	console.log("ADDING MATCH END LISTENER");
+	window.addEventListener('localTournamentMatchEnd', handleLocalTournamentMatchEnd);
+}
+
