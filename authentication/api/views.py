@@ -26,6 +26,7 @@ from django.contrib.auth.hashers import make_password
 from string import ascii_letters
 import random
 from datetime import timedelta
+from django.db import transaction
 
 
 def get_tokens_for_user(user):
@@ -143,17 +144,18 @@ class RefreshView(TokenRefreshView):
 	@method_decorator(csrf_protect, name='refresh')
 	def post (self, request):
 		try:
-			serializer = self.serializer_class(data=request.data, context={'request': request})
-			if serializer.is_valid():
-				response = Response()
-				data = serializer.validated_data
-				response = set_response_cookie(response, data=data)
-				response.data = data
+			with transaction.atomic():
+				serializer = self.serializer_class(data=request.data, context={'request': request})
+				if serializer.is_valid():
+					response = Response()
+					data = serializer.validated_data
+					response = set_response_cookie(response, data=data)
+					response.data = data
 
-				return response
-			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+					return response
+				return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 		except TokenError as e:
-			return Response({"details" : str(e)},status=status.HTTP_401_UNAUTHORIZED)
+			return Response({"details": str(e)}, status=status.HTTP_401_UNAUTHORIZED)
 		
 
 class LogoutView(APIView):

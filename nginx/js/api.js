@@ -50,6 +50,16 @@ export async function apiCallAuthed(url, method = 'GET', headers = {}, payload =
 	}
 }
 
+export async function ensureValidAccessToken() {
+	const accessTokenExpiration = parseInt(localStorage.getItem('access_expiration'), 10);
+	const now = Date.now();
+
+	// Check if the access token is about to expire
+	if (now >= accessTokenExpiration - 3000) { // Refresh the token 3 seconds before it expires
+		await refreshAccessToken();
+	}
+}
+
 async function refreshAccessToken() {
 	const url = '/api/auth/login/refresh';
 	const options = {
@@ -80,11 +90,14 @@ async function refreshAccessToken() {
 			const errorData = await response.json();
 			
 			// Effectively log out the user (cannot use logout function as it requires authorization)
-			// localStorage.removeItem('access');
-			// localStorage.removeItem('access_expiration');
-			// sessionStorage.removeItem('uuid');
-			// localStorage.removeItem('id');
-			// localStorage.removeItem('match_id');
+			localStorage.removeItem('access');
+			localStorage.removeItem('access_expiration');
+			sessionStorage.removeItem('uuid');
+			localStorage.removeItem('id');
+			localStorage.removeItem('match_id');
+
+			//Redirect to login page if refresh access token fails
+			window.location.hash = '#login';
 
 			throw new Error(errorData.message || 'Token refresh failed');
 		}

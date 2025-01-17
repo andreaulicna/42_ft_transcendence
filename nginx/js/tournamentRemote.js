@@ -1,4 +1,4 @@
-import { apiCallAuthed } from './api.js';
+import { apiCallAuthed, ensureValidAccessToken } from './api.js';
 import { openTournamentWebsocket } from './websockets.js';
 
 let tournamentCreateForm;
@@ -63,6 +63,7 @@ async function joinTournament(event) {
 // List available tournaments
 async function fetchAndUpdateTournamentList() {
 	try {
+		await ensureValidAccessToken();
 		const tournamentList = await apiCallAuthed('api/tournament/list/waiting', undefined, undefined, undefined, false);
 
 		if (!tournamentList || tournamentList.length === 0)
