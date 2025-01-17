@@ -1,4 +1,4 @@
-import { apiCallAuthed } from './api.js';
+import { apiCallAuthed, ensureValidAccessToken } from './api.js';
 import { textDynamicLoad } from "./animations.js";
 import { showToast } from "./notifications.js";
 
@@ -158,7 +158,7 @@ function handleCustomColors() {
 	});
 }
 
-function handleFriendlist() {
+async function handleFriendlist() {
 	outgoingList = document.getElementById("outgoingFriendList");
 	incomingList = document.getElementById("incomingFriendList");
 	friendlistList = document.getElementById("friendlistList");
@@ -166,6 +166,7 @@ function handleFriendlist() {
 	friendAddInput = document.getElementById("friendAddInput");
 	const refreshFriendlistBtn = document.getElementById("refreshFriendlistBtn");
 
+	await ensureValidAccessToken();
 	listOutgoing();
 	listIncoming();
 	listFriends();
@@ -176,7 +177,8 @@ function handleFriendlist() {
 		addFriend(friendAddInput.value);
 	});
 
-	refreshFriendlistBtn.addEventListener("click", () => {
+	refreshFriendlistBtn.addEventListener("click", async () => {
+		await ensureValidAccessToken();
 		listOutgoing();
 		listIncoming();
 		listFriends();

@@ -1,5 +1,5 @@
-import { apiCallAuthed } from './api.js';
 import { showLoading } from "./animations.js";
+import { apiCallAuthed, ensureValidAccessToken } from './api.js';
 import { hideLoading } from "./animations.js";
 import { openStatusWebsocket, closeStatusWebsocket } from './websockets.js';
 
@@ -45,6 +45,7 @@ const loadContent = async (path) => {
 		}
 
 		// Import the page's relevant script
+		await ensureValidAccessToken();
 		let data;
 		if (window.location.hash === '#login' || window.location.hash === '') {
 			await import('/js/login.js').then(module => module.init());
@@ -86,6 +87,10 @@ const loadContent = async (path) => {
 		console.error('Error loading content:', err);
 	} finally {
 		hideLoading();
+		if (localStorage.getItem("access")) {
+			console.log("Access in event listened for status ws: ", localStorage.getItem("access"));
+			openStatusWebsocket();
+		}
 	}
 };
 
@@ -96,9 +101,22 @@ const router = () => {
 	loadContent(path);
 };
 
-window.addEventListener('hashchange', router);
+let isRouterRunning = false;
 
-window.addEventListener('load', router);
+async function runRouter() {
+    if (isRouterRunning) return;
+    isRouterRunning = true;
+
+    try {
+        //await ensureValidAccessToken(); // Ensure the token is valid before proceeding
+        router();
+    } finally {
+        isRouterRunning = false;
+    }
+}
+
+window.addEventListener('hashchange', runRouter);
+window.addEventListener('load', runRouter);
 
 // Redirection when the page logo in top left is clicked
 export function redirectToHome(event) {
@@ -151,9 +169,3 @@ export async function logout() {
 }
 
 window.logout = logout;
-
-// Reopen the friendlist ON/OFF status websocket on a reload
-window.addEventListener('load', () => {
-	if (localStorage.getItem("access"))
-		openStatusWebsocket();
-});

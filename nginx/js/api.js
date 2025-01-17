@@ -50,6 +50,16 @@ export async function apiCallAuthed(url, method = 'GET', headers = {}, payload =
 	}
 }
 
+export async function ensureValidAccessToken() {
+	const accessTokenExpiration = parseInt(localStorage.getItem('access_expiration'), 10);
+	const now = Date.now();
+
+	// Check if the access token is about to expire
+	if (now >= accessTokenExpiration - 3000) { // Refresh the token 3 seconds before it expires
+		await refreshAccessToken();
+	}
+}
+
 async function refreshAccessToken() {
 	const url = '/api/auth/login/refresh';
 	const options = {

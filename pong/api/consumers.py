@@ -372,6 +372,12 @@ class PongConsumer(AsyncWebsocketConsumer):
 			match_database = await sync_to_async(get_object_or_404)(Match, id=pong_room_grace.match_id)
 			if pong_room_grace.match_id not in grace_period_dict:
 				grace_period_dict[pong_room_grace.match_id] = asyncio.create_task(self.grace_period_handler(pong_room_grace, match_database))
+				await self.channel_layer.group_send(
+					pong_room_grace.match_group_name, {
+						"type": "grace_disconnect",
+						"message": "grace_disconnect",
+					}
+				)
 			else:
 				logging.info(f"Both players disconnected, setting winner to the one who disconnected last")
 				grace_period_task = grace_period_dict[pong_room_grace.match_id]
@@ -426,6 +432,13 @@ class PongConsumer(AsyncWebsocketConsumer):
 				"paddle2_y": event["paddle2_y"],
 				"player1_score": event["player1_score"],
 				"player2_score": event["player2_score"]
+			}
+		))
+
+	async def grace_disconnect(self, event):
+		await self.send(text_data=json.dumps(
+			{
+				"type": event["message"]
 			}
 		))
 
@@ -484,6 +497,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 				"message": "match_start",
 			}
 		)
+		await asyncio.sleep(1)
 		logging.info(f"Starting game for: ")
 		logging.info(pong_room)
 		asyncio.create_task(self.game_loop(pong_room, match_database))
