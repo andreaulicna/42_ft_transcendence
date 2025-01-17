@@ -38,6 +38,9 @@ const loadContent = async (path) => {
 			window.location.hash = '#login';
 			throw new Error('Not logged in.');
 		}
+		
+		// Refreshes access token before getting to further API calls, preventing double refresh on load/hashchange events
+		await ensureValidAccessToken();
 
 		// If user is logged in, go from #login straight to #dashboard
 		if (path == '/pages/login.html' && localStorage.getItem('access')) {
@@ -45,15 +48,19 @@ const loadContent = async (path) => {
 		}
 
 		// Import the page's relevant script
-		await ensureValidAccessToken();
 		let data;
 		if (window.location.hash === '#login' || window.location.hash === '') {
 			await import('/js/login.js').then(module => module.init());
 		} else if (window.location.hash === '#register') {
 			await import('/js/register.js').then(module => module.init());
 		} else if (window.location.hash === '#dashboard') {
-			data = await apiCallAuthed('/api/user/info');
-			await import('/js/dashboard.js').then(module => module.init(data));
+			// to prevent duplicate calls to api?user/info on load event
+			if (localStorage.getItem('id') == null) {
+				data = await apiCallAuthed('/api/user/info');
+				await import('/js/dashboard.js').then(module => module.init(data.id));
+			} else {
+				await import('/js/dashboard.js').then(module => module.init(null));
+			}
 		} else if (window.location.hash === '#profile') {
 			data = await apiCallAuthed('/api/user/info');
 			await import('/js/profile.js').then(module => module.init(data));
@@ -87,36 +94,28 @@ const loadContent = async (path) => {
 		console.error('Error loading content:', err);
 	} finally {
 		hideLoading();
-		if (localStorage.getItem("access")) {
-			console.log("Access in event listened for status ws: ", localStorage.getItem("access"));
-			openStatusWebsocket();
-		}
 	}
 };
 
-const router = () => {
+const router = async () => {
 	const route = window.location.hash || '';
 	const path = routes[route] || routes['404'];
 	// console.log(`Routing to: ${route}, Path: ${path}`);
-	loadContent(path);
+	// await ensureValidAccessToken();
+	await loadContent(path);
 };
 
-let isRouterRunning = false;
-
-async function runRouter() {
-    if (isRouterRunning) return;
-    isRouterRunning = true;
-
-    try {
-        //await ensureValidAccessToken(); // Ensure the token is valid before proceeding
-        router();
-    } finally {
-        isRouterRunning = false;
+// Status websocket should only (re)open on load event, not on hash change
+const handleLoadEvent = async () => {
+    await router();
+	if (localStorage.getItem("access")) {
+        console.log("Access in event listened for status ws: ", localStorage.getItem("access"));
+        openStatusWebsocket();
     }
-}
+};
 
-window.addEventListener('hashchange', runRouter);
-window.addEventListener('load', runRouter);
+window.addEventListener('hashchange', router);
+window.addEventListener('load', handleLoadEvent);
 
 // Redirection when the page logo in top left is clicked
 export function redirectToHome(event) {
@@ -154,7 +153,7 @@ export async function logout() {
 		const response = await apiCallAuthed("/api/auth/login/refresh/logout", "POST");
 		localStorage.removeItem('access');
 		localStorage.removeItem('access_expiration');
-		localStorage.removeItem('uuid');
+		sessionStorage.removeItem('uuid');
 		localStorage.removeItem('id');
 		localStorage.removeItem('match_id');
 

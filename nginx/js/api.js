@@ -96,6 +96,9 @@ async function refreshAccessToken() {
 			localStorage.removeItem('id');
 			localStorage.removeItem('match_id');
 
+			//Redirect to login page if refresh access token fails
+			window.location.hash = '#login';
+
 			throw new Error(errorData.message || 'Token refresh failed');
 		}
 	} catch (error) {

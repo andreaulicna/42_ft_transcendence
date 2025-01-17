@@ -205,6 +205,15 @@ def get_match_status(match_id):
 	except Match.DoesNotExist:
 		return None
 
+@database_sync_to_async
+def get_match_winner(match_id):
+	try:
+		match = Match.objects.get(id=match_id)
+		return (match.winner)
+	except Match.DoesNotExist:
+		return None
+
+
 ########################
 # MATCHMAKING Consumer #
 ########################
@@ -370,7 +379,8 @@ class PongConsumer(AsyncWebsocketConsumer):
 		pong_room_grace = find_player_in_pong_room(self.id)
 		if pong_room_grace is not None:
 			match_database = await sync_to_async(get_object_or_404)(Match, id=pong_room_grace.match_id)
-			if pong_room_grace.match_id not in grace_period_dict:
+			match_winner = await get_match_winner(pong_room_grace.match_id)
+			if (match_winner is None) and (pong_room_grace.match_id not in grace_period_dict):
 				grace_period_dict[pong_room_grace.match_id] = asyncio.create_task(self.grace_period_handler(pong_room_grace, match_database))
 				await self.channel_layer.group_send(
 					pong_room_grace.match_group_name, {
@@ -378,7 +388,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 						"message": "grace_disconnect",
 					}
 				)
-			else:
+			elif (match_winner is None):
 				logging.info(f"Both players disconnected, setting winner to the one who disconnected last")
 				grace_period_task = grace_period_dict[pong_room_grace.match_id]
 				logging.info("Cancelling grace period from disconnect...")
