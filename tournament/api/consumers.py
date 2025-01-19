@@ -17,48 +17,48 @@ tournament_rooms = []
 local_tournament_rooms = []
 
 class AbstractTournamentRoom:
-	def __init__(self, tournament_id, capacity):
+	def __init__(self, tournament_id, capacity, creator_id):
 		self.id = tournament_id
 		self.players = []
 		self.brackets = []
 		self.capacity = capacity
+		self.creator_id = creator_id
 
 	def __repr__(self):
 		return f"{self.__class__.__name__}(id={self.id}, players={self.players}, brackets={self.brackets}, capacity={self.capacity})"
 
 class TournamentRoom(AbstractTournamentRoom):
-	def __init__(self, tournament_id, capacity):
-		super().__init__(tournament_id, capacity)
+	def __init__(self, tournament_id, capacity, creator_id):
+		super().__init__(tournament_id, capacity, creator_id)
 		self.tournament_group_name = str(tournament_id) + "_tournament"
 
 class LocalTournamentRoom(AbstractTournamentRoom):
 	def __init__(self, tournament_id, capacity, creator_id):
-		super().__init__(tournament_id, capacity)
-		self.creator_id = creator_id
+		super().__init__(tournament_id, capacity, creator_id)
 		self.current_brackets_stage = 0
 
 	def __repr__(self):
 		return f"{self.__class__.__name__}(id={self.id}, creator_id={self.creator_id}, players={self.players}, brackets={self.brackets}, capacity={self.capacity})"
 
 class AbstractPlayer:
-    def __init__(self, username):
-        self.username = username
+	def __init__(self, username):
+		self.username = username
 
-    def __repr__(self):
-        return f"{self.__class__.__name__}(username={self.username})"
+	def __repr__(self):
+		return f"{self.__class__.__name__}(username={self.username})"
 
 class Player(AbstractPlayer):
-    def __init__(self, player_id, channel_name, username):
-        super().__init__(username)
-        self.id = player_id
-        self.channel_name = channel_name
+	def __init__(self, player_id, channel_name, username):
+		super().__init__(username)
+		self.id = player_id
+		self.channel_name = channel_name
 
-    def __repr__(self):
-        return f"{self.__class__.__name__}(id={self.id}, username={self.username}, channel_name={self.channel_name})"
+	def __repr__(self):
+		return f"{self.__class__.__name__}(id={self.id}, username={self.username}, channel_name={self.channel_name})"
 
 class LocalPlayer(AbstractPlayer):
-    def __init__(self, username):
-        super().__init__(username)
+	def __init__(self, username):
+		super().__init__(username)
 
 class Match:
 	def __init__(self, id, round, player1, player2, tournament_group_name):
@@ -98,8 +98,8 @@ def get_player_state(player_id):
 	user = get_object_or_404(CustomUser,id=player_id)
 	return user.state
 
-def create_tournament_room(tournament_id, capacity):
-	tournament_room = TournamentRoom(tournament_id, capacity)
+def create_tournament_room(tournament_id, capacity, creator_id):
+	tournament_room = TournamentRoom(tournament_id, capacity, creator_id)
 	tournament_rooms.append(tournament_room)
 	return tournament_room
 
@@ -184,13 +184,14 @@ class TournamentConsumer(WebsocketConsumer):
 		tournament_room = get_remote_or_local_tournament_room(tournament_rooms, tournament_id)
 		logging.info(f'Found tournament room: {tournament_room}')
 		if not tournament_room:
-			tournament_room = create_tournament_room(tournament_id, tournament_database.capacity)
+			tournament_room = create_tournament_room(tournament_id, tournament_database.capacity, tournament_database.creator.id)
 			logging.info(f"Room {tournament_room.id} created!")
 		add_player_to_tournament_room(tournament_room, self.id, self.channel_name, player_tournament.player_tmp_username)
 		async_to_sync(self.channel_layer.group_add)(
 			tournament_room.tournament_group_name, self.channel_name
 		)
 		self.accept()
+		self.send_lobby_update_message(tournament_room.tournament_group_name, "player_join")
 		# First set of rounds
 		if len(tournament_room.players) == tournament_room.capacity:
 			round = 1
@@ -211,6 +212,10 @@ class TournamentConsumer(WebsocketConsumer):
 					async_to_sync(self.channel_layer.group_discard)(
 						tournament_room.tournament_group_name, self.channel_name
 					)
+					if (self.id == tournament_room.creator_id):
+						self.send_lobby_update_message(tournament_room.tournament_group_name, "creator_cancel")
+					else:
+						self.send_lobby_update_message(tournament_room.tournament_group_name, "player_cancel")
 					tournament_room.players.remove(player)
 					if not tournament_room.players:
 						tournament_rooms.remove(tournament_room)
@@ -316,23 +321,25 @@ class TournamentConsumer(WebsocketConsumer):
 		logging.info("End of next_round")
 
 	def next_round(self, match_id, winner_id):
-		logging.info("Next round function")
 		tournament_id = int(self.scope['url_route']['kwargs'].get('tournament_id'))
 		tournament_room = get_remote_or_local_tournament_room(tournament_rooms, tournament_id)
-		logging.info(f"Next round function, tournament: {tournament_room}")
 		match = get_match(tournament_room, match_id)
 		# Update match in brackets
 		match.winner = winner_id
 
-		logging.info(f"Next round function, match.round: {match.round}")
-		logging.info(f"Tournament end check between round {match.round} and capacity calculation {tournament_room.capacity - 1} is: {match.round == tournament_room.capacity - 1}")
 		if match.round == tournament_room.capacity - 1:
-			logging.info("HERE")
-			logging.info(f"Group name: {match.round_group_name}")
 			async_to_sync(self.channel_layer.group_send)(
 				match.round_group_name, {"type": "tournament_message", "message": "tournament_end"}
 			)
 			logging.info(f"Message sent to group: {match.round_group_name}")
+			try:
+				tournament_database = Tournament.objects.get(id=tournament_id)
+				tournament_database.status = Tournament.StatusOptions.FINISHED
+				tournament_database.save()
+			except ObjectDoesNotExist:
+				logging.info("Close bcs no such tournament")
+				self.close()
+				return
 
 		increment = 1
 		current_round = 1
@@ -348,6 +355,26 @@ class TournamentConsumer(WebsocketConsumer):
 		logging.info(f"Received group message: {message}")
 		self.send(text_data=json.dumps({"message": message}))
 		#self.close() # closes the websocket once the match_id has been sent to both of the players
+
+	def send_lobby_update_message(self, tournament_group_name, message):
+		async_to_sync(self.channel_layer.group_send)(
+			tournament_group_name, {
+				"type": "remote_tournament_lobby_update", 
+				"message": message,
+				"player_id": self.id
+			}
+		)
+	
+	def remote_tournament_lobby_update(self, event):
+		message = event['message']
+		player_id = event['player_id']
+
+		if player_id != self.id:
+			self.send(text_data=json.dumps({
+				'type': 'remote_tournament_lobby_update',
+				'message': message,
+				'player_id': player_id
+			}))
 
 
 class LocalTournamentConsumer(WebsocketConsumer):

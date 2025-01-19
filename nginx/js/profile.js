@@ -1,4 +1,4 @@
-import { apiCallAuthed } from './api.js';
+import { apiCallAuthed, ensureValidAccessToken } from './api.js';
 import { textDynamicLoad } from "./animations.js";
 import { showToast } from "./notifications.js";
 
@@ -158,7 +158,7 @@ function handleCustomColors() {
 	});
 }
 
-function handleFriendlist() {
+async function handleFriendlist() {
 	outgoingList = document.getElementById("outgoingFriendList");
 	incomingList = document.getElementById("incomingFriendList");
 	friendlistList = document.getElementById("friendlistList");
@@ -166,7 +166,10 @@ function handleFriendlist() {
 	friendAddInput = document.getElementById("friendAddInput");
 	const refreshFriendlistBtn = document.getElementById("refreshFriendlistBtn");
 
-	loadFriendlist();
+	await ensureValidAccessToken();
+	listOutgoing();
+	listIncoming();
+	listFriends();
 
 	// Friend add request
 	friendAddForm.addEventListener('submit', (event) => {
@@ -174,20 +177,14 @@ function handleFriendlist() {
 		addFriend(friendAddInput.value);
 	});
 
-	refreshFriendlistBtn.addEventListener("click", () => {
-		loadFriendlist();
+	refreshFriendlistBtn.addEventListener("click", async () => {
+		await ensureValidAccessToken();
+		listOutgoing();
+		listIncoming();
+		listFriends();
 	});
 }
 
-async function loadFriendlist() {
-	try {
-		await listOutgoing();
-		await listIncoming();
-		await listFriends();
-	} catch (error) {
-		console.error('Error loading profile data:', error);
-	}
-}
 
 // List outgoing friend requests
 async function listOutgoing() {

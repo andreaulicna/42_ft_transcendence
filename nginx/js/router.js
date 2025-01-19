@@ -1,5 +1,5 @@
-import { apiCallAuthed } from './api.js';
 import { showLoading } from "./animations.js";
+import { apiCallAuthed, ensureValidAccessToken } from './api.js';
 import { hideLoading } from "./animations.js";
 import { openStatusWebsocket, closeStatusWebsocket } from './websockets.js';
 
@@ -38,6 +38,9 @@ const loadContent = async (path) => {
 			window.location.hash = '#login';
 			throw new Error('Not logged in.');
 		}
+		
+		// Refreshes access token before getting to further API calls, preventing double refresh on load/hashchange events
+		await ensureValidAccessToken();
 
 		// If user is logged in, go from #login straight to #dashboard
 		if (path == '/pages/login.html' && localStorage.getItem('access')) {
@@ -51,8 +54,13 @@ const loadContent = async (path) => {
 		} else if (window.location.hash === '#register') {
 			await import('/js/register.js').then(module => module.init());
 		} else if (window.location.hash === '#dashboard') {
-			data = await apiCallAuthed('/api/user/info');
-			await import('/js/dashboard.js').then(module => module.init(data));
+			// to prevent duplicate calls to api?user/info on load event
+			if (localStorage.getItem('id') == null) {
+				data = await apiCallAuthed('/api/user/info');
+				await import('/js/dashboard.js').then(module => module.init(data.id));
+			} else {
+				await import('/js/dashboard.js').then(module => module.init(null));
+			}
 		} else if (window.location.hash === '#profile') {
 			data = await apiCallAuthed('/api/user/info');
 			await import('/js/profile.js').then(module => module.init(data));
@@ -89,16 +97,25 @@ const loadContent = async (path) => {
 	}
 };
 
-const router = () => {
+const router = async () => {
 	const route = window.location.hash || '';
 	const path = routes[route] || routes['404'];
 	// console.log(`Routing to: ${route}, Path: ${path}`);
-	loadContent(path);
+	// await ensureValidAccessToken();
+	await loadContent(path);
+};
+
+// Status websocket should only (re)open on load event, not on hash change
+const handleLoadEvent = async () => {
+    await router();
+	if (localStorage.getItem("access")) {
+        console.log("Access in event listened for status ws: ", localStorage.getItem("access"));
+        openStatusWebsocket();
+    }
 };
 
 window.addEventListener('hashchange', router);
-
-window.addEventListener('load', router);
+window.addEventListener('load', handleLoadEvent);
 
 // Redirection when the page logo in top left is clicked
 export function redirectToHome(event) {
@@ -151,9 +168,3 @@ export async function logout() {
 }
 
 window.logout = logout;
-
-// Reopen the friendlist ON/OFF status websocket on a reload
-window.addEventListener('load', () => {
-	if (localStorage.getItem("access"))
-		openStatusWebsocket();
-});

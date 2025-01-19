@@ -1,4 +1,4 @@
-import { apiCallAuthed } from './api.js';
+import { apiCallAuthed, ensureValidAccessToken } from './api.js';
 import { openTournamentWebsocket } from './websockets.js';
 
 let tournamentCreateForm;
@@ -47,10 +47,10 @@ async function createTournament(event) {
 async function joinTournament(event) {
 	if (event.target && event.target.matches('button[data-tournament-id]')) {
 		const tournamentId = event.target.getAttribute('data-tournament-id');
-		localStorage.setItem("tournament_id", tournamentId);
 		apiCallAuthed(`/api/tournament/join/${tournamentId}/`, "POST")
 			.then(response => {
 				openTournamentWebsocket(response.tournament.id);
+				localStorage.setItem("tournament_id", tournamentId);
 				window.location.hash = '#lobby-tnmt';
 			})
 			.catch(error => {
@@ -63,6 +63,7 @@ async function joinTournament(event) {
 // List available tournaments
 async function fetchAndUpdateTournamentList() {
 	try {
+		await ensureValidAccessToken();
 		const tournamentList = await apiCallAuthed('api/tournament/list/waiting', undefined, undefined, undefined, false);
 
 		if (!tournamentList || tournamentList.length === 0)

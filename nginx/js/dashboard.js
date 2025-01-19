@@ -2,8 +2,10 @@ import { logout } from "./router.js";
 
 let logoutBtn;
 
-export async function init(data) {
-	localStorage.setItem("id", data.id);
+export async function init(id) {
+	if (id !== null) {
+		localStorage.setItem("id", id);
+	}
 	
 	// Add selected game mode to local storage
 	document.querySelectorAll('#menu a').forEach(link => {
