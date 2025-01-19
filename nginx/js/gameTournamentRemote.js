@@ -122,5 +122,6 @@ async function resetGame() {
 	initMatchData(data);
 	hideGameOverScreen();
 	mainMenuButton.style.display = "block";
+	initPaddleEventDispatch();
 	startCountdown();
 }

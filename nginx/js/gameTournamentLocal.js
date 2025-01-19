@@ -88,5 +88,6 @@ async function nextGame() {
 	setMatchID(localStorage.getItem("match_id"));
 	data = await apiCallAuthed(`/api/user/localmatch/${matchID}`);
 	initLocalData(data);
+	initPaddleEventDispatch();
 	hideGameOverScreen();
 }
