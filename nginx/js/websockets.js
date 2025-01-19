@@ -147,6 +147,8 @@ export async function openPongWebsocket(match_id) {
 		window.location.hash = '#game';
 	}).catch((error) => {
 		console.error('Failed to establish Pong WebSocket:', error);
+		if (localStorage.getItem("in_game") == "YES" && localStorage.getItem("match_id"))
+			localStorage.setItem("in_game", "NO");
 	});
 }
 
