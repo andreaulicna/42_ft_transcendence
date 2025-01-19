@@ -1,5 +1,6 @@
 import { apiCallAuthed, ensureValidAccessToken } from './api.js';
 import { openTournamentWebsocket } from './websockets.js';
+import { showToast } from "./notifications.js";
 
 let tournamentCreateForm;
 let joinableTournaments;
@@ -39,7 +40,7 @@ async function createTournament(event) {
 		window.location.hash = '#lobby-tnmt';
 	} catch (error) {
 		console.error("Error creating tournament:", error);
-		alert("An error occurred while creating a tournament.");
+		showToast("Error", error);
 	}
 }
 
@@ -55,7 +56,7 @@ async function joinTournament(event) {
 			})
 			.catch(error => {
 				console.error('Error joining tournament:', error);
-				alert("Cannot join a tournament.");
+				showToast("Error", error);
 			});
 	}
 }

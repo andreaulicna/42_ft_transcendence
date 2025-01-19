@@ -108,7 +108,7 @@ function cancelLobby() {
 		})
 		.catch(error => {
 			console.error("Error leaving tournament:", error);
-			alert("Error leaving a tournament.");
+			showToast("Error leaving tournament", error);
 		})
 		.finally(() => {
 			closeTournamentWebsocket();

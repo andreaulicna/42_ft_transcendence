@@ -22,6 +22,7 @@ import {
 import { apiCallAuthed } from './api.js';
 import { textDynamicLoad } from "./animations.js";
 import { openAIPlayWebsocket } from "./websockets.js";
+import { showToast } from "./notifications.js";
 
 export async function init() {
 	try {
@@ -48,7 +49,7 @@ export async function init() {
 		});
 	} catch (error) {
 		console.error("Error initializing AI match:", error);
-		alert("An error occurred while initializing the AI match.");
+		showToast("Error", error);
 	}
 }
 
@@ -78,6 +79,6 @@ async function createAIPlay(event) {
 		openAIPlayWebsocket(response.match_id);
 	} catch (error) {
 		console.error("Error creating AI match:", error);
-		alert("An error occurred while creating a AI match.");
+		showToast("Error", error);
 	}
 }

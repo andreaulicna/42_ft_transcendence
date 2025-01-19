@@ -5,7 +5,7 @@ import { openRematchWebsocket } from "./websockets.js";
 import { closeRematchWebsocket } from "./websockets.js";
 import { openLocalPlayWebsocket } from "./websockets.js";
 import { apiCallAuthed } from './api.js';
-
+import { showToast } from "./notifications.js";
 
 export function init() {
 	const mode = localStorage.getItem('gameMode');
@@ -93,7 +93,7 @@ async function createLocalPlay(event) {
 		openLocalPlayWebsocket(response.match_id);
 	} catch (error) {
 		console.error("Error creating local match:", error);
-		alert("An error occurred while creating a local match.");
+		showToast("Error", error);
 	}
 }
 
@@ -109,7 +109,7 @@ async function createLocalPlayRematch(side_mode) {
 		openLocalPlayWebsocket(response.match_id);
 	} catch (error) {
 		console.error("Error creating local rematch:", error);
-		alert("An error occurred while creating a local rematch.");
+		showToast("Error", error);
 	}
 }
 

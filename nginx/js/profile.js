@@ -374,7 +374,7 @@ async function handle2FA(data) {
 			qrCodeContainer.style.display = 'block';
 		} catch (error) {
 			console.error("Error generating QR code:", error);
-			alert("An error occurred while generating the QR code.");
+			showToast("Error", error);
 		}
 	});
 
@@ -387,10 +387,10 @@ async function handle2FA(data) {
 			};
 			const payload = {'otp_code': pin};
 			await apiCallAuthed("api/user/2fa-enable", "POST", headers, payload);
-			alert("2FA Enabled.");
+			showToast("2FA", "The 2FA settings for this account has been enabled.");
 		} catch (error) {
 			console.error("Error submitting PIN code:", error);
-			alert("An error occurred while submitting the PIN code.");
+			showToast("Error submitting PIN code", error);
 		}
 	});
 
@@ -403,10 +403,10 @@ async function handle2FA(data) {
 			};
 			const payload = {'otp_code': pin};
 			await apiCallAuthed("api/user/2fa-disable", "POST", headers, payload);
-			alert("2FA Disabled.");
+			showToast("2FA", "The 2FA settings for this account has been disabled.");
 		} catch (error) {
 			console.error("Error submitting PIN code:", error);
-			alert("An error occurred while submitting the PIN code.");
+			showToast("Error submitting PIN code", error);
 		}
 	});
 }
@@ -422,7 +422,7 @@ async function handleProfilePicUpload() {
 		// Check if a file was uploaded
 		const file = profilePicInput.files[0];
 		if (!file) {
-			alert("Please select a file.");
+			showToast("Error", "Please select a file.");
 			return;
 		}
 
@@ -433,7 +433,7 @@ async function handleProfilePicUpload() {
 		img.onload = async () => {
 			// Check pic dimensions
 			if (img.width > 800 || img.height > 800) {
-				alert("Image dimensions should not exceed 800x800px.");
+				showToast("Error", "Image dimensions should not exceed 800x800 px.");
 				return;
 			}
 			// Convert img to Base64
@@ -452,11 +452,11 @@ async function handleProfilePicUpload() {
 					profilePic.src = data.avatar;
 			} catch (error) {
 				console.error("Error uploading profile picture:", error);
-				alert("An error occurred while uploading the profile picture.");
+				showToast("Error", error);
 			}
 		};
 		img.onerror = () => {
-			alert("Invalid image file.");
+			showToast("Error", "Invalid image file.");
 		};
 	});
 }
