@@ -91,16 +91,18 @@ function renderTournamentBracket() {
 			let p1 = players[match * 2] || "🔜";
 			let p2 = players[match * 2 + 1] || "🔜";
 
-			if (round != 1)
-			{
-				p1 = "❓";
-				p2 = "❓";
-			}
-
-			matchContainer.innerHTML = `
+			if (round == 1) {
+				matchContainer.innerHTML = `
 				<div class="player-slot">${p1}</div>
 				<div class="player-slot">${p2}</div>
-			`;
+				`;
+			}
+			else {
+				matchContainer.innerHTML = `
+				<div class="player-slot">❓</div>
+				<div class="player-slot">❓</div>
+				`;
+			}
 			roundContainer.appendChild(matchContainer);
 		}
 		bracketContainer.appendChild(roundContainer);

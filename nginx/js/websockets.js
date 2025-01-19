@@ -1,5 +1,6 @@
 import { apiCallAuthed } from './api.js';
 import { handleFriendStatusUpdate } from './profile.js';
+import { handleLobbyStatusUpdate } from './tournamentLobby.js';
 
 let pongWebSocket;
 let statusWebSocket;
@@ -56,7 +57,7 @@ async function openWebSocket(url, type) {
 						openLocalPlayWebsocket(data.message);
 					}
 				}
-				// For an ongoing match, dispatch custom events based on the message type received from server
+				// Dispatch custom events based on the message type received from server
 				if (data.type === "draw")
 				{
 					const drawEvent = new CustomEvent('draw', { detail: data });
@@ -84,7 +85,7 @@ async function openWebSocket(url, type) {
 				}
 				else if (data.type === "remote_tournament_lobby_update")
 				{
-					// Some Vojta's magic
+					handleLobbyStatusUpdate(data);
 				}
 			};
 		} catch (error) {
