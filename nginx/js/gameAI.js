@@ -19,7 +19,6 @@ import {
 	isTouchDevice,
 } from './gameCore.js';
 
-import { initTouchControls } from './gameTouchControls.js';
 import { apiCallAuthed } from './api.js';
 import { textDynamicLoad } from "./animations.js";
 import { openAIPlayWebsocket } from "./websockets.js";
@@ -43,11 +42,6 @@ export async function init() {
 		initAIData(data);
 		initPaddleEventDispatch();
 		drawTick();
-		if (isTouchDevice) {
-			await delay(100);
-			initTouchControls(player1Data);
-			console.log("TOUCH CONTROLS ENABLED");
-		}
 
 		replayButton.addEventListener("click", () => {
 			location.reload();

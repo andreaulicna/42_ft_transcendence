@@ -20,7 +20,6 @@ export let matchID;
 export let paddle1Keys = {};
 export let paddle2Keys = {};
 let lastRan = {};
-let paddleDispatchInterval;
 
 let ball = {};
 let paddle1 = {};
@@ -310,6 +309,7 @@ function throttledDispatchEventPerKey(key, direction, paddle, limit) {
 			},
 		});
 		window.dispatchEvent(paddleMovementEvent);
+		console.log(`DISPATCHING ${paddle} MOVEMENT EVENT`);
 		lastRan[key] = now;
 	}
 }
@@ -319,15 +319,17 @@ function sendPaddleMovement() {
 
 	for (const key in paddle1Keys) {
 		if (paddle1Keys[key]) {
+			console.log("PLAYER 1 KEY PRESSED");
 			const direction = key == 87 ? "UP" : "DOWN";
 			throttledDispatchEventPerKey(key, direction, "paddle1", throttleLimit);
 		}
 	}
 
-	if (gameMode == "local" || gameMode == "local-rematch" || gameMode == "local-rematch-switch")
+	if (gameMode == "local" || gameMode == "local-rematch" || gameMode == "local-rematch-switch" || gameMode == "tournamentLocal")
 	{
 		for (const key in paddle2Keys) {
 			if (paddle2Keys[key]) {
+				console.log("PLAYER 2 KEY PRESSED");
 				const direction = key == 38 ? "UP" : "DOWN";
 				throttledDispatchEventPerKey(key, direction, "paddle2", throttleLimit);
 			}
@@ -336,18 +338,18 @@ function sendPaddleMovement() {
 }
 
 export function initPaddleEventDispatch() {
-    function sendPaddleMovementFrame() {
-        sendPaddleMovement();
-        paddleAnimationFrame = requestAnimationFrame(sendPaddleMovementFrame);
-    }
+	function sendPaddleMovementFrame() {
+		sendPaddleMovement();
+		paddleAnimationFrame = requestAnimationFrame(sendPaddleMovementFrame);
+	}
 
-    paddleAnimationFrame = requestAnimationFrame(sendPaddleMovementFrame);
+	paddleAnimationFrame = requestAnimationFrame(sendPaddleMovementFrame);
 }
 
 function stopPaddleEventDispatch() {
-    if (paddleAnimationFrame) {
-        cancelAnimationFrame(paddleAnimationFrame);
-    }
+	if (paddleAnimationFrame) {
+		cancelAnimationFrame(paddleAnimationFrame);
+	}
 }
 
 /* 👇 MENUS & REMATCH & NON-GAME LOGIC */

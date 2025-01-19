@@ -241,11 +241,15 @@ function handleStatusRefreshEvent() {
 
 /* GAME LOGIC */
 
-// Send paddle movement from game to Pong websocket
+// Send paddle movement from game to Localplay/Pong websocket
 function handlePaddleMovement(event) {
 	if (pongWebSocket && pongWebSocket.readyState === WebSocket.OPEN) {
 		pongWebSocket.send(JSON.stringify(event.detail));
-		// console.log('PONG WebSocket message sent:', event.detail);
+		console.log('PONG WebSocket message sent:', event.detail);
+	}
+	else if (localWebSocket && localWebSocket.readyState === WebSocket.OPEN) {
+		localWebSocket.send(JSON.stringify(event.detail));
+		console.log('Localplay WebSocket message sent:', event.detail);
 	}
 }
 
