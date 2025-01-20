@@ -138,6 +138,7 @@ export function initGameData(data) {
 export function initEventListeners() {
 	window.addEventListener('match_start', startCountdown);
 	window.addEventListener("keydown", handleKeyDown);
+	window.addEventListener("keydown", preventArrowKeyScroll);
 	window.addEventListener("keyup", handleKeyUp);
 	window.addEventListener('draw', handleDraw);
 	window.addEventListener('match_end', showGameOverScreen);
@@ -389,6 +390,7 @@ function showGameOverScreen() {
 	}
 
 	// removeEventListeners();
+	window.removeEventListener("keydown", preventArrowKeyScroll);
 }
 
 export function hideGameOverScreen() {
@@ -406,4 +408,11 @@ export function hideGameOverScreen() {
 // Function to create a delay
 export async function delay(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Prevent arrow key scrolling
+function preventArrowKeyScroll(event) {
+	const arrowKeys = ["ArrowUp", "ArrowDown"];
+	if (arrowKeys.includes(event.key))
+		event.preventDefault();
 }
