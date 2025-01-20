@@ -52,8 +52,6 @@ export let isTouchDevice;
 
 /* 👇 DATA INITIALIZATION */
 export function initGameData(data) {
-	localStorage.setItem("in_game", "YES");
-
 	matchID = data.id;
 	gameMode = localStorage.getItem("gameMode");
 	gameBoard = document.getElementById("gameBoard");
@@ -377,9 +375,6 @@ export function startCountdown() {
 }
 
 function showGameOverScreen() {
-	if (localStorage.getItem("in_game"))
-		localStorage.setItem("in_game", "NO");
-
 	let winner = player1.score > player2.score ? player1.name : player2.name;
 	winnerName.textContent = `${winner}`;
 	winnerName.className = player1.score > player2.score ? "blueSide" : "redSide";

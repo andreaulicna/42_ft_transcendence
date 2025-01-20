@@ -2,6 +2,7 @@ import { apiCallAuthed } from './api.js';
 import { handleFriendStatusUpdate } from './profile.js';
 import { handleLobbyStatusUpdate } from './tournamentLobby.js';
 import { handleGracePeriod } from './gameCore.js';
+import { showToast } from './notifications.js';
 
 let pongWebSocket;
 let statusWebSocket;
@@ -47,7 +48,7 @@ async function openWebSocket(url, type) {
 					if (data.message != "tournament_end")
 					{
 						localStorage.setItem("match_id", data.message);
-						openPongWebsocket(data.message);
+						openPongWebsocket(data.message, "join");
 					}
 				}
 				if (data.type == "local_tournament_message")
@@ -91,6 +92,11 @@ async function openWebSocket(url, type) {
 				else if (data.type === "grace_disconnect")
 				{
 					handleGracePeriod();
+				}
+				else if (data.type === "in_game")
+				{
+					console.log("User disconnected from a game, attempting to reconnect.");
+					openPongWebsocket(data.match_id, "reconnect");
 				}
 			};
 		} catch (error) {
@@ -150,7 +156,7 @@ export async function openLocalTournamentWebsocket(tournament_id) {
 	});
 }
 
-export async function openPongWebsocket(match_id) {
+export async function openPongWebsocket(match_id, flag) {
 	const url = "/api/ws/pong/" + match_id + "/";
 	openWebSocket(url, "pong").then((ws) => {
 		pongWebSocket = ws;
@@ -158,8 +164,8 @@ export async function openPongWebsocket(match_id) {
 		window.location.hash = '#game';
 	}).catch((error) => {
 		console.error('Failed to establish Pong WebSocket:', error);
-		if (localStorage.getItem("in_game") == "YES" && localStorage.getItem("match_id"))
-			localStorage.setItem("in_game", "NO");
+		if (flag == "reconnect")
+			showToast("Error", "The match is no longer ongoing.");
 	});
 }
 
