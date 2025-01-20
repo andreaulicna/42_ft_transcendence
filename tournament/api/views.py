@@ -188,17 +188,6 @@ class TournamentInfoView(RetrieveAPIView):
 		except Tournament.DoesNotExist:
 			raise Http404("No such tournament exists!")
 
-class AllTournamentsListView(ListAPIView):
-	serializer_class = TournamentSerializer
-	permission_classes = [IsAuthenticated]
-	queryset = Tournament.objects.all()
-
-class PlayerTournamentListView(ListAPIView):
-	serializer_class = PlayerTournamentSerializer
-	permission_classes = [IsAuthenticated]
-	queryset = PlayerTournament.objects.all()
-
-
 def get_players_based_on_capacity(request, capacity):
 	players = request.data.get('players', [])
 	if len(players) != capacity:
