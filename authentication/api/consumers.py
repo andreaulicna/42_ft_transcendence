@@ -1,6 +1,6 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
-from .models import CustomUser
+from .models import CustomUser, Match
 import logging
 from django.db.models import F, Case, When, Value, PositiveIntegerField
 import json
@@ -10,6 +10,7 @@ from django.shortcuts import get_object_or_404
 from asgiref.sync import async_to_sync
 import uuid # unique online_room id
 import asyncio
+from django.db.models import Q
 
 class OnlineRoom():
 	def __init__(self):
@@ -88,6 +89,19 @@ def is_status_counter_zero(player_id):
 		return True
 	return False
 
+@database_sync_to_async
+def get_inprogress_match(player_id):
+    try:
+        match_database = Match.objects.get(
+            (Q(player1=player_id) | Q(player2=player_id)) & Q(status=Match.StatusOptions.INPROGRESS)
+        )
+        return match_database.id
+    except Match.DoesNotExist:
+        return None
+    except Match.MultipleObjectsReturned:
+        logging.error("Multiple in-progress matches found for player.")
+        return None
+
 
 class UserConsumer(AsyncWebsocketConsumer):
 	async def connect(self):
@@ -111,8 +125,17 @@ class UserConsumer(AsyncWebsocketConsumer):
 		await self.accept()
 		logging.info("Online room after connect:")
 		logging.info(online_room)
-
 		self.timeout_task = asyncio.create_task(self.timeout_handler())
+		inprogress_match_id = await get_inprogress_match(self.id)
+		logging.info(f"Found inprogress match: {inprogress_match_id}")
+		if inprogress_match_id is not None:
+			logging.info("Sending match_id...")
+			await self.send(text_data=json.dumps(
+				{
+					"type": "in_game",
+					"match_id": inprogress_match_id
+				}
+			))
 
 	async def disconnect(self, close_code):
 		await decrement_user_status_counter(self.scope['user'])
@@ -146,7 +169,7 @@ class UserConsumer(AsyncWebsocketConsumer):
 
 	async def timeout_handler(self):
 		try:
-			await asyncio.sleep(30)
+			await asyncio.sleep(3600)
 			await self.close()
 		except asyncio.CancelledError:
 			pass
