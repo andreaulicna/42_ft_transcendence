@@ -108,9 +108,9 @@ async function listMatchHistory(type) {
 				let decision;
 				let opponent_name;
 				if ((match.type == "AIMatch" || match.type == "LocalMatch") && (match.player1_score > match.player2_score))
-					decision = "👍 WIN"
+					decision = `👍 <span data-translate="win">WIN</span>`
 				else
-					decision = "👎 LOSS"
+					decision = `👍 <span data-translate="loss">LOSS</span>`
 				opponent_name = match.player2_username;
 				if (match.type == "RemoteMatch")
 				{
@@ -119,9 +119,9 @@ async function listMatchHistory(type) {
 					opponent_name = `<a class="link-prg" data-bs-toggle="modal" data-bs-target="#userProfileModal" data-user-id=${opponent_id}>${opponent_name}</a>`;
 					const ourPlayersScore = localStorage.getItem("id") == match.player1_id ? match.player1_score : match.player2_score;
 					if (ourPlayersScore == 3)
-						decision = "👍 WIN"
+						decision = `👍 <span data-translate="win">WIN</span>`
 					else
-						decision = "👎 LOSS"
+						decision = `👍 <span data-translate="loss">LOSS</span>`
 				}
 				listItem.className = 'list-group-item list-group-item-active d-flex w-100 justify-content-between';
 				listItem.innerHTML = `
@@ -192,7 +192,7 @@ async function listOutgoing() {
 		const outgoingReturn = await apiCallAuthed('/api/user/friends/sent', undefined, undefined, undefined, false);
 
 		if (!outgoingReturn || outgoingReturn.length === 0)
-			outgoingList.innerHTML = '<li class="list-group-item text-center">You have no outgoing friend requests.</li>';
+			outgoingList.innerHTML = '<li class="list-group-item text-center" data-translate="noOutgoingRequests">You have no outgoing friend requests.</li>';
 		else
 		{
 			outgoingList.innerHTML = '';
@@ -216,7 +216,7 @@ async function listIncoming() {
 		const incomingReturn = await apiCallAuthed('/api/user/friends/received', undefined, undefined, undefined, false);
 
 		if (!incomingReturn || incomingReturn.length === 0)
-			incomingList.innerHTML = '<li class="list-group-item text-center">You have no incoming friend requests.</li>';
+			incomingList.innerHTML = '<li class="list-group-item text-center" data-translate="noIncomingRequests">You have no incoming friend requests.</li>';
 		else
 		{
 			incomingList.innerHTML = '';
@@ -283,7 +283,7 @@ async function listFriends() {
 		const friendlistReturn = await apiCallAuthed('/api/user/friends', undefined, undefined, undefined, false);
 
 		if (!friendlistReturn || friendlistReturn.length === 0) {
-			friendlistList.innerHTML = '<li class="list-group-item text-center">You have no friends :(</li>';
+			friendlistList.innerHTML = '<li class="list-group-item text-center" data-translate="noFriends">You have no friends :(</li>';
 		} else {
 			friendlistList.innerHTML = '';
 			friends = friendlistReturn; // Store the friend list
@@ -328,6 +328,7 @@ async function addFriend(username) {
 		showToast('Friend Request', `Friend request to ${username} sent.`);
 	} catch (error) {
 		console.error('Error adding friend:', error);
+		showToast('Error adding friend', error);
 	}
 }
 

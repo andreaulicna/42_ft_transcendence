@@ -67,7 +67,11 @@ function renderTournamentBracket(activePlayers, capacity) {
 		roundContainer.className = "round-container";
 
 		const heading = document.createElement("h5");
-		heading.innerText = `Round ${round}`;
+		const roundText = document.createElement("span");
+		roundText.setAttribute("data-translate", "round");
+		roundText.innerText = "Round";
+		heading.appendChild(roundText);
+		heading.appendChild(document.createTextNode(` ${round}`));
 		roundContainer.appendChild(heading);
 
 		// Number of matches in this round = capacity / 2^round
