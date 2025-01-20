@@ -309,7 +309,7 @@ function throttledDispatchEventPerKey(key, direction, paddle, limit) {
 			},
 		});
 		window.dispatchEvent(paddleMovementEvent);
-		console.log(`DISPATCHING ${paddle} MOVEMENT EVENT`);
+		// console.log(`DISPATCHING ${paddle} MOVEMENT EVENT`);
 		lastRan[key] = now;
 	}
 }
@@ -319,7 +319,7 @@ function sendPaddleMovement() {
 
 	for (const key in paddle1Keys) {
 		if (paddle1Keys[key]) {
-			console.log("PLAYER 1 KEY PRESSED");
+			// console.log("PLAYER 1 KEY PRESSED");
 			const direction = key == 87 ? "UP" : "DOWN";
 			throttledDispatchEventPerKey(key, direction, "paddle1", throttleLimit);
 		}
@@ -329,7 +329,7 @@ function sendPaddleMovement() {
 	{
 		for (const key in paddle2Keys) {
 			if (paddle2Keys[key]) {
-				console.log("PLAYER 2 KEY PRESSED");
+				// console.log("PLAYER 2 KEY PRESSED");
 				const direction = key == 38 ? "UP" : "DOWN";
 				throttledDispatchEventPerKey(key, direction, "paddle2", throttleLimit);
 			}

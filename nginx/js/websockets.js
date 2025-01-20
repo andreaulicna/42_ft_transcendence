@@ -43,7 +43,7 @@ async function openWebSocket(url, type) {
 					console.log('WebSocket message received:', data);
 				// Game initialization
 				if (type == "matchmaking" || type == "rematch"
-					|| (type == "tournament" && data.type != "remote_tournament_lobby_update") || type === "local_tournament")
+					|| (type == "tournament" && data.type != "remote_tournament_lobby_update"))
 				{
 					if (data.message != "tournament_end")
 					{
@@ -262,11 +262,11 @@ function handleStatusRefreshEvent() {
 function handlePaddleMovement(event) {
 	if (pongWebSocket && pongWebSocket.readyState === WebSocket.OPEN) {
 		pongWebSocket.send(JSON.stringify(event.detail));
-		console.log('PONG WebSocket message sent:', event.detail);
+		// console.log('PONG WebSocket message sent:', event.detail);
 	}
 	else if (localWebSocket && localWebSocket.readyState === WebSocket.OPEN) {
 		localWebSocket.send(JSON.stringify(event.detail));
-		console.log('Localplay WebSocket message sent:', event.detail);
+		// console.log('Localplay WebSocket message sent:', event.detail);
 	}
 }
 
