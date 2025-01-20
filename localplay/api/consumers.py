@@ -93,6 +93,7 @@ class LocalPlayConsumer(AsyncWebsocketConsumer):
 			await self.close()
 			return
 		await self.accept()
+		await set_user_state(self.scope['user'], CustomUser.StateOptions.INGAME)
 		logging.info("Rooms after connect:")
 		logging.info(match_rooms)
 		if (match_room.player1 is not None):
@@ -101,15 +102,20 @@ class LocalPlayConsumer(AsyncWebsocketConsumer):
 			logging.info("Waiting for more players to join the match room.")
 
 	async def disconnect(self, close_code):
-		logging.info(f"Disconnecting player {self.id} from pong")
-		await set_user_state(self.scope['user'], CustomUser.StateOptions.IDLE)
-		for match_room in match_rooms:
-			if (match_room.player1 is not None) and (self.id == match_room.player1.id):
-				match_room.player1 = None
-				match_rooms.remove(match_room)
-				break
-		logging.info("Rooms after disconnect:")
-		logging.info(match_rooms)
+		match_room = find_player_in_match_room(self.id)
+		match_id = self.scope['url_route']['kwargs'].get('match_id')
+		if match_room.match_id == match_id:
+			logging.info(f"Disconnecting player {self.id} from pong")
+			await set_user_state(self.scope['user'], CustomUser.StateOptions.IDLE)
+			for match_room in match_rooms:
+				if (match_room.player1 is not None) and (self.id == match_room.player1.id):
+					match_room.player1 = None
+					match_rooms.remove(match_room)
+					break
+			logging.info("Rooms after disconnect:")
+			logging.info(match_rooms)
+		else:
+			logging.info("Disconnect reject")
 
 	async def receive(self, text_data):
 		text_data_json = json.loads(text_data)

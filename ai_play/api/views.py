@@ -4,17 +4,26 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from ai_play.settings import GAME_CONSTANTS
 from .serializers import AIMatchSerializer
-from .models import Match
+from .models import CustomUser
 
 class HealthCheckView(APIView):
 	def get(self, request):
 		return Response({'detail' : 'Healthy'})
+
+def get_player_state(player_id):
+	try:
+		user = CustomUser.objects.get(id=player_id)
+		return user.state
+	except CustomUser.DoesNotExist:
+		return None
 	
 class CreateAIMatchView(APIView):
 	permission_classes = [IsAuthenticated]
 
 	def post(self, request):
 		creator = request.user
+		if get_player_state(creator.id) == CustomUser.StateOptions.INGAME:
+			return Response({'detail' : 'Player already has a match in progress.'}, status=status.HTTP_403_FORBIDDEN)
 		data = {
 				'creator' : creator.id,
 				'default_ball_size' : GAME_CONSTANTS['BALL_SIZE'],

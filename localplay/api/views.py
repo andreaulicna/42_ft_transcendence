@@ -5,6 +5,7 @@ from rest_framework import status
 from localplay.settings import GAME_CONSTANTS
 from .serializers import LocalMatchSerializer
 from .models import CustomUser, LocalMatch
+import logging
 
 class HealthCheckView(APIView):
 	def get(self, request):
@@ -41,6 +42,8 @@ class CreateMatchView(APIView):
 
 	def post(self, request):
 		creator = request.user
+		if get_player_state(creator.id) == CustomUser.StateOptions.INGAME:
+			return Response({'detail' : 'Player already has a match in progress.'}, status=status.HTTP_403_FORBIDDEN)
 		player1_username = request.data.get('player1_tmp_username', 'player1')
 		player2_username = request.data.get('player2_tmp_username', 'player2')
 		if player1_username == player2_username:
