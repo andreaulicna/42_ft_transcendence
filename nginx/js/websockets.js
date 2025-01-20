@@ -1,6 +1,7 @@
 import { apiCallAuthed } from './api.js';
 import { handleFriendStatusUpdate } from './profile.js';
 import { handleLobbyStatusUpdate } from './tournamentLobby.js';
+import { handleGracePeriod } from './gameCore.js';
 
 let pongWebSocket;
 let statusWebSocket;
@@ -86,6 +87,10 @@ async function openWebSocket(url, type) {
 				else if (data.type === "remote_tournament_lobby_update")
 				{
 					handleLobbyStatusUpdate(data);
+				}
+				else if (data.type === "grace_disconnect")
+				{
+					handleGracePeriod();
 				}
 			};
 		} catch (error) {
