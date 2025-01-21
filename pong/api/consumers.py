@@ -89,6 +89,14 @@ def get_prev_match(prev_match_id):
 	except Match.DoesNotExist:
 		return None
 
+def player_in_prev_match(prev_match, player_id):
+	logging.info(f"Prev match_id: {prev_match}")
+	logging.info(f"Prev match players: {prev_match.player1}, {prev_match.player2}")
+	if prev_match is not None:
+		if player_id in [prev_match.player1.id, prev_match.player2.id]:
+			return True
+	return False
+
 def set_match_data(player1_id, player2_id):
 	data = {
 			'player1' : player1_id,
@@ -278,9 +286,6 @@ class MatchmakingConsumer(WebsocketConsumer):
 # MATCHMAKING Rematch Consumer #
 ################################
 
-# implement 10 sec or so timeout
-# protect against joining a rematch when it's not yours to join
-# protect against being able to join when already waiting
 class RematchConsumer(WebsocketConsumer):
 	def connect(self):
 		self.id = self.scope['user'].id
@@ -288,7 +293,7 @@ class RematchConsumer(WebsocketConsumer):
 		prev_match = get_prev_match(prev_match_id)
 		logging.info(f"Player {self.id} wants a rematch!")
 		if (is_player_in_matchmaking_or_rematch_room_already(self.id) or get_player_state(self.id) == CustomUser.StateOptions.INGAME
-	  		or prev_match is None):
+	  		or prev_match is None or player_in_prev_match(prev_match, self.id) == False):
 			self.close()
 			return
 		room = find_rematch_room_to_join(prev_match_id)
