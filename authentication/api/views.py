@@ -105,7 +105,7 @@ class LoginView(APIView):
 				data = get_tokens_for_user(user)
 				response = set_response_cookie(response, data=data)
 				csrf.get_token(request)
-				response.data = {"refresh": data['refresh'], "access" : data['access']}
+				response.data = {"access" : data['access']}
 				return response
 			else:
 				return Response({"details" : "This account is not active"},status=status.HTTP_404_NOT_FOUND)
@@ -127,7 +127,7 @@ class LoginView(APIView):
 							data = get_tokens_for_user(user)
 							response = set_response_cookie(response, data=data)
 							csrf.get_token(request)
-							response.data = {"refresh": data['refresh'], "access" : data['access']}
+							response.data = {"access" : data['access']}
 							return response
 					else:
 						return Response({'detail' : 'State not tied to user'}, status=status.HTTP_401_UNAUTHORIZED)
