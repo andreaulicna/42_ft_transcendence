@@ -141,7 +141,19 @@ class AIPlayConsumer(AsyncWebsocketConsumer):
 			{
 				"type": event["message"],
 				"player1": event["player1"],
-				"player2": event["player2"]
+				"player2": event["player2"],
+				"ball_x": event["ball_x"],
+				"ball_y": event["ball_y"],
+				# "ball_exact_prediction_x": event["ball_exact_prediction_x"],
+				# "ball_exact_prediction_y": event["ball_exact_prediction_y"],
+				# "ball_prediction_x": event["ball_prediction_x"],
+				# "ball_prediction_y": event["ball_prediction_y"],
+				"paddle1_x": event["paddle1_x"],
+				"paddle1_y": event["paddle1_y"],
+				"paddle2_x": event["paddle2_x"],
+				"paddle2_y": event["paddle2_y"],
+				"player1_score": event["player1_score"],
+				"player2_score": event["player2_score"]
 			}
 		))
 
@@ -176,7 +188,19 @@ class AIPlayConsumer(AsyncWebsocketConsumer):
 				"type": "match_start",
 				"message": "match_start",
 				"player1": match_room.player1.username,
-				"player2": match_room.player2.username
+				"player2": match_room.player2.username,
+				"ball_x": match_room.ball.position.x,
+				"ball_y": match_room.ball.position.y,
+				# "ball_exact_prediction_x": match_room.player2.prediction.exact_position.x,
+				# "ball_exact_prediction_y": match_room.player2.prediction.exact_position.y,
+				# "ball_prediction_x": match_room.player2.prediction.position.x,
+				# "ball_prediction_y": match_room.player2.prediction.position.y,
+				"paddle1_x": match_room.paddle1.position.x,
+				"paddle1_y": match_room.paddle1.position.y,
+				"paddle2_x": match_room.paddle2.position.x,
+				"paddle2_y": match_room.paddle2.position.y,
+				"player1_score": match_room.player1.score,
+				"player2_score": match_room.player2.score
 			}
 		))
 		logging.info(f"Starting game for: ")

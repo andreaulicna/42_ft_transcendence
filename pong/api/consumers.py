@@ -469,8 +469,14 @@ class PongConsumer(AsyncWebsocketConsumer):
 		await self.send(text_data=json.dumps(
 			{
 				"type": event["message"],
-			#	"player1": event["player1"],
-			#	"player2": event["player2"]
+				"ball_x": event["ball_x"],
+				"ball_y": event["ball_y"],
+				"paddle1_x": event["paddle1_x"],
+				"paddle1_y": event["paddle1_y"],
+				"paddle2_x": event["paddle2_x"],
+				"paddle2_y": event["paddle2_y"],
+				"player1_score": event["player1_score"],
+				"player2_score": event["player2_score"]
 			}
 		))
 
@@ -512,6 +518,14 @@ class PongConsumer(AsyncWebsocketConsumer):
 			pong_room.match_group_name, {
 				"type": "match_start",
 				"message": "match_start",
+				"ball_x": pong_room.ball.position.x,
+				"ball_y": pong_room.ball.position.y,
+				"paddle1_x": pong_room.paddle1.position.x,
+				"paddle1_y": pong_room.paddle1.position.y,
+				"paddle2_x": pong_room.paddle2.position.x,
+				"paddle2_y": pong_room.paddle2.position.y,
+				"player1_score": pong_room.player1.score,
+				"player2_score": pong_room.player2.score
 			}
 		)
 		await asyncio.sleep(1)
