@@ -4,6 +4,7 @@ from django.conf import settings
 from django.utils import timezone
 import math
 from ai_play.settings import GAME_CONSTANTS
+from datetime import timedelta
 
 class PongGame:
 	def __init__(self, match_id, player1_id, creator_username):
@@ -22,12 +23,8 @@ class PongGame:
 		self.player2 = AIPlayer(3, self.paddle2.paddle_half_height)
 		self.start_timestamp = timezone.now()
 		self.last_frame = self.start_timestamp
+		self.game_start = None
 
-	# def __repr__(self):
-	# 	return (f"PongGame(match_id={self.match_id}, game_width={self.GAME_WIDTH}, "
-	# 			f"game_height={self.GAME_HEIGHT}, paddle1={self.paddle1}, paddle2={self.paddle2}, "
-	# 			f"player1={self.player1}, player2={self.player2})")
-	
 	def __repr__(self):
 		return (f"PongGame(match_id={self.match_id}, player1={self.player1}, player2={self.player2}")
 	
@@ -35,6 +32,13 @@ class PongGame:
 		self.paddle1 = Paddle(x=-80 + self.PADDLE_HALF_WIDTH, game=self)
 		self.paddle2 = Paddle(x=80 - self.PADDLE_HALF_WIDTH, game=self)
 		self.ball = Ball()
+
+	def set_game_start_time(self, seconds_to_start = 5):
+		self.game_start = timezone.now() + timedelta(seconds=seconds_to_start)
+		return self.game_start
+	
+	def get_seconds_until_game_start(self):
+		return (self.game_start - timezone.now()).total_seconds()
 
 class Paddle:
 	def __init__(self, x, game):

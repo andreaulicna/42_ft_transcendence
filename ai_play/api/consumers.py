@@ -153,7 +153,8 @@ class AIPlayConsumer(AsyncWebsocketConsumer):
 				"paddle2_x": event["paddle2_x"],
 				"paddle2_y": event["paddle2_y"],
 				"player1_score": event["player1_score"],
-				"player2_score": event["player2_score"]
+				"player2_score": event["player2_score"],
+				"game_start" : event["game_start"]
 			}
 		))
 
@@ -200,7 +201,8 @@ class AIPlayConsumer(AsyncWebsocketConsumer):
 				"paddle2_x": match_room.paddle2.position.x,
 				"paddle2_y": match_room.paddle2.position.y,
 				"player1_score": match_room.player1.score,
-				"player2_score": match_room.player2.score
+				"player2_score": match_room.player2.score,
+				"game_start" : match_room.set_game_start_time(seconds_to_start=5).isoformat()
 			}
 		))
 		logging.info(f"Starting game for: ")
@@ -208,7 +210,9 @@ class AIPlayConsumer(AsyncWebsocketConsumer):
 		asyncio.create_task(self.game_loop(match_room, match_database))
 
 	async def game_loop(self, match_room, match_database):
-		await asyncio.sleep(3)
+		#await asyncio.sleep(3)
+		logging.info(f"Game will start in: {match_room.get_seconds_until_game_start()} seconds")
+		await asyncio.sleep(match_room.get_seconds_until_game_start())
 		sequence = 0
 		ball = match_room.ball
 		paddle1 = match_room.paddle1
