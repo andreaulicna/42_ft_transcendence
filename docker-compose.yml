@@ -64,7 +64,7 @@ services:
     networks:
       - transcendence
     volumes:
-      - ./authentication:/app # in order to have access to certain parts
+      - ./authentication/staticfiles:/app/staticfiles # in order to have access to certain parts
       - uploaded-volume:/var/www/ft_transcendence/media
       - ./nginx/certs:/etc/nginx/ssl/
     depends_on:
