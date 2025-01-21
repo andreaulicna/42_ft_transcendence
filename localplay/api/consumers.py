@@ -154,7 +154,8 @@ class LocalPlayConsumer(AsyncWebsocketConsumer):
 		logging.info("match_end called")
 		await self.send(text_data=json.dumps(
 			{
-				"type": event["message"]
+				"type": event["message"],
+				"winner_username" : event["winner_username"]
 			}
 		))
 		await self.close()
@@ -196,6 +197,7 @@ class LocalPlayConsumer(AsyncWebsocketConsumer):
 		
 		while 42:
 			if match_room.player1 is None:
+				await set_match_winner(match_database)
 				break
 
 			# Ball collision with floor & ceiling
@@ -260,6 +262,7 @@ class LocalPlayConsumer(AsyncWebsocketConsumer):
 		await self.match_end(
 			{
 					"type" : "match_end",
-					"message" : "match_end"
+					"message" : "match_end",
+					"winner_username" : match_database.winner 
 			}
 		)

@@ -485,7 +485,9 @@ class PongConsumer(AsyncWebsocketConsumer):
 			grace_period_dict.pop(pong_room.match_id)
 		await self.send(text_data=json.dumps(
 			{
-				"type": event["message"]
+				"type": event["message"],
+				"winner_id" : event["winner_id"],
+				"winner_username" : event["winner_username"]
 			}
 		))
 		await self.close()
@@ -610,7 +612,9 @@ class PongConsumer(AsyncWebsocketConsumer):
 			await self.channel_layer.group_send(
 					pong_room.match_group_name, {
 						"type" : "match_end",
-						"message" : "match_end"
+						"message" : "match_end",
+						"winner_id" : match_database.winner.id,
+						"winner_username" : match_database.winner.username
 					}
 				)
 	async def grace_period_handler(self, pong_room, match):
@@ -622,7 +626,9 @@ class PongConsumer(AsyncWebsocketConsumer):
 			await self.channel_layer.group_send(
 					pong_room.match_group_name, {
 						"type" : "match_end",
-						"message" : "match_end"
+						"message" : "match_end",
+						"winner_id" : match.winner.id,
+						"winner_username" : match.winner.username
 					}
 				)
 		except asyncio.CancelledError:
