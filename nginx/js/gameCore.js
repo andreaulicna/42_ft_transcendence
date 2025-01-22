@@ -357,6 +357,20 @@ function stopPaddleEventDispatch() {
 export function startCountdown(event) {
 	const data = event.detail;
 
+	// In case of grace period reconnect, update the game state accordingly
+	handleDraw(event);
+	// paddle1.x = (data.paddle1_x - (paddle1.width / 2) + originalGameWidth / 2) * scaleX;
+	// paddle1.y = (data.paddle1_y - (paddle1.height / 2) + originalGameHeight / 2) * scaleY;
+	// paddle2.x = (data.paddle2_x - (paddle2.width / 2) + originalGameWidth / 2) * scaleX;
+	// paddle2.y = (data.paddle2_y - (paddle2.height / 2) + originalGameHeight / 2) * scaleY;
+	// ball.x = (data.ball_x + originalGameWidth / 2) * scaleX;
+	// ball.y = (data.ball_y + originalGameHeight / 2) * scaleY;
+	// player1.score = data.player1_score;
+	// player2.score = data.player2_score;
+	// drawTick();
+	// updateScore();
+
+
 	const gameStartTime = new Date(data.game_start);
 	const currentTime = new Date();
 	let countdownStart = Math.floor((gameStartTime - currentTime) / 1000);
