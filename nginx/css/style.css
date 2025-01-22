@@ -400,6 +400,7 @@ body {
 }
 
 .match-container {
+	text-align: center;
 	background-color: #fff;
 	border-radius: 0.25rem;
 	margin-bottom: 1rem;
@@ -422,4 +423,27 @@ body {
 
 .player-slot:nth-of-type(even) {
 	color:var(--color-right-paddle);
+}
+
+@media (max-width: 600px) {
+	#bracket-container {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.round-container {
+		min-width: 100%;
+		margin: 0.5rem 0;
+	}
+
+	.match-container {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.player-slot {
+		flex: 1;
+		margin: 0 0.25rem;
+	}
 }

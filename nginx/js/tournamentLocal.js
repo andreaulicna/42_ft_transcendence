@@ -98,12 +98,14 @@ function renderTournamentBracket() {
 			if (round == 1) {
 				matchContainer.innerHTML = `
 				<div class="player-slot">${p1}</div>
+				<span>⚔️</span>
 				<div class="player-slot">${p2}</div>
 				`;
 			}
 			else {
 				matchContainer.innerHTML = `
 				<div class="player-slot">❓</div>
+				<span>⚔️</span>
 				<div class="player-slot">❓</div>
 				`;
 			}
