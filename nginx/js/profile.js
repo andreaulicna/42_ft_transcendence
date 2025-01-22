@@ -434,7 +434,7 @@ async function handleProfilePicUpload() {
 		img.onload = async () => {
 			// Check pic dimensions
 			if (img.width > 800 || img.height > 800) {
-				showToast("Error", "Image dimensions should not exceed 800x800 px.");
+				showToast("Error", "Image dimensions should not exceed 800x800 px.", null, "t_imageDimensionsError");
 				return;
 			}
 			// Convert img to Base64
@@ -453,11 +453,11 @@ async function handleProfilePicUpload() {
 					profilePic.src = data.avatar;
 			} catch (error) {
 				console.error("Error uploading profile picture:", error);
-				showToast("Error", error);
+				showToast("Error uploading profile picture", null, error, "t_profilePictureUploadError");
 			}
 		};
 		img.onerror = () => {
-			showToast("Error", "Invalid image file.");
+			showToast("Error", "Invalid image file.", null, "t_invalidImageFileError");
 		};
 	});
 }
