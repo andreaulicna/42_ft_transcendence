@@ -64,7 +64,7 @@ class AbstractTournament(models.Model):
 
 class Tournament(AbstractTournament):
 
-	winner = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, related_name="winner_tpurnament", null=True)
+	winner = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, related_name="winner_tournament", null=True)
 
 class LocalTournament(AbstractTournament):
 

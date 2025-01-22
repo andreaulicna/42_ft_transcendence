@@ -89,6 +89,14 @@ def get_prev_match(prev_match_id):
 	except Match.DoesNotExist:
 		return None
 
+def player_in_prev_match(prev_match, player_id):
+	logging.info(f"Prev match_id: {prev_match}")
+	logging.info(f"Prev match players: {prev_match.player1}, {prev_match.player2}")
+	if prev_match is not None:
+		if player_id in [prev_match.player1.id, prev_match.player2.id]:
+			return True
+	return False
+
 def set_match_data(player1_id, player2_id):
 	data = {
 			'player1' : player1_id,
@@ -278,9 +286,6 @@ class MatchmakingConsumer(WebsocketConsumer):
 # MATCHMAKING Rematch Consumer #
 ################################
 
-# implement 10 sec or so timeout
-# protect against joining a rematch when it's not yours to join
-# protect against being able to join when already waiting
 class RematchConsumer(WebsocketConsumer):
 	def connect(self):
 		self.id = self.scope['user'].id
@@ -288,7 +293,7 @@ class RematchConsumer(WebsocketConsumer):
 		prev_match = get_prev_match(prev_match_id)
 		logging.info(f"Player {self.id} wants a rematch!")
 		if (is_player_in_matchmaking_or_rematch_room_already(self.id) or get_player_state(self.id) == CustomUser.StateOptions.INGAME
-	  		or prev_match is None):
+	  		or prev_match is None or player_in_prev_match(prev_match, self.id) == False):
 			self.close()
 			return
 		room = find_rematch_room_to_join(prev_match_id)
@@ -464,8 +469,15 @@ class PongConsumer(AsyncWebsocketConsumer):
 		await self.send(text_data=json.dumps(
 			{
 				"type": event["message"],
-			#	"player1": event["player1"],
-			#	"player2": event["player2"]
+				"ball_x": event["ball_x"],
+				"ball_y": event["ball_y"],
+				"paddle1_x": event["paddle1_x"],
+				"paddle1_y": event["paddle1_y"],
+				"paddle2_x": event["paddle2_x"],
+				"paddle2_y": event["paddle2_y"],
+				"player1_score": event["player1_score"],
+				"player2_score": event["player2_score"],
+				"game_start" : event["game_start"]
 			}
 		))
 
@@ -480,7 +492,9 @@ class PongConsumer(AsyncWebsocketConsumer):
 			grace_period_dict.pop(pong_room.match_id)
 		await self.send(text_data=json.dumps(
 			{
-				"type": event["message"]
+				"type": event["message"],
+				"winner_id" : event["winner_id"],
+				"winner_username" : event["winner_username"]
 			}
 		))
 		await self.close()
@@ -505,6 +519,15 @@ class PongConsumer(AsyncWebsocketConsumer):
 			pong_room.match_group_name, {
 				"type": "match_start",
 				"message": "match_start",
+				"ball_x": pong_room.ball.position.x,
+				"ball_y": pong_room.ball.position.y,
+				"paddle1_x": pong_room.paddle1.position.x,
+				"paddle1_y": pong_room.paddle1.position.y,
+				"paddle2_x": pong_room.paddle2.position.x,
+				"paddle2_y": pong_room.paddle2.position.y,
+				"player1_score": pong_room.player1.score,
+				"player2_score": pong_room.player2.score,
+				"game_start" : pong_room.set_game_start_time(seconds_to_start=5).isoformat()
 			}
 		)
 		await asyncio.sleep(1)
@@ -513,7 +536,9 @@ class PongConsumer(AsyncWebsocketConsumer):
 		asyncio.create_task(self.game_loop(pong_room, match_database))
 
 	async def game_loop(self, pong_room, match_database):
-		await asyncio.sleep(3)
+		#await asyncio.sleep(3)
+		logging.info(f"Game will start in: {pong_room.get_seconds_until_game_start()} seconds")
+		await asyncio.sleep(pong_room.get_seconds_until_game_start())
 		sequence = 0
 		ball = pong_room.ball
 		paddle1 = pong_room.paddle1
@@ -605,7 +630,9 @@ class PongConsumer(AsyncWebsocketConsumer):
 			await self.channel_layer.group_send(
 					pong_room.match_group_name, {
 						"type" : "match_end",
-						"message" : "match_end"
+						"message" : "match_end",
+						"winner_id" : match_database.winner.id,
+						"winner_username" : match_database.winner.username
 					}
 				)
 	async def grace_period_handler(self, pong_room, match):
@@ -617,7 +644,9 @@ class PongConsumer(AsyncWebsocketConsumer):
 			await self.channel_layer.group_send(
 					pong_room.match_group_name, {
 						"type" : "match_end",
-						"message" : "match_end"
+						"message" : "match_end",
+						"winner_id" : match.winner.id,
+						"winner_username" : match.winner.username
 					}
 				)
 		except asyncio.CancelledError:

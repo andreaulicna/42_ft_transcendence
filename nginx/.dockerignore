@@ -1,0 +1,4 @@
+certs
+Dockerfile
+.dockerignore
+.DS_Store

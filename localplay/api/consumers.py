@@ -152,7 +152,16 @@ class LocalPlayConsumer(AsyncWebsocketConsumer):
 			{
 				"type": event["message"],
 				"player1": event["player1"],
-				"player2": event["player2"]
+				"player2": event["player2"],
+				"ball_x": event["ball_x"],
+				"ball_y": event["ball_y"],
+				"paddle1_x": event["paddle1_x"],
+				"paddle1_y": event["paddle1_y"],
+				"paddle2_x": event["paddle2_x"],
+				"paddle2_y": event["paddle2_y"],
+				"player1_score": event["player1_score"],
+				"player2_score": event["player2_score"],
+				"game_start" : event["game_start"]
 			}
 		))
 
@@ -160,7 +169,8 @@ class LocalPlayConsumer(AsyncWebsocketConsumer):
 		logging.info("match_end called")
 		await self.send(text_data=json.dumps(
 			{
-				"type": event["message"]
+				"type": event["message"],
+				"winner_username" : event["winner_username"]
 			}
 		))
 		await self.close()
@@ -186,7 +196,16 @@ class LocalPlayConsumer(AsyncWebsocketConsumer):
 				"type": "match_start",
 				"message": "match_start",
 				"player1": match_room.player1.username,
-				"player2": match_room.player2.username
+				"player2": match_room.player2.username,
+				"ball_x": match_room.ball.position.x,
+				"ball_y": match_room.ball.position.y,
+				"paddle1_x": match_room.paddle1.position.x,
+				"paddle1_y": match_room.paddle1.position.y,
+				"paddle2_x": match_room.paddle2.position.x,
+				"paddle2_y": match_room.paddle2.position.y,
+				"player1_score": match_room.player1.score,
+				"player2_score": match_room.player2.score,
+				"game_start" : match_room.set_game_start_time(seconds_to_start=5).isoformat()
 			}
 		))
 		logging.info(f"Starting game for: ")
@@ -194,7 +213,9 @@ class LocalPlayConsumer(AsyncWebsocketConsumer):
 		asyncio.create_task(self.game_loop(match_room, match_database))
 
 	async def game_loop(self, match_room, match_database):
-		await asyncio.sleep(3)
+		#await asyncio.sleep(3)
+		logging.info(f"Game will start in: {match_room.get_seconds_until_game_start()} seconds")
+		await asyncio.sleep(match_room.get_seconds_until_game_start())
 		sequence = 0
 		ball = match_room.ball
 		paddle1 = match_room.paddle1
@@ -202,6 +223,7 @@ class LocalPlayConsumer(AsyncWebsocketConsumer):
 		
 		while 42:
 			if match_room.player1 is None:
+				await set_match_winner(match_database)
 				break
 
 			# Ball collision with floor & ceiling
@@ -266,6 +288,7 @@ class LocalPlayConsumer(AsyncWebsocketConsumer):
 		await self.match_end(
 			{
 					"type" : "match_end",
-					"message" : "match_end"
+					"message" : "match_end",
+					"winner_username" : match_database.winner 
 			}
 		)
