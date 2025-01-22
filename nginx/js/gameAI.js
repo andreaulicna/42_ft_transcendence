@@ -37,7 +37,6 @@ export async function init() {
 		// Change URL to AI mode below
 		let data = await apiCallAuthed(`/api/user/aimatch/${match_id}`);
 
-		startCountdown();
 		initGameData(data);
 		initEventListeners();
 		initAIData(data);

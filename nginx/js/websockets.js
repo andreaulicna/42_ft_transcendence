@@ -13,6 +13,8 @@ let localWebSocket;
 let rematchWebSocket;
 
 // Refactor this catch-all function so it doesn't handle multiple websocket types?
+// + open the websockets from their respective files to prevent all of this unnecessarry
+// event dispatching shit
 async function openWebSocket(url, type) {
 	return new Promise(async (resolve, reject) => {
 		try {
@@ -67,7 +69,7 @@ async function openWebSocket(url, type) {
 				}
 				else if (data.type === "match_start")
 				{
-					const matchStartEvent = new CustomEvent('match_start');
+					const matchStartEvent = new CustomEvent('match_start', { detail: data });
 					window.dispatchEvent(matchStartEvent);
 				}
 				else if (data.type === "match_end")

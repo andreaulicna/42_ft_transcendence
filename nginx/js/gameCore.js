@@ -134,8 +134,8 @@ export function initGameData(data) {
 }
 
 export function initEventListeners() {
-	window.addEventListener("match_start", startCountdown);
-	window.addEventListener("match_start", clearGracePeriod);
+	window.addEventListener("match_start", (event) => startCountdown(event));
+	window.addEventListener("match_start", (event) => clearGracePeriod(event));
 	window.addEventListener("keydown", handleKeyDown);
 	window.addEventListener("keydown", preventArrowKeyScroll);
 	window.addEventListener("keyup", handleKeyUp);
@@ -354,10 +354,15 @@ function stopPaddleEventDispatch() {
 
 /* 👇 MENUS & REMATCH & NON-GAME LOGIC */
 
-export function startCountdown() {
+export function startCountdown(event) {
+	const data = event.detail;
+
+	const gameStartTime = new Date(data.game_start);
+	const currentTime = new Date();
+	let countdownStart = Math.floor((gameStartTime - currentTime) / 1000);
+
 	const countdownModal = new bootstrap.Modal(document.getElementById("countdownModal"));
 	const countdownNums = document.getElementById("countdownNums");
-	let countdownStart = 3;
 
 	countdownModal.show();
 	countdownNums.textContent = countdownStart;
@@ -442,13 +447,19 @@ export function handleGracePeriod() {
 	}, 1000);
 }
 
-function clearGracePeriod() {
+function clearGracePeriod(event) {
 	if (gracePeriodInterval)
 	{
 		clearInterval(gracePeriodInterval);
+
+		const data = event.detail;
+		const gameStartTime = new Date(data.game_start);
+		const currentTime = new Date();
+		let countdownStart = Math.floor((gameStartTime - currentTime) / 1000);
+		
 		const countdownNums = document.getElementById("countdownNums");
 		const countdownText = document.getElementById("countdownText");
-		let countdownStart = 3;
+
 		countdownNums.textContent = `${countdownStart}`;
 		countdownText.textContent = ``;
 

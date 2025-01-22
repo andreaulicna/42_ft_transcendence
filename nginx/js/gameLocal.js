@@ -18,7 +18,6 @@ import { textDynamicLoad } from "./animations.js";
 
 export async function init() {
 	let data = await apiCallAuthed(`/api/user/localmatch/${localStorage.getItem("match_id")}`);
-	startCountdown();
 	initGameData(data);
 	initEventListeners();
 	initLocalData(data);
