@@ -43,8 +43,9 @@ async function showUserProfile(event) {
 		apiCallAuthed(`/api/user/${userId}/info`)
 			.then(response => {
 				const userProfile = document.getElementById("userProfileBody");
+				const userAvatar = response.avatar || "assets/default_user_pfp.png";
 				userProfile.innerHTML = `
-					<img class="profilePic" src="${response.avatar}" alt="User profile picture">
+					<img class="profilePic" src="${userAvatar}" alt="User profile picture">
 					<div class="text-center fs-3 pb-2">${response.username}</div>
 					<button type="button" id="addInspectedFriendBtn" class="btn btn-prg" data-translate="addFriend">Add Friend</button>
 				`;
