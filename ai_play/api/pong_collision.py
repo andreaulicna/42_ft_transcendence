@@ -19,7 +19,7 @@ class PongGame:
 		self.paddle2 = Paddle(x=80 - self.PADDLE_HALF_WIDTH, game=self)
 		self.ball = Ball()
 		self.player1 = Player(player1_id, creator_username)
-		self.player2 = AIPlayer(3, self.paddle2.paddle_half_height)
+		self.player2 = AIPlayer(settings.GAME_CONSTANTS['MAX_SCORE'], self.paddle2.paddle_half_height)
 		self.start_timestamp = timezone.now()
 		self.last_frame = self.start_timestamp
 

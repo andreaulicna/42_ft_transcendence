@@ -144,18 +144,6 @@ class UserInfoView(APIView):
 				return Response({"details" : str(e)},status=status.HTTP_400_BAD_REQUEST)
 			return Response({'detail' : 'User info updated'})
 		
-class UserInfoReset(APIView):
-	permission_classes = [IsAuthenticated]
-	def post(self, request):
-		try:
-			player = CustomUser.objects.get(username=request.user)
-		except CustomUser.DoesNotExist:
-			return Response({'detail': 'Player does not exist'}, status=status.HTTP_404_NOT_FOUND)
-		player.state = CustomUser.StateOptions.IDLE
-		player.status_counter = 0
-		player.save()
-		return Response({'detail' : 'User info reset to default'})
-	
 class OtherUserInfoView(APIView):
 	permission_classes = [IsAuthenticated]
 	def get(self, request, pk):

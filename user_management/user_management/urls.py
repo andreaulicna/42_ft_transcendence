@@ -25,7 +25,6 @@ urlpatterns = [
 	path('api/user/register', views.UserRegistrationView.as_view(), name='user-registration'),
 	path('api/user/info', views.UserInfoView.as_view(), name='user-info'),
 	path('api/user/<int:pk>/info', views.OtherUserInfoView.as_view(), name='other-user-info'),
-	path('api/user/debug/info/reset', views.UserInfoReset.as_view(), name='user-info-reset'),
 	path('api/user/avatar', views.UserAvatarUpload.as_view(), name='user-avatar-upload'),
 	path('api/user/match', views.MatchView.as_view(), name='match-creation'),
 	path('api/user/match/<int:pk>', views.MatchStartView.as_view(), name='match-info'),
