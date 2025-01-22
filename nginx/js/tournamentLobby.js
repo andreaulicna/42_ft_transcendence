@@ -49,7 +49,7 @@ export async function handleLobbyStatusUpdate(data) {
 	{
 		closeTournamentWebsocket();
 		window.location.hash = "#dashboard";
-		showToast('Tournament Canceled', 'The creator canceled their tournament.');
+		showToast("Tournament Canceled", "The creator canceled their tournament.", null, "t_tournamentCanceled");
 	}
 	console.log(activePlayers);
 	renderTournamentBracket(activePlayers, localStorage.getItem("tournament_capacity"));
@@ -112,7 +112,7 @@ function cancelLobby() {
 		})
 		.catch(error => {
 			console.error("Error leaving tournament:", error);
-			showToast("Error leaving tournament", error);
+			showToast("Error leaving tournament", null, error, "t_tournamentLeaveError");
 		})
 		.finally(() => {
 			closeTournamentWebsocket();

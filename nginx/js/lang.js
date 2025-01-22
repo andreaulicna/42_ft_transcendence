@@ -53,6 +53,8 @@ const translations = {
 		tournamentjoinRandom: "Join random lobby",
 		tournamentWinner: "Winner winner chicken dinner",
 		round: "Round",
+		addPlayer: "Add Player",
+		provideUsername: "Provide a player's username",
 		// PROFILE
 		profile: "Profile",
 		edit: "Edit",
@@ -68,6 +70,8 @@ const translations = {
 		addFriends: "Add Friends",
 		addFriendPlaceholder: "Provide friend's username",
 		add: "Add",
+		addFriend: "Add Friend",
+		noGamesYet: "You haven't played any games yet!",
 		outgoingRequests: "Outgoing Requests",
 		incomingRequests: "Incoming Requests",
 		availableFriends: "Available Friends",
@@ -87,7 +91,6 @@ const translations = {
 		noFriends: "You have no friends :(",
 		noOutgoingRequests: "You have no outgoing friend requests.",
 		noIncomingRequests: "You have no incoming friend requests.",
-
 		// ERROR MESSAGES
 		registrationFailed: "Registration failed",
 		registrationUnsuccessful: "Your attempt at registration was unsuccessful.",
@@ -99,7 +102,55 @@ const translations = {
 		localPlayCreate: "Create Local Match",
 		localPlayer1TmpUsernamePlaceholder: "Enter player 1 username",
 		localPlayer2TmpUsernamePlaceholder: "Enter player 2 username",
-
+		// NOTIFICATIONS
+		t_capacityFilled_header: "Error adding player",
+		t_capacityFilled_message: "The tournament capacity has been filled.",
+		t_uniqueNames_header: "Error adding player",
+		t_uniqueNames_message: "Players must have unique names.",
+		t_emptyName_header: "Error adding player",
+		t_emptyName_message: "Player name cannot be empty.",
+		t_notEnoughPlayers_header: "Error creating tournament",
+		t_notEnoughPlayers_message: "Not enough players added.",
+		t_tournamentError_header: "Error creating tournament",
+		t_loginFailed_header: "Login failed",
+		t_intraLoginFailed_header: "Intra login failed",
+		t_matchInitAI_header: "Error initializing AI match",
+		t_matchCreateAI_header: "Error creating AI match",
+		t_matchCreateLocal_header: "Error creating local match",
+		t_rematchCreateLocal_header: "Error creating local rematch",
+		t_requestAccept_header: "Friend Request Accepted",
+		t_requestAccept_message: "You have accepted the friend request.",
+		t_requestAcceptError_header: "Error accepting friend request",
+		t_requestReject_header: "Friend Request Rejected",
+		t_requestReject_message: "You have rejected the friend request.",
+		t_requestRejectError_header: "Error rejecting friend request",
+		t_requestSent_header: "Friend Request",
+		t_requestSent_message: "Friend request sent.",
+		t_requestSent_header: "Error adding friend",
+		t_nameChange_header: "Username Change Successful",
+		t_nameChange_message: "You have updated your username.",
+		t_nameChangeError_header: "Error changing username",
+		t_qrGenError_header: "Error generating QR code",
+		t_2faEnable_header: "2FA",
+		t_2faEnable_message: "The 2FA settings for this account has been enabled.",
+		t_pinSubmitError_header: "Error submitting PIN code",
+		t_2faDisable_header: "2FA",
+		t_2faDisable_message: "The 2FA settings for this account has been disabled.",
+		t_selectFileError_header: "Error",
+		t_selectFileError_message: "Please select a file.",
+		t_imageDimensionsError_header: "Error",
+		t_imageDimensionsError_message: "Image dimensions should not exceed 800x800 px.",
+		t_profilePictureUploadError_header: "Error uploading profile picture",
+		t_invalidImageFileError_header: "Error",
+		t_invalidImageFileError_message: "Invalid image file.",
+		t_registrationFailed_header: "Registration failed",
+		t_tournamentCanceled_header: "Tournament Canceled",
+		t_tournamentCanceled_message: "The creator canceled their tournament.",
+		t_tournamentLeaveError_header: "Error leaving tournament",
+		t_tournamentCreationError_header: "Error creating tournament",
+		t_tournamentJoinError_header: "Error joining tournament",
+		t_matchNoLongerOngoing_header: "Error",
+		t_matchNoLongerOngoing_message: "The match is no longer ongoing.",
 	},
 	cz: {
 		// INDEX
@@ -154,6 +205,9 @@ const translations = {
 		tournamentCancelLobby: "Zrušit",
 		tournamentjoinRandom: "Náhodný turnaj",
 		tournamentWinner: "Sláva vítězi!",
+		round: "Kolo",
+		addPlayer: "Přidat hráče",
+		provideUsername: "Vlož jméno hráče",
 		// PROFILE
 		profile: "Profil",
 		edit: "Upravit",
@@ -169,6 +223,8 @@ const translations = {
 		addFriends: "Přidat přátele",
 		addFriendPlaceholder: "Vlož jméno přítele",
 		add: "Přidat",
+		addFriend: "Přidat přítele",
+		noGamesYet: "Ještě jsi žádnou hru nehrál!",
 		outgoingRequests: "Odeslané žádosti",
 		incomingRequests: "Obdržené žádosti",
 		availableFriends: "Dostupní přátelé",
@@ -199,6 +255,56 @@ const translations = {
 		localPlayCreate: "Vytvoř zápas",
 		localPlayer1TmpUsernamePlaceholder: "Vlož username pro hráče 1",
 		localPlayer2TmpUsernamePlaceholder: "Vlož username pro hráče 2",
+		// NOTIFICATIONS
+		t_capacityFilled_header: "Chyba při přidávání hráče",
+		t_capacityFilled_message: "Kapacita turnaje již byla naplněna.",
+		t_uniqueNames_header: "Chyba při přidávání hráče",
+		t_uniqueNames_message: "Hráči musí mít unikátní jména.",
+		t_emptyName_header: "Chyba při přidávání hráče",
+		t_emptyName_message: "Jméno hráče nesmí být prázdné.",
+		t_notEnoughPlayers_header: "Chyba při vytváření turnaje",
+		t_notEnoughPlayers_message: "Není přidán dostatek hráčů.",
+		t_tournamentError_header: "Chyba při vytváření turnaje",
+		t_loginFailed_header: "Neúspěšné přihlášení",
+		t_intraLoginFailed_header: "Neúspěšné přihlášení přes Intra",
+		t_matchInitAI_header: "Chyba při inicializaci zápasu s AI",
+		t_matchCreateAI_header: "Chyba při vytváření zápasu s AI",
+		t_matchCreateLocal_header: "Chyba při vytváření lokálního zápasu",
+		t_rematchCreateLocal_header: "Chyba při vytváření lokální odvety",
+		t_requestAccept_header: "Žádost o přátelství přijata",
+		t_requestAccept_message: "Přijali jste žádost o přátelství.",
+		t_requestAcceptError_header: "Chyba při přijímání žádosti o přátelství",
+		t_requestReject_header: "Žádost o přátelství odmítnuta",
+		t_requestReject_message: "Odmítli jste žádost o přátelství.",
+		t_requestRejectError_header: "Chyba při odmítání žádosti o přátelství",
+		t_requestSent_header: "Žádost o přátelství",
+		t_requestSent_message: "Žádost o přátelství byla odeslána.",
+		t_nameChange_header: "Změna uživatelského jména úspěšná",
+		t_nameChange_message: "Aktualizovali jste své uživatelské jméno.",
+		t_nameChangeError_header: "Chyba při změně uživatelského jména",
+		t_qrGenError_header: "Chyba při generování QR kódu",
+		t_2faEnable_header: "2FA",
+		t_2faEnable_message: "Nastavení 2FA pro tento účet bylo aktivováno.",
+		t_pinSubmitError_header: "Chyba při zadávání PIN kódu",
+		t_2faDisable_header: "2FA",
+		t_2faDisable_message: "Nastavení 2FA pro tento účet bylo deaktivováno.",
+		t_selectFileError_header: "Chyba",
+		t_selectFileError_message: "Vyberte prosím soubor.",
+		t_imageDimensionsError_header: "Chyba",
+		t_imageDimensionsError_message: "Rozměry obrázku by neměly přesáhnout 800x800 px.",
+		t_profilePictureUploadError_header: "Chyba při nahrávání profilového obrázku",
+		t_invalidImageFileError_header: "Chyba",
+		t_invalidImageFileError_message: "Neplatný soubor obrázku.",
+		t_registrationFailed_header: "Registrace selhala",
+		t_tournamentCanceled_header: "Turnaj byl zrušen",
+		t_tournamentCanceled_message: "Tvůrce turnaje turnaj zrušil.",
+		t_tournamentLeaveError_header: "Chyba při opuštění turnaje",
+		t_tournamentCreationError_header: "Chyba při vytváření turnaje",
+		t_tournamentJoinError_header: "Chyba při připojování k turnaji",
+		t_matchNoLongerOngoing_header: "Chyba",
+		t_matchNoLongerOngoing_message: "Zápas již neprobíhá.",
+
+
 	},
 	sk: {
 		// INDEX
@@ -253,6 +359,9 @@ const translations = {
 		tournamentCancelLobby: "Zrušiť",
 		tournamentjoinRandom: "Náhodný turnaj",
 		tournamentWinner: "Sláva víťazovi!",
+		round: "Kolo",
+		addPlayer: "Pridať hráča",
+		provideUsername: "Vlož meno hráča",
 		// PROFILE
 		profile: "Profil",
 		edit: "Upraviť",
@@ -268,6 +377,8 @@ const translations = {
 		addFriends: "Pridať priateľov",
 		addFriendPlaceholder: "Vložte meno priateľa",
 		add: "Pridať",
+		addFriend: "Pridať priatele",
+		noGamesYet: "Ešte si nehral žiadne hry!",
 		outgoingRequests: "Odoslané žiadosti",
 		incomingRequests: "Obdržané žiadosti",
 		availableFriends: "Dostupní priatelia",
@@ -292,40 +403,93 @@ const translations = {
 		registrationUnsuccessful: "Váš pokus o registráciu bol neúspešný.",
 		loginFailed: "Neúspěšné přihlášenie",
 		invalidCredentials: "Neplatné užívateľské meno alebo heslo",
+		// LOCAL PLAY
 		localPlayer1TmpUsername: "Hráč 1 Username",
 		localPlayer2TmpUsername: "Hráč 2 Username",
 		localPlayCreate: "Vytvor zápas",
 		localPlayer1TmpUsernamePlaceholder: "Zadaj username pre hráča 1",
 		localPlayer2TmpUsernamePlaceholder: "Zadaj username pre hráča 2",
+		// NOTIFICATIONS
+		t_capacityFilled_header: "Chyba pri pridávaní hráča",
+		t_capacityFilled_message: "Kapacita turnaja je už naplnená.",
+		t_uniqueNames_header: "Chyba pri pridávaní hráča",
+		t_uniqueNames_message: "Hráči musia mať jedinečné mená.",
+		t_emptyName_header: "Chyba pri pridávaní hráča",
+		t_emptyName_message: "Meno hráča nesmie byť prázdne.",
+		t_notEnoughPlayers_header: "Chyba pri vytváraní turnaja",
+		t_notEnoughPlayers_message: "Nie je pridaný dostatočný počet hráčov.",
+		t_tournamentError_header: "Chyba pri vytváraní turnaja",
+		t_loginFailed_header: "Neúspěšné přihlášenie",
+		t_intraLoginFailed_header: "Neúspěšné přihlášenie cez Intra",
+		t_matchInitAI_header: "Chyba pri inicializácii zápasu s AI",
+		t_matchCreateAI_header: "Chyba pri vytváraní zápasu s AI",
+		t_matchCreateLocal_header: "Chyba pri vytváraní lokálneho zápasu",
+		t_rematchCreateLocal_header: "Chyba pri vytváraní lokálnej odvety",
+		t_requestAccept_header: "Žiadosť o priateľstvo prijatá",
+		t_requestAccept_message: "Prijali ste žiadosť o priateľstvo.",
+		t_requestAcceptError_header: "Chyba pri prijímaní žiadosti o priateľstvo",
+		t_requestReject_header: "Žiadosť o priateľstvo odmietnutá",
+		t_requestReject_message: "Odmietli ste žiadosť o priateľstvo.",
+		t_requestRejectError_header: "Chyba pri odmietaní žiadosti o priateľstvo",
+		t_requestSent_header: "Žiadosť o priateľstvo",
+		t_requestSent_message: "Žiadosť o priateľstvo bola odoslaná.",
+		t_nameChange_header: "Zmena používateľského mena úspešná",
+		t_nameChange_message: "Aktualizovali ste svoje používateľské meno.",
+		t_nameChangeError_header: "Chyba pri zmene používateľského mena",
+		t_qrGenError_header: "Chyba pri generovaní QR kódu",
+		t_2faEnable_header: "2FA",
+		t_2faEnable_message: "Nastavenie 2FA pre tento účet bolo aktivované.",
+		t_pinSubmitError_header: "Chyba pri zadávaní PIN kódu",
+		t_2faDisable_header: "2FA",
+		t_2faDisable_message: "Nastavenie 2FA pre tento účet bolo deaktivované.",
+		t_selectFileError_header: "Chyba",
+		t_selectFileError_message: "Vyberte prosím súbor.",
+		t_imageDimensionsError_header: "Chyba",
+		t_imageDimensionsError_message: "Rozmery obrázku by nemali presiahnuť 800x800 px.",
+		t_profilePictureUploadError_header: "Chyba pri nahrávaní profilového obrázku",
+		t_invalidImageFileError_header: "Chyba",
+		t_invalidImageFileError_message: "Neplatný súbor obrázku.",
+		t_registrationFailed_header: "Registrácia zlyhala",
+		t_tournamentCanceled_header: "Turnaj bol zrušený",
+		t_tournamentCanceled_message: "Tvorca turnaja turnaj zrušil.",
+		t_tournamentLeaveError_header: "Chyba pri opustení turnaja",
+		t_tournamentCreationError_header: "Chyba pri vytváraní turnaja",
+		t_tournamentJoinError_header: "Chyba pri pripájaní k turnaju",
+		t_matchNoLongerOngoing_header: "Chyba",
+		t_matchNoLongerOngoing_message: "Zápas už neprebieha.",
+
 	}
 };
 
 document.addEventListener("DOMContentLoaded", () => {
-	const enLink = document.getElementById("langEN");
-	const czLink = document.getElementById("langCZ");
-	const skLink = document.getElementById("langSK");
+	const languageButtons = {
+		langEN: "en",
+		langCZ: "cz",
+		langSK: "sk"
+	};
 
-	enLink.addEventListener("click", (event) => {
+	let language = localStorage.getItem("language") || "en";
+
+	const setLanguageHandler = (event) => {
 		event.preventDefault();
-		setLanguage("en");
+		language = languageButtons[event.target.id];
+		setLanguage(language);
+	};
+
+	Object.keys(languageButtons).forEach(id => {
+		document.getElementById(id).addEventListener("click", setLanguageHandler);
 	});
 
-	czLink.addEventListener("click", (event) => {
-		event.preventDefault();
-		setLanguage("cz");
+	setLanguage(language);
+
+	const observer = new MutationObserver(() => {
+		applyTranslations(language);
 	});
 
-	skLink.addEventListener("click", (event) => {
-		event.preventDefault();
-		setLanguage("sk");
-	});
-
-	// Load the preferred language from local storage or default to English
-	const preferredLanguage = localStorage.getItem("language") || "en";
-	setLanguage(preferredLanguage);
+	observer.observe(document.body, { childList: true, subtree: true });
 });
 
-function setLanguage(language) {
+function applyTranslations(language) {
 	document.querySelectorAll("[data-translate]").forEach(element => {
 		const key = element.getAttribute("data-translate");
 		if (element.tagName === "INPUT" && element.hasAttribute("placeholder")) {
@@ -334,7 +498,9 @@ function setLanguage(language) {
 			element.textContent = translations[language][key] || translations['en'][key];
 		}
 	});
+}
 
-	// Store the selected language in local storage
+function setLanguage(language) {
+	applyTranslations(language);
 	localStorage.setItem("language", language);
 }

@@ -49,7 +49,7 @@ export async function init() {
 		});
 	} catch (error) {
 		console.error("Error initializing AI match:", error);
-		showToast("Error", error);
+		showToast("Error initializing AI match", null, error, "t_matchInitAI");
 	}
 }
 
@@ -79,6 +79,7 @@ async function createAIPlay(event) {
 		openAIPlayWebsocket(response.match_id);
 	} catch (error) {
 		console.error("Error creating AI match:", error);
-		showToast("Error", error);
+		showToast("Error creating AI match", null, error, "t_matchCreateAI");
+
 	}
 }

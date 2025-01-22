@@ -46,7 +46,7 @@ async function showUserProfile(event) {
 				userProfile.innerHTML = `
 					<img class="profilePic" src="${response.avatar}" alt="User profile picture">
 					<div class="text-center fs-3 pb-2">${response.username}</div>
-					<button type="button" id="addInspectedFriendBtn" class="btn btn-prg">Add Friend</button>
+					<button type="button" id="addInspectedFriendBtn" class="btn btn-prg" data-translate="addFriend">Add Friend</button>
 				`;
 
 				const addUserBtn = document.getElementById("addInspectedFriendBtn");
@@ -99,7 +99,7 @@ async function listMatchHistory(type) {
 		const matches = matchhistReturn[type];
 
 		if (!matches || matches.length === 0)
-			matchhistList.innerHTML = `<li class="list-group-item text-center">You haven't played any games yet!</li>`;
+			matchhistList.innerHTML = `<li class="list-group-item text-center" data-translate="noGamesYet">You haven't played any games yet!</li>`;
 		else
 		{
 			matchhistList.innerHTML = '';
@@ -254,12 +254,12 @@ async function handleAccept(event) {
 	const requestId = event.target.getAttribute('data-request-id');
 	try {
 		await apiCallAuthed(`/api/user/friends/${requestId}/accept`, 'POST');
-		showToast('Friend Request Accepted', 'You have accepted the friend request.');
+		showToast('Friend Request Accepted', 'You have accepted the friend request.', null, "t_requestAccept");
 		listIncoming();
 		listFriends();
 	} catch (error) {
 		console.error('Error accepting friend request:', error);
-		showToast('Error', 'Failed to accept the friend request.');
+		showToast('Error accepting friend request', null, error, "t_requestAcceptError");
 	}
 }
 
@@ -267,11 +267,11 @@ async function handleReject(event) {
 	const requestId = event.target.getAttribute('data-request-id');
 	try {
 		await apiCallAuthed(`/api/user/friends/${requestId}/refuse`, 'POST');
-		showToast('Friend Request Rejected', 'You have rejected the friend request.');
+		showToast('Friend Request Rejected', 'You have rejected the friend request.', null, "t_requestReject");
 		listIncoming(); // Refresh the list
 	} catch (error) {
 		console.error('Error rejecting friend request:', error);
-		showToast('Error', 'Failed to reject the friend request.');
+		showToast('Error rejecting friend request', null, error, "t_requestRejectError");
 	}
 }
 
@@ -325,10 +325,10 @@ async function addFriend(username) {
 	try {
 		const addRequest = await apiCallAuthed(`/api/user/friends/request/${username}`, "POST");
 		listOutgoing();
-		showToast('Friend Request', `Friend request to ${username} sent.`);
+		showToast('Friend Request', `Friend request sent.`, null, "t_requestSent");
 	} catch (error) {
 		console.error('Error adding friend:', error);
-		showToast('Error adding friend', error);
+		showToast('Error adding friend', null, error, "t_requestSentError");
 	}
 }
 
@@ -341,10 +341,10 @@ async function handleUsernameEdit() {
 			const payload = {'username': editUsernameInput.value};
 			await apiCallAuthed("api/user/info", "PUT", undefined, payload);
 			textDynamicLoad("userName", `🏓 ${editUsernameInput.value}`);
-			showToast('Username Change Successful', `Your username is now ${editUsernameInput.value}.`);
+			showToast('Username Change Successful', `You have updated your username.`, null, "t_nameChange");
 		} catch (error) {
 			console.error("Error submitting new username:", error);
-			showToast('Username Change Error', error);
+			showToast('Username Change Error', null, error, "t_nameChangeError");
 		}
 	})
 }
@@ -375,7 +375,7 @@ async function handle2FA(data) {
 			qrCodeContainer.style.display = 'block';
 		} catch (error) {
 			console.error("Error generating QR code:", error);
-			showToast("Error", error);
+			showToast("Error generating QR code", null, error, "t_qrGenError");
 		}
 	});
 
@@ -388,10 +388,10 @@ async function handle2FA(data) {
 			};
 			const payload = {'otp_code': pin};
 			await apiCallAuthed("api/user/2fa-enable", "POST", headers, payload);
-			showToast("2FA", "The 2FA settings for this account has been enabled.");
+			showToast("2FA", "The 2FA settings for this account has been enabled.", null, "t_2faEnable");
 		} catch (error) {
 			console.error("Error submitting PIN code:", error);
-			showToast("Error submitting PIN code", error);
+			showToast("Error submitting PIN code", null, error, "t_pinSubmitError");
 		}
 	});
 
@@ -404,10 +404,10 @@ async function handle2FA(data) {
 			};
 			const payload = {'otp_code': pin};
 			await apiCallAuthed("api/user/2fa-disable", "POST", headers, payload);
-			showToast("2FA", "The 2FA settings for this account has been disabled.");
+			showToast("2FA", "The 2FA settings for this account has been disabled.", null, "t_2faDisable");
 		} catch (error) {
 			console.error("Error submitting PIN code:", error);
-			showToast("Error submitting PIN code", error);
+			showToast("Error submitting PIN code", null, error, "t_pinSubmitError");
 		}
 	});
 }
@@ -423,7 +423,7 @@ async function handleProfilePicUpload() {
 		// Check if a file was uploaded
 		const file = profilePicInput.files[0];
 		if (!file) {
-			showToast("Error", "Please select a file.");
+			showToast("Error", "Please select a file.", null, "t_selectFileError");
 			return;
 		}
 

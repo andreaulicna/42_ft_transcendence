@@ -30,7 +30,7 @@ export function init() {
 			window.location.hash = '#dashboard';
 		} catch (error) {
 			console.error('Login failed:', error);
-			showToast("Login failed", error);
+			showToast("Login failed", null, error, "t_loginFailed");
 		}
 	});
 }

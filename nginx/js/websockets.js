@@ -165,7 +165,7 @@ export async function openPongWebsocket(match_id, flag) {
 	}).catch((error) => {
 		console.error('Failed to establish Pong WebSocket:', error);
 		if (flag == "reconnect")
-			showToast("Error", "The match is no longer ongoing.");
+			showToast("Error", "The match is no longer ongoing.", null, "t_matchNoLongerOngoing");
 	});
 }
 
