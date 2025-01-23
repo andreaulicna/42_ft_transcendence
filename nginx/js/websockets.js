@@ -74,7 +74,7 @@ async function openWebSocket(url, type) {
 				}
 				else if (data.type === "match_end")
 				{
-					const matchEndEvent = new CustomEvent('match_end');
+					const matchEndEvent = new CustomEvent('match_end', { detail: data });
 					window.dispatchEvent(matchEndEvent);
 				}
 				else if (data.message === "tournament_end")

@@ -140,7 +140,7 @@ export function initEventListeners() {
 	window.addEventListener("keydown", preventArrowKeyScroll);
 	window.addEventListener("keyup", handleKeyUp);
 	window.addEventListener("draw", handleDraw);
-	window.addEventListener("match_end", showGameOverScreen);
+	window.addEventListener("match_end", (event) => showGameOverScreen(event));
 	window.addEventListener("match_end", stopPaddleEventDispatch);
 	mainMenuButton.addEventListener("click", () => {
 		window.location.hash = "#dashboard";
@@ -393,8 +393,10 @@ export function startCountdown(event) {
 	}, 1000);
 }
 
-function showGameOverScreen() {
-	let winner = player1.score > player2.score ? player1.name : player2.name;
+function showGameOverScreen(event) {
+	const data = event.detail;
+
+	let winner = data.winner_username;
 	winnerName.textContent = `${winner}`;
 	winnerName.className = player1.score > player2.score ? "blueSide" : "redSide";
 
