@@ -230,7 +230,7 @@ class MatchmakingConsumer(WebsocketConsumer):
 		self.id = self.scope['user'].id
 		logging.info(f"Player {self.id} wants to play a match!")
 		if is_player_in_matchmaking_or_rematch_room_already(self.id) or get_player_state(self.id) == CustomUser.StateOptions.INGAME:
-			self.close()
+			self.close(reason="Player already has a match in progress.")
 			return
 		room = find_room_to_join()
 		if not room:
@@ -295,7 +295,7 @@ class RematchConsumer(WebsocketConsumer):
 		logging.info(f"Player {self.id} wants a rematch!")
 		if (is_player_in_matchmaking_or_rematch_room_already(self.id) or get_player_state(self.id) == CustomUser.StateOptions.INGAME
 	  		or prev_match is None or player_in_prev_match(prev_match, self.id) == False):
-			self.close()
+			self.close(reason="Player already has a match in progress.")
 			return
 		room = find_rematch_room_to_join(prev_match_id)
 		if not room:
@@ -306,6 +306,7 @@ class RematchConsumer(WebsocketConsumer):
 			self.room_group_name, self.channel_name
 		)
 		self.accept()
+		set_user_state_sync(self.scope['user'], CustomUser.StateOptions.INGAME)
 		if all([room.player1, room.player2]):
 			data = set_match_data(prev_match.player2.id, prev_match.player1.id)
 			match_serializer = MatchSerializer(data=data)
@@ -327,6 +328,7 @@ class RematchConsumer(WebsocketConsumer):
 					room.player2 = None
 				if (room.player1 is None) and (room.player2 is None):
 					rematch_rooms.remove(room)
+				set_user_state_sync(self.scope['user'], CustomUser.StateOptions.IDLE)
 				break
 		logging.info(f"Rematch matchmaking_rooms after disconnect: {rematch_rooms}")
 	

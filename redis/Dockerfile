@@ -17,5 +17,5 @@
 # CMD [ "redis-server" , "/etc/redis.conf" ]
 
 FROM redis:8.0-M03-alpine3.21
-RUN adduser --system --no-create-home redis_nonroot
-USER redis_nonroot
+# RUN adduser --system --no-create-home redis_nonroot
+# USER redis_nonroot
