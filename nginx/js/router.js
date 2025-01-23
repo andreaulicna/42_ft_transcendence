@@ -107,11 +107,11 @@ const router = async () => {
 
 // Status websocket should only (re)open on load event, not on hash change
 const handleLoadEvent = async () => {
-    await router();
+	await router();
 	if (localStorage.getItem("access")) {
-        console.log("Access in event listened for status ws: ", localStorage.getItem("access"));
-        openStatusWebsocket();
-    }
+		console.log("Access in event listened for status ws: ", localStorage.getItem("access"));
+		openStatusWebsocket();
+	}
 };
 
 window.addEventListener('hashchange', router);
@@ -142,10 +142,11 @@ window.redirectToHome = redirectToHome;
 // Logout procedure
 export async function logout() {
 	try {
-		const broadcastChannel = new BroadcastChannel("ws_channel");
-    	broadcastChannel.postMessage("logout");
-
 		const response = await apiCallAuthed("/api/auth/login/refresh/logout", "POST");
+
+		const broadcastChannel = new BroadcastChannel("ws_channel");
+		broadcastChannel.postMessage("logout");
+
 		localStorage.removeItem('access');
 		localStorage.removeItem('access_expiration');
 		sessionStorage.removeItem('uuid');
@@ -154,8 +155,6 @@ export async function logout() {
 
 		window.location.hash = '#login';
 
-		// Cookies.remove('csrftoken');
-		// Cookies.remove('refresh_token', { path: '/', domain: 'yourdomain.com' });
 		console.log('Logged out successfully');
 	} catch (error) {
 		console.error('Error during logout:', error);
