@@ -79,6 +79,6 @@ async function createAIPlay(event) {
 	} catch (error) {
 		console.error("Error creating AI match:", error);
 		showToast("Error creating AI match", null, error, "t_matchCreateAI");
-
+		window.location.hash = "#dashboard";
 	}
 }
