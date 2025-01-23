@@ -2,6 +2,7 @@ from .utils import Vector2D, get_line_intersection
 import logging, math, random
 from django.conf import settings
 import math
+import asyncio
 
 
 class PongGame:
@@ -20,6 +21,8 @@ class PongGame:
 		self.ball = Ball()
 		self.player1 = None
 		self.player2 = None
+		self.lock = asyncio.Lock()
+		self.in_progress_flag = False
 
 
 	# def __repr__(self):

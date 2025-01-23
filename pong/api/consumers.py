@@ -100,9 +100,8 @@ def set_match_data(player1_id, player2_id):
 		}
 	return data
 	
-def set_user_to_ingame(player_id):
-	user = CustomUser.objects.get(id=player_id)
-	user.state = CustomUser.StateOptions.INGAME
+def set_user_state_sync(user, state):
+	user.state = state
 	user.save(update_fields=["state"])
 
 ################
@@ -162,8 +161,8 @@ def add_player_to_pong_room(match_id, pong_room, player_id, channel_name):
 		raise ValueError(f"Player ID {player_id} does not match any players in match {match_id}")
 
 @database_sync_to_async
-def set_user_state(user, userState):
-	user.state = userState
+def set_user_state(user, state):
+	user.state = state
 	user.save(update_fields=["state"])
 
 @database_sync_to_async
@@ -234,6 +233,7 @@ class MatchmakingConsumer(WebsocketConsumer):
 			self.room_group_name, self.channel_name
 		)
 		self.accept()
+		set_user_state_sync(self.scope['user'], CustomUser.StateOptions.INGAME)
 		if all([room.player1, room.player2]):
 			data = set_match_data(room.player1.id, room.player2.id)
 			match_serializer = MatchSerializer(data=data)
@@ -255,6 +255,7 @@ class MatchmakingConsumer(WebsocketConsumer):
 					room.player2 = None
 				if (room.player1 is None) and (room.player2 is None):
 					matchmaking_rooms.remove(room)
+				set_user_state_sync(self.scope['user'], CustomUser.StateOptions.IDLE)
 				break
 		logging.info(f"Matchmaking rooms after disconnect:{matchmaking_rooms}")
 	
@@ -369,10 +370,14 @@ class PongConsumer(AsyncWebsocketConsumer):
 		await set_user_state(self.scope['user'], CustomUser.StateOptions.INGAME)
 		logging.info("Rooms after connect:")
 		logging.info(pong_rooms)
-		if (pong_room.player1 is not None) and (pong_room.player2 is not None):
-			await self.play_pong(pong_room)
-		else:
-			logging.info("Waiting for more players to join the match room.")
+		async with pong_room.lock:
+			if (pong_room.player1 is not None) and (pong_room.player2 is not None) and (pong_room.in_progress_flag == False):
+				pong_room.in_progress_flag = True
+				await self.play_pong(pong_room)
+			elif pong_room.in_progress_flag == True:
+				logging.info("The game is already in progress.")
+			else:
+				logging.info("Waiting for more players to join the match room.")
 
 	async def disconnect(self, close_code):
 		logging.info(f"Disconnecting player {self.id} from pong")
@@ -382,6 +387,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 			match_winner = await get_match_winner(pong_room_grace.match_id)
 			if (match_winner is None) and (pong_room_grace.match_id not in grace_period_dict):
 				grace_period_dict[pong_room_grace.match_id] = asyncio.create_task(self.grace_period_handler(pong_room_grace, match_database))
+				pong_room_grace.in_progress_flag = False
 				await self.channel_layer.group_send(
 					pong_room_grace.match_group_name, {
 						"type": "grace_disconnect",
