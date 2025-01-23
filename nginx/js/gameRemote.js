@@ -16,13 +16,15 @@ import {
 	drawTick,
 	startCountdown,
 
-	replayButton
+	replayButton,
+	initMatchStartListener
 } from './gameCore.js';
 
 import { apiCallAuthed } from './api.js';
 import { textDynamicLoad } from "./animations.js";
 
 export async function init() {
+	initMatchStartListener();
 	let data = await apiCallAuthed(`/api/user/match/${localStorage.getItem("match_id")}`);
 	// startCountdown();
 	initGameData(data);

@@ -17,6 +17,7 @@ import {
 	replayButton,
 
 	isTouchDevice,
+	initMatchStartListener,
 } from './gameCore.js';
 
 import { apiCallAuthed } from './api.js';
@@ -35,6 +36,7 @@ export async function init() {
 		}
 
 		// Change URL to AI mode below
+		initMatchStartListener();
 		let data = await apiCallAuthed(`/api/user/aimatch/${match_id}`);
 
 		initGameData(data);

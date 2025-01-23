@@ -22,6 +22,7 @@ import {
 
 	replayButton,
 	mainMenuButton,
+	initMatchStartListener,
 } from './gameCore.js';
 
 import { apiCallAuthed } from './api.js';
@@ -33,6 +34,7 @@ const tournamentCapacity = parseInt(localStorage.getItem("tournament_capacity"),
 const tournamentRoundMax = Math.log2(tournamentCapacity);
 
 export async function init() {
+	initMatchStartListener();
 	let data = await apiCallAuthed(`/api/user/match/${localStorage.getItem("match_id")}`);
 	initGameData(data);
 	initEventListeners();

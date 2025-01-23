@@ -18,6 +18,7 @@ import {
 	replayButton,
 	mainMenuButton,
 	continueButton,
+	initMatchStartListener,
 } from './gameCore.js';
 
 import { apiCallAuthed } from './api.js';
@@ -32,6 +33,7 @@ let data;
 let winner;
 
 export async function init() {
+	initMatchStartListener();
 	data = await apiCallAuthed(`/api/user/localmatch/${localStorage.getItem("match_id")}`);
 	setMatchID(localStorage.getItem("match_id"));
 	initGameData(data);

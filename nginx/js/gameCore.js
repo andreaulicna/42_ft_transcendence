@@ -134,7 +134,6 @@ export function initGameData(data) {
 }
 
 export function initEventListeners() {
-	window.addEventListener("match_start", (event) => startCountdown(event));
 	window.addEventListener("match_start", (event) => clearGracePeriod(event));
 	window.addEventListener("keydown", handleKeyDown);
 	window.addEventListener("keydown", preventArrowKeyScroll);
@@ -146,6 +145,10 @@ export function initEventListeners() {
 		window.location.hash = "#dashboard";
 	});
 	addPaddleMovementListener();
+}
+
+export function initMatchStartListener() {
+	window.addEventListener("match_start", (event) => startCountdown(event));
 }
 
 function removeEventListeners() {
