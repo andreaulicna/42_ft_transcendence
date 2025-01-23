@@ -88,7 +88,7 @@ async function openWebSocket(url, type) {
 					console.log("TOURNAMENT END MESSAGE RECEIVED");
 					window.dispatchEvent(tournamentEndEvent);
 				}
-				else if (data.type === "user_status_update")
+				else if (data.type === "user_status")
 				{
 					handleFriendStatusUpdate(data);
 				}
