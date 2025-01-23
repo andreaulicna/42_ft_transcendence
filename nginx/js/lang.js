@@ -151,7 +151,8 @@ const translations = {
 		t_tournamentJoinError_header: "Error joining tournament",
 		t_matchNoLongerOngoing_header: "Error",
 		t_matchNoLongerOngoing_message: "The match is no longer ongoing.",
-		t_openingWsError: "Error opening websocket",
+		t_openingWsError_header: "Error opening websocket",
+		t_openingWsError_message: "Cannot start game session.",
 	},
 	cz: {
 		// INDEX
@@ -304,8 +305,8 @@ const translations = {
 		t_tournamentJoinError_header: "Chyba při připojování k turnaji",
 		t_matchNoLongerOngoing_header: "Chyba",
 		t_matchNoLongerOngoing_message: "Zápas již neprobíhá.",
-		t_openingWsError: "Chyba při otevírání websocketu",
-
+		t_openingWsError_header: "Chyba při otevírání websocketu",
+		t_openingWsError_message: "Nelze začít hru.",
 	},
 	sk: {
 		// INDEX
@@ -458,8 +459,8 @@ const translations = {
 		t_tournamentJoinError_header: "Chyba pri pripájaní k turnaju",
 		t_matchNoLongerOngoing_header: "Chyba",
 		t_matchNoLongerOngoing_message: "Zápas už neprebieha.",
-		t_openingWsError: "Chyba pri otváraní websocketu",
-
+		t_openingWsError_header: "Chyba pri otváraní websocketu",
+		t_openingWsError_message: "Hru nemožno spustiť.",
 	}
 };
 

@@ -130,7 +130,7 @@ export async function openMatchmakingWebsocket() {
 		// console.log('Matchmaking WebSocket established');
 	}).catch((error) => {
 		console.error('Failed to establish Matchmaking WebSocket:', error);
-		showToast("Error", null, error, "t_openingWsError");
+		showToast("Error", "Cannot start game session", null, "t_openingWsError");
 		window.location.hash = "#dashboard";
 	});
 }
@@ -142,7 +142,7 @@ export async function openRematchWebsocket(rematch_id) {
 		console.log('Rematch WebSocket established');
 	}).catch((error) => {
 		console.error('Failed to establish Rematch WebSocket:', error);
-		showToast("Error", null, error, "t_openingWsError");
+		showToast("Error", "Cannot start game session", null, "t_openingWsError");
 		window.location.hash = '#dashboard';
 	});
 }
@@ -179,7 +179,7 @@ export async function openPongWebsocket(match_id, flag) {
 			showToast("Error", "The match is no longer ongoing.", null, "t_matchNoLongerOngoing");
 		if (flag == "join")
 		{
-			showToast("Error", null, error, "t_openingWsError");
+			showToast("Error", "Cannot start game session", null, "t_openingWsError");
 			window.location.hash = "#dashboard";
 		}
 	});
