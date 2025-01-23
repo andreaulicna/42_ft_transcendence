@@ -106,27 +106,19 @@ async function listMatchHistory(type) {
 			matchhistList.innerHTML = '';
 			matches.reverse().forEach(match => {
 				const listItem = document.createElement('li');
-				let decision;
-				let opponent_name;
-				if ((match.type == "AIMatch" || match.type == "LocalMatch") && (match.player1_score > match.player2_score))
-					decision = `👍 <span data-translate="win">WIN</span>`
-				else
-					decision = `👍 <span data-translate="loss">LOSS</span>`
-				opponent_name = match.player2_username;
+				let p1 = match.player1_username;
+				let p2 = match.player2_username;
 				if (match.type == "RemoteMatch")
 				{
-					opponent_name = localStorage.getItem("id") == match.player1_id ? match.player2_username : match.player1_username;
-					const opponent_id = localStorage.getItem("id") == match.player1_id ? match.player2_id : match.player1_id;
-					opponent_name = `<a class="link-prg" data-bs-toggle="modal" data-bs-target="#userProfileModal" data-user-id=${opponent_id}>${opponent_name}</a>`;
-					const ourPlayersScore = localStorage.getItem("id") == match.player1_id ? match.player1_score : match.player2_score;
-					if (ourPlayersScore == 3)
-						decision = `👍 <span data-translate="win">WIN</span>`
+					if (localStorage.getItem("id") == match.player1_id)
+						p2 = `<a class="link-prg" data-bs-toggle="modal" data-bs-target="#userProfileModal" data-user-id=${match.player2_id}>${match.player2_username}</a>`;
 					else
-						decision = `👍 <span data-translate="loss">LOSS</span>`
+						p1 = `<a class="link-prg" data-bs-toggle="modal" data-bs-target="#userProfileModal" data-user-id=${match.player1_id}>${match.player1_username}</a>`;
 				}
 				listItem.className = 'list-group-item list-group-item-active d-flex w-100 justify-content-between';
 				listItem.innerHTML = `
-					<p class="mb-1"><strong>${decision}</strong> vs <strong>${opponent_name}</strong></p>
+					<span class="mb-1"><strong>${match.player1_score} : ${match.player2_score}</strong></span>
+					<span>${p1} vs. ${p2}</span>
 					<small>${match.date.substring(8, 10)}/${match.date.substring(5, 7)}</small>
 				`;
 				matchhistList.appendChild(listItem);
