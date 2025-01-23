@@ -35,6 +35,14 @@ def player_already_in_inprogress_tournament(tournaments, player_id):
 				if (player.id in [match.player1_id, match.player2_id]) and (match.status != Match.StatusOptions.FINISHED):
 					return True
 	return False
+
+def get_player_state(player_id):
+	try:
+		user = CustomUser.objects.get(id=player_id)
+		return user.state
+	except CustomUser.DoesNotExist:
+		return None
+
 class CreateTournamentView(APIView):
 	permission_classes = [IsAuthenticated]
 
@@ -42,6 +50,11 @@ class CreateTournamentView(APIView):
 		# Check max. capacity
 		capacity = self.kwargs.get('capacity')
 		print(f"Capacity in create view: {capacity}")
+
+		# User INGAME in other game mode
+		creator = request.user
+		if get_player_state(creator.id) == CustomUser.StateOptions.INGAME:
+			return Response({'detail' : 'Player already has a match in progress.'}, status=status.HTTP_403_FORBIDDEN)
 		# Get all waiting tournaments
 		waiting_tournaments = Tournament.objects.filter(status=Tournament.StatusOptions.WAITING)
 		# Allow only one waiting tournament

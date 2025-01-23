@@ -91,16 +91,19 @@ def is_status_counter_zero(player_id):
 
 @database_sync_to_async
 def get_inprogress_match(player_id):
-    try:
-        match_database = Match.objects.get(
-            (Q(player1=player_id) | Q(player2=player_id)) & Q(status=Match.StatusOptions.INPROGRESS)
-        )
-        return match_database.id
-    except Match.DoesNotExist:
-        return None
-    except Match.MultipleObjectsReturned:
-        logging.error("Multiple in-progress matches found for player.")
-        return None
+	try:
+		match_database = Match.objects.get(
+			(Q(player1=player_id) | Q(player2=player_id)) & Q(status=Match.StatusOptions.INPROGRESS)
+		)
+		player = CustomUser.objects.get(id=player_id)
+		if player.state == CustomUser.StateOptions.INGAME:
+			return None
+		return match_database.id
+	except Match.DoesNotExist:
+		return None
+	except Match.MultipleObjectsReturned:
+		logging.error("Multiple in-progress matches found for player.")
+		return None
 
 
 class UserConsumer(AsyncWebsocketConsumer):

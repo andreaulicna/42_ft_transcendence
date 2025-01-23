@@ -4,6 +4,7 @@ from django.conf import settings
 import math
 from django.utils import timezone
 from datetime import timedelta
+import asyncio
 
 
 class PongGame:
@@ -22,6 +23,8 @@ class PongGame:
 		self.ball = Ball()
 		self.player1 = None
 		self.player2 = None
+		self.lock = asyncio.Lock()
+		self.in_progress_flag = False
 		self.game_start = None
 	
 	def __repr__(self):

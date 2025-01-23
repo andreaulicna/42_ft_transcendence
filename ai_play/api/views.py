@@ -5,6 +5,7 @@ from rest_framework import status
 from ai_play.settings import GAME_CONSTANTS
 from .serializers import AIMatchSerializer
 from .models import CustomUser
+import logging
 
 class HealthCheckView(APIView):
 	def get(self, request):
