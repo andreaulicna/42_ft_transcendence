@@ -135,6 +135,7 @@ export async function openRematchWebsocket(rematch_id) {
 		console.log('Rematch WebSocket established');
 	}).catch((error) => {
 		console.error('Failed to establish Rematch WebSocket:', error);
+		window.location.hash = '#dashboard';
 	});
 }
 
