@@ -370,7 +370,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 			pong_room.match_group_name, 
 			self.channel_name
 		)
-		#await set_user_state(self.scope['user'], CustomUser.StateOptions.INGAME)
+		await set_user_state(self.scope['user'], CustomUser.StateOptions.INGAME)
 		await self.accept()
 		logging.info("Rooms after connect:")
 		logging.info(pong_rooms)
