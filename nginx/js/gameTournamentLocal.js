@@ -22,7 +22,11 @@ import {
 
 import { apiCallAuthed } from './api.js';
 import { textDynamicLoad } from "./animations.js";
-import { addLocalTournamentMatchEndListener, closeLocalTournamentWebsocket } from "./websockets.js";
+
+import { addLocalTournamentContinueListener,
+	addLocalTournamentMatchEndListener,
+	closeLocalTournamentWebsocket,
+} from "./websockets.js";
 
 let data;
 let winner;
@@ -55,13 +59,12 @@ async function initLocalData(data)
 function initTournamentEventListeners()
 {
 	addLocalTournamentMatchEndListener();
+	addLocalTournamentContinueListener();
+	window.addEventListener("match_end", dispatchWinnerMatchEnd);
 	window.addEventListener('tournament_end', handleTournamentEnd);
-
-	continueButton.addEventListener("click", () => {
-		dispatchWinnerMatchEnd();
-	});
-
 	window.addEventListener("match_start", nextGame);
+	window.addEventListener("brackets", (event) => renderTournamentBracket(event))
+	continueButton.addEventListener("click", dispatchContinue);
 }
 
 function dispatchWinnerMatchEnd() {
@@ -72,6 +75,15 @@ function dispatchWinnerMatchEnd() {
 		winner_username: winner,
 	};
 	const event = new CustomEvent('localTournamentMatchEnd', { detail: message });
+	window.dispatchEvent(event);
+}
+
+function dispatchContinue()
+{
+	const message ={
+		message: "continue"
+	};
+	const event = new CustomEvent('localTournamentContinue', { detail: message });
 	window.dispatchEvent(event);
 }
 
@@ -89,4 +101,49 @@ async function nextGame() {
 	initLocalData(data);
 	initPaddleEventDispatch();
 	hideGameOverScreen();
+}
+
+function renderTournamentBracket(event) {
+	const data = event.detail;
+
+	const players = data.brackets;
+	const capacity = data.capacity;
+	const bracketContainer = document.getElementById("bracket-container");
+	bracketContainer.innerHTML = "";
+	bracketContainer.classList.add("d-flex", "justify-content-center", "align-items-center", "bracket-style");
+
+	const totalRounds = Math.log2(capacity);
+
+	for (let round = 1; round <= totalRounds; round++) {
+		const roundContainer = document.createElement("div");
+		roundContainer.className = "round-container";
+
+		const heading = document.createElement("h5");
+		const roundText = document.createElement("span");
+		roundText.setAttribute("data-translate", "round");
+		roundText.innerText = "Round";
+		heading.appendChild(roundText);
+		heading.appendChild(document.createTextNode(` ${round}`));
+		roundContainer.appendChild(heading);
+
+		// Number of matches in this round = capacity / 2^round
+		const matchesThisRound = capacity / Math.pow(2, round);
+
+		for (let match = 0; match < matchesThisRound; match++) {
+			const matchContainer = document.createElement("div");
+			matchContainer.className = "match-container";
+
+			let p1 = players[match * 2].player1_username || "❓";
+			let p2 = players[match * 2 + 1].player2_username || "❓";
+
+			matchContainer.innerHTML = `
+			<div class="player-slot">${p1}</div>
+			<span>⚔️</span>
+			<div class="player-slot">${p2}</div>
+			`;
+
+			roundContainer.appendChild(matchContainer);
+		}
+		bracketContainer.appendChild(roundContainer);
+	}
 }

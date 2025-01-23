@@ -77,6 +77,11 @@ async function openWebSocket(url, type) {
 					const matchEndEvent = new CustomEvent('match_end', { detail: data });
 					window.dispatchEvent(matchEndEvent);
 				}
+				else if (data.message === "brackets")
+				{
+					const bracketsEvent = new CustomEvent('brackets', { detail: data });
+					window.dispatchEvent(bracketsEvent);
+				}
 				else if (data.message === "tournament_end")
 				{
 					const tournamentEndEvent = new CustomEvent('tournament_end');
@@ -320,5 +325,17 @@ function handleLocalTournamentMatchEnd(event) {
 export function addLocalTournamentMatchEndListener() {
 	console.log("ADDING TOURNAMENT MATCH END LISTENER");
 	window.addEventListener('localTournamentMatchEnd', handleLocalTournamentMatchEnd);
+}
+
+function handleLocalTournamentContinue(event) {
+	if (localTournamentWebSocket && localTournamentWebSocket.readyState === WebSocket.OPEN)
+	{
+		localTournamentWebSocket.send(JSON.stringify(event.detail));
+		console.log('Local Tournament WebSocket message sent:', event.detail);
+	}
+}
+
+export function addLocalTournamentContinueListener() {
+	window.addEventListener('localTournamentContinueEnd', handleLocalTournamentContinue);
 }
 
