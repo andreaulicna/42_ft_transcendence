@@ -43,7 +43,7 @@ const loadContent = async (path) => {
 		await ensureValidAccessToken();
 
 		// If user is logged in, go from #login straight to #dashboard
-		if (path == '/pages/login.html' && localStorage.getItem('access')) {
+		if ((window.location.hash === '#login' || window.location.hash === '#register' ) && localStorage.getItem('access')) {
 			window.location.hash = '#dashboard';
 		}
 

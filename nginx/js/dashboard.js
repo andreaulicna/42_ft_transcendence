@@ -17,17 +17,19 @@ export async function init(id) {
 
 	// Logout button
 	logoutBtn = document.getElementById("logoutButton");
-	logoutBtn.addEventListener('click', (event) => {
-		event.preventDefault();
-		logout();
-	});
+	if (logoutBtn) {
+		logoutBtn.addEventListener('click', (event) => {
+			event.preventDefault();
+			logout();
+		});
+	}
 
 	// Change animation colors according to user's settings
 	const root = document.documentElement;
 	const colorLeftPaddle = localStorage.getItem(`${localStorage.getItem("id")}_colorLeftPaddle`) || "#00babc";
 	const colorRightPaddle = localStorage.getItem(`${localStorage.getItem("id")}_colorRightPaddle`) || "#df2af7";
 	const colorBall = localStorage.getItem(`${localStorage.getItem("id")}_colorBall`) || "whitesmoke";
-    root.style.setProperty('--color-left-paddle', colorLeftPaddle);
-    root.style.setProperty('--color-right-paddle', colorRightPaddle);
-    root.style.setProperty('--color-ball', colorBall);
+	root.style.setProperty('--color-left-paddle', colorLeftPaddle);
+	root.style.setProperty('--color-right-paddle', colorRightPaddle);
+	root.style.setProperty('--color-ball', colorBall);
 }
