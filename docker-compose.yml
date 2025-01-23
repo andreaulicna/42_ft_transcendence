@@ -86,8 +86,8 @@ services:
 
   redis:
     container_name: redis
-    image: redis
-    build: ./redis/
+    user: redis
+    image: redis:8.0-M03-alpine3.21
     networks:
       - transcendence
     restart: unless-stopped
