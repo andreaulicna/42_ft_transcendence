@@ -124,28 +124,16 @@ WSGI_APPLICATION = 'pong.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'HOST': 'localhost',
-#         'PORT': 5432,
-#         'NAME': 'mydb',
-#         'USER': 'plouda',
-#         'PASSWORD': os.getenv('DBPASS')
-#     },
-# }
+
 DATABASES = {
-	'default': {
-		'ENGINE': 'django.db.backends.postgresql',
-		'NAME': 'postgres',
-		'USER': 'postgres',
-		'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-        'HOST': 'user_management_db',
-		'PORT': '5432',
-	#	'TEST': {
-	#		'NAME': 'postgres-test'
-	#	},
-	}
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('POSTGRES_DB', 'postgres'),
+        'USER': os.getenv('POSTGRES_USER', 'postgres'),
+        'PASSWORD':  os.getenv('POSTGRES_PASSWORD'),
+        'HOST': 'postgres_db',
+        'PORT': '5432',
+    }
 }
 
 
@@ -179,11 +167,7 @@ LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'CET'
 USE_TZ = True
-
 USE_I18N = True
-
-USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/

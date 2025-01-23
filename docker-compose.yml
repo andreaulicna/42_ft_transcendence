@@ -1,7 +1,7 @@
 services:
   user_management:
     depends_on:
-      user_management_db:
+      postgres_db:
         condition: service_healthy
     container_name: user_management
     build: ./user_management/
@@ -21,7 +21,8 @@ services:
       start_interval: 5s
       timeout: 10s
   
-  user_management_db:
+  postgres_db:
+    user: postgres
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5m
@@ -29,7 +30,7 @@ services:
       start_period: 20s
       start_interval: 5s
       timeout: 10s
-    container_name: user_management_db
+    container_name: postgres_db
     image: postgres:16
     env_file:
       - .env
@@ -52,7 +53,7 @@ services:
 #      - 8081:80
 #    restart: unless-stopped
 #    depends_on:
-#      user_management_db:
+#      postgres_db:
 #        condition: service_healthy
 
   nginx:
