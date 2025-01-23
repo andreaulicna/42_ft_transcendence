@@ -40,7 +40,7 @@ async function createTournament(event) {
 		window.location.hash = '#lobby-tnmt';
 	} catch (error) {
 		console.error("Error creating tournament:", error);
-		showToast("Error", error);
+		showToast("Error creating tournament", null, error, "t_tournamentCreationError");
 	}
 }
 
@@ -56,7 +56,7 @@ async function joinTournament(event) {
 			})
 			.catch(error => {
 				console.error('Error joining tournament:', error);
-				showToast("Error", error);
+				showToast("Error joining tournament", null, error, "t_tournamentJoinError");
 			});
 	}
 }

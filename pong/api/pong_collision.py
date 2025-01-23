@@ -2,6 +2,8 @@ from .utils import Vector2D, get_line_intersection
 import logging, math, random
 from django.conf import settings
 import math
+from django.utils import timezone
+from datetime import timedelta
 import asyncio
 
 
@@ -23,12 +25,7 @@ class PongGame:
 		self.player2 = None
 		self.lock = asyncio.Lock()
 		self.in_progress_flag = False
-
-
-	# def __repr__(self):
-	# 	return (f"PongGame(match_id={self.match_id}, game_width={self.GAME_WIDTH}, "
-	# 			f"game_height={self.GAME_HEIGHT}, paddle1={self.paddle1}, paddle2={self.paddle2}, "
-	# 			f"player1={self.player1}, player2={self.player2})")
+		self.game_start = None
 	
 	def __repr__(self):
 		return (f"PongGame(match_id={self.match_id}, player1={self.player1}, player2={self.player2}")
@@ -37,6 +34,13 @@ class PongGame:
 		self.paddle1 = Paddle(x=-80 + self.PADDLE_HALF_WIDTH, game=self)
 		self.paddle2 = Paddle(x=80 - self.PADDLE_HALF_WIDTH, game=self)
 		self.ball = Ball()
+	
+	def set_game_start_time(self, seconds_to_start = 5):
+		self.game_start = timezone.now() + timedelta(seconds=seconds_to_start)
+		return self.game_start
+	
+	def get_seconds_until_game_start(self):
+		return (self.game_start - timezone.now()).total_seconds()
 
 class Paddle:
 	def __init__(self, x, game):

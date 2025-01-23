@@ -32,7 +32,7 @@ export function init() {
 				window.location.hash = "#dashboard";
 			} catch (error) {
 				console.error("Login failed:", error);
-				showToast("Login failed", error);
+				showToast("Login failed", null, error, "t_loginFailed");
 			}
 		});
 	}
@@ -89,7 +89,7 @@ async function loginIntra() {
 		}
 	} catch (error) {
 		console.error("Intra login failed:", error);
-		showToast("Intra login failed", error);
+		showToast("Intra login failed", null, error, "t_intraLoginFailed");
 	}
 }
 

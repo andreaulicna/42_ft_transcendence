@@ -1,10 +1,10 @@
-import { apiCallAuthed } from './api.js';
-import { addPaddleMovementListener } from './websockets.js';
+import { apiCallAuthed } from "./api.js";
+import { addPaddleMovementListener } from "./websockets.js";
 import {
 	initTouchControls,
 	touchControlsPlayer1,
 	touchControlsPlayer2,
-} from './gameTouchControls.js';
+} from "./gameTouchControls.js";
 
 /* 👇 DATA DECLARATION */
 let gameMode;
@@ -14,7 +14,7 @@ let originalGameWidth = 160; // Server-side game width
 let originalGameHeight = 100; // Server-side game height
 let gameWidth;
 let gameHeight;
-let scaleX; // Calculate the drawing scale for client's viewport
+let scaleX; // Calculate the drawing scale for client"s viewport
 let scaleY;
 export let matchID;
 export let paddle1Keys = {};
@@ -52,10 +52,8 @@ export let isTouchDevice;
 
 /* 👇 DATA INITIALIZATION */
 export function initGameData(data) {
-	localStorage.setItem("in_game", "YES");
-
 	matchID = data.id;
-	gameMode = localStorage.getItem('gameMode');
+	gameMode = localStorage.getItem("gameMode");
 	gameBoard = document.getElementById("gameBoard");
 	ctx = gameBoard.getContext("2d");
 	gameWidth = gameBoard.width;
@@ -128,7 +126,7 @@ export function initGameData(data) {
 	mainMenuButton.style.display = "block";
 	continueButton.style.display = "none";
 
-	isTouchDevice = 'ontouchstart' in window;
+	isTouchDevice = "ontouchstart" in window;
 	if (isTouchDevice) {
 		initTouchControls();
 		console.log("TOUCH CONTROLS ENABLED");
@@ -136,15 +134,16 @@ export function initGameData(data) {
 }
 
 export function initEventListeners() {
-	window.addEventListener('match_start', startCountdown);
+	window.addEventListener("match_start", (event) => startCountdown(event));
+	window.addEventListener("match_start", (event) => clearGracePeriod(event));
 	window.addEventListener("keydown", handleKeyDown);
 	window.addEventListener("keydown", preventArrowKeyScroll);
 	window.addEventListener("keyup", handleKeyUp);
-	window.addEventListener('draw', handleDraw);
-	window.addEventListener('match_end', showGameOverScreen);
-	window.addEventListener('match_end', stopPaddleEventDispatch);
+	window.addEventListener("draw", handleDraw);
+	window.addEventListener("match_end", (event) => showGameOverScreen(event));
+	window.addEventListener("match_end", stopPaddleEventDispatch);
 	mainMenuButton.addEventListener("click", () => {
-		window.location.hash = '#dashboard';
+		window.location.hash = "#dashboard";
 	});
 	addPaddleMovementListener();
 }
@@ -152,8 +151,8 @@ export function initEventListeners() {
 function removeEventListeners() {
 	window.removeEventListener("keydown", handleKeyDown);
 	window.removeEventListener("keyup", handleKeyUp);
-	window.removeEventListener('draw', handleDraw);
-	window.removeEventListener('match_end', showGameOverScreen);
+	window.removeEventListener("draw", handleDraw);
+	window.removeEventListener("match_end", showGameOverScreen);
 }
 
 export async function fetchPlayer1Data(data)
@@ -244,7 +243,7 @@ function drawPaddles(paddle1, paddle2) {
 	ctx.fillStyle = paddle2Color;
 	ctx.fillRect(paddle2.x, paddle2.y, paddle2.width * scaleX, paddle2.height * scaleY);
 	ctx.shadowBlur = 0;
-	ctx.shadowColor = 'transparent';
+	ctx.shadowColor = "transparent";
 }
 
 function drawBall(ball) {
@@ -255,7 +254,7 @@ function drawBall(ball) {
 	ctx.arc(ball.x, ball.y, ball.radius * Math.min(scaleX, scaleY), 0, 2 * Math.PI);
 	ctx.fill();
 	ctx.shadowBlur = 0;
-	ctx.shadowColor = 'transparent';
+	ctx.shadowColor = "transparent";
 }
 
 function drawBallExactPrediction(ball) {
@@ -265,7 +264,7 @@ function drawBallExactPrediction(ball) {
 	ctx.arc(ball.xExact, ball.yExact, ball.radius * Math.min(scaleX, scaleY), 0, 2 * Math.PI);
 	ctx.fill();
 	ctx.shadowBlur = 0;
-	ctx.shadowColor = 'transparent';
+	ctx.shadowColor = "transparent";
 
 	// Ball predicted hit
 	ctx.fillStyle = ballPredictionColor;
@@ -273,7 +272,7 @@ function drawBallExactPrediction(ball) {
 	ctx.arc(ball.xPrediction, ball.yPrediction, ball.radius * Math.min(scaleX, scaleY), 0, 2 * Math.PI);
 	ctx.fill();
 	ctx.shadowBlur = 0;
-	ctx.shadowColor = 'transparent';
+	ctx.shadowColor = "transparent";
 }
 
 export function resetScore() {
@@ -302,7 +301,7 @@ export function drawTick()
 function throttledDispatchEventPerKey(key, direction, paddle, limit) {
 	const now = Date.now();
 	if (!lastRan[key] || now - lastRan[key] >= limit) {
-		const paddleMovementEvent = new CustomEvent('paddle_movement', {
+		const paddleMovementEvent = new CustomEvent("paddle_movement", {
 			detail: {
 				type: "paddle_movement",
 				direction: direction,
@@ -310,7 +309,7 @@ function throttledDispatchEventPerKey(key, direction, paddle, limit) {
 			},
 		});
 		window.dispatchEvent(paddleMovementEvent);
-		console.log(`DISPATCHING ${paddle} MOVEMENT EVENT`);
+		// console.log(`DISPATCHING ${paddle} MOVEMENT EVENT`);
 		lastRan[key] = now;
 	}
 }
@@ -320,7 +319,7 @@ function sendPaddleMovement() {
 
 	for (const key in paddle1Keys) {
 		if (paddle1Keys[key]) {
-			console.log("PLAYER 1 KEY PRESSED");
+			// console.log("PLAYER 1 KEY PRESSED");
 			const direction = key == 87 ? "UP" : "DOWN";
 			throttledDispatchEventPerKey(key, direction, "paddle1", throttleLimit);
 		}
@@ -330,7 +329,7 @@ function sendPaddleMovement() {
 	{
 		for (const key in paddle2Keys) {
 			if (paddle2Keys[key]) {
-				console.log("PLAYER 2 KEY PRESSED");
+				// console.log("PLAYER 2 KEY PRESSED");
 				const direction = key == 38 ? "UP" : "DOWN";
 				throttledDispatchEventPerKey(key, direction, "paddle2", throttleLimit);
 			}
@@ -355,28 +354,49 @@ function stopPaddleEventDispatch() {
 
 /* 👇 MENUS & REMATCH & NON-GAME LOGIC */
 
-export function startCountdown() {
-	const countdownModal = new bootstrap.Modal(document.getElementById('countdownModal'));
-	const countdownText = document.getElementById('countdownText');
-	let countdown = 3;
+export function startCountdown(event) {
+	const data = event.detail;
+
+	// In case of grace period reconnect, update the game state accordingly
+	handleDraw(event);
+	// paddle1.x = (data.paddle1_x - (paddle1.width / 2) + originalGameWidth / 2) * scaleX;
+	// paddle1.y = (data.paddle1_y - (paddle1.height / 2) + originalGameHeight / 2) * scaleY;
+	// paddle2.x = (data.paddle2_x - (paddle2.width / 2) + originalGameWidth / 2) * scaleX;
+	// paddle2.y = (data.paddle2_y - (paddle2.height / 2) + originalGameHeight / 2) * scaleY;
+	// ball.x = (data.ball_x + originalGameWidth / 2) * scaleX;
+	// ball.y = (data.ball_y + originalGameHeight / 2) * scaleY;
+	// player1.score = data.player1_score;
+	// player2.score = data.player2_score;
+	// drawTick();
+	// updateScore();
+
+
+	const gameStartTime = new Date(data.game_start);
+	const currentTime = new Date();
+	let countdownStart = Math.floor((gameStartTime - currentTime) / 1000);
+
+	const countdownModal = new bootstrap.Modal(document.getElementById("countdownModal"));
+	const countdownNums = document.getElementById("countdownNums");
 
 	countdownModal.show();
+	countdownNums.textContent = countdownStart;
 
 	const countdownInterval = setInterval(() => {
-		countdownText.textContent = countdown;
-		countdown--;
-		if (countdown < 0) {
+		countdownStart--;
+		if (countdownStart >= 0)
+			countdownNums.textContent = countdownStart;
+		else
+		{
 			clearInterval(countdownInterval);
 			countdownModal.hide();
 		}
-	}, 800);
+	}, 1000);
 }
 
-function showGameOverScreen() {
-	if (localStorage.getItem("in_game"))
-		localStorage.setItem("in_game", "NO");
+function showGameOverScreen(event) {
+	const data = event.detail;
 
-	let winner = player1.score > player2.score ? player1.name : player2.name;
+	let winner = data.winner_username;
 	winnerName.textContent = `${winner}`;
 	winnerName.className = player1.score > player2.score ? "blueSide" : "redSide";
 
@@ -385,8 +405,8 @@ function showGameOverScreen() {
 	playerNames.style.visibility = "hidden";
 	scoreText.style.display = "none";
 	if (isTouchDevice) {
-		touchControlsPlayer1.style.setProperty('display', 'none', 'important');
-		touchControlsPlayer2.style.setProperty('display', 'none', 'important');
+		touchControlsPlayer1.style.setProperty("display", "none", "important");
+		touchControlsPlayer2.style.setProperty("display", "none", "important");
 	}
 
 	// removeEventListeners();
@@ -415,4 +435,60 @@ function preventArrowKeyScroll(event) {
 	const arrowKeys = ["ArrowUp", "ArrowDown"];
 	if (arrowKeys.includes(event.key))
 		event.preventDefault();
+}
+
+// Handle grace period for the remaining connected player
+let gracePeriodInterval;
+let gracePeriodModal;
+let gracePeriodCountdown;
+
+export function handleGracePeriod() {
+	gracePeriodModal = new bootstrap.Modal(document.getElementById("countdownModal"));
+	const countdownNums = document.getElementById("countdownNums");
+	const countdownText = document.getElementById("countdownText");
+	gracePeriodCountdown = 30;
+	countdownText.textContent = `😒 Waiting for opponent to reconnect...`;
+	countdownNums.textContent = `${gracePeriodCountdown}`;
+	gracePeriodModal.show();
+
+	gracePeriodInterval = setInterval(() => {
+		gracePeriodCountdown--;
+		if (gracePeriodCountdown >= 0)
+			countdownNums.textContent = `${gracePeriodCountdown}`;
+		else
+		{
+			clearInterval(gracePeriodInterval);
+			gracePeriodModal.hide();
+		}
+	}, 1000);
+}
+
+function clearGracePeriod(event) {
+	if (gracePeriodInterval)
+	{
+		clearInterval(gracePeriodInterval);
+
+		const data = event.detail;
+		const gameStartTime = new Date(data.game_start);
+		const currentTime = new Date();
+		let countdownStart = Math.floor((gameStartTime - currentTime) / 1000);
+		
+		const countdownNums = document.getElementById("countdownNums");
+		const countdownText = document.getElementById("countdownText");
+
+		countdownNums.textContent = `${countdownStart}`;
+		countdownText.textContent = ``;
+
+		const countdownInterval = setInterval(() => {
+			countdownStart--;
+			countdownNums.textContent = `${countdownStart}`;
+			if (countdownStart >= 0)
+				countdownNums.textContent = countdownStart;
+			else
+			{
+				clearInterval(countdownInterval);
+				gracePeriodModal.hide();
+			}
+		}, 1000);
+	}
 }

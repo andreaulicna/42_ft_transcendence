@@ -87,20 +87,6 @@ REST_FRAMEWORK = {
     ],
 }
 
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    'ROTATE_REFRESH_TOKENS': True,
-	'BLACKLIST_AFTER_ROTATION' : True,
-	'AUTH_COOKIE': 'refresh_token',  # Cookie name. Enables cookies if value is set.
-	'AUTH_COOKIE_DOMAIN': None,     # A string like "example.com", or None for standard domain cookie.
-	'AUTH_COOKIE_SECURE': False,    # Whether the auth cookies should be secure (https:// only).
-	'AUTH_COOKIE_HTTP_ONLY' : True, # Http only cookie flag.It's not fetch by javascript.
-	'AUTH_COOKIE_PATH': reverse_lazy('login-refresh'),        # The path of the auth cookie.
-	'AUTH_COOKIE_SAMESITE': 'Lax',  # Whether to set the flag restricting cookie leaks on cross-site requests.
-									# This can be 'Lax', 'Strict', or None to disable
-}
-
 ROOT_URLCONF = 'ai_play.urls'
 
 TEMPLATES = [

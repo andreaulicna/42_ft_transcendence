@@ -18,7 +18,7 @@ export function initTouchControls()
 	player2Down = document.getElementById('player2Down');
 
 	touchControlsPlayer1.style.setProperty('display', 'block', 'important');
-	if (gameMode === 'local')
+	if (gameMode === 'local' || gameMode === "local-rematch-switch" || gameMode === "local-rematch")
 		touchControlsPlayer2.style.setProperty('display', 'block', 'important');
 	else
 		touchControlsPlayer2.style.setProperty('display', 'none', 'important');

@@ -37,14 +37,14 @@ function addPlayerToList() {
 	try {
 		if (players.length >= capacity)
 		{
-			showToast("Error adding player", "The tournament capacity has been filled.");
+			showToast("Error adding player", "The tournament capacity has been filled.", null, "t_capacityFilled");
 			throw new Error("The tournament capacity has been filled.");
 		}
 		if (playerName) {
 			players.forEach(player => {
 				if (player === playerName)
 				{
-					showToast("Error adding player", "Players must have unique names.");
+					showToast("Error adding player", "Players must have unique names.", null, "t_uniqueNames");
 					throw new Error("Players must have unique names.");
 				}
 			});
@@ -56,7 +56,7 @@ function addPlayerToList() {
 			if (players.length == capacity)
 				addPlayerInput.required = false;
 		} else {
-			showToast("Error adding player", "Player name cannot be empty.");
+			showToast("Error adding player", "Player name cannot be empty.", null, "t_emptyName");
 			throw new Error("Player name cannot be empty.");
 		}
 	} catch (error) {
@@ -78,7 +78,11 @@ function renderTournamentBracket() {
 		roundContainer.className = "round-container";
 
 		const heading = document.createElement("h5");
-		heading.innerText = `Round ${round}`;
+		const roundText = document.createElement("span");
+		roundText.setAttribute("data-translate", "round");
+		roundText.innerText = "Round";
+		heading.appendChild(roundText);
+		heading.appendChild(document.createTextNode(` ${round}`));
 		roundContainer.appendChild(heading);
 
 		// Number of matches in this round = capacity / 2^round
@@ -94,12 +98,14 @@ function renderTournamentBracket() {
 			if (round == 1) {
 				matchContainer.innerHTML = `
 				<div class="player-slot">${p1}</div>
+				<span>⚔️</span>
 				<div class="player-slot">${p2}</div>
 				`;
 			}
 			else {
 				matchContainer.innerHTML = `
 				<div class="player-slot">❓</div>
+				<span>⚔️</span>
 				<div class="player-slot">❓</div>
 				`;
 			}
@@ -117,7 +123,7 @@ async function createTournament(event) {
 
 	if (players.length < capacity)
 	{
-		showToast("Error creating tournament", `You must add ${capacity} players.`);
+		showToast("Error creating tournament", `Not enough players added.`, null, "t_notEnoughPlayers");
 		return;
 	}
 
@@ -133,6 +139,6 @@ async function createTournament(event) {
 		openLocalTournamentWebsocket(response.local_tournament.id);
 	} catch (error) {
 		console.error("Error creating tournament:", error);
-		showToast("Error creating tournament", `An error occurred while creating the tournament.`);
+		showToast("Error creating tournament", null, error, "t_tournamentError");
 	}
 }

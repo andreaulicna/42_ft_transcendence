@@ -1,6 +1,8 @@
 import { apiCallAuthed } from './api.js';
 import { handleFriendStatusUpdate } from './profile.js';
 import { handleLobbyStatusUpdate } from './tournamentLobby.js';
+import { handleGracePeriod } from './gameCore.js';
+import { showToast } from './notifications.js';
 
 let pongWebSocket;
 let statusWebSocket;
@@ -11,6 +13,8 @@ let localWebSocket;
 let rematchWebSocket;
 
 // Refactor this catch-all function so it doesn't handle multiple websocket types?
+// + open the websockets from their respective files to prevent all of this unnecessarry
+// event dispatching shit
 async function openWebSocket(url, type) {
 	return new Promise(async (resolve, reject) => {
 		try {
@@ -41,12 +45,12 @@ async function openWebSocket(url, type) {
 					console.log('WebSocket message received:', data);
 				// Game initialization
 				if (type == "matchmaking" || type == "rematch"
-					|| (type == "tournament" && data.type != "remote_tournament_lobby_update") || type === "local_tournament")
+					|| (type == "tournament" && data.type != "remote_tournament_lobby_update"))
 				{
 					if (data.message != "tournament_end")
 					{
 						localStorage.setItem("match_id", data.message);
-						openPongWebsocket(data.message);
+						openPongWebsocket(data.message, "join");
 					}
 				}
 				if (data.type == "local_tournament_message")
@@ -65,12 +69,12 @@ async function openWebSocket(url, type) {
 				}
 				else if (data.type === "match_start")
 				{
-					const matchStartEvent = new CustomEvent('match_start');
+					const matchStartEvent = new CustomEvent('match_start', { detail: data });
 					window.dispatchEvent(matchStartEvent);
 				}
 				else if (data.type === "match_end")
 				{
-					const matchEndEvent = new CustomEvent('match_end');
+					const matchEndEvent = new CustomEvent('match_end', { detail: data });
 					window.dispatchEvent(matchEndEvent);
 				}
 				else if (data.message === "tournament_end")
@@ -86,6 +90,15 @@ async function openWebSocket(url, type) {
 				else if (data.type === "remote_tournament_lobby_update")
 				{
 					handleLobbyStatusUpdate(data);
+				}
+				else if (data.type === "grace_disconnect")
+				{
+					handleGracePeriod();
+				}
+				else if (data.type === "in_game")
+				{
+					console.log("User disconnected from a game, attempting to reconnect.");
+					openPongWebsocket(data.match_id, "reconnect");
 				}
 			};
 		} catch (error) {
@@ -112,6 +125,8 @@ export async function openMatchmakingWebsocket() {
 		// console.log('Matchmaking WebSocket established');
 	}).catch((error) => {
 		console.error('Failed to establish Matchmaking WebSocket:', error);
+		showToast("Error", null, error, "t_openingWsError");
+		window.location.hash = "#dashboard";
 	});
 }
 
@@ -122,6 +137,8 @@ export async function openRematchWebsocket(rematch_id) {
 		console.log('Rematch WebSocket established');
 	}).catch((error) => {
 		console.error('Failed to establish Rematch WebSocket:', error);
+		showToast("Error", null, error, "t_openingWsError");
+		window.location.hash = '#dashboard';
 	});
 }
 
@@ -145,7 +162,7 @@ export async function openLocalTournamentWebsocket(tournament_id) {
 	});
 }
 
-export async function openPongWebsocket(match_id) {
+export async function openPongWebsocket(match_id, flag) {
 	const url = "/api/ws/pong/" + match_id + "/";
 	openWebSocket(url, "pong").then((ws) => {
 		pongWebSocket = ws;
@@ -153,8 +170,13 @@ export async function openPongWebsocket(match_id) {
 		window.location.hash = '#game';
 	}).catch((error) => {
 		console.error('Failed to establish Pong WebSocket:', error);
-		if (localStorage.getItem("in_game") == "YES" && localStorage.getItem("match_id"))
-			localStorage.setItem("in_game", "NO");
+		if (flag == "reconnect")
+			showToast("Error", "The match is no longer ongoing.", null, "t_matchNoLongerOngoing");
+		if (flag == "join")
+		{
+			showToast("Error", null, error, "t_openingWsError");
+			window.location.hash = "#dashboard";
+		}
 	});
 }
 
@@ -251,11 +273,11 @@ function handleStatusRefreshEvent() {
 function handlePaddleMovement(event) {
 	if (pongWebSocket && pongWebSocket.readyState === WebSocket.OPEN) {
 		pongWebSocket.send(JSON.stringify(event.detail));
-		console.log('PONG WebSocket message sent:', event.detail);
+		// console.log('PONG WebSocket message sent:', event.detail);
 	}
 	else if (localWebSocket && localWebSocket.readyState === WebSocket.OPEN) {
 		localWebSocket.send(JSON.stringify(event.detail));
-		console.log('Localplay WebSocket message sent:', event.detail);
+		// console.log('Localplay WebSocket message sent:', event.detail);
 	}
 }
 

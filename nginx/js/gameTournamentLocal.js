@@ -30,7 +30,6 @@ let winner;
 export async function init() {
 	data = await apiCallAuthed(`/api/user/localmatch/${localStorage.getItem("match_id")}`);
 	setMatchID(localStorage.getItem("match_id"));
-	startCountdown();
 	initGameData(data);
 	initEventListeners();
 	initTournamentEventListeners();

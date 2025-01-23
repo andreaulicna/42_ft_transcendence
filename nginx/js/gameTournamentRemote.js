@@ -34,7 +34,6 @@ const tournamentRoundMax = Math.log2(tournamentCapacity);
 
 export async function init() {
 	let data = await apiCallAuthed(`/api/user/match/${localStorage.getItem("match_id")}`);
-	startCountdown();
 	initGameData(data);
 	initEventListeners();
 	initTournamentEventListeners();

@@ -25,7 +25,7 @@ export function init() {
 				window.location.hash = '#login';
 			} catch (error) {
 				console.error('Registration failed:', error);
-				showToast('Registration failed', error);
+				showToast("Registration failed", null, error, "t_registrationFailed");
 			}
 		});
 	}

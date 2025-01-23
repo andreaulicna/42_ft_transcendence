@@ -49,6 +49,24 @@ def set_response_cookie(response, data = None):
 							path = settings.SIMPLE_JWT['AUTH_COOKIE_PATH'])
 	return response
 
+def delete_auth_cookie(response):
+	response.set_cookie(key = settings.SIMPLE_JWT['AUTH_COOKIE'], 
+						value = '',
+						expires = "Thu, 01 Jan 1970 00:00:00 GMT",
+						secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
+						httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
+						samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
+						path = settings.SIMPLE_JWT['AUTH_COOKIE_PATH'])
+	
+def delete_twofa_state_cookie(response):
+	response.set_cookie(key = 'twofa_state',
+						value = '',
+						expires = "Thu, 01 Jan 1970 00:00:00 GMT",
+						secure = True,
+						httponly = True,
+						samesite = 'Lax',
+						path = reverse('login'))
+
 def set_twofa_state_cookie(response, player_id):
 	twofa_state_string = secrets.token_urlsafe(16)
 	cache.set(twofa_state_string, player_id, 60)
@@ -105,7 +123,7 @@ class LoginView(APIView):
 				data = get_tokens_for_user(user)
 				response = set_response_cookie(response, data=data)
 				csrf.get_token(request)
-				response.data = {"refresh": data['refresh'], "access" : data['access']}
+				response.data = {"access" : data['access']}
 				return response
 			else:
 				return Response({"details" : "This account is not active"},status=status.HTTP_404_NOT_FOUND)
@@ -123,11 +141,11 @@ class LoginView(APIView):
 						return Response({'detail' : 'Invalid or expired OTP'}, status=status.HTTP_403_FORBIDDEN)
 					if user.id == cached_twofa_state:
 							cache.delete(cached_twofa_state)
-							response.delete_cookie('twofa_state')
+							delete_twofa_state_cookie(response)
+							#response.delete_cookie('twofa_state')
 							data = get_tokens_for_user(user)
 							response = set_response_cookie(response, data=data)
 							csrf.get_token(request)
-							response.data = {"refresh": data['refresh'], "access" : data['access']}
 							return response
 					else:
 						return Response({'detail' : 'State not tied to user'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -150,7 +168,7 @@ class RefreshView(TokenRefreshView):
 					response = Response()
 					data = serializer.validated_data
 					response = set_response_cookie(response, data=data)
-					response.data = data
+					response.data = {"access" : data['access']}
 
 					return response
 				return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -169,8 +187,10 @@ class LogoutView(APIView):
 			token = RefreshToken(request.COOKIES.get('refresh_token'))
 			token.blacklist()
 			response = Response({"detail": "Successfully logged out"})
-			response.delete_cookie(settings.SIMPLE_JWT['AUTH_COOKIE'])
-			response.delete_cookie('twofa_state')
+			delete_auth_cookie(response)
+			#response.delete_cookie(settings.SIMPLE_JWT['AUTH_COOKIE'])
+			delete_twofa_state_cookie(response)
+			#response.delete_cookie('twofa_state')
 			return response
 		except TokenError as e:
 			return Response({"details" : 'Already logged out'},status=status.HTTP_401_UNAUTHORIZED)
