@@ -33,9 +33,7 @@ async function fetchPlayerList() {
 
 // Update the list of joined players via a websocket
 export async function handleLobbyStatusUpdate(data) {
-	const { player_id, message} = data;
-	const userData = await apiCallAuthed(`/api/user/${player_id}/info`);
-	const username = userData.username;
+	const { player_id, message, username} = data;
 	const joinedPlayer = activePlayers.find(player => player.player_tmp_username === username);
 	if (message == "player_join" && !joinedPlayer)
 		activePlayers.push({ player_tmp_username: username });
