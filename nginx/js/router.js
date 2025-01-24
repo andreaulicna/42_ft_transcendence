@@ -1,7 +1,7 @@
 import { showLoading } from "./animations.js";
 import { apiCallAuthed, ensureValidAccessToken } from './api.js';
 import { hideLoading } from "./animations.js";
-import { openStatusWebsocket, closeStatusWebsocket, closeLocalTournamentWebsocket, closeTournamentWebsocket } from './websockets.js';
+import { openStatusWebsocket, closeStatusWebsocket, closeLocalTournamentWebsocket, closeTournamentWebsocket, closeLocalWebsocket, closeRematchWebsocket } from './websockets.js';
 
 const dynamicContent = document.getElementById('dynamicContent');
 
@@ -150,9 +150,15 @@ export function redirectToHome(event) {
 			{
 				const gameMode = localStorage.getItem('gameMode');
 				if (gameMode == "tournamentLocal")
+				{
+					closeLocalWebsocket();
 					closeLocalTournamentWebsocket();
+				}
 				else if (gameMode == "tournamentRemote")
+				{
+					closeRematchWebsocket();
 					closeTournamentWebsocket();
+				}
 			}
 		}
 		window.location.hash = '#dashboard';
