@@ -6,10 +6,10 @@ export async function init(id) {
 	if (id !== null) {
 		localStorage.setItem("id", id);
 	}
-	
+
 	// Add selected game mode to local storage
-	document.querySelectorAll('#menu a').forEach(link => {
-		link.addEventListener('click', function() {
+	document.querySelectorAll('#menu .menu-game').forEach(link => {
+		link.addEventListener('click', function () {
 			const mode = this.getAttribute('data-mode');
 			localStorage.setItem('gameMode', mode);
 		});
@@ -17,12 +17,10 @@ export async function init(id) {
 
 	// Logout button
 	logoutBtn = document.getElementById("logoutButton");
-	if (logoutBtn) {
-		logoutBtn.addEventListener('click', (event) => {
-			event.preventDefault();
-			logout();
-		});
-	}
+	logoutBtn.addEventListener('click', (event) => {
+		// event.preventDefault();
+		logout();
+	});
 
 	// Change animation colors according to user's settings
 	const root = document.documentElement;

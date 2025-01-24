@@ -24,28 +24,32 @@ const routes = {
 const loadContent = async (path) => {
 	try {
 		showLoading();
+
 		// Load the HTML content
 		const response = await fetch(path);
 		const content = await response.text();
 		dynamicContent.innerHTML = content;
+		console.log("ANANAS");
+
+		// Wait for the dynamic content to be fully parsed and available in the DOM -- redundant?
+		await new Promise((resolve) => {
+			const checkContentLoaded = () => {
+				if (dynamicContent.children.length > 0) {
+					resolve();
+					console.log("dynamic HTML content loaded!");
+				} else {
+					setTimeout(checkContentLoaded, 50);
+				}
+			};
+			checkContentLoaded();
+		});
 
 		// Reapply language settings after loading new content
 		const preferredLanguage = localStorage.getItem("language") || "en";
 		setLanguage(preferredLanguage);
-
-		// Check if user is logged in first
-		if ((path != '/pages/login.html' && path != '/pages/2fa.html' && path != '/pages/register.html' && path != '/pages/404.html') && !localStorage.getItem('access')) {
-			window.location.hash = '#login';
-			throw new Error('Not logged in.');
-		}
 		
 		// Refreshes access token before getting to further API calls, preventing double refresh on load/hashchange events
 		await ensureValidAccessToken();
-
-		// If user is logged in, go from #login straight to #dashboard
-		if ((window.location.hash === '#login' || window.location.hash === '#register' ) && localStorage.getItem('access')) {
-			window.location.hash = '#dashboard';
-		}
 
 		// Import the page's relevant script
 		let data;
@@ -54,7 +58,7 @@ const loadContent = async (path) => {
 		} else if (window.location.hash === '#register') {
 			await import('/js/register.js').then(module => module.init());
 		} else if (window.location.hash === '#dashboard') {
-			// to prevent duplicate calls to api?user/info on load event
+			// to prevent duplicate calls to api/user/info on load event
 			if (localStorage.getItem('id') == null) {
 				data = await apiCallAuthed('/api/user/info');
 				await import('/js/dashboard.js').then(module => module.init(data.id));
@@ -98,10 +102,20 @@ const loadContent = async (path) => {
 };
 
 const router = async () => {
+	// Check if user is logged in first
+	if ((window.location.hash != '#login' && window.location.hash != '#2fa' && window.location.hash != '#register' && window.location.hash != '404') && !localStorage.getItem('access')) {
+		window.location.hash = '#login';
+		console.error('Not logged in');
+	}
+
+	// If user is logged in, go straight to #dashboard
+	if ((window.location.hash === '#login' || window.location.hash === '#register' ) && localStorage.getItem('access')) {
+		window.location.hash = '#dashboard';
+	}
+
 	const route = window.location.hash || '';
 	const path = routes[route] || routes['404'];
-	// console.log(`Routing to: ${route}, Path: ${path}`);
-	// await ensureValidAccessToken();
+
 	await loadContent(path);
 };
 
