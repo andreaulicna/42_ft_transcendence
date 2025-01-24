@@ -154,6 +154,7 @@ export async function openTournamentWebsocket(tournament_id) {
 		console.log('Tournament WebSocket established');
 	}).catch((error) => {
 		console.error('Failed to establish Tournament WebSocket:', error);
+		showToast("Error", "Cannot start game session", null, "t_openingWsError");
 	});
 }
 
@@ -164,6 +165,7 @@ export async function openLocalTournamentWebsocket(tournament_id) {
 		console.log('Local Tournament WebSocket established');
 	}).catch((error) => {
 		console.error('Failed to establish Local Tournament WebSocket:', error);
+		showToast("Error", "Cannot start game session", null, "t_openingWsError");
 	});
 }
 
@@ -193,6 +195,7 @@ export async function openLocalPlayWebsocket(match_id) {
 		window.location.hash = '#game';
 	}).catch((error) => {
 		console.error('Failed to establish LocalPlay WebSocket:', error);
+		showToast("Error", "Cannot start game session", null, "t_openingWsError");
 	});
 }
 
@@ -204,6 +207,7 @@ export async function openAIPlayWebsocket(match_id) {
 		window.location.hash = '#game';
 	}).catch((error) => {
 		console.error('Failed to establish AIPlay WebSocket:', error);
+		showToast("Error", "Cannot start game session", null, "t_openingWsError");
 	});
 }
 
