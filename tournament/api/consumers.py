@@ -191,7 +191,7 @@ class TournamentConsumer(WebsocketConsumer):
 			tournament_room.tournament_group_name, self.channel_name
 		)
 		self.accept()
-		self.send_lobby_update_message(tournament_room.tournament_group_name, "player_join")
+		self.send_lobby_update_message(tournament_room.tournament_group_name, "player_join", self.scope['user'])
 		# First set of rounds
 		if len(tournament_room.players) == tournament_room.capacity:
 			round = 1
@@ -213,9 +213,9 @@ class TournamentConsumer(WebsocketConsumer):
 						tournament_room.tournament_group_name, self.channel_name
 					)
 					if (self.id == tournament_room.creator_id):
-						self.send_lobby_update_message(tournament_room.tournament_group_name, "creator_cancel")
+						self.send_lobby_update_message(tournament_room.tournament_group_name, "creator_cancel", self.scope['user'])
 					else:
-						self.send_lobby_update_message(tournament_room.tournament_group_name, "player_cancel")
+						self.send_lobby_update_message(tournament_room.tournament_group_name, "player_cancel", self.scope['user'])
 					tournament_room.players.remove(player)
 					if not tournament_room.players:
 						tournament_rooms.remove(tournament_room)
@@ -356,24 +356,27 @@ class TournamentConsumer(WebsocketConsumer):
 		self.send(text_data=json.dumps({"message": message}))
 		#self.close() # closes the websocket once the match_id has been sent to both of the players
 
-	def send_lobby_update_message(self, tournament_group_name, message):
+	def send_lobby_update_message(self, tournament_group_name, message, user):
 		async_to_sync(self.channel_layer.group_send)(
 			tournament_group_name, {
 				"type": "remote_tournament_lobby_update", 
 				"message": message,
-				"player_id": self.id
+				"player_id": self.id,
+				"player_username": user.username, 
 			}
 		)
 	
 	def remote_tournament_lobby_update(self, event):
 		message = event['message']
 		player_id = event['player_id']
+		player_username = event['player_username']
 
 		if player_id != self.id:
 			self.send(text_data=json.dumps({
 				'type': 'remote_tournament_lobby_update',
 				'message': message,
-				'player_id': player_id
+				'player_id': player_id,
+				'player_username': player_username
 			}))
 
 
