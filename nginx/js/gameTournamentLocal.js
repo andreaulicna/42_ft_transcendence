@@ -111,11 +111,22 @@ function renderTournamentBracket(event) {
 	const players = data.brackets;
 	const capacity = data.capacity;
 	const bracketContainer = document.getElementById("bracket-container");
-	bracketContainer.innerHTML = "";
-	bracketContainer.classList.add("d-flex", "justify-content-center", "align-items-center", "bracket-style");
+	bracketContainer.innerHTML = ""; // Clear any existing content
 
-	const totalRounds = Math.log2(capacity);
+	// Group matches by rounds
+	const rounds = {};
+	players.forEach(match => {
+		const round = match.round;
+		if (!rounds[round]) {
+			rounds[round] = [];
+		}
+		rounds[round].push(match);
+	});
 
+	// Get the total number of rounds
+	const totalRounds = Math.max(...Object.keys(rounds).map(Number));
+
+	// Render each round
 	for (let round = 1; round <= totalRounds; round++) {
 		const roundContainer = document.createElement("div");
 		roundContainer.className = "round-container";
@@ -128,19 +139,14 @@ function renderTournamentBracket(event) {
 		heading.appendChild(document.createTextNode(` ${round}`));
 		roundContainer.appendChild(heading);
 
-		// Number of matches in this round = capacity / 2^round
-		const matchesThisRound = capacity / Math.pow(2, round);
-
-		for (let match = 0; match < matchesThisRound; match++) {
+		// Render matches for this round
+		const matchesThisRound = rounds[round] || [];
+		matchesThisRound.forEach(match => {
 			const matchContainer = document.createElement("div");
 			matchContainer.className = "match-container";
-			
-			let player1 = players.length > 0 ? players[0] : null;
-			let p1 = player1 && player1.player1_username ? player1.player1_username : "❓";
-			
-			let player2 = players.length > 0 ? players.splice(0, 1)[0] : null;
-			let p2 = player2 && player2.player2_username ? player2.player2_username : "❓";
-			
+
+			const p1 = match.player1_username || "❓";
+			const p2 = match.player2_username || "❓";
 
 			matchContainer.innerHTML = `
 			<div class="player-slot">${p1}</div>
@@ -149,7 +155,8 @@ function renderTournamentBracket(event) {
 			`;
 
 			roundContainer.appendChild(matchContainer);
-		}
+		});
+
 		bracketContainer.appendChild(roundContainer);
 	}
 }

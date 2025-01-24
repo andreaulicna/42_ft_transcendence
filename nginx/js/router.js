@@ -46,9 +46,6 @@ const loadContent = async (path) => {
 		// Reapply language settings after loading new content
 		const preferredLanguage = localStorage.getItem("language") || "en";
 		setLanguage(preferredLanguage);
-		
-		// Refreshes access token before getting to further API calls, preventing double refresh on load/hashchange events
-		await ensureValidAccessToken();
 
 		// Import the page's relevant script
 		let data;
@@ -106,6 +103,9 @@ const router = async () => {
 		window.location.hash = '#login';
 		console.error('Not logged in');
 	}
+
+	// Refreshes access token before getting to further API calls, preventing double refresh on load/hashchange events
+	await ensureValidAccessToken();
 
 	// If user is logged in, go straight to #dashboard
 	if ((window.location.hash === '' || window.location.hash === '#login' || window.location.hash === '#register' ) && localStorage.getItem('access')) {
