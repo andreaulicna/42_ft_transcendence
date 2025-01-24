@@ -208,6 +208,8 @@ class TournamentConsumer(WebsocketConsumer):
 		self.send_lobby_update_message(tournament_room.tournament_group_name, "player_join", self.scope['user'])
 		# First set of rounds
 		if len(tournament_room.players) == tournament_room.capacity:
+			tournament_database.status = Tournament.StatusOptions.INPROGRESS
+			tournament_database.save(update_fields=['status'])
 			round = 1
 			player_iterator = 0
 			while (round <= tournament_room.capacity / 2):
@@ -226,10 +228,17 @@ class TournamentConsumer(WebsocketConsumer):
 					async_to_sync(self.channel_layer.group_discard)(
 						tournament_room.tournament_group_name, self.channel_name
 					)
-					if (self.id == tournament_room.creator_id):
-						self.send_lobby_update_message(tournament_room.tournament_group_name, "creator_cancel", self.scope['user'])
-					else:
-						self.send_lobby_update_message(tournament_room.tournament_group_name, "player_cancel", self.scope['user'])
+					try:
+						tournament_database = Tournament.objects.get(id=tournament_room.id)
+					except ObjectDoesNotExist:
+						logging.info("Close bcs no such tournament in disconnect")
+						self.close()
+						return
+					if (tournament_database.status == Tournament.StatusOptions.WAITING):
+						if (self.id == tournament_room.creator_id):
+							self.send_lobby_update_message(tournament_room.tournament_group_name, "creator_cancel", self.scope['user'])
+						else:
+							self.send_lobby_update_message(tournament_room.tournament_group_name, "player_cancel", self.scope['user'])
 					tournament_room.players.remove(player)
 					if not tournament_room.players:
 						tournament_rooms.remove(tournament_room)
@@ -350,7 +359,9 @@ class TournamentConsumer(WebsocketConsumer):
 			try:
 				tournament_database = Tournament.objects.get(id=tournament_id)
 				tournament_database.status = Tournament.StatusOptions.FINISHED
-				tournament_database.save()
+				player_database = CustomUser.objects.get(id=match.winner)
+				tournament_database.winner = player_database
+				tournament_database.save(update_fields=['status', 'winner'])
 			except ObjectDoesNotExist:
 				logging.info("Close bcs no such tournament")
 				self.close()
