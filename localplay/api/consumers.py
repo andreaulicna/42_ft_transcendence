@@ -64,8 +64,10 @@ def set_match_status(match, matchStatus):
 def set_match_winner(match):
 	if match.player1_score > match.player2_score:
 		match.winner = match.player1_tmp_username
-	else:
+	elif match.player2_score > match.player1_score:
 		match.winner = match.player2_tmp_username
+	else:
+		match.winner = ""
 	match.status = LocalMatch.StatusOptions.FINISHED
 	match.save(update_fields=['winner', 'status'])
 

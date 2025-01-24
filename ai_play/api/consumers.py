@@ -57,8 +57,10 @@ def set_match_status(match, matchStatus):
 def set_match_winner(match_database):
 	if match_database.player1_score > match_database.player2_score:
 		match_database.winner = match_database.creator.username
-	else:
+	elif match_database.player2_score > match_database.player1_score:
 		match_database.winner = "AI"
+	else:
+		match_database.winner = ""
 	match_database.status = AIMatch.StatusOptions.FINISHED
 	match_database.save(update_fields=['winner', 'status'])
 
