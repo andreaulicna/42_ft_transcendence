@@ -1,7 +1,7 @@
 import { showLoading } from "./animations.js";
 import { apiCallAuthed, ensureValidAccessToken } from './api.js';
 import { hideLoading } from "./animations.js";
-import { openStatusWebsocket, closeStatusWebsocket, closeLocalTournamentWebsocket, closeTournamentWebsocket, closeLocalWebsocket, closeRematchWebsocket } from './websockets.js';
+import { openStatusWebsocket, openTournamentWebsocket, closeStatusWebsocket, closeLocalTournamentWebsocket, closeTournamentWebsocket, closeLocalWebsocket, closeRematchWebsocket } from './websockets.js';
 
 const dynamicContent = document.getElementById('dynamicContent');
 
@@ -89,6 +89,8 @@ const loadContent = async (path) => {
 		} else if (window.location.hash === '#local-tnmt') {
 			await import('/js/tournamentLocal.js').then(module => module.init());
 		} else if (window.location.hash === '#lobby-tnmt') {
+			let tournament_id = localStorage.getItem("tournament_id")
+			openTournamentWebsocket(tournament_id);
 			await import('/js/tournamentLobby.js').then(module => module.init());
 		} else if (window.location.hash === '#2fa') {
 			await import('/js/2fa.js').then(module => module.init());
