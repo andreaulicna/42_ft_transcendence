@@ -33,13 +33,13 @@ async function fetchPlayerList() {
 
 // Update the list of joined players via a websocket
 export async function handleLobbyStatusUpdate(data) {
-	const { player_id, message, username} = data;
-	const joinedPlayer = activePlayers.find(player => player.player_tmp_username === username);
+	const { player_id, message, player_username} = data;
+	const joinedPlayer = activePlayers.find(player => player.player_tmp_username === player_username);
 	if (message == "player_join" && !joinedPlayer)
-		activePlayers.push({ player_tmp_username: username });
+		activePlayers.push({ player_tmp_username: player_username });
 	else if (message == "player_cancel" && joinedPlayer)
 	{
-		const index = activePlayers.findIndex(player => player.player_tmp_username === username);
+		const index = activePlayers.findIndex(player => player.player_tmp_username === player_username);
 		if (index !== -1)
 			activePlayers.splice(index, 1);
 	}
