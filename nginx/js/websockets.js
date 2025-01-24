@@ -336,6 +336,6 @@ function handleLocalTournamentContinue(event) {
 }
 
 export function addLocalTournamentContinueListener() {
-	window.addEventListener('localTournamentContinueEnd', handleLocalTournamentContinue);
+	window.addEventListener('localTournamentContinue', handleLocalTournamentContinue);
 }
 
