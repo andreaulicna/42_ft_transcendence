@@ -523,6 +523,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 	async def play_pong(self, pong_room):
 		match_database = await sync_to_async(get_object_or_404)(Match, id=pong_room.match_id)
 		await set_match_status(match_database, Match.StatusOptions.INPROGRESS)
+		await asyncio.sleep(1)
 		await self.channel_layer.group_send(
 			pong_room.match_group_name, {
 				"type": "match_start",
@@ -538,7 +539,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 				"game_start" : pong_room.set_game_start_time(seconds_to_start=5).isoformat()
 			}
 		)
-		await asyncio.sleep(1)
+		# await asyncio.sleep(1)
 		logging.info(f"Starting game for: ")
 		logging.info(pong_room)
 		asyncio.create_task(self.game_loop(pong_room, match_database))
