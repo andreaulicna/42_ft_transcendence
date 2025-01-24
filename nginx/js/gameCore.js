@@ -361,18 +361,8 @@ export function startCountdown(event) {
 	const data = event.detail;
 
 	// In case of grace period reconnect, update the game state accordingly
-	handleDraw(event);
-	// paddle1.x = (data.paddle1_x - (paddle1.width / 2) + originalGameWidth / 2) * scaleX;
-	// paddle1.y = (data.paddle1_y - (paddle1.height / 2) + originalGameHeight / 2) * scaleY;
-	// paddle2.x = (data.paddle2_x - (paddle2.width / 2) + originalGameWidth / 2) * scaleX;
-	// paddle2.y = (data.paddle2_y - (paddle2.height / 2) + originalGameHeight / 2) * scaleY;
-	// ball.x = (data.ball_x + originalGameWidth / 2) * scaleX;
-	// ball.y = (data.ball_y + originalGameHeight / 2) * scaleY;
-	// player1.score = data.player1_score;
-	// player2.score = data.player2_score;
-	// drawTick();
-	// updateScore();
-
+	if (data.ball_x != 0 && data.ball_y != 0)
+		handleDraw(event);
 
 	const gameStartTime = new Date(data.game_start);
 	const currentTime = new Date();
@@ -386,7 +376,7 @@ export function startCountdown(event) {
 
 	const countdownInterval = setInterval(() => {
 		countdownStart--;
-		if (countdownStart >= 0)
+		if (countdownStart > 0)
 			countdownNums.textContent = countdownStart;
 		else
 		{
@@ -456,7 +446,7 @@ export function handleGracePeriod() {
 
 	gracePeriodInterval = setInterval(() => {
 		gracePeriodCountdown--;
-		if (gracePeriodCountdown >= 0)
+		if (gracePeriodCountdown > 0)
 			countdownNums.textContent = `${gracePeriodCountdown}`;
 		else
 		{
@@ -485,7 +475,7 @@ function clearGracePeriod(event) {
 		const countdownInterval = setInterval(() => {
 			countdownStart--;
 			countdownNums.textContent = `${countdownStart}`;
-			if (countdownStart >= 0)
+			if (countdownStart > 0)
 				countdownNums.textContent = countdownStart;
 			else
 			{

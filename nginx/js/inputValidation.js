@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	});
 
 	applyValidationWhenAvailable("#inputPasswordLogin", {
-		patternMismatch: "Password must be 6–20 characters long and can include letters, numbers, and the following symbols: !@#$%&*_?.",
+		// patternMismatch: "Password must be 6–20 characters long and can include letters, numbers, and the following symbols: !@#$%&*_?.",
 		valueMissing: "A password is required."
 	});
 

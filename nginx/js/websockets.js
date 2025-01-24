@@ -218,6 +218,10 @@ export function closeStatusWebsocket() {
 	closeWebSocket(statusWebSocket);
 }
 
+export function closeLocalWebsocket() {
+	closeWebSocket(localWebSocket);
+}
+
 export function closeMatchmakingWebsocket() {
 	closeWebSocket(matchmakingWebSocket);
 }
@@ -247,6 +251,7 @@ broadcastChannel.onmessage = (event) => {
 	{
 		// Close all WebSockets
 		closeStatusWebsocket();
+		closeLocalWebsocket();
 		closeMatchmakingWebsocket();
 		closeRematchWebsocket();
 		closeRematchWebsocket();
