@@ -101,14 +101,14 @@ const loadContent = async (path) => {
 };
 
 const router = async () => {
-	// Check if user is logged in first
+	// If user is not logged in, redirect them to #login
 	if ((window.location.hash != '#login' && window.location.hash != '#2fa' && window.location.hash != '#register' && window.location.hash != '404') && !localStorage.getItem('access')) {
 		window.location.hash = '#login';
 		console.error('Not logged in');
 	}
 
 	// If user is logged in, go straight to #dashboard
-	if ((window.location.hash === '#login' || window.location.hash === '#register' ) && localStorage.getItem('access')) {
+	if ((window.location.hash === '' || window.location.hash === '#login' || window.location.hash === '#register' ) && localStorage.getItem('access')) {
 		window.location.hash = '#dashboard';
 	}
 
