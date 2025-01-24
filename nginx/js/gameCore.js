@@ -376,7 +376,7 @@ export function startCountdown(event) {
 
 	const countdownInterval = setInterval(() => {
 		countdownStart--;
-		if (countdownStart >= 0)
+		if (countdownStart > 0)
 			countdownNums.textContent = countdownStart;
 		else
 		{
@@ -446,7 +446,7 @@ export function handleGracePeriod() {
 
 	gracePeriodInterval = setInterval(() => {
 		gracePeriodCountdown--;
-		if (gracePeriodCountdown >= 0)
+		if (gracePeriodCountdown > 0)
 			countdownNums.textContent = `${gracePeriodCountdown}`;
 		else
 		{
@@ -475,7 +475,7 @@ function clearGracePeriod(event) {
 		const countdownInterval = setInterval(() => {
 			countdownStart--;
 			countdownNums.textContent = `${countdownStart}`;
-			if (countdownStart >= 0)
+			if (countdownStart > 0)
 				countdownNums.textContent = countdownStart;
 			else
 			{
