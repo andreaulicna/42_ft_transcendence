@@ -1,7 +1,7 @@
 import { showLoading } from "./animations.js";
 import { apiCallAuthed, ensureValidAccessToken } from './api.js';
 import { hideLoading } from "./animations.js";
-import { openStatusWebsocket, closeStatusWebsocket } from './websockets.js';
+import { openStatusWebsocket, closeStatusWebsocket, closeLocalTournamentWebsocket, closeTournamentWebsocket } from './websockets.js';
 
 const dynamicContent = document.getElementById('dynamicContent');
 
@@ -29,7 +29,6 @@ const loadContent = async (path) => {
 		const response = await fetch(path);
 		const content = await response.text();
 		dynamicContent.innerHTML = content;
-		console.log("ANANAS");
 
 		// Wait for the dynamic content to be fully parsed and available in the DOM -- redundant?
 		await new Promise((resolve) => {
@@ -142,8 +141,20 @@ export function redirectToHome(event) {
 		if (window.location.hash == '#lobby-game' || window.location.hash == '#lobby-tnmt')
 			return;
 		// If a player is inside a live game, they will be asked to confirm first
-		if (window.location.hash == '#game' && !confirm("Do you really want to leave an ongoing game?"))
-			return;
+		if (window.location.hash == '#game')
+		{
+			const userConfirmed = confirm("Do you really want to leave an ongoing game?");
+			if (!userConfirmed)
+				return;
+			else
+			{
+				const gameMode = localStorage.getItem('gameMode');
+				if (gameMode == "tournamentLocal")
+					closeLocalTournamentWebsocket();
+				else if (gameMode == "tournamentRemote")
+					closeTournamentWebsocket();
+			}
+		}
 		window.location.hash = '#dashboard';
 	} else {
 		window.location.hash = '#login';
