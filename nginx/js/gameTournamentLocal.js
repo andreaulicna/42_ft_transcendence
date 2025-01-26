@@ -90,6 +90,8 @@ function dispatchContinue()
 }
 
 function handleTournamentEnd() {
+	window.removeEventListener("brackets", renderTournamentBracket);
+	localStorage.removeItem('tournament_id');
 	closeLocalTournamentWebsocket();
 	window.location.hash = "winner-tnmt";
 }

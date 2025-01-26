@@ -71,10 +71,6 @@ function initTournamentEventListeners()
 }
 
 export function handleTournamentGameOver() {
-	setMatchID(localStorage.getItem("match_id"));
-	tournamentRoundNumber++;
-	console.log("ROUND NUMBER", tournamentRoundNumber);
-	console.log("MAX ROUNDS", tournamentRoundMax);
 	const winnerID = player1.score > player2.score ? player1Data.id : player2Data.id;
 	const loserID = player1.score > player2.score ? player2Data.id : player1Data.id;
 	if (localStorage.getItem("id") == winnerID) {
@@ -103,17 +99,14 @@ function handleTournamentEnd() {
 	console.log("HANDLING TOURNAMENT END");
 	const winnerID = player1.score > player2.score ? player1Data.id : player2Data.id;
 	const loserID = player1.score > player2.score ? player2Data.id : player1Data.id;
-	console.log(`my ID: ${localStorage.getItem("id")}, winner ID: ${winnerID}, loser ID: ${loserID}`);
+	// console.log(`my ID: ${localStorage.getItem("id")}, winner ID: ${winnerID}, loser ID: ${loserID}`);
 	closeTournamentWebsocket();
 	if (localStorage.getItem("id") == winnerID)
 	{
 		window.location.hash = "winner-tnmt";
 		mainMenuButton.style.display = "block";
 	}
-	// else if (localStorage.getItem("id") == loserID)
-	// {
-	// 	window.location.hash = '#dashboard';
-	// }
+	localStorage.removeItem('tournament_id');
 }
 
 async function resetGame() {

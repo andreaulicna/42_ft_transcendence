@@ -103,6 +103,7 @@ async function openWebSocket(url, type) {
 				else if (data.type === "in_game")
 				{
 					console.log("User disconnected from a game, attempting to reconnect.");
+					localStorage.setItem("match_id", data.match_id);
 					openPongWebsocket(data.match_id, "reconnect");
 				}
 			};
@@ -257,7 +258,6 @@ broadcastChannel.onmessage = (event) => {
 		closeStatusWebsocket();
 		closeLocalWebsocket();
 		closeMatchmakingWebsocket();
-		closeRematchWebsocket();
 		closeRematchWebsocket();
 		closeTournamentWebsocket();
 		closePongWebsocket();

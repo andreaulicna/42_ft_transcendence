@@ -103,7 +103,7 @@ function renderTournamentBracket(activePlayers, capacity) {
 }
 
 // Close the Tournament Websocket and return to main menu
-function cancelLobby() {
+export function cancelLobby() {
 	apiCallAuthed(`/api/tournament/join/cancel/${localStorage.getItem("tournament_id")}/`, "POST")
 		.then(() => {
 			console.log("Leaving tournament");
@@ -114,6 +114,7 @@ function cancelLobby() {
 		})
 		.finally(() => {
 			closeTournamentWebsocket();
+			localStorage.removeItem('tournament_id');
 			window.location.hash = "#dashboard";
 		});
 }

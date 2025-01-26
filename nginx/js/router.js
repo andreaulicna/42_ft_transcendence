@@ -1,7 +1,8 @@
 import { showLoading } from "./animations.js";
 import { apiCallAuthed, ensureValidAccessToken } from './api.js';
 import { hideLoading } from "./animations.js";
-import { openStatusWebsocket, closeStatusWebsocket, closeLocalTournamentWebsocket, closeTournamentWebsocket, closeLocalWebsocket, closeRematchWebsocket } from './websockets.js';
+import { openStatusWebsocket, closeStatusWebsocket, closeLocalTournamentWebsocket, closeTournamentWebsocket, closeLocalWebsocket, closeRematchWebsocket, closePongWebsocket, openTournamentWebsocket } from './websockets.js';
+import { showToast } from "./notifications.js";
 
 const dynamicContent = document.getElementById('dynamicContent');
 
@@ -102,6 +103,7 @@ const router = async () => {
 	if ((window.location.hash != '#login' && window.location.hash != '#2fa' && window.location.hash != '#register' && window.location.hash != '404') && !localStorage.getItem('access')) {
 		window.location.hash = '#login';
 		console.error('Not logged in');
+		return;
 	}
 
 	// Refreshes access token before getting to further API calls, preventing double refresh on load/hashchange events
@@ -110,6 +112,27 @@ const router = async () => {
 	// If user is logged in, go straight to #dashboard
 	if ((window.location.hash === '' || window.location.hash === '#login' || window.location.hash === '#register' ) && localStorage.getItem('access')) {
 		window.location.hash = '#dashboard';
+		return;
+	}
+
+	// Disable manual access to certain pages
+	if (window.location.hash === "#game")
+	{
+		// All game modes except for AI must go through the proper initialization page
+		if (localStorage.getItem("gameMode") != "ai" && !localStorage.getItem("match_id"))
+		{
+			window.location.hash = '#dashboard';
+			console.error('Cannot access #game without a match ID');
+			showToast("Error", "Cannot start game session", null, "t_openingWsError");
+			return;
+		}
+	}
+	else if (window.location.hash === "#lobby-tnmt" && !localStorage.getItem("tournament_id"))
+	{
+		window.location.hash = '#dashboard';
+		console.error('Cannot access #lobby-tnmt without a tournament ID');
+		showToast("Error", "Cannot start game session", null, "t_openingWsError");
+		return;
 	}
 
 	const route = window.location.hash || '';
@@ -156,9 +179,14 @@ export function redirectToHome(event) {
 				}
 				else if (gameMode == "tournamentRemote")
 				{
-					closeRematchWebsocket();
+					closePongWebsocket();
 					closeTournamentWebsocket();
 				}
+				else if (gameMode == "remote")
+					closePongWebsocket();
+				else if (gameMode == "rematch")
+					closeRematchWebsocket();
+				localStorage.removeItem('match_id');
 			}
 		}
 		window.location.hash = '#dashboard';
@@ -193,3 +221,14 @@ export async function logout() {
 }
 
 window.logout = logout;
+
+// On tab close, delete match_id & tournament_id (to keep track of app state)
+window.addEventListener('beforeunload', (event) => {
+	localStorage.removeItem('match_id');
+
+	// if (window.location.hash == '#lobby-tnmt')
+	// 	apiCallAuthed(`/api/tournament/join/cancel/${localStorage.getItem("tournament_id")}/`, "POST");
+
+	localStorage.removeItem('tournament_id');
+
+});

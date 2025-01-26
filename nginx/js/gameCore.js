@@ -39,6 +39,7 @@ export let replayButton;
 export let replayButtonSwitch;
 export let mainMenuButton;
 export let continueButton;
+export let bracketContainer;
 
 export let player1Data;
 export let player2Data;
@@ -120,11 +121,13 @@ export function initGameData(data) {
 	replayButtonSwitch = document.getElementById("replayButtonSwitch");
 	mainMenuButton = document.getElementById("mainMenuButton");
 	continueButton = document.getElementById("continueButton");
+	bracketContainer = document.getElementById("bracket-container");
 
 	replayButton.style.display = "block";
 	replayButtonSwitch.style.display = "none";
 	mainMenuButton.style.display = "block";
 	continueButton.style.display = "none";
+	bracketContainer.style.display = "none";
 
 	isTouchDevice = "ontouchstart" in window;
 	if (isTouchDevice) {
@@ -387,6 +390,10 @@ export function startCountdown(event) {
 }
 
 function showGameOverScreen(event) {
+	setMatchID(localStorage.getItem("match_id"));
+	localStorage.setItem("prev_match_id", matchID);
+	localStorage.removeItem("match_id");
+
 	const data = event.detail;
 
 	let winner = data.winner_username;
@@ -401,6 +408,8 @@ function showGameOverScreen(event) {
 		touchControlsPlayer1.style.setProperty("display", "none", "important");
 		touchControlsPlayer2.style.setProperty("display", "none", "important");
 	}
+	if (gameMode == "tournamentLocal")
+		bracketContainer.style.display = "block";
 
 	// removeEventListeners();
 	window.removeEventListener("keydown", preventArrowKeyScroll);
@@ -415,6 +424,11 @@ export function hideGameOverScreen() {
 	{
 		touchControlsPlayer1.style.display = "block";
 		touchControlsPlayer2.style.display = "block";
+	}
+	if (gameMode == "tournamentLocal")
+	{
+		bracketContainer.style.display = "none";
+		bracketContainer.innerHTML = "";
 	}
 }
 
