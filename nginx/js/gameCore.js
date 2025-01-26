@@ -368,7 +368,7 @@ export function startCountdown(event) {
 	const currentTime = new Date();
 	let countdownStart = Math.floor((gameStartTime - currentTime) / 1000);
 
-	const countdownModal = new bootstrap.Modal(document.getElementById("countdownModal"));
+	const countdownModal = bootstrap.Modal.getOrCreateInstance('#countdownModal');
 	const countdownNums = document.getElementById("countdownNums");
 
 	countdownModal.show();
