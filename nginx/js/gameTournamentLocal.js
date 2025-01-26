@@ -111,22 +111,12 @@ function renderTournamentBracket(event) {
 	const players = data.brackets;
 	const capacity = data.capacity;
 	const bracketContainer = document.getElementById("bracket-container");
-	bracketContainer.innerHTML = ""; // Clear any existing content
+	bracketContainer.innerHTML = "";
+	bracketContainer.classList.add("d-flex", "justify-content-center", "align-items-center", "bracket-style");
 
-	// Group matches by rounds
-	const rounds = {};
-	players.forEach(match => {
-		const round = match.round;
-		if (!rounds[round]) {
-			rounds[round] = [];
-		}
-		rounds[round].push(match);
-	});
+	const totalRounds = Math.log2(capacity);
+	let matchIndex = 0; // Initialize match index
 
-	// Get the total number of rounds
-	const totalRounds = Math.max(...Object.keys(rounds).map(Number));
-
-	// Render each round
 	for (let round = 1; round <= totalRounds; round++) {
 		const roundContainer = document.createElement("div");
 		roundContainer.className = "round-container";
@@ -139,14 +129,15 @@ function renderTournamentBracket(event) {
 		heading.appendChild(document.createTextNode(` ${round}`));
 		roundContainer.appendChild(heading);
 
-		// Render matches for this round
-		const matchesThisRound = rounds[round] || [];
-		matchesThisRound.forEach(match => {
+		// Number of matches in this round = capacity / 2^round
+		const matchesThisRound = capacity / Math.pow(2, round);
+
+		for (let match = 0; match < matchesThisRound; match++) {
 			const matchContainer = document.createElement("div");
 			matchContainer.className = "match-container";
 
-			const p1 = match.player1_username || "❓";
-			const p2 = match.player2_username || "❓";
+			let p1 = players[matchIndex].player1_username ? players[matchIndex].player1_username : "❓";
+			let p2 = players[matchIndex].player2_username ? players[matchIndex].player2_username : "❓";
 
 			matchContainer.innerHTML = `
 			<div class="player-slot">${p1}</div>
@@ -155,8 +146,8 @@ function renderTournamentBracket(event) {
 			`;
 
 			roundContainer.appendChild(matchContainer);
-		});
-
+			matchIndex++; // Increment match index
+		}
 		bracketContainer.appendChild(roundContainer);
 	}
 }
