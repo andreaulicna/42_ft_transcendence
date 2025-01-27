@@ -136,22 +136,36 @@ export function initGameData(data) {
 	}
 }
 
+function matchEndListenerForGameOverScreen(event) {
+	showGameOverScreen(event)
+}
+
+function matchStartListenerForGracePeriod(event) {
+	clearGracePeriod(event)
+}
+
+function clickListenerForMainMenuClick() {
+	window.location.hash = "#dashboard";
+}
+
 export function initEventListeners() {
-	window.addEventListener("match_start", (event) => clearGracePeriod(event));
+	window.addEventListener("match_start", matchStartListenerForGracePeriod);
 	window.addEventListener("keydown", handleKeyDown);
 	window.addEventListener("keydown", preventArrowKeyScroll);
 	window.addEventListener("keyup", handleKeyUp);
 	window.addEventListener("draw", handleDraw);
-	window.addEventListener("match_end", (event) => showGameOverScreen(event));
+	window.addEventListener("match_end", matchEndListenerForGameOverScreen);
 	window.addEventListener("match_end", stopPaddleEventDispatch);
-	mainMenuButton.addEventListener("click", () => {
-		window.location.hash = "#dashboard";
-	});
+	mainMenuButton.addEventListener("click", clickListenerForMainMenuClick);
 	addPaddleMovementListener();
 }
 
+function matchStartListenerForStartCountdown(event) {
+	startCountdown(event)
+}
+
 export function initMatchStartListener() {
-	window.addEventListener("match_start", (event) => startCountdown(event));
+	window.addEventListener("match_start", matchStartListenerForStartCountdown);
 }
 
 function removeEventListeners() {
