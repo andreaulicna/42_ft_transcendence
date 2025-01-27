@@ -138,8 +138,11 @@ function renderTournamentBracket(event) {
 			const matchContainer = document.createElement("div");
 			matchContainer.className = "match-container";
 
-			let p1 = players[matchIndex].player1_username ? players[matchIndex].player1_username : "❓";
-			let p2 = players[matchIndex].player2_username ? players[matchIndex].player2_username : "❓";
+			let player1 = players.length > 0 ? players[0] : null;
+			let p1 = player1 && player1.player1_username ? player1.player1_username : "❓";
+			
+			let player2 = players.length > 0 ? players.splice(0, 1)[0] : null;
+			let p2 = player2 && player2.player2_username ? player2.player2_username : "❓";
 
 			matchContainer.innerHTML = `
 			<div class="player-slot">${p1}</div>
