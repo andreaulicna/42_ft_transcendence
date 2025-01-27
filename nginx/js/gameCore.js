@@ -375,36 +375,50 @@ function stopPaddleEventDispatch() {
 /* 👇 MENUS & REMATCH & NON-GAME LOGIC */
 
 export function startCountdown(event) {
-	const data = event.detail;
+    const data = event.detail;
 
-	// In case of grace period reconnect, update the game state accordingly
+    // Print the received data for debugging
+    console.log("Received data:", data);
+
+    // In case of grace period reconnect, update the game state accordingly
 	if (data.ball_x != 0 && data.ball_y != 0)
-		handleDraw(event);
+        handleDraw(event);
 
-	const gameStartTime = new Date(data.game_start);
-	const currentTime = new Date();
-	let countdownSync = (gameStartTime - currentTime) % 1000;
-	let countdownStart = Math.floor((gameStartTime - currentTime) / 1000);
+	// const gameStartTime = new Date(data.game_start);
+	// const currentTime = new Date();
+    const gameStartTime = new Date(data.game_start).getTime();
+    const currentTime = Date.now();
+    let countdownSync = (gameStartTime - currentTime) % 1000;
+    let countdownStart = Math.floor((gameStartTime - currentTime) / 1000);
 
-	const countdownModal = bootstrap.Modal.getOrCreateInstance('#countdownModal');
-	const countdownNums = document.getElementById("countdownNums");
+    // Print the calculated variables for debugging in ISO format
+    console.log("Game start time (ISO):", new Date(gameStartTime).toISOString());
+    console.log("Current time (ISO):", new Date(currentTime).toISOString());
+    console.log("Countdown sync:", countdownSync);
+    console.log("Countdown start:", countdownStart);
 
-	countdownModal.show();
+    const countdownModal = bootstrap.Modal.getOrCreateInstance('#countdownModal');
+    const countdownNums = document.getElementById("countdownNums");
+
+    countdownModal.show();
 	countdownNums.textContent = countdownStart + 1;
 
-	const syncCountdownInterval = setTimeout(() => {
+    const syncCountdownInterval = setTimeout(() => {
 		// countdownNums.textContent = countdownStart + 1;
-	}, countdownSync);
+        console.log("Sync countdown interval executed, countdown start + 1:", countdownStart + 1);
+    }, countdownSync);
 
-	const countdownInterval = setInterval(() => {
-		if (countdownStart > 0) {
-			countdownNums.textContent = countdownStart;
-		} else {
-			clearInterval(countdownInterval);
-			countdownModal.hide();
-		}
-		countdownStart--;
-	}, 1000);
+    const countdownInterval = setInterval(() => {
+        if (countdownStart > 0) {
+            countdownNums.textContent = countdownStart;
+            console.log("Countdown interval, countdown start:", countdownStart);
+        } else {
+            clearInterval(countdownInterval);
+            countdownModal.hide();
+            console.log("Countdown finished, modal hidden");
+        }
+        countdownStart--;
+    }, 1000);
 }
 
 function showGameOverScreen(event) {
