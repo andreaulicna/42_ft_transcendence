@@ -383,23 +383,27 @@ export function startCountdown(event) {
 
 	const gameStartTime = new Date(data.game_start);
 	const currentTime = new Date();
+	let countdownSync = (gameStartTime - currentTime) % 1000;
 	let countdownStart = Math.floor((gameStartTime - currentTime) / 1000);
 
 	const countdownModal = bootstrap.Modal.getOrCreateInstance('#countdownModal');
 	const countdownNums = document.getElementById("countdownNums");
 
 	countdownModal.show();
-	countdownNums.textContent = countdownStart;
+	countdownNums.textContent = countdownStart + 1;
+
+	const syncCountdownInterval = setTimeout(() => {
+		// countdownNums.textContent = countdownStart + 1;
+	}, countdownSync);
 
 	const countdownInterval = setInterval(() => {
-		countdownStart--;
-		if (countdownStart > 0)
+		if (countdownStart > 0) {
 			countdownNums.textContent = countdownStart;
-		else
-		{
+		} else {
 			clearInterval(countdownInterval);
 			countdownModal.hide();
 		}
+		countdownStart--;
 	}, 1000);
 }
 
