@@ -111,6 +111,7 @@ function renderTournamentBracket(event) {
 	const data = event.detail;
 
 	const players = data.brackets;
+	const tempPlayers = players.slice(); // Create a shallow copy of the players array
 	const capacity = data.capacity;
 	const bracketContainer = document.getElementById("bracket-container");
 	bracketContainer.innerHTML = "";
@@ -134,22 +135,23 @@ function renderTournamentBracket(event) {
 		// Number of matches in this round = capacity / 2^round
 		const matchesThisRound = capacity / Math.pow(2, round);
 
+		
 		for (let match = 0; match < matchesThisRound; match++) {
 			const matchContainer = document.createElement("div");
 			matchContainer.className = "match-container";
-
-			let player1 = players.length > 0 ? players[0] : null;
+		
+			let player1 = tempPlayers.length > 0 ? tempPlayers[0] : null;
 			let p1 = player1 && player1.player1_username ? player1.player1_username : "❓";
 			
-			let player2 = players.length > 0 ? players.splice(0, 1)[0] : null;
+			let player2 = tempPlayers.length > 0 ? tempPlayers.splice(0, 1)[0] : null;
 			let p2 = player2 && player2.player2_username ? player2.player2_username : "❓";
-
+		
 			matchContainer.innerHTML = `
-			<div class="player-slot">${p1}</div>
-			<span>⚔️</span>
-			<div class="player-slot">${p2}</div>
+				<div class="player-slot">${p1}</div>
+				<span>⚔️</span>
+				<div class="player-slot">${p2}</div>
 			`;
-
+		
 			roundContainer.appendChild(matchContainer);
 			matchIndex++; // Increment match index
 		}
