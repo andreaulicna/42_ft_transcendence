@@ -90,6 +90,8 @@ function dispatchContinue()
 }
 
 function handleTournamentEnd() {
+	window.removeEventListener("brackets", renderTournamentBracket);
+	localStorage.removeItem('tournament_id');
 	closeLocalTournamentWebsocket();
 	window.location.hash = "winner-tnmt";
 }
@@ -115,6 +117,7 @@ function renderTournamentBracket(event) {
 	bracketContainer.classList.add("d-flex", "justify-content-center", "align-items-center", "bracket-style");
 
 	const totalRounds = Math.log2(capacity);
+	let matchIndex = 0; // Initialize match index
 
 	for (let round = 1; round <= totalRounds; round++) {
 		const roundContainer = document.createElement("div");
@@ -134,13 +137,9 @@ function renderTournamentBracket(event) {
 		for (let match = 0; match < matchesThisRound; match++) {
 			const matchContainer = document.createElement("div");
 			matchContainer.className = "match-container";
-			
-			let player1 = players.length > 0 ? players[0] : null;
-			let p1 = player1 && player1.player1_username ? player1.player1_username : "❓";
-			
-			let player2 = players.length > 0 ? players.splice(0, 1)[0] : null;
-			let p2 = player2 && player2.player2_username ? player2.player2_username : "❓";
-			
+
+			let p1 = players[matchIndex].player1_username ? players[matchIndex].player1_username : "❓";
+			let p2 = players[matchIndex].player2_username ? players[matchIndex].player2_username : "❓";
 
 			matchContainer.innerHTML = `
 			<div class="player-slot">${p1}</div>
@@ -149,6 +148,7 @@ function renderTournamentBracket(event) {
 			`;
 
 			roundContainer.appendChild(matchContainer);
+			matchIndex++; // Increment match index
 		}
 		bracketContainer.appendChild(roundContainer);
 	}

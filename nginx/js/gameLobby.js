@@ -8,8 +8,13 @@ import { apiCallAuthed } from './api.js';
 import { showToast } from "./notifications.js";
 
 export function init() {
-	const mode = localStorage.getItem('gameMode');
-	const last_match_id = localStorage.getItem("match_id");
+	let mode = localStorage.getItem("gameMode");
+	if (mode == "ai" || mode == "tournamentLocal" || mode == "tournamentRemote")
+	{
+		localStorage.setItem("gameMode", "local");
+		mode = "local";
+	}
+	const last_match_id = localStorage.getItem("prev_match_id");
 
 	// Change loading text in different modes
 	const loadingTextElement = document.getElementById('loadingText');
@@ -100,7 +105,7 @@ async function createLocalPlay(event) {
 
 // Create a local match rematch
 async function createLocalPlayRematch(side_mode) {
-	const prev_match_id = localStorage.getItem("match_id")
+	const prev_match_id = localStorage.getItem("prev_match_id")
 
 	try {
 		const url = "/api/localplay/" + prev_match_id + "/rematch/" + side_mode 

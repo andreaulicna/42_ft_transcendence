@@ -7,7 +7,7 @@ export async function apiCallAuthed(url, method = 'GET', headers = {}, payload =
 	const now = Date.now();
 
 	// Check if the access token is about to expire
-	if (now >= accessTokenExpiration - 3000) { // Refresh the token 3 seconds before it expires
+	if (accessTokenExpiration && (now >= accessTokenExpiration - 3000)) { // Refresh the token 3 seconds before it expires
 		await refreshAccessToken();
 	}
 
@@ -55,7 +55,7 @@ export async function ensureValidAccessToken() {
 	const now = Date.now();
 
 	// Check if the access token is about to expire
-	if (now >= accessTokenExpiration - 3000) { // Refresh the token 3 seconds before it expires
+	if (accessTokenExpiration && (now >= accessTokenExpiration - 3000)) { // Refresh the token 3 seconds before it expires
 		await refreshAccessToken();
 	}
 }
