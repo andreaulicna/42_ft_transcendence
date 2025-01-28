@@ -372,9 +372,44 @@ function stopPaddleEventDispatch() {
 	}
 }
 
+async function fetchServerTime() {
+	const url = '/api/pong/server-time';
+	const options = {
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-CSRFToken': Cookies.get("csrftoken")
+		}
+	};
+	try 
+	{
+		const response = await fetch(url, options);
+		const data = await response.json();
+		return new Date(data.server_time);
+	} catch (error) {
+		console.error("Error fetching server time:", error);
+		return null;
+	}
+}
+
+async function syncTime() {
+	const start = Date.now()
+	const serverTime = await fetchServerTime();
+	const end = Date.now()
+
+	if (serverTime) {
+		const rtt = (end - start) / 2;
+		const clientTimeAtRequest = start + rtt;
+		const offset = serverTime.getTime() - clientTimeAtRequest;
+		return offset;
+	}
+
+	return 0;
+}
+
 /* 👇 MENUS & REMATCH & NON-GAME LOGIC */
 
-export function startCountdown(event) {
+export async function startCountdown(event) {
     const data = event.detail;
 
     // Print the received data for debugging
@@ -386,17 +421,22 @@ export function startCountdown(event) {
 
 	// const gameStartTime = new Date(data.game_start);
 	// const currentTime = new Date();
+
+	const offset = await syncTime();
     const gameStartTime = new Date(data.game_start).getTime();
+	const adjustedGameStartTime = gameStartTime - offset;
+
     const currentTime = Date.now();
-    let countdownSync = (gameStartTime - currentTime) % 1000;
-    let countdownStart = Math.floor((gameStartTime - currentTime) / 1000);
+    let countdownSync = (adjustedGameStartTime - currentTime) % 1000;
+    let countdownStart = Math.floor((adjustedGameStartTime - currentTime) / 1000);
 
     // Print the calculated variables for debugging in ISO format
-    console.log("Game start time (ISO):", new Date(gameStartTime).toISOString());
-    console.log("Current time (ISO):", new Date(currentTime).toISOString());
-    console.log("Countdown sync:", countdownSync);
-    console.log("Countdown start:", countdownStart);
-
+	console.log("Game start time (ISO):", new Date(gameStartTime).toISOString());
+	console.log("Adjusted game start time (ISO):", new Date(adjustedGameStartTime).toISOString());
+	console.log("Offset:", offset);
+	console.log("Current time (ISO):", new Date(currentTime).toISOString());
+	console.log("Countdown sync:", countdownSync);
+	console.log("Countdown start:", countdownStart);
     const countdownModal = bootstrap.Modal.getOrCreateInstance('#countdownModal');
     const countdownNums = document.getElementById("countdownNums");
 
