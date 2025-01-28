@@ -97,10 +97,13 @@ def find_valid_random_username(current_username):
 		suffixed_username = current_username + '_' + rand_suffix
 	return suffixed_username
 
+def csrf_failure(request, reason=""):
+	return Response({'detail' : 'CSRF token missing'}, status=status.HTTP_403_FORBIDDEN)
+
 class HealthCheckView(APIView):
 	def get(self, request):
 		return Response({'detail' : 'Healthy'})
-
+	
 class LoginView(APIView):
 	permission_classes = []
 	@method_decorator(csrf_exempt)
