@@ -256,6 +256,7 @@ def calculate_ball_direction_after_collision(paddle, ball) -> Vector2D:
 		return new_ball_direction
 
 def paddle_collision(ball: Ball, paddle1: Paddle, paddle2: Paddle, ai_player: AIPlayer) -> Ball:
+	speed_constant = 0.1
 	# top & bottom are y-components, left & right are x-components
 	paddle1_top = paddle1.position.y - paddle1.paddle_half_height
 	paddle1_bottom = paddle1.position.y + paddle1.paddle_half_height 
@@ -281,100 +282,91 @@ def paddle_collision(ball: Ball, paddle1: Paddle, paddle2: Paddle, ai_player: AI
 	collision_point = ball_collision_point(ball)
 	ball_collision_next = collision_point + (ball.direction * ball.speed)
 
-	# if -78 < ball.position.x <= -76:
-	# 	logging.info(f"paddle1 top left: [{paddle1_left},{paddle1_top}]")
-	# 	logging.info(f"paddle1 top right: [{paddle1_right},{paddle1_top}]")
-	# 	logging.info(f"paddle1 bottom right: [{paddle1_right},{paddle1_bottom}]")
-	# 	logging.info(f"collision point: {collision_point}")
-	# 	logging.info(f"ball position:: {ball.position}")
-	# 	logging.info(f"next step down: {ball_next_step_down}")
-	# 	logging.info(f"next step left: {ball_next_step_left}")
-
 	if intersection := get_line_intersection(paddle1_right, paddle1_bottom, paddle1_right, paddle1_top, ball_left, ball.position.y, ball_next_step_left.x, ball_next_step_left.y):
 		logging.info("Paddle1 side")
 		ball.position = intersection
 		ball.position.x += ball.size / 2
 		ball.direction = calculate_ball_direction_after_collision(paddle1, ball)
-		ball.speed += 0.1
+		ball.speed += speed_constant
 		ai_player.set_target_range()
 	elif intersection := get_line_intersection(paddle1_right, paddle1_top, paddle1_left, paddle1_top, ball.position.x, ball_bottom, ball_next_step_down.x, ball_next_step_down.y):
 		logging.info("Paddle1 top")
 		ball.position = intersection
 		ball.position.y -= ball.size / 2
 		ball.direction.y *= -1
-		ball.speed += 0.1
+		ball.speed += speed_constant
 	elif intersection := get_line_intersection(paddle1_right, paddle1_bottom, paddle1_left, paddle1_bottom, ball.position.x, ball_top, ball_next_step_up.x, ball_next_step_up.y):
 		logging.info("Paddle1 bottom")
 		ball.position = intersection
 		ball.position.y += ball.size / 2
 		ball.direction.y *= -1
-		ball.speed += 0.1
+		ball.speed += speed_constant
 	elif intersection := get_line_intersection(paddle1_right, paddle1_top, paddle1_left, paddle1_top, collision_point.x, collision_point.y, ball_collision_next.x, ball_collision_next.y):
 		logging.info("Paddle1 top - top corner")
 		ball.position = intersection
 		ball.position.y -= ball.size / 2
 		ball.direction.y *= -1
-		ball.speed += 0.1
+		ball.speed += speed_constant
 	elif intersection := get_line_intersection(paddle1_right, paddle1_bottom, paddle1_right, paddle1_top, collision_point.x, collision_point.y, ball_collision_next.x, ball_collision_next.y):
 		logging.info("Paddle1 side - top corner")
 		ball.position = intersection
 		ball.position.x += ball.size / 2
 		ball.direction = calculate_ball_direction_after_collision(paddle1, ball)
-		ball.speed += 0.1
+		ball.speed += speed_constant
 		ai_player.set_target_range()
 	elif intersection := get_line_intersection(paddle1_right, paddle1_bottom, paddle1_left, paddle1_bottom, collision_point.x, collision_point.y, ball_collision_next.x, ball_collision_next.y):
 		logging.info("Paddle1 bottom - bottom corner")
 		ball.position = intersection
 		ball.position.y += ball.size / 2
 		ball.direction.y *= -1
-		ball.speed += 0.1
+		ball.speed += speed_constant
 	elif intersection := get_line_intersection(paddle1_right, paddle1_bottom, paddle1_right, paddle1_top, collision_point.x, collision_point.y, ball_collision_next.x, ball_collision_next.y):
 		logging.info("Paddle1 side - bottom corner")
 		ball.position = intersection
 		ball.position.x += ball.size / 2
 		ball.direction = calculate_ball_direction_after_collision(paddle1, ball)
-		ball.speed += 0.1
+		ball.speed += speed_constant
 		ai_player.set_target_range()
 	elif intersection := get_line_intersection(paddle2_left, paddle2_bottom, paddle2_left, paddle2_top, ball_right, ball.position.y, ball_next_step_right.x, ball_next_step_right.y):
 		logging.info("Paddle2 side")
 		ball.position = intersection
 		ball.position.x -= ball.size / 2
 		ball.direction = calculate_ball_direction_after_collision(paddle2, ball)
-		ball.speed += 0.1
+		ball.speed += speed_constant
 	elif intersection := get_line_intersection(paddle2_left, paddle2_top, paddle2_right, paddle2_top, ball.position.x, ball_bottom, ball_next_step_down.x, ball_next_step_down.y):
 		logging.info("Paddle2 top")
 		ball.position = intersection
 		ball.position.y -= ball.size / 2
 		ball.direction.y *= -1
-		ball.speed += 0.1
+		ball.speed += speed_constant
 	elif intersection := get_line_intersection(paddle2_left, paddle2_bottom, paddle2_right, paddle2_bottom, ball.position.x, ball_top, ball_next_step_up.x, ball_next_step_up.y):
 		logging.info("Paddle2 bottom")
 		ball.position = intersection
 		ball.position.y += ball.size / 2
 		ball.direction.y *= -1
-		ball.speed += 0.1
+		ball.speed += speed_constant
 	elif intersection := get_line_intersection(paddle2_left, paddle2_top, paddle2_right, paddle2_top, collision_point.x, collision_point.y, ball_collision_next.x, ball_collision_next.y):
 		logging.info("Paddle2 top - top corner")
 		ball.position = intersection
 		ball.position.y -= ball.size / 2
 		ball.direction.y *= -1
-		ball.speed += 0.1
+		ball.speed += speed_constant
 	elif intersection := get_line_intersection(paddle2_left, paddle2_bottom, paddle2_left, paddle2_top, collision_point.x, collision_point.y, ball_collision_next.x, ball_collision_next.y):
 		logging.info("Paddle2 side - top corner")
 		ball.position = intersection
 		ball.position.x -= ball.size / 2
 		ball.direction = calculate_ball_direction_after_collision(paddle2, ball)
-		ball.speed += 0.1
+		ball.speed += speed_constant
 	elif intersection := get_line_intersection(paddle2_left, paddle2_bottom, paddle2_right, paddle2_bottom, collision_point.x, collision_point.y, ball_collision_next.x, ball_collision_next.y):
 		logging.info("Paddle2 bottom - bottom corner")
 		ball.position = intersection
 		ball.position.y += ball.size / 2
 		ball.direction.y *= -1
-		ball.speed += 0.1
+		ball.speed += speed_constant
 	elif intersection := get_line_intersection(paddle2_left, paddle2_bottom, paddle2_left, paddle2_top, collision_point.x, collision_point.y, ball_collision_next.x, ball_collision_next.y):
 		logging.info("Paddle2 side - bottom corner")
 		ball.position = intersection
 		ball.position.x -= ball.size / 2
 		ball.direction = calculate_ball_direction_after_collision(paddle2, ball)
-		ball.speed += 0.1
+		ball.speed += speed_constant
 	return ball

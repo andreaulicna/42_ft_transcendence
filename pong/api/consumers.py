@@ -555,12 +555,18 @@ class PongConsumer(AsyncWebsocketConsumer):
 		
 		while 42:
 			if pong_room.player1 is None or pong_room.player2 is None:
-				#grace_period_dict[pong_room.match_id] = asyncio.create_task(self.grace_period_handler(pong_room, match_database))
 				break
 
-			# Ball collision with floor & ceiling
-			if (ball.position.y > (pong_room.GAME_HALF_HEIGHT - (ball.size / 2))) or ((ball.position.y < ((pong_room.GAME_HALF_HEIGHT - (ball.size / 2))) * (-1))):
-				ball.direction.y *= -1
+			if ball.position.y > (pong_room.GAME_HALF_HEIGHT - (ball.size / 2)):
+				if ball.direction.y > 0:
+					ball.direction.y *= -1
+			elif ball.position.y < ((pong_room.GAME_HALF_HEIGHT - (ball.size / 2))) * (-1):
+				if ball.direction.y < 0:
+					ball.direction.y *= -1
+
+			# # Ball collision with floor & ceiling
+			# if (ball.position.y > (pong_room.GAME_HALF_HEIGHT - (ball.size / 2))) or ((ball.position.y < ((pong_room.GAME_HALF_HEIGHT - (ball.size / 2))) * (-1))):
+			# 	ball.direction.y *= -1
 
 			# might be a source of bugs, watch out
 			ball = paddle_collision(ball, paddle1, paddle2)

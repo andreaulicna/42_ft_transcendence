@@ -237,9 +237,15 @@ class AIPlayConsumer(AsyncWebsocketConsumer):
 			ai_player.predict(dt, ball, paddle2, match_room)
 			ai_player.move_ai_paddle(paddle2, match_room)
 
-			# Ball collision with floor & ceiling
-			if (ball.position.y > (match_room.GAME_HALF_HEIGHT - (ball.size / 2))) or ((ball.position.y < ((match_room.GAME_HALF_HEIGHT - (ball.size / 2))) * (-1))):
-				ball.direction.y *= -1
+			# # Ball collision with floor & ceiling
+			# if (ball.position.y > (match_room.GAME_HALF_HEIGHT - (ball.size / 2))) or ((ball.position.y < ((match_room.GAME_HALF_HEIGHT - (ball.size / 2))) * (-1))):
+			# 	ball.direction.y *= -1
+			if ball.position.y > (match_room.GAME_HALF_HEIGHT - (ball.size / 2)):
+				if ball.direction.y > 0:
+					ball.direction.y *= -1
+			elif ball.position.y < ((match_room.GAME_HALF_HEIGHT - (ball.size / 2))) * (-1):
+				if ball.direction.y < 0:
+					ball.direction.y *= -1
 
 			# might be a source of bugs, watch out
 			ball = paddle_collision(ball, paddle1, paddle2, ai_player)
