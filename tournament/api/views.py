@@ -1,4 +1,4 @@
-from .models import Tournament, PlayerTournament, CustomUser, Match
+from .models import Tournament, PlayerTournament, CustomUser, Match, LocalTournament
 from .serializers import TournamentSerializer, PlayerTournamentSerializer, WaitingTournamentSerializer, LocalTournamentSerializer
 from rest_framework import status
 from rest_framework.response import Response
@@ -59,7 +59,7 @@ class CreateTournamentView(APIView):
 		waiting_tournaments = Tournament.objects.filter(status=Tournament.StatusOptions.WAITING)
 		# Allow only one waiting tournament
 		if player_already_in_waiting_tournament(waiting_tournaments, request.user.id):
-			return Response({"details" : "You are already in a waiting tournament, you cannot created another one!"}, status=status.HTTP_403_FORBIDDEN)
+			return Response({"details" : "You are already in a waiting tournament, you cannot create another one!"}, status=status.HTTP_403_FORBIDDEN)
 		# Get all inprogress tournaments
 		inprogress_tournaments = Tournament.objects.filter(status=Tournament.StatusOptions.INPROGRESS)
 		# Allow only one in-progress tournament
@@ -206,6 +206,7 @@ def get_players_based_on_capacity(request, capacity):
 	if len(players) != capacity:
 		raise ValueError("Wrong number of players for the tournament capacity")
 	return players[:capacity]
+	
 class CreateLocalTournamentView(APIView):
 
 	permission_classes = [IsAuthenticated]
@@ -215,18 +216,22 @@ class CreateLocalTournamentView(APIView):
 		capacity = self.kwargs.get('capacity')
 		print(f"Capacity in create view for local tournament: {capacity}")
 
-		# CHECK: Needs protection against creating multiple tournaments/ being in game (match or tournament)
+		# User INGAME in other game mode
+		creator_player = request.user
+		if get_player_state(creator_player.id) == CustomUser.StateOptions.INGAME:
+			return Response({'detail' : 'Player already has a match in progress.'}, status=status.HTTP_403_FORBIDDEN)
 
-		try:
-			creator = CustomUser.objects.get(username=request.user)
-		except CustomUser.DoesNotExist:
-			return Response({'detail': 'Player does not exist'}, status=status.HTTP_404_NOT_FOUND)
+		# Get all waiting and in_progress tournaments
+		tournament_to_check = LocalTournament.objects.filter(Q(status=LocalTournament.StatusOptions.WAITING) | Q(status=LocalTournament.StatusOptions.INPROGRESS), Q(creator=creator_player.id)).exists()
+		if tournament_to_check:
+			return Response({"details" : "You are already playing a local tournament, you cannot create another one!"}, status=status.HTTP_403_FORBIDDEN)
+
 		try:
 			players = get_players_based_on_capacity(request, capacity)
 		except ValueError as e:
 			return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 		local_tournament_data = {
-			'creator': creator.id,
+			'creator': creator_player.id,
 			'capacity': capacity,
 			'players': players
 		}
@@ -235,7 +240,7 @@ class CreateLocalTournamentView(APIView):
 			local_tournament_data['name'] = local_tournament_name
 		local_tournament_serializer = LocalTournamentSerializer(data=local_tournament_data)
 		if local_tournament_serializer.is_valid():
-			local_tournament = local_tournament_serializer.save()
+			local_tournament_serializer.save()
 			return Response({'detail': 'Local tournament created.',
 							'local_tournament': local_tournament_serializer.data},
 							status=status.HTTP_201_CREATED)
