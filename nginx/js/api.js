@@ -98,6 +98,7 @@ async function refreshAccessToken() {
 
 			//Redirect to login page if refresh access token fails
 			window.location.hash = '#login';
+			closeStatusWebsocket();
 
 			throw new Error(errorData.message || 'Token refresh failed');
 		}

@@ -384,7 +384,17 @@ class PongConsumer(AsyncWebsocketConsumer):
 			elif pong_room.in_progress_flag == True:
 				logging.info("The game is already in progress.")
 			else:
+				# only happens if the websockets connect one after another
 				logging.info("Waiting for more players to join the match room.")
+				match_database = await sync_to_async(get_object_or_404)(Match, id=pong_room.match_id)
+				grace_period_dict[pong_room.match_id] = asyncio.create_task(self.grace_period_handler(pong_room, match_database))
+				await set_match_status(match_database, Match.StatusOptions.INPROGRESS)
+				await self.channel_layer.group_send(
+					pong_room.match_group_name, {
+						"type": "grace_disconnect",
+						"message": "grace_disconnect",
+					}
+				)
 
 	async def disconnect(self, close_code):
 		logging.info(f"Disconnecting player {self.id} from pong")

@@ -4,6 +4,31 @@ import { showToast } from "./notifications.js";
 let form;
 let loginIntraBtn;
 
+async function handleSubmit(event) {
+    event.preventDefault();
+    const username = document.getElementById("inputUsernameLogin").value;
+    const password = document.getElementById("inputPasswordLogin").value;
+
+    const payload = {
+        username: username,
+        password: password
+    };
+	
+	try {
+		const data = await loginUser(payload);
+		console.log("Login successful:", data);
+		// Store tokens in local storage
+		localStorage.setItem("access", data.access);
+		// Establish friendlist websocket
+		openStatusWebsocket();
+		// Redirect to dashboard upon succesful authentization
+		window.location.hash = "#dashboard";
+	} catch (error) {
+		console.error("Login failed:", error);
+		showToast("Login failed", null, error, "t_loginFailed");
+	}
+}
+
 export function init() {
 	form = document.getElementById("loginForm");
 	loginIntraBtn = document.getElementById("loginIntra");
@@ -11,30 +36,7 @@ export function init() {
 	checkForIntraLoginArg();
 
 	if (form) {
-		form.addEventListener("submit", async function(event) {
-			event.preventDefault();
-			const username = document.getElementById("inputUsernameLogin").value;
-			const password = document.getElementById("inputPasswordLogin").value;
-
-			const payload = {
-				username: username,
-				password: password
-			};
-
-			try {
-				const data = await loginUser(payload);
-				console.log("Login successful:", data);
-				// Store tokens in local storage
-				localStorage.setItem("access", data.access);
-				// Establish friendlist websocket
-				openStatusWebsocket();
-				// Redirect to dashboard upon succesful authentization
-				window.location.hash = "#dashboard";
-			} catch (error) {
-				console.error("Login failed:", error);
-				showToast("Login failed", null, error, "t_loginFailed");
-			}
-		});
+		form.addEventListener("submit", handleSubmit);
 	}
 
 	loginIntraBtn.addEventListener("click", loginIntra);
