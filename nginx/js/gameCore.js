@@ -502,6 +502,7 @@ export function hideGameOverScreen() {
 		bracketContainer.style.display = "none";
 		bracketContainer.innerHTML = "";
 	}
+	window.addEventListener("keydown", preventArrowKeyScroll);
 }
 
 // Function to create a delay
