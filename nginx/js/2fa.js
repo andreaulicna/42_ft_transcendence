@@ -38,6 +38,7 @@ export function init() {
 }
 
 async function login2FA(payload) {
+	console.log("PAYLOAD:", JSON.stringify(payload))
 	const url = '/api/auth/login';
 		const options = {
 			method: 'POST',

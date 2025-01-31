@@ -145,10 +145,11 @@ class LoginView(APIView):
 					if user.id == cached_twofa_state:
 							cache.delete(cached_twofa_state)
 							delete_twofa_state_cookie(response)
-							#response.delete_cookie('twofa_state')
 							data = get_tokens_for_user(user)
 							response = set_response_cookie(response, data=data)
 							csrf.get_token(request)
+							response.data = {"access" : data['access']}
+							logging.info(response)
 							return response
 					else:
 						return Response({'detail' : 'State not tied to user'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -203,7 +204,7 @@ class IntraAuthorizationView(APIView):
 	permission_classes = [AllowAny]
 	def get(self, request):
 		state = secrets.token_urlsafe(32)
-		cache.set(state, "exists", 600)
+		cache.set(state, "exists", 300)
 		query_string = urlencode({"client_id" : f"{settings.INTRA_APP_UID}",
 								"redirect_uri": f"{settings.PUBLIC_AUTH_URL}" + reverse('intra-callback'),
 								"response_type" : "code",

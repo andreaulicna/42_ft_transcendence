@@ -3,6 +3,7 @@ import { showToast } from "./notifications.js";
 
 let form;
 let loginIntraBtn;
+let otp_required;
 
 async function handleSubmit(event) {
     event.preventDefault();
@@ -16,6 +17,11 @@ async function handleSubmit(event) {
 	
 	try {
 		const data = await loginUser(payload);
+		if (otp_required)
+		{
+			otp_required = false;
+			return;
+		}
 		console.log("Login successful:", data);
 		// Store tokens in local storage
 		localStorage.setItem("access", data.access);
@@ -65,6 +71,7 @@ function checkForIntraLoginArg() {
 
 			const newUrl = window.location.origin + window.location.pathname;
 			window.history.replaceState({}, document.title, newUrl);
+			openStatusWebsocket();
 			window.location.hash = "#dashboard";
 		}
 	}
@@ -115,6 +122,8 @@ async function loginUser(payload) {
 				console.log("ENTERING 2FA");
 				localStorage.setItem("login_payload", JSON.stringify(payload));
 				window.location.hash = "#2fa";
+				otp_required = true;
+				return;
 			}
 
 			const accessToken = data.access;
