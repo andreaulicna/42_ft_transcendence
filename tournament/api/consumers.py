@@ -158,6 +158,26 @@ def get_player_from_tournament_room(tournament_room, player_id):
 		if player.id == player_id:
 			return player
 	return None
+						
+def cancel_tournament_participation(tournament_id, user_id):
+	try:
+		tournament_to_cancel_join = Tournament.objects.get(id=tournament_id)
+	except Tournament.DoesNotExist:
+		return
+	
+	try:
+		if (user_id == tournament_to_cancel_join.creator.id):
+			player_delete = PlayerTournament.objects.filter(tournament=tournament_id)
+			for player in player_delete:
+				player.delete()
+			tournament_to_cancel_join.delete()
+		else:
+			player_tournament = PlayerTournament.objects.get(player=user_id, tournament=tournament_id)
+			player_tournament.delete()
+		return None 
+	except PlayerTournament.DoesNotExist:
+		return
+		
 
 class TournamentConsumer(WebsocketConsumer):
 	def connect(self):
@@ -228,20 +248,22 @@ class TournamentConsumer(WebsocketConsumer):
 					async_to_sync(self.channel_layer.group_discard)(
 						tournament_room.tournament_group_name, self.channel_name
 					)
+					tournament_room.players.remove(player)
+					if not tournament_room.players:
+						tournament_rooms.remove(tournament_room)
 					try:
 						tournament_database = Tournament.objects.get(id=tournament_room.id)
 					except ObjectDoesNotExist:
 						logging.info("Close bcs no such tournament in disconnect")
-						self.close()
+						logging.info("Tournaments after disconnect:")
+						logging.info(tournament_rooms)
 						return
 					if (tournament_database.status == Tournament.StatusOptions.WAITING):
 						if (self.id == tournament_room.creator_id):
 							self.send_lobby_update_message(tournament_room.tournament_group_name, "creator_cancel", self.scope['user'])
 						else:
 							self.send_lobby_update_message(tournament_room.tournament_group_name, "player_cancel", self.scope['user'])
-					tournament_room.players.remove(player)
-					if not tournament_room.players:
-						tournament_rooms.remove(tournament_room)
+						cancel_tournament_participation(tournament_room.id, self.id)					
 					break
 		logging.info("Tournaments after disconnect:")
 		logging.info(tournament_rooms)

@@ -104,17 +104,16 @@ function renderTournamentBracket(activePlayers, capacity) {
 
 // Close the Tournament Websocket and return to main menu
 export function cancelLobby() {
-	apiCallAuthed(`/api/tournament/join/cancel/${localStorage.getItem("tournament_id")}/`, "POST")
-		.then(() => {
-			console.log("Leaving tournament");
-		})
-		.catch(error => {
-			console.error("Error leaving tournament:", error);
-			showToast("Error leaving tournament", null, error, "t_tournamentLeaveError");
-		})
-		.finally(() => {
-			closeTournamentWebsocket();
-			localStorage.removeItem('tournament_id');
-			window.location.hash = "#dashboard";
-		});
-}
+	// apiCallAuthed(`/api/tournament/join/cancel/${localStorage.getItem("tournament_id")}/`, "POST")
+	// 	.then(() => {
+	// 		console.log("Leaving tournament");
+	// 	})
+	// 	.catch(error => {
+	// 		console.error("Error leaving tournament:", error);
+	// 		showToast("Error leaving tournament", null, error, "t_tournamentLeaveError");
+	// 	})
+	// 	.finally(() => {
+	closeTournamentWebsocket();
+	localStorage.removeItem('tournament_id');
+	window.location.hash = "#dashboard";
+};
