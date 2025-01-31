@@ -235,7 +235,8 @@ class AIPlayConsumer(AsyncWebsocketConsumer):
 			match_room.start_timestamp = timezone.now()
 			dt = (match_room.start_timestamp - match_room.last_frame).total_seconds()
 			ai_player.predict(dt, ball, paddle2, match_room)
-			ai_player.move_ai_paddle(paddle2, match_room)
+			if sequence % 2 == 0:
+				ai_player.move_ai_paddle(paddle2, match_room)
 
 			# # Ball collision with floor & ceiling
 			# if (ball.position.y > (match_room.GAME_HALF_HEIGHT - (ball.size / 2))) or ((ball.position.y < ((match_room.GAME_HALF_HEIGHT - (ball.size / 2))) * (-1))):
