@@ -1,7 +1,7 @@
 import { showLoading } from "./animations.js";
 import { apiCallAuthed, ensureValidAccessToken } from './api.js';
 import { hideLoading } from "./animations.js";
-import { openStatusWebsocket, openTournamentWebsocket, closeStatusWebsocket, closeLocalTournamentWebsocket, closeTournamentWebsocket, closeLocalWebsocket, closeRematchWebsocket, closePongWebsocket, openTournamentWebsocket } from './websockets.js';
+import { openStatusWebsocket, openTournamentWebsocket, closeStatusWebsocket, closeLocalTournamentWebsocket, closeTournamentWebsocket, closeLocalWebsocket, closeRematchWebsocket, closePongWebsocket } from './websockets.js';
 import { showToast } from "./notifications.js";
 
 const dynamicContent = document.getElementById('dynamicContent');
