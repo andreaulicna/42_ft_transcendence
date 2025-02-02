@@ -34,6 +34,8 @@ async function handle2FASubmit(event) {
 }
 
 export function init() {
+	if (!localStorage.getItem("login_payload"))
+		window.location.hash = "#login";
 	const form = document.getElementById('2faForm');
 	form.addEventListener('submit', handle2FASubmit);	
 }
