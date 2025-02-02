@@ -49,6 +49,9 @@ export let player1AvatarPlaceholder;
 export let player2AvatarPlaceholder;
 export let isTouchDevice;
 
+let countdownModal;
+let countdownInterval;
+
 // let listenersAdded = false;
 
 /* 👇 DATA INITIALIZATION */
@@ -410,55 +413,55 @@ async function syncTime() {
 /* 👇 MENUS & REMATCH & NON-GAME LOGIC */
 
 export async function startCountdown(event) {
-    const data = event.detail;
+	const data = event.detail;
 
-    // Print the received data for debugging
-    // console.log("Received data:", data);
+	// Print the received data for debugging
+	// console.log("Received data:", data);
 
-    // In case of grace period reconnect, update the game state accordingly
+	// In case of grace period reconnect, update the game state accordingly
 	if (data.ball_x != 0 && data.ball_y != 0)
-        handleDraw(event);
+		handleDraw(event);
 
 	// const gameStartTime = new Date(data.game_start);
 	// const currentTime = new Date();
 
 	const offset = await syncTime();
-    const gameStartTime = new Date(data.game_start).getTime();
+	const gameStartTime = new Date(data.game_start).getTime();
 	const adjustedGameStartTime = gameStartTime - offset;
 
-    const currentTime = Date.now();
-    let countdownSync = (adjustedGameStartTime - currentTime) % 1000;
-    let countdownStart = Math.floor((adjustedGameStartTime - currentTime) / 1000);
+	const currentTime = Date.now();
+	let countdownSync = (adjustedGameStartTime - currentTime) % 1000;
+	let countdownStart = Math.floor((adjustedGameStartTime - currentTime) / 1000);
 
-    // Print the calculated variables for debugging in ISO format
+	// Print the calculated variables for debugging in ISO format
 	// console.log("Game start time (ISO):", new Date(gameStartTime).toISOString());
 	// console.log("Adjusted game start time (ISO):", new Date(adjustedGameStartTime).toISOString());
 	// console.log("Offset:", offset);
 	// console.log("Current time (ISO):", new Date(currentTime).toISOString());
 	// console.log("Countdown sync:", countdownSync);
 	// console.log("Countdown start:", countdownStart);
-    const countdownModal = bootstrap.Modal.getOrCreateInstance('#countdownModal');
-    const countdownNums = document.getElementById("countdownNums");
+	countdownModal = bootstrap.Modal.getOrCreateInstance('#countdownModal');
+	const countdownNums = document.getElementById("countdownNums");
 
-    countdownModal.show();
+	countdownModal.show();
 	countdownNums.textContent = countdownStart + 1;
 
-    const syncCountdownInterval = setTimeout(() => {
+	const syncCountdownInterval = setTimeout(() => {
 		// countdownNums.textContent = countdownStart + 1;
-        // console.log("Sync countdown interval executed, countdown start + 1:", countdownStart + 1);
-    }, countdownSync);
+		// console.log("Sync countdown interval executed, countdown start + 1:", countdownStart + 1);
+	}, countdownSync);
 
-    const countdownInterval = setInterval(() => {
-        if (countdownStart > 0) {
-            countdownNums.textContent = countdownStart;
-            // console.log("Countdown interval, countdown start:", countdownStart);
-        } else {
-            clearInterval(countdownInterval);
-            countdownModal.hide();
-            // console.log("Countdown finished, modal hidden");
-        }
-        countdownStart--;
-    }, 1000);
+	countdownInterval = setInterval(() => {
+		if (countdownStart > 0) {
+			countdownNums.textContent = countdownStart;
+			// console.log("Countdown interval, countdown start:", countdownStart);
+		} else {
+			clearInterval(countdownInterval);
+			countdownModal.hide();
+			// console.log("Countdown finished, modal hidden");
+		}
+		countdownStart--;
+	}, 1000);
 }
 
 function showGameOverScreen(event) {
@@ -523,6 +526,9 @@ let gracePeriodModal;
 let gracePeriodCountdown;
 
 export function handleGracePeriod() {
+	countdownModal.hide();
+	clearInterval(countdownInterval);
+
 	gracePeriodModal = new bootstrap.Modal(document.getElementById("countdownModal"));
 	const countdownNums = document.getElementById("countdownNums");
 	const countdownText = document.getElementById("countdownText");
