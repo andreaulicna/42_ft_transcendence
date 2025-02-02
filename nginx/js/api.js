@@ -36,7 +36,7 @@ export async function apiCallAuthed(url, method = 'GET', headers = {}, payload =
 		const response = await fetch(url, options);
 		const data = await response.json()
 		if (response.ok) {
-			// console.log("API CALL RESPONSE", data);
+			console.log("API CALL RESPONSE", data);
 			return (data);
 		} else {
 			throw new Error(data.message || data.detail || data.details || 'API call status not OK');

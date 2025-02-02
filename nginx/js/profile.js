@@ -285,13 +285,35 @@ async function listFriends() {
 				let statusIcon = friend.friend_status === "ON" ? "🟢" : "🔴";
 				listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
 				listItem.innerHTML = `
-				${statusIcon} ${friend.friend_username}
+				<div>
+					<span class="status-icon">${statusIcon}</span>
+					<span class="friend-username">${friend.friend_username}</span>
+				</div>
+				<button type="button" class="btn btn-prg friendDeleteButton" data-request-id="${friend.id}">
+					❌
+				</button>
 				`;
 				friendlistList.appendChild(listItem);
+			});
+
+			document.querySelectorAll('.friendDeleteButton').forEach(button => {
+				button.addEventListener('click', handleDeleteFriend);
 			});
 		}
 	} catch (error) {
 		console.error('Error fetching friendslist:', error);
+	}
+}
+
+async function handleDeleteFriend(event) {
+	const requestId = event.target.getAttribute('data-request-id');
+	try {
+		await apiCallAuthed(`/api/user/friends/${requestId}/delete`, 'DELETE');
+		showToast('Friend Deleted', 'You have deleted a friend from the list.', null, "t_friendDelete");
+		listFriends(); // Refresh the list
+	} catch (error) {
+		console.error('Error deleting friend:', error);
+		showToast('Error deleting friend', null, error, "t_friendDeleteError");
 	}
 }
 
@@ -305,11 +327,12 @@ export function handleFriendStatusUpdate(data) {
 
 		// Update the DOM
 		const listItem = Array.from(friendlistList.children).find(item => item.textContent.includes(username));
-		if (listItem) {
+		if (listItem)
+		{
 			let statusIcon = status === "ON" ? "🟢" : "🔴";
-			listItem.innerHTML = `
-			${statusIcon} ${username}
-			`;
+			const statusIconElement = listItem.querySelector('.status-icon');
+			if (statusIconElement)
+				statusIconElement.textContent = statusIcon;
 		}
 	}
 }
