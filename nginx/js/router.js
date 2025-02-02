@@ -36,7 +36,7 @@ const loadContent = async (path) => {
 			const checkContentLoaded = () => {
 				if (dynamicContent.children.length > 0) {
 					resolve();
-					console.log("dynamic HTML content loaded!");
+					// console.log("dynamic HTML content loaded!");
 				} else {
 					setTimeout(checkContentLoaded, 50);
 				}
@@ -69,7 +69,7 @@ const loadContent = async (path) => {
 			await import('/js/gameLobby.js').then(module => module.init());
 		} else if (window.location.hash === '#game') {
 			const mode = localStorage.getItem('gameMode');
-			console.log("Mode in router", mode);
+			// console.log("Mode in router", mode);
 			if (mode == "local" || mode == "local-rematch" || mode == "local-rematch-switch")
 				await import('/js/gameLocal.js').then(module => module.init());
 			else if (mode == "ai")
@@ -147,7 +147,7 @@ const router = async () => {
 const handleLoadEvent = async () => {
 	await router();
 	if (localStorage.getItem("access")) {
-		console.log("Access in event listened for status ws: ", localStorage.getItem("access"));
+		// console.log("Access in event listened for status ws: ", localStorage.getItem("access"));
 		openStatusWebsocket();
 	}
 };
@@ -216,7 +216,7 @@ export async function logout() {
 
 		window.location.hash = '#login';
 
-		console.log('Logged out successfully');
+		// console.log('Logged out successfully');
 	} catch (error) {
 		console.error('Error during logout:', error);
 	}

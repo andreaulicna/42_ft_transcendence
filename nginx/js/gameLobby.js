@@ -93,7 +93,7 @@ async function createLocalPlay(event) {
 		};
 
 		const response = await apiCallAuthed(`/api/localplay/match`, "POST", null, payload);
-		console.log("LOCAL PLAY ID ", response.match_id);
+		// console.log("LOCAL PLAY ID ", response.match_id);
 		localStorage.setItem("match_id", response.match_id);
 		openLocalPlayWebsocket(response.match_id);
 	} catch (error) {
@@ -110,7 +110,7 @@ async function createLocalPlayRematch(side_mode) {
 	try {
 		const url = "/api/localplay/" + prev_match_id + "/rematch/" + side_mode 
 		const response = await apiCallAuthed(url, "POST", null, null);
-		console.log("LOCAL PLAY rematch ID ", response.match_id);
+		// console.log("LOCAL PLAY rematch ID ", response.match_id);
 		localStorage.setItem("match_id", response.match_id);
 		openLocalPlayWebsocket(response.match_id);
 	} catch (error) {

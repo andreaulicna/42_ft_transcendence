@@ -132,7 +132,7 @@ export function initGameData(data) {
 	isTouchDevice = "ontouchstart" in window;
 	if (isTouchDevice) {
 		initTouchControls();
-		console.log("TOUCH CONTROLS ENABLED");
+		// console.log("TOUCH CONTROLS ENABLED");
 	}
 }
 
@@ -413,7 +413,7 @@ export async function startCountdown(event) {
     const data = event.detail;
 
     // Print the received data for debugging
-    console.log("Received data:", data);
+    // console.log("Received data:", data);
 
     // In case of grace period reconnect, update the game state accordingly
 	if (data.ball_x != 0 && data.ball_y != 0)
@@ -431,12 +431,12 @@ export async function startCountdown(event) {
     let countdownStart = Math.floor((adjustedGameStartTime - currentTime) / 1000);
 
     // Print the calculated variables for debugging in ISO format
-	console.log("Game start time (ISO):", new Date(gameStartTime).toISOString());
-	console.log("Adjusted game start time (ISO):", new Date(adjustedGameStartTime).toISOString());
-	console.log("Offset:", offset);
-	console.log("Current time (ISO):", new Date(currentTime).toISOString());
-	console.log("Countdown sync:", countdownSync);
-	console.log("Countdown start:", countdownStart);
+	// console.log("Game start time (ISO):", new Date(gameStartTime).toISOString());
+	// console.log("Adjusted game start time (ISO):", new Date(adjustedGameStartTime).toISOString());
+	// console.log("Offset:", offset);
+	// console.log("Current time (ISO):", new Date(currentTime).toISOString());
+	// console.log("Countdown sync:", countdownSync);
+	// console.log("Countdown start:", countdownStart);
     const countdownModal = bootstrap.Modal.getOrCreateInstance('#countdownModal');
     const countdownNums = document.getElementById("countdownNums");
 
@@ -445,17 +445,17 @@ export async function startCountdown(event) {
 
     const syncCountdownInterval = setTimeout(() => {
 		// countdownNums.textContent = countdownStart + 1;
-        console.log("Sync countdown interval executed, countdown start + 1:", countdownStart + 1);
+        // console.log("Sync countdown interval executed, countdown start + 1:", countdownStart + 1);
     }, countdownSync);
 
     const countdownInterval = setInterval(() => {
         if (countdownStart > 0) {
             countdownNums.textContent = countdownStart;
-            console.log("Countdown interval, countdown start:", countdownStart);
+            // console.log("Countdown interval, countdown start:", countdownStart);
         } else {
             clearInterval(countdownInterval);
             countdownModal.hide();
-            console.log("Countdown finished, modal hidden");
+            // console.log("Countdown finished, modal hidden");
         }
         countdownStart--;
     }, 1000);

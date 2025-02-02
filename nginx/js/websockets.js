@@ -85,7 +85,7 @@ async function openWebSocket(url, type) {
 				else if (data.message === "tournament_end")
 				{
 					const tournamentEndEvent = new CustomEvent('tournament_end');
-					console.log("TOURNAMENT END MESSAGE RECEIVED");
+					// console.log("TOURNAMENT END MESSAGE RECEIVED");
 					window.dispatchEvent(tournamentEndEvent);
 				}
 				else if (data.type === "user_status")
@@ -140,7 +140,7 @@ export async function openRematchWebsocket(rematch_id) {
 	const url = `api/ws/matchmaking/${rematch_id}/rematch/`;
 	openWebSocket(url, "rematch").then((ws) => {
 		rematchWebSocket = ws;
-		console.log('Rematch WebSocket established');
+		// console.log('Rematch WebSocket established');
 	}).catch((error) => {
 		console.error('Failed to establish Rematch WebSocket:', error);
 		showToast("Error", "Cannot start game session", null, "t_openingWsError");
@@ -152,7 +152,7 @@ export async function openTournamentWebsocket(tournament_id) {
 	const url = "/api/ws/tournament/" + tournament_id + "/";
 	openWebSocket(url, "tournament").then((ws) => {
 		tournamentWebSocket = ws;
-		console.log('Tournament WebSocket established');
+		// console.log('Tournament WebSocket established');
 	}).catch((error) => {
 		console.error('Failed to establish Tournament WebSocket:', error);
 		showToast("Error", "Cannot start game session", null, "t_openingWsError");
@@ -163,7 +163,7 @@ export async function openLocalTournamentWebsocket(tournament_id) {
 	const url = "/api/ws/tournament/local/" + tournament_id + "/";
 	openWebSocket(url, "local_tournament").then((ws) => {
 		localTournamentWebSocket = ws;
-		console.log('Local Tournament WebSocket established');
+		// console.log('Local Tournament WebSocket established');
 	}).catch((error) => {
 		console.error('Failed to establish Local Tournament WebSocket:', error);
 		showToast("Error", "Cannot start game session", null, "t_openingWsError");
@@ -174,7 +174,7 @@ export async function openPongWebsocket(match_id, flag) {
 	const url = "/api/ws/pong/" + match_id + "/";
 	openWebSocket(url, "pong").then((ws) => {
 		pongWebSocket = ws;
-		console.log('Pong WebSocket established');
+		// console.log('Pong WebSocket established');
 		window.location.hash = '#game';
 	}).catch((error) => {
 		console.error('Failed to establish Pong WebSocket:', error);
@@ -192,7 +192,7 @@ export async function openLocalPlayWebsocket(match_id) {
 	const url = "/api/ws/localplay/" + match_id + "/";
 	openWebSocket(url, "localplay").then((ws) => {
 		localWebSocket = ws;
-		console.log('LocalPlay WebSocket established');
+		// console.log('LocalPlay WebSocket established');
 		window.location.hash = '#game';
 	}).catch((error) => {
 		console.error('Failed to establish LocalPlay WebSocket:', error);
@@ -204,7 +204,7 @@ export async function openAIPlayWebsocket(match_id) {
 	const url = "/api/ws/ai/" + match_id + "/";
 	openWebSocket(url, "aiplay").then((ws) => {
 		pongWebSocket = ws;
-		console.log('AIPlay WebSocket established');
+		// console.log('AIPlay WebSocket established');
 		window.location.hash = '#game';
 	}).catch((error) => {
 		console.error('Failed to establish AIPlay WebSocket:', error);
@@ -303,11 +303,11 @@ export function addPaddleMovementListener() {
 	
 // Let server know when a tournament match ends
 function handleTournamentMatchEnd(event) {
-	console.log("INTERCEPTED MATCH END MSG");
+	// console.log("INTERCEPTED MATCH END MSG");
 	if (tournamentWebSocket) {
-		console.log("Tournament WebSocket exists, readyState:", tournamentWebSocket.readyState);
+		// console.log("Tournament WebSocket exists, readyState:", tournamentWebSocket.readyState);
 	} else {
-		console.log("Tournament WebSocket is not initialized");
+		// console.log("Tournament WebSocket is not initialized");
 	}
 	if (tournamentWebSocket && tournamentWebSocket.readyState === WebSocket.OPEN)
 	{
@@ -317,7 +317,7 @@ function handleTournamentMatchEnd(event) {
 }
 
 export function addTournamentMatchEndListener() {
-	console.log("ADDING MATCH END LISTENER");
+	// console.log("ADDING MATCH END LISTENER");
 	window.addEventListener('tournamentMatchEnd', handleTournamentMatchEnd);
 }
 
@@ -332,7 +332,7 @@ function handleLocalTournamentMatchEnd(event) {
 }
 
 export function addLocalTournamentMatchEndListener() {
-	console.log("ADDING TOURNAMENT MATCH END LISTENER");
+	// console.log("ADDING TOURNAMENT MATCH END LISTENER");
 	window.addEventListener('localTournamentMatchEnd', handleLocalTournamentMatchEnd);
 }
 

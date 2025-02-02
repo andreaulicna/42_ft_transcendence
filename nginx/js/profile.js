@@ -439,7 +439,7 @@ async function handleProfilePicUpload() {
 				};
 				const payload = { 'profilePic': base64String};
 				const response = await apiCallAuthed("api/user/avatar", "PUT", headers, payload);
-				console.log("PICTURE SUCCESSFULLY UPLOADED", response);
+				// console.log("PICTURE SUCCESSFULLY UPLOADED", response);
 				location.reload();
 				data = await apiCallAuthed('/api/user/info');
 				if (data.avatar != null)

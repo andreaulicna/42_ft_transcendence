@@ -34,7 +34,7 @@ async function createTournament(event) {
 		};
 
 		const response = await apiCallAuthed(`/api/tournament/create/${tournamentSlots}/`, "POST", null, payload);
-		console.log("TOURNAMENT ID, ", response.tournament.id);
+		// console.log("TOURNAMENT ID, ", response.tournament.id);
 		localStorage.setItem("tournament_id", response.tournament.id);
 		//openTournamentWebsocket(response.tournament.id);
 		window.location.hash = '#lobby-tnmt';

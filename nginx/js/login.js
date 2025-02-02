@@ -22,7 +22,7 @@ async function handleSubmit(event) {
 			otp_required = false;
 			return;
 		}
-		console.log("Login successful:", data);
+		// console.log("Login successful:", data);
 		// Store tokens in local storage
 		localStorage.setItem("access", data.access);
 		// Establish friendlist websocket
@@ -90,7 +90,7 @@ async function loginIntra() {
 		const response = await fetch(url, options);
 		if (response.ok) {
 			const data = await response.json();
-			console.log(data);
+			// console.log(data);
 			window.location.href = data.URL;
 		}
 		else {
@@ -116,10 +116,10 @@ async function loginUser(payload) {
 		const response = await fetch(url, options);
 		if (response.ok) {
 			const data = await response.json();
-			console.log(data);
+			// console.log(data);
 			if (data.otp_required)
 			{
-				console.log("ENTERING 2FA");
+				// console.log("ENTERING 2FA");
 				localStorage.setItem("login_payload", JSON.stringify(payload));
 				window.location.hash = "#2fa";
 				otp_required = true;

@@ -17,7 +17,7 @@ async function handle2FASubmit(event) {
 
     try {
         const data = await login2FA(payload);
-        console.log('Login successful:', data);
+        // console.log('Login successful:', data);
         // Store tokens in session storage
         localStorage.setItem('access', data.access);
         // Establish friendlist websocket
@@ -38,7 +38,7 @@ export function init() {
 }
 
 async function login2FA(payload) {
-	console.log("PAYLOAD:", JSON.stringify(payload))
+	// console.log("PAYLOAD:", JSON.stringify(payload))
 	const url = '/api/auth/login';
 		const options = {
 			method: 'POST',

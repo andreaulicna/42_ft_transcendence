@@ -96,7 +96,7 @@ function dispatchWinnerMatchEnd(winnerID, matchID) {
 }
 
 function handleTournamentEnd() {
-	console.log("HANDLING TOURNAMENT END");
+	// console.log("HANDLING TOURNAMENT END");
 	const winnerID = player1.score > player2.score ? player1Data.id : player2Data.id;
 	const loserID = player1.score > player2.score ? player2Data.id : player1Data.id;
 	// console.log(`my ID: ${localStorage.getItem("id")}, winner ID: ${winnerID}, loser ID: ${loserID}`);
