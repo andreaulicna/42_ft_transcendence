@@ -25,6 +25,7 @@ async function handle2FASubmit(event) {
         // Redirect to dashboard upon successful authentication
         const newUrl = window.location.origin + window.location.pathname;
         window.history.replaceState({}, document.title, newUrl);
+		appState.loggedIn = true;
         window.location.hash = '#dashboard';
     } catch (error) {
         console.error('Login failed:', error);

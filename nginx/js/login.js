@@ -1,3 +1,4 @@
+import appState from "./appState.js";
 import { openStatusWebsocket } from "./websockets.js";
 import { showToast } from "./notifications.js";
 
@@ -28,6 +29,7 @@ async function handleSubmit(event) {
 		// Establish friendlist websocket
 		openStatusWebsocket();
 		// Redirect to dashboard upon succesful authentization
+		appState.loggedIn = true;
 		window.location.hash = "#dashboard";
 	} catch (error) {
 		console.error("Login failed:", error);
@@ -72,6 +74,7 @@ function checkForIntraLoginArg() {
 			const newUrl = window.location.origin + window.location.pathname;
 			window.history.replaceState({}, document.title, newUrl);
 			openStatusWebsocket();
+			appState.loggedIn = true;
 			window.location.hash = "#dashboard";
 		}
 	}

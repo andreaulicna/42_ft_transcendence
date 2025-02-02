@@ -11,6 +11,7 @@ let tournamentWebSocket;
 let localTournamentWebSocket;
 let localWebSocket;
 let rematchWebSocket;
+let aiplayWebSocket;
 
 // Refactor this catch-all function so it doesn't handle multiple websocket types?
 // + open the websockets from their respective files to prevent all of this unnecessarry
@@ -203,7 +204,7 @@ export async function openLocalPlayWebsocket(match_id) {
 export async function openAIPlayWebsocket(match_id) {
 	const url = "/api/ws/ai/" + match_id + "/";
 	openWebSocket(url, "aiplay").then((ws) => {
-		pongWebSocket = ws;
+		aiplayWebSocket = ws;
 		// console.log('AIPlay WebSocket established');
 		window.location.hash = '#game';
 	}).catch((error) => {
@@ -247,6 +248,10 @@ export function closePongWebsocket() {
 	closeWebSocket(pongWebSocket);
 }
 
+export function closeAIPlayWebsocket() {
+	closeWebSocket(aiplayWebSocket);
+}
+
 /* ON/OFF STATUS LOGIC */
 
 const broadcastChannel = new BroadcastChannel("ws_channel");
@@ -260,7 +265,9 @@ broadcastChannel.onmessage = (event) => {
 		closeMatchmakingWebsocket();
 		closeRematchWebsocket();
 		closeTournamentWebsocket();
+		closeLocalTournamentWebsocket()
 		closePongWebsocket();
+		closeAIPlayWebsocket();
 		console.log('WebSockets closed due to user logout.');
 	}
 };
