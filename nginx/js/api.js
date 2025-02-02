@@ -104,6 +104,17 @@ async function refreshAccessToken() {
 		}
 	} catch (error) {
 		console.error('Token refresh error:', error);
+		
+		// Effectively log out the user (cannot use logout function as it requires authorization)
+		localStorage.removeItem('access');
+		localStorage.removeItem('access_expiration');
+		sessionStorage.removeItem('uuid');
+		localStorage.removeItem('id');
+		localStorage.removeItem('match_id');
+
+		//Redirect to login page if refresh access token fails
+		window.location.hash = '#login';
+		closeStatusWebsocket();
 		throw error;
 	}
 }

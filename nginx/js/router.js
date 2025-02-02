@@ -104,7 +104,7 @@ const router = async () => {
 	// If user is not logged in, redirect them to #login
 	if ((window.location.hash != '#login' && window.location.hash != '#2fa' && window.location.hash != '#register' && window.location.hash != '404') && !localStorage.getItem('access')) {
 		window.location.hash = '#login';
-		console.error('Not logged in');
+		// console.log('Not logged in. Redirecting to login.');
 		return;
 	}
 
