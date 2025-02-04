@@ -56,7 +56,8 @@ AUTH_USER_MODEL = 'api.CustomUser'
 MIDDLEWARE = [
 	"debug_toolbar.middleware.DebugToolbarMiddleware",
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware'
+	'django.middleware.locale.LocaleMiddleware',
 	'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -193,3 +194,7 @@ GAME_CONSTANTS['PADDLE_HEIGHT'] = GAME_CONSTANTS['GAME_HEIGHT'] / 5
 GAME_CONSTANTS['PADDLE_WIDTH'] = 4
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+LOCALE_PATHS = [
+    os.path.join(BASE_DIR, 'locale'),
+]

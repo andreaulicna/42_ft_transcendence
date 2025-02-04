@@ -5,7 +5,7 @@ from rest_framework import status
 from ai_play.settings import GAME_CONSTANTS
 from .serializers import AIMatchSerializer
 from .models import CustomUser
-import logging
+from django.utils.translation import gettext as _
 
 class HealthCheckView(APIView):
 	def get(self, request):
@@ -35,6 +35,6 @@ class CreateAIMatchView(APIView):
 		match_serializer = AIMatchSerializer(data=data)
 		if match_serializer.is_valid():
 			match_serializer.save()
-			return Response({'detail': 'AI match created and ready to play.', 'match_id': match_serializer.data['id']}, status=status.HTTP_201_CREATED)
+			return Response({'detail': _('AI match created and ready to play.'), 'match_id': match_serializer.data['id']}, status=status.HTTP_201_CREATED)
 		else:
 			return Response(match_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
