@@ -20,7 +20,7 @@ export function init() {
 
 			try {
 				const data = await registerUser(payload);
-				console.log('Registration successful:', data);
+				// console.log('Registration successful:', data);
 				// Redirect to dashboard upon succesful registration
 				window.location.hash = '#login';
 			} catch (error) {

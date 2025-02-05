@@ -76,7 +76,7 @@ async function initAIData(data) {
 async function createAIPlay(event) {
 	try {
 		const response = await apiCallAuthed(`/api/ai/match`, "POST", null, null);
-		console.log("AI PLAY ID ", response.match_id);
+		// console.log("AI PLAY ID ", response.match_id);
 		localStorage.setItem("match_id", response.match_id);
 		openAIPlayWebsocket(response.match_id);
 	} catch (error) {

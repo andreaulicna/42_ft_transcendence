@@ -1,15 +1,9 @@
 import { showLoading } from "./animations.js";
 import { hideLoading } from "./animations.js";
-import { listenStatusRefreshEvent } from "./websockets.js";
+import { listenStatusRefreshEvent, closeStatusWebsocket } from "./websockets.js";
 
 export async function apiCallAuthed(url, method = 'GET', headers = {}, payload = null, showAnimation = true) {
-	const accessTokenExpiration = parseInt(localStorage.getItem('access_expiration'), 10);
-	const now = Date.now();
-
-	// Check if the access token is about to expire
-	if (accessTokenExpiration && (now >= accessTokenExpiration - 3000)) { // Refresh the token 3 seconds before it expires
-		await refreshAccessToken();
-	}
+	ensureValidAccessToken();
 
 	const options = {
 		method,
@@ -56,17 +50,36 @@ export async function ensureValidAccessToken() {
 
 	// Check if the access token is about to expire
 	if (accessTokenExpiration && (now >= accessTokenExpiration - 3000)) { // Refresh the token 3 seconds before it expires
-		await refreshAccessToken();
+		return await refreshAccessToken();
 	}
+	return true;
 }
 
-async function refreshAccessToken() {
+function frontendLogout() {
+	localStorage.removeItem('access');
+	localStorage.removeItem('access_expiration');
+	sessionStorage.removeItem('uuid');
+	localStorage.removeItem('id');
+	localStorage.removeItem('match_id');
+
+	closeStatusWebsocket();
+	// window.location.hash = '#login';
+}
+
+export async function refreshAccessToken() {
+	const csrfToken = Cookies.get("csrftoken");
+	if (!csrfToken)
+	{
+		frontendLogout();
+		return false;
+	}
+	
 	const url = '/api/auth/login/refresh';
 	const options = {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
-			'X-CSRFToken': Cookies.get("csrftoken")
+			'X-CSRFToken': csrfToken,
 		},
 	};
 
@@ -86,24 +99,20 @@ async function refreshAccessToken() {
 
 			localStorage.setItem('access', accessToken);
 			localStorage.setItem('access_expiration', accessTokenExpiration);
+			return true;
+		} else if (response.status == 401 || response.status == 403) {
+			// Handle unauthorized or forbidden response without printing an error
+			frontendLogout();
+			return false;
 		} else {
+			// Handle other non-OK responses
 			const errorData = await response.json();
-			
-			// Effectively log out the user (cannot use logout function as it requires authorization)
-			localStorage.removeItem('access');
-			localStorage.removeItem('access_expiration');
-			sessionStorage.removeItem('uuid');
-			localStorage.removeItem('id');
-			localStorage.removeItem('match_id');
-
-			//Redirect to login page if refresh access token fails
-			window.location.hash = '#login';
-			closeStatusWebsocket();
-
 			throw new Error(errorData.message || 'Token refresh failed');
 		}
 	} catch (error) {
 		console.error('Token refresh error:', error);
-		throw error;
+
+		frontendLogout();
+		return false;
 	}
 }

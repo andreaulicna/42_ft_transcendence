@@ -1,7 +1,8 @@
+import appState from "./appState.js";
 import { showLoading } from "./animations.js";
-import { apiCallAuthed, ensureValidAccessToken } from './api.js';
+import { apiCallAuthed, ensureValidAccessToken, refreshAccessToken } from './api.js';
 import { hideLoading } from "./animations.js";
-import { openStatusWebsocket, openTournamentWebsocket, closeStatusWebsocket, closeLocalTournamentWebsocket, closeTournamentWebsocket, closeLocalWebsocket, closeRematchWebsocket, closePongWebsocket, openTournamentWebsocket } from './websockets.js';
+import { openStatusWebsocket, openTournamentWebsocket, closeLocalTournamentWebsocket, closeTournamentWebsocket, closeLocalWebsocket, closeRematchWebsocket, closePongWebsocket, closeAIPlayWebsocket, closeMatchmakingWebsocket } from './websockets.js';
 import { showToast } from "./notifications.js";
 
 const dynamicContent = document.getElementById('dynamicContent');
@@ -36,7 +37,7 @@ const loadContent = async (path) => {
 			const checkContentLoaded = () => {
 				if (dynamicContent.children.length > 0) {
 					resolve();
-					console.log("dynamic HTML content loaded!");
+					// console.log("dynamic HTML content loaded!");
 				} else {
 					setTimeout(checkContentLoaded, 50);
 				}
@@ -69,7 +70,7 @@ const loadContent = async (path) => {
 			await import('/js/gameLobby.js').then(module => module.init());
 		} else if (window.location.hash === '#game') {
 			const mode = localStorage.getItem('gameMode');
-			console.log("Mode in router", mode);
+			// console.log("Mode in router", mode);
 			if (mode == "local" || mode == "local-rematch" || mode == "local-rematch-switch")
 				await import('/js/gameLocal.js').then(module => module.init());
 			else if (mode == "ai")
@@ -101,15 +102,21 @@ const loadContent = async (path) => {
 };
 
 const router = async () => {
+	if (appState.isLoggingOut)
+		return;
+
+	appState.loggedIn = await refreshAccessToken();
+
+
 	// If user is not logged in, redirect them to #login
-	if ((window.location.hash != '#login' && window.location.hash != '#2fa' && window.location.hash != '#register' && window.location.hash != '404') && !localStorage.getItem('access')) {
+	if ((window.location.hash != '#login' && window.location.hash != '#2fa' && window.location.hash != '#register' && window.location.hash != '404') && !appState.loggedIn) {
 		window.location.hash = '#login';
-		console.error('Not logged in');
+		// console.log('Not logged in. Redirecting to login.');
 		return;
 	}
 
-	// Refreshes access token before getting to further API calls, preventing double refresh on load/hashchange events
-	await ensureValidAccessToken();
+	// // Refreshes access token before getting to further API calls, preventing double refresh on load/hashchange events
+	// await ensureValidAccessToken();
 
 	// If user is logged in, go straight to #dashboard
 	if ((window.location.hash === '' || window.location.hash === '#login' || window.location.hash === '#register' ) && localStorage.getItem('access')) {
@@ -147,7 +154,7 @@ const router = async () => {
 const handleLoadEvent = async () => {
 	await router();
 	if (localStorage.getItem("access")) {
-		console.log("Access in event listened for status ws: ", localStorage.getItem("access"));
+		// console.log("Access in event listened for status ws: ", localStorage.getItem("access"));
 		openStatusWebsocket();
 	}
 };
@@ -173,22 +180,15 @@ export function redirectToHome(event) {
 				return;
 			else
 			{
-				const gameMode = localStorage.getItem('gameMode');
-				if (gameMode == "tournamentLocal")
-				{
-					closeLocalWebsocket();
-					closeLocalTournamentWebsocket();
-				}
-				else if (gameMode == "tournamentRemote")
-				{
-					closePongWebsocket();
-					closeTournamentWebsocket();
-				}
-				else if (gameMode == "remote")
-					closePongWebsocket();
-				else if (gameMode == "rematch")
-					closeRematchWebsocket();
+				closeLocalWebsocket();
+				closeMatchmakingWebsocket();
+				closeRematchWebsocket();
+				closeTournamentWebsocket();
+				closeLocalTournamentWebsocket()
+				closePongWebsocket();
+				closeAIPlayWebsocket();
 				localStorage.removeItem('match_id');
+				localStorage.removeItem('tournament_id');
 			}
 		}
 		window.location.hash = '#dashboard';
@@ -201,8 +201,11 @@ export function redirectToHome(event) {
 window.redirectToHome = redirectToHome;
 
 // Logout procedure
+
 export async function logout() {
 	try {
+		appState.isLoggingOut = true;
+
 		const response = await apiCallAuthed("/api/auth/login/refresh/logout", "POST");
 
 		const broadcastChannel = new BroadcastChannel("ws_channel");
@@ -213,12 +216,16 @@ export async function logout() {
 		sessionStorage.removeItem('uuid');
 		localStorage.removeItem('id');
 		localStorage.removeItem('match_id');
+		Cookies.remove('csrftoken');
 
+		appState.loggedIn = true;
 		window.location.hash = '#login';
 
-		console.log('Logged out successfully');
+		// console.log('Logged out successfully');
 	} catch (error) {
 		console.error('Error during logout:', error);
+	} finally {
+		appState.isLoggingOut = false;
 	}
 }
 

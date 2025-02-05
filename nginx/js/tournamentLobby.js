@@ -19,7 +19,7 @@ export function init() {
 async function fetchPlayerList() {
 	try {
 		const data = await apiCallAuthed(`api/tournament/info/${localStorage.getItem("tournament_id")}/`, undefined, undefined, undefined, false);
-		console.log("ACTIVE TOURNAMENT INFO", data);
+		// console.log("ACTIVE TOURNAMENT INFO", data);
 
 		localStorage.setItem("tournament_capacity", data.capacity);
 		activePlayers = data.players;
@@ -49,7 +49,7 @@ export async function handleLobbyStatusUpdate(data) {
 		window.location.hash = "#dashboard";
 		showToast("Tournament Canceled", "The creator canceled their tournament.", null, "t_tournamentCanceled");
 	}
-	console.log(activePlayers);
+	// console.log(activePlayers);
 	renderTournamentBracket(activePlayers, localStorage.getItem("tournament_capacity"));
 }
 
@@ -106,7 +106,7 @@ function renderTournamentBracket(activePlayers, capacity) {
 export function cancelLobby() {
 	apiCallAuthed(`/api/tournament/join/cancel/${localStorage.getItem("tournament_id")}/`, "POST")
 		.then(() => {
-			console.log("Leaving tournament");
+			// console.log("Leaving tournament");
 		})
 		.catch(error => {
 			console.error("Error leaving tournament:", error);

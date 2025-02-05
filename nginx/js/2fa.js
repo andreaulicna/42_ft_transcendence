@@ -17,7 +17,7 @@ async function handle2FASubmit(event) {
 
     try {
         const data = await login2FA(payload);
-        console.log('Login successful:', data);
+        // console.log('Login successful:', data);
         // Store tokens in session storage
         localStorage.setItem('access', data.access);
         // Establish friendlist websocket
@@ -25,6 +25,7 @@ async function handle2FASubmit(event) {
         // Redirect to dashboard upon successful authentication
         const newUrl = window.location.origin + window.location.pathname;
         window.history.replaceState({}, document.title, newUrl);
+		appState.loggedIn = true;
         window.location.hash = '#dashboard';
     } catch (error) {
         console.error('Login failed:', error);
@@ -33,12 +34,14 @@ async function handle2FASubmit(event) {
 }
 
 export function init() {
+	if (!localStorage.getItem("login_payload"))
+		window.location.hash = "#login";
 	const form = document.getElementById('2faForm');
 	form.addEventListener('submit', handle2FASubmit);	
 }
 
 async function login2FA(payload) {
-	console.log("PAYLOAD:", JSON.stringify(payload))
+	// console.log("PAYLOAD:", JSON.stringify(payload))
 	const url = '/api/auth/login';
 		const options = {
 			method: 'POST',

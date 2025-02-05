@@ -153,6 +153,9 @@ const translations = {
 		t_matchNoLongerOngoing_message: "The match is no longer ongoing.",
 		t_openingWsError_header: "Error opening websocket",
 		t_openingWsError_message: "Cannot start game session.",
+		t_friendDelete_header: "Friend Deleted",
+		t_friendDelete_message: "You have deleted a friend from the list.",
+		t_friendDeleteError_header: "Error deleting friend",
 	},
 	cz: {
 		// INDEX
@@ -308,6 +311,9 @@ const translations = {
 		t_matchNoLongerOngoing_message: "Zápas již neprobíhá.",
 		t_openingWsError_header: "Chyba při otevírání websocketu",
 		t_openingWsError_message: "Nelze začít hru.",
+		t_friendDelete_header: "Přítel smazán",
+		t_friendDelete_message: "Smazal/a jsi přítele ze seznamu.",
+		t_friendDeleteError_header: "Chyba při mazání přítele",
 	},
 	sk: {
 		// INDEX
@@ -463,6 +469,9 @@ const translations = {
 		t_matchNoLongerOngoing_message: "Zápas už neprebieha.",
 		t_openingWsError_header: "Chyba pri otváraní websocketu",
 		t_openingWsError_message: "Hru nemožno spustiť.",
+		t_friendDelete_header: "Vymazaný priateľ",
+		t_friendDelete_message: "Vymazali ste priateľa zo zoznamu.",
+		t_friendDeleteError_header: "Chyba pri odstraňovaní priateľa",
 	}
 };
 
