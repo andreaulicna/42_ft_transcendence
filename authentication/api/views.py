@@ -27,6 +27,8 @@ from string import ascii_letters
 import random
 from datetime import timedelta
 from django.db import transaction
+from django.utils.translation import gettext as _
+
 
 
 def get_tokens_for_user(user):
@@ -86,7 +88,7 @@ def two_factor_auth(user, data):
 		return Response({"otp_required" : True, "details" : "OTP is yet to be provided"})
 	totp = pyotp.TOTP(user.two_factor_secret)
 	if not totp.verify(otp_code):
-		return Response({'detail' : 'Invalid or expired OTP'}, status=status.HTTP_403_FORBIDDEN)
+		return Response({'detail' : _('Invalid or expired OTP')}, status=status.HTTP_403_FORBIDDEN)
 
 # optimize the call so that it only accesses the database once
 def find_valid_random_username(current_username):
@@ -98,7 +100,7 @@ def find_valid_random_username(current_username):
 	return suffixed_username
 
 def csrf_failure(request, reason=""):
-	return Response({'detail' : 'CSRF token missing'}, status=status.HTTP_403_FORBIDDEN)
+	return Response({'detail' : _('CSRF token missing')}, status=status.HTTP_403_FORBIDDEN)
 
 class HealthCheckView(APIView):
 	def get(self, request):
@@ -108,6 +110,9 @@ class LoginView(APIView):
 	permission_classes = []
 	@method_decorator(csrf_exempt)
 	def post(self, request, format=None):
+		logging.info(request.META)
+		logging.info(request.LANGUAGE_CODE)
+
 		data = request.data
 		response = Response()
 		username = data.get('username', None)
@@ -119,17 +124,17 @@ class LoginView(APIView):
 				if user.two_factor:
 					otp_code = data.get('otp_code', None)
 					if otp_code is None:
-						return Response({"otp_required" : True, "details" : "OTP is yet to be provided"})
+						return Response({"otp_required" : True, "details" : _("OTP is yet to be provided")})
 					totp = pyotp.TOTP(user.two_factor_secret)
 					if not totp.verify(otp_code):
-						return Response({'detail' : 'Invalid or expired OTP'}, status=status.HTTP_403_FORBIDDEN)
+						return Response({'detail' : _('Invalid or expired OTP')}, status=status.HTTP_403_FORBIDDEN)
 				data = get_tokens_for_user(user)
 				response = set_response_cookie(response, data=data)
 				csrf.get_token(request)
 				response.data = {"access" : data['access']}
 				return response
 			else:
-				return Response({"details" : "This account is not active"},status=status.HTTP_404_NOT_FOUND)
+				return Response({"details" : _("This account is not active")},status=status.HTTP_404_NOT_FOUND)
 		elif user is None and request.COOKIES.get('twofa_state') is not None:
 			twofa_state_cookie = request.COOKIES.get('twofa_state')
 			cached_twofa_state = cache.get(twofa_state_cookie, None)
@@ -138,10 +143,10 @@ class LoginView(APIView):
 					user = CustomUser.objects.get(username=username)
 					otp_code = data.get('otp_code', None)
 					if otp_code is None:
-						return Response({"otp_required" : True, "details" : "OTP is yet to be provided"})
+						return Response({"otp_required" : True, "details" : _("OTP is yet to be provided")})
 					totp = pyotp.TOTP(user.two_factor_secret)
 					if not totp.verify(otp_code):
-						return Response({'detail' : 'Invalid or expired OTP'}, status=status.HTTP_403_FORBIDDEN)
+						return Response({'detail' : _('Invalid or expired OTP')}, status=status.HTTP_403_FORBIDDEN)
 					if user.id == cached_twofa_state:
 							cache.delete(cached_twofa_state)
 							delete_twofa_state_cookie(response)
@@ -152,13 +157,13 @@ class LoginView(APIView):
 							logging.info(response)
 							return response
 					else:
-						return Response({'detail' : 'State not tied to user'}, status=status.HTTP_401_UNAUTHORIZED)
+						return Response({'detail' : _('State not tied to user')}, status=status.HTTP_401_UNAUTHORIZED)
 				except CustomUser.DoesNotExist:
-					return Response({"details" : "Invalid username provided"},status=status.HTTP_404_NOT_FOUND)
+					return Response({"details" : _("Invalid username provided")},status=status.HTTP_404_NOT_FOUND)
 			else:
-				return Response({'detail' : 'Request timed out, log in again'}, status=status.HTTP_403_FORBIDDEN)
+				return Response({'detail' : _('Request timed out, log in again')}, status=status.HTTP_403_FORBIDDEN)
 		else:
-			return Response({"details" : "Invalid username or password"},status=status.HTTP_404_NOT_FOUND)
+			return Response({"details" : _("Invalid username or password")},status=status.HTTP_404_NOT_FOUND)
 
 class RefreshView(TokenRefreshView):
 	permission_classes = [AllowAny]
@@ -186,18 +191,18 @@ class LogoutView(APIView):
 		player = CustomUser.objects.get(id=request.user.id)
 		logging.info(f"Player {player.id} is {player.state}")
 		if player.state == CustomUser.StateOptions.INGAME:
-			return Response({"details" : "Logging out when in game is not possible"}, status=status.HTTP_403_FORBIDDEN)
+			return Response({"details" : _("Logging out when in game is not possible")}, status=status.HTTP_403_FORBIDDEN)
 		try:
 			token = RefreshToken(request.COOKIES.get('refresh_token'))
 			token.blacklist()
-			response = Response({"detail": "Successfully logged out"})
+			response = Response({"detail": _("Successfully logged out")})
 			delete_auth_cookie(response)
 			#response.delete_cookie(settings.SIMPLE_JWT['AUTH_COOKIE'])
 			delete_twofa_state_cookie(response)
 			#response.delete_cookie('twofa_state')
 			return response
 		except TokenError as e:
-			return Response({"details" : 'Already logged out'},status=status.HTTP_401_UNAUTHORIZED)
+			return Response({"details" : _('Already logged out')},status=status.HTTP_401_UNAUTHORIZED)
 
 #handle expiration of cached state
 class IntraAuthorizationView(APIView):
@@ -225,7 +230,7 @@ class IntraCallbackView(APIView):
 		returned_state = request.query_params.get('state', None)
 		cached_state = cache.get(returned_state, None)
 		if cached_state == None:
-			return Response({"details" : "Invalid state parameter, try again"}, status=status.HTTP_403_FORBIDDEN)
+			return Response({"details" : _("Invalid state parameter, try again")}, status=status.HTTP_403_FORBIDDEN)
 		else:
 			cache.delete(cached_state)
 
@@ -234,7 +239,7 @@ class IntraCallbackView(APIView):
 		if error_msg is not None:
 			return Response({"details" : error_msg}, status=status.HTTP_401_UNAUTHORIZED)
 		if code is None:
-			return Response({"details" : "Code was not provided by 42 OAuth"}, status=status.HTTP_401_UNAUTHORIZED)
+			return Response({"details" : _("Code was not provided by 42 OAuth")}, status=status.HTTP_401_UNAUTHORIZED)
 
 		token_request_data = {
 			'grant_type' : 'authorization_code',
@@ -245,13 +250,13 @@ class IntraCallbackView(APIView):
 		}
 		token_response = requests.post("https://api.intra.42.fr/oauth/token", data=token_request_data)
 		if not token_response.ok:
-			return Response({"details" : "Token was not provided by 42 OAuth"}, status=status.HTTP_401_UNAUTHORIZED)
+			return Response({"details" : _("Token was not provided by 42 OAuth")}, status=status.HTTP_401_UNAUTHORIZED)
 		access_token = token_response.json().get('access_token', None)
 
 		current_user_response = requests.get("https://api.intra.42.fr/v2/me",
 			headers={"Authorization": f"Bearer {access_token}"})
 		if not current_user_response.ok:
-			return Response({"details" : "Token provided by 42 OAuth is invalid or has expired"}, status=status.HTTP_401_UNAUTHORIZED)
+			return Response({"details" : _("Token provided by 42 OAuth is invalid or has expired")}, status=status.HTTP_401_UNAUTHORIZED)
 		
 		# needs protection if image is empty
 		player_info =  {
@@ -263,7 +268,7 @@ class IntraCallbackView(APIView):
    		}
 		email = player_info['email']
 		if email == None:
-			return Response({"details" : "Intra account does not have a valid e-mail address associated with it"}, status=status.HTTP_404_NOT_FOUND)
+			return Response({"details" : _("Intra account does not have a valid e-mail address associated with it")}, status=status.HTTP_404_NOT_FOUND)
 		
 		try:
 			player = CustomUser.objects.get(email=email)

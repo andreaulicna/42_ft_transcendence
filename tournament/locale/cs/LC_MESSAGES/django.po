@@ -1,0 +1,106 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-02-05 14:34+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n "
+"<= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;\n"
+#: api/views.py:16
+msgid "CSRF token missing"
+msgstr "Chbybí CSRF token"
+
+#: api/views.py:60 api/views.py:225
+msgid "Player already has a match in progress."
+msgstr "Hráč má již rozehraný jiný zápas"
+
+#: api/views.py:65
+msgid "You are already in a waiting tournament, you cannot create another one!"
+msgstr "Není možné vytvořit nový turnaj během čekání na spuštění jiného!"
+
+#: api/views.py:70
+msgid ""
+"You are already in a tournament and have matches to play, you cannot create "
+"another one!"
+msgstr "Není možné vytvořit nový turnaj během hraní jiného!"
+
+#: api/views.py:75
+msgid "Player does not exist"
+msgstr "Hráč neexistuje"
+
+#: api/views.py:100
+msgid "Tournament created."
+msgstr "Turnaj vytvořen"
+
+#: api/views.py:118
+msgid "You are alredy in a waiting tournament, you cannot join another one!"
+msgstr "Není možné vytvořit nový turnaj během čekání na spuštění jiného!"
+
+#: api/views.py:123
+msgid "You are already in a tournament and have matches to play!"
+msgstr "Už hraješ v jiném turnaji!"
+
+#: api/views.py:128 api/views.py:158 api/views.py:205
+msgid "No such tournament exists!"
+msgstr "Turnaj neexistuje"
+
+#: api/views.py:132
+msgid "This tournament is already full!"
+msgstr "Turnaj má plnou kapacitu!"
+
+#: api/views.py:142
+msgid "Added you to the tournament!."
+msgstr "Byl jsi přidán do turnaje!"
+
+#: api/views.py:161
+msgid "This tournament is already in progress, you cannot cancel joining!"
+msgstr "Turnaj už běží, nelze zrušit registraci"
+
+#: api/views.py:163
+msgid "This tournament has already finished, you cannot cancel joining!"
+msgstr "Turnaj už se dohrál, nelze zrušit registraci"
+
+#: api/views.py:175
+msgid "You have successfully canceled joining the tournament."
+msgstr "Úspěšné odhlášení z turnaje"
+
+#: api/views.py:179
+msgid "You are not part of this tournament."
+msgstr "Nejsi součástí tohoto turnaje"
+
+#: api/views.py:210
+msgid "Wrong number of players for the tournament capacity"
+msgstr "Špatná hodnota udávající kapacitu turnaje"
+
+#: api/views.py:230
+msgid ""
+"You are already playing a local tournament, you cannot create another one!"
+msgstr "Už hraješ v jiném místním turnaji!"
+
+#: api/views.py:247
+msgid "Local tournament created."
+msgstr "Místní turnaj vytvořen"
+
+#: tournament/settings.py:153
+msgid "English"
+msgstr "Angličtina"
+
+#: tournament/settings.py:154
+msgid "Czech"
+msgstr "Čeština"
+
+#: tournament/settings.py:155
+msgid "Slovak"
+msgstr "Slovenština"

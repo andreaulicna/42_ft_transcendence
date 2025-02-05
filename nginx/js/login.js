@@ -86,6 +86,7 @@ async function loginIntra() {
 		method: "GET",
 		headers: {
 			"Content-Type": "application/json",
+			'Accept-Language' : localStorage.getItem('language') || 'en'
 		},
 	};
 	
@@ -110,7 +111,8 @@ async function loginUser(payload) {
 	const options = {
 		method: "POST",
 		headers: {
-			"Content-Type": "application/json"
+			"Content-Type": "application/json",
+			'Accept-Language' : localStorage.getItem('language') || 'en'
 		},
 		body: JSON.stringify(payload)
 	};

@@ -7,6 +7,10 @@ from .serializers import AIMatchSerializer
 from .models import CustomUser
 from django.utils.translation import gettext as _
 
+
+def csrf_failure(request, reason=""):
+	return Response({'detail' : _('CSRF token missing')}, status=status.HTTP_403_FORBIDDEN)
+
 class HealthCheckView(APIView):
 	def get(self, request):
 		return Response({'detail' : 'Healthy'})
@@ -24,7 +28,7 @@ class CreateAIMatchView(APIView):
 	def post(self, request):
 		creator = request.user
 		if get_player_state(creator.id) == CustomUser.StateOptions.INGAME:
-			return Response({'detail' : 'Player already has a match in progress.'}, status=status.HTTP_403_FORBIDDEN)
+			return Response({'detail' : _('Player already has a match in progress.')}, status=status.HTTP_403_FORBIDDEN)
 		data = {
 				'creator' : creator.id,
 				'default_ball_size' : GAME_CONSTANTS['BALL_SIZE'],

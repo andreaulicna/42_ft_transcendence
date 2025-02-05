@@ -1,0 +1,55 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-02-05 13:17+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n "
+"<= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;\n"
+#: api/views.py:11
+msgid "CSRF token missing"
+msgstr "Chybí CSRF token"
+
+#: api/views.py:49
+msgid "Player already has a match in progress."
+msgstr "Hráč má již rozehraný jiný zápas"
+
+#: api/views.py:53
+msgid "Usernames cannot be identical"
+msgstr "Jména by neměla být stejná"
+
+#: api/views.py:58
+msgid "Local match created and ready to play."
+msgstr "Místní zápas vytvořen a připraven ke hře"
+
+#: api/views.py:68
+msgid "Previous match to base this rematch on does not exist."
+msgstr "Neexistuje žádný vhodný předchozí zápas"
+
+#: api/views.py:77
+msgid "Rematch for a local match created and ready to play."
+msgstr "Odvetný zápas vytvořen a připraven ke hře"
+
+#: localplay/settings.py:159
+msgid "English"
+msgstr "Angličtina"
+
+#: localplay/settings.py:160
+msgid "Czech"
+msgstr "Čeština"
+
+#: localplay/settings.py:161
+msgid "Slovak"
+msgstr "Slovenština"

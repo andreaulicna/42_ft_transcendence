@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-01 06:43+0100\n"
+"POT-Creation-Date: 2025-02-05 14:14+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,7 +18,18 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n "
 "<= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;\n"
-#: ai_play/authenticate.py:18
-#, python-format
-msgid "CSRF Failed: %s"
-msgstr ""
+#: api/views.py:9
+msgid "CSRF token missing"
+msgstr "Chybí CSRF token"
+
+#: pong/settings.py:173
+msgid "English"
+msgstr "Angličtina"
+
+#: pong/settings.py:174
+msgid "Czech"
+msgstr "Čeština"
+
+#: pong/settings.py:175
+msgid "Slovak"
+msgstr "Slovenština"

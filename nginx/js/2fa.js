@@ -46,7 +46,8 @@ async function login2FA(payload) {
 		const options = {
 			method: 'POST',
 			headers: {
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
+				'Accept-Language' : localStorage.getItem('language') || 'en'
 			},
 			body: JSON.stringify(payload)
 		};

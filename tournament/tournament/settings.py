@@ -14,6 +14,8 @@ from pathlib import Path
 import os
 from datetime import timedelta
 from django.urls import reverse_lazy
+from django.utils.translation import gettext_lazy as _
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -142,11 +144,20 @@ INTERNAL_IPS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'CET'
 USE_TZ = True
 USE_I18N = True
+USE_L10N = True
+LANGUAGE_CODE = 'en'
+LANGUAGES = (
+    ('en', _('English')),
+    ('cs', _('Czech')),
+    ('sk', _('Slovak'))
+)
+
+LOCALE_PATHS = [
+    os.path.join(BASE_DIR, 'locale')
+]
 
 
 # Static files (CSS, JavaScript, Images)
@@ -194,3 +205,4 @@ CHANNEL_LAYERS = {
 }
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+CSRF_FAILURE_VIEW = 'api.views.csrf_failure'

@@ -9,19 +9,10 @@ from .models import CustomUser
 from rest_framework import serializers
 from datetime import datetime
 
-
-
 class CustomTokenRefreshSerializer(TokenRefreshSerializer):
 	token_class = RefreshToken
 	refresh = None
 	def validate(self, attrs):
-		# refresh_token = settings.SIMPLE_JWT['AUTH_COOKIE']
-		# print(self.context)
-		# attrs['refresh'] = self.context['request'].COOKIES.get(refresh_token)
-		# if attrs['refresh']:
-		# 	return super().validate(attrs)
-		# else:
-		# 	raise InvalidToken(f'No valid token found in cookie {refresh_token}')
 		refresh_token = settings.SIMPLE_JWT['AUTH_COOKIE']
 		attrs['refresh'] = self.context['request'].COOKIES.get(refresh_token)
 		if attrs['refresh']:

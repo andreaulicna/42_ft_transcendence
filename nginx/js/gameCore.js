@@ -381,7 +381,8 @@ async function fetchServerTime() {
 		method: 'GET',
 		headers: {
 			'Content-Type': 'application/json',
-			'X-CSRFToken': Cookies.get("csrftoken")
+			'X-CSRFToken': Cookies.get("csrftoken"),
+			'Accept-Language' : localStorage.getItem('language') || 'en'
 		}
 	};
 	try 

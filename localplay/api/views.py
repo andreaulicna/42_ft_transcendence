@@ -5,7 +5,10 @@ from rest_framework import status
 from localplay.settings import GAME_CONSTANTS
 from .serializers import LocalMatchSerializer
 from .models import CustomUser, LocalMatch
-import logging
+from django.utils.translation import gettext as _
+
+def csrf_failure(request, reason=""):
+	return Response({'detail' : _('CSRF token missing')}, status=status.HTTP_403_FORBIDDEN)
 
 class HealthCheckView(APIView):
 	def get(self, request):
@@ -43,16 +46,16 @@ class CreateMatchView(APIView):
 	def post(self, request):
 		creator = request.user
 		if get_player_state(creator.id) == CustomUser.StateOptions.INGAME:
-			return Response({'detail' : 'Player already has a match in progress.'}, status=status.HTTP_403_FORBIDDEN)
+			return Response({'detail' : _('Player already has a match in progress.')}, status=status.HTTP_403_FORBIDDEN)
 		player1_username = request.data.get('player1_tmp_username', 'player1')
 		player2_username = request.data.get('player2_tmp_username', 'player2')
 		if player1_username == player2_username:
-			return Response({'detail' : 'Usernames cannot be identical'}, status=status.HTTP_400_BAD_REQUEST)
+			return Response({'detail' : _('Usernames cannot be identical')}, status=status.HTTP_400_BAD_REQUEST)
 		data = set_match_data(creator.id, player1_username, player2_username)
 		match_serializer = LocalMatchSerializer(data=data)
 		if match_serializer.is_valid():
 			match_serializer.save()
-			return Response({'detail': 'Local match created and ready to play.', 'match_id': match_serializer.data['id']}, status=status.HTTP_201_CREATED)
+			return Response({'detail': _('Local match created and ready to play.'), 'match_id': match_serializer.data['id']}, status=status.HTTP_201_CREATED)
 		else:
 			return Response(match_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -62,7 +65,7 @@ class CreateRematchView(APIView):
 	def post(self, request, prev_match_id, sides_mode):
 		prev_match = get_prev_match(prev_match_id)
 		if (prev_match is None):
-			return Response({'detail' : 'Previous match to base this rematch on does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+			return Response({'detail' : _('Previous match to base this rematch on does not exist.')}, status=status.HTTP_404_NOT_FOUND)
 		creator = request.user
 		if (sides_mode == "keep"):
 			data = set_match_data(creator.id, prev_match.player1_tmp_username, prev_match.player2_tmp_username)
@@ -71,7 +74,7 @@ class CreateRematchView(APIView):
 		match_serializer = LocalMatchSerializer(data=data)
 		if match_serializer.is_valid():
 			match_serializer.save()
-			return Response({'detail': 'Rematch for a local match created and ready to play.', 'match_id': match_serializer.data['id']}, status=status.HTTP_201_CREATED)
+			return Response({'detail': _('Rematch for a local match created and ready to play.'), 'match_id': match_serializer.data['id']}, status=status.HTTP_201_CREATED)
 		else:
 			return Response(match_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

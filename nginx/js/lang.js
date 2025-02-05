@@ -157,7 +157,7 @@ const translations = {
 		t_friendDelete_message: "You have deleted a friend from the list.",
 		t_friendDeleteError_header: "Error deleting friend",
 	},
-	cz: {
+	cs: {
 		// INDEX
 		title: "Transcendence",
 		welcome: "Vítejte",
@@ -478,7 +478,7 @@ const translations = {
 document.addEventListener("DOMContentLoaded", () => {
 	const languageButtons = {
 		langEN: "en",
-		langCZ: "cz",
+		langCZ: "cs",
 		langSK: "sk"
 	};
 

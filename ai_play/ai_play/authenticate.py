@@ -1,7 +1,6 @@
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.authentication import CSRFCheck
 from rest_framework import exceptions
-from django.utils.translation import gettext as _
 
 def enforce_csrf(request):
     """
@@ -15,7 +14,7 @@ def enforce_csrf(request):
     reason = check.process_view(request, None, (), {})
     if reason:
         # CSRF failed, bail with explicit error message
-        raise exceptions.PermissionDenied(_('CSRF Failed: %s') % reason)
+        raise exceptions.PermissionDenied('CSRF Failed: %s' % reason)
 
 class CustomJWTAuthentication(JWTAuthentication):
     
