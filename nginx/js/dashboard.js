@@ -1,3 +1,4 @@
+import { initMatchStartListener } from "./gameCore.js";
 import { logout } from "./router.js";
 
 let logoutBtn;
@@ -6,6 +7,8 @@ export async function init(id) {
 	if (id !== null) {
 		localStorage.setItem("id", id);
 	}
+
+	initMatchStartListener();
 
 	// Add selected game mode to local storage
 	document.querySelectorAll('#menu .menu-game').forEach(link => {
