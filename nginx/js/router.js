@@ -1,4 +1,3 @@
-import appState from "./appState.js";
 import { showLoading } from "./animations.js";
 import { apiCallAuthed, ensureValidAccessToken, refreshAccessToken } from './api.js';
 import { hideLoading } from "./animations.js";
