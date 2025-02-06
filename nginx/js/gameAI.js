@@ -35,7 +35,6 @@ export async function init() {
 			throw new Error("Match ID is not set in localStorage.");
 		}
 
-		// Change URL to AI mode below
 		initMatchStartListener();
 		let data = await apiCallAuthed(`/api/user/aimatch/${match_id}`);
 

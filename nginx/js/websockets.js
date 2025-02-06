@@ -300,6 +300,10 @@ function handlePaddleMovement(event) {
 		localWebSocket.send(JSON.stringify(event.detail));
 		// console.log('Localplay WebSocket message sent:', event.detail);
 	}
+	else if (aiplayWebSocket && aiplayWebSocket.readyState === WebSocket.OPEN) {
+		aiplayWebSocket.send(JSON.stringify(event.detail));
+		// console.log('AIPlay WebSocket message sent:', event.detail);
+	}
 }
 
 export function addPaddleMovementListener() {
