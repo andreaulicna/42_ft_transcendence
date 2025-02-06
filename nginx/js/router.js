@@ -104,6 +104,7 @@ const router = async () => {
 	if (appState.isLoggingOut)
 		return;
 
+	// Refreshes access token before getting to further API calls, preventing double refresh on load/hashchange events
 	appState.loggedIn = await refreshAccessToken();
 
 
@@ -114,11 +115,8 @@ const router = async () => {
 		return;
 	}
 
-	// // Refreshes access token before getting to further API calls, preventing double refresh on load/hashchange events
-	// await ensureValidAccessToken();
-
 	// If user is logged in, go straight to #dashboard
-	if ((window.location.hash === '' || window.location.hash === '#login' || window.location.hash === '#register' ) && localStorage.getItem('access')) {
+	if ((window.location.hash === '' || window.location.hash === '#login' || window.location.hash === '#register' ) && appState.loggedIn) {
 		window.location.hash = '#dashboard';
 		return;
 	}
@@ -165,9 +163,8 @@ window.addEventListener('load', handleLoadEvent);
 export function redirectToHome(event) {
 	event.preventDefault();
 	
-	const accessToken = localStorage.getItem('access');
 	// If user is logged in, go to dashboard, otherwise to login page
-	if (accessToken) {
+	if (appState.loggedIn) {
 		// If a player is inside a lobby, they can only be redirected via the Cancel button
 		if (window.location.hash == '#lobby-game' || window.location.hash == '#lobby-tnmt')
 			return;
@@ -217,7 +214,7 @@ export async function logout() {
 		localStorage.removeItem('match_id');
 		Cookies.remove('csrftoken');
 
-		appState.loggedIn = true;
+		appState.loggedIn = false;
 		window.location.hash = '#login';
 
 		// console.log('Logged out successfully');
