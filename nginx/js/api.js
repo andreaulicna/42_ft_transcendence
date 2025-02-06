@@ -3,7 +3,7 @@ import { hideLoading } from "./animations.js";
 import { listenStatusRefreshEvent, closeStatusWebsocket } from "./websockets.js";
 
 export async function apiCallAuthed(url, method = 'GET', headers = {}, payload = null, showAnimation = true) {
-	ensureValidAccessToken();
+	await ensureValidAccessToken();
 
 	const options = {
 		method,
@@ -50,6 +50,7 @@ export async function ensureValidAccessToken() {
 
 	// Check if the access token is about to expire
 	if (accessTokenExpiration && (now >= accessTokenExpiration - 3000)) { // Refresh the token 3 seconds before it expires
+		// console.log("REQUESTING NEW ACCESS TOKEN");
 		return await refreshAccessToken();
 	}
 	return true;
@@ -85,6 +86,7 @@ export async function refreshAccessToken() {
 
 	try {
 		const response = await fetch(url, options);
+		// console.log("FETCHING NEW ACCESS TOKEN");
 		if (response.ok) {
 			listenStatusRefreshEvent();
 			const refreshStatusSocketEvent = new CustomEvent('refresh_status');
