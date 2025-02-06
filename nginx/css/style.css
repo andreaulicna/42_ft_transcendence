@@ -144,8 +144,11 @@ body {
 }
 
 .profilePic {
-	max-width: var(--profilePicSize);
+	width: var(--profilePicSize);
+	height: var(--profilePicSize);
 	border-radius: 50%;
+	object-fit: cover;
+	object-position: center;
 }
 
 .profilePicContainer::before {
