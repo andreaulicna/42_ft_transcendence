@@ -49,8 +49,6 @@ export let player1AvatarPlaceholder;
 export let player2AvatarPlaceholder;
 export let isTouchDevice;
 
-let countdownModal;
-let countdownInterval;
 
 // let listenersAdded = false;
 
@@ -412,58 +410,6 @@ async function syncTime() {
 
 /* 👇 MENUS & REMATCH & NON-GAME LOGIC */
 
-export async function startCountdown(event) {
-	const data = event.detail;
-
-	// Print the received data for debugging
-	// console.log("Received data:", data);
-
-	// In case of grace period reconnect, update the game state accordingly
-	if (data.ball_x != 0 && data.ball_y != 0)
-		handleDraw(event);
-
-	// const gameStartTime = new Date(data.game_start);
-	// const currentTime = new Date();
-
-	const offset = await syncTime();
-	const gameStartTime = new Date(data.game_start).getTime();
-	const adjustedGameStartTime = gameStartTime - offset;
-
-	const currentTime = Date.now();
-	let countdownSync = (adjustedGameStartTime - currentTime) % 1000;
-	let countdownStart = Math.floor((adjustedGameStartTime - currentTime) / 1000);
-
-	// Print the calculated variables for debugging in ISO format
-	// console.log("Game start time (ISO):", new Date(gameStartTime).toISOString());
-	// console.log("Adjusted game start time (ISO):", new Date(adjustedGameStartTime).toISOString());
-	// console.log("Offset:", offset);
-	// console.log("Current time (ISO):", new Date(currentTime).toISOString());
-	// console.log("Countdown sync:", countdownSync);
-	// console.log("Countdown start:", countdownStart);
-	countdownModal = bootstrap.Modal.getOrCreateInstance('#countdownModal');
-	const countdownNums = document.getElementById("countdownNums");
-
-	countdownModal.show();
-	countdownNums.textContent = countdownStart + 1;
-
-	const syncCountdownInterval = setTimeout(() => {
-		// countdownNums.textContent = countdownStart + 1;
-		// console.log("Sync countdown interval executed, countdown start + 1:", countdownStart + 1);
-	}, countdownSync);
-
-	countdownInterval = setInterval(() => {
-		if (countdownStart > 0) {
-			countdownNums.textContent = countdownStart;
-			// console.log("Countdown interval, countdown start:", countdownStart);
-		} else {
-			clearInterval(countdownInterval);
-			countdownModal.hide();
-			// console.log("Countdown finished, modal hidden");
-		}
-		countdownStart--;
-	}, 1000);
-}
-
 function showGameOverScreen(event) {
 	setMatchID(localStorage.getItem("match_id"));
 	localStorage.setItem("prev_match_id", matchID);
@@ -520,60 +466,125 @@ function preventArrowKeyScroll(event) {
 		event.preventDefault();
 }
 
-// Handle grace period for the remaining connected player
-let gracePeriodInterval;
-let gracePeriodModal;
+let countdownInterval;
+let countdownModal;
+let countdownNums;
+let countdownText;
+let currentCountdownType = null;
 let gracePeriodCountdown;
 
-export function handleGracePeriod() {
-	countdownModal.hide();
+export async function startCountdown(event) {
+	const data = event.detail;
+
+	// In case of grace period reconnect, update the game state accordingly
+	if (data.ball_x != 0 && data.ball_y != 0)
+		handleDraw(event);
+
+	// Calculate the correct countdown time
+	const offset = await syncTime();
+	const gameStartTime = new Date(data.game_start).getTime();
+	const adjustedGameStartTime = gameStartTime - offset;
+
+	const currentTime = Date.now();
+	let countdownSync = (adjustedGameStartTime - currentTime) % 1000;
+	let countdownStart = Math.floor((adjustedGameStartTime - currentTime) / 1000);
+
+	// Print the calculated variables for debugging in ISO format
+	// const gameStartTime = new Date(data.game_start);
+	// const currentTime = new Date();
+	// console.log("Game start time (ISO):", new Date(gameStartTime).toISOString());
+	// console.log("Adjusted game start time (ISO):", new Date(adjustedGameStartTime).toISOString());
+	// console.log("Offset:", offset);
+	// console.log("Current time (ISO):", new Date(currentTime).toISOString());
+	// console.log("Countdown sync:", countdownSync);
+	// console.log("Countdown start:", countdownStart);
+
+	// Initialize modal elements
+	countdownModal = bootstrap.Modal.getOrCreateInstance('#countdownModal');
+	countdownNums = document.getElementById("countdownNums");
+	countdownText = document.getElementById("countdownText");
+	currentCountdownType = "start";
+
+	// Clear any existing intervals
 	clearInterval(countdownInterval);
 
-	gracePeriodModal = new bootstrap.Modal(document.getElementById("countdownModal"));
-	const countdownNums = document.getElementById("countdownNums");
-	const countdownText = document.getElementById("countdownText");
+	// Show the modal and start countdown
+	countdownNums.textContent = countdownStart + 1;
+	countdownModal.show();
+
+	const syncCountdownInterval = setTimeout(() => {
+		countdownNums.textContent = countdownStart + 1;
+		// console.log("Sync countdown interval executed, countdown start + 1:", countdownStart + 1);
+	}, countdownSync);
+
+	countdownInterval = setInterval(() => {
+		if (countdownStart > 0) {
+			countdownNums.textContent = countdownStart;
+			// console.log("Countdown interval, countdown start:", countdownStart);
+		} else {
+			clearInterval(countdownInterval);
+			countdownModal.hide();
+			// console.log("Countdown finished, modal hidden");
+		}
+		countdownStart--;
+	}, 1000);
+}
+
+export function handleGracePeriod() {
+	// Clear any existing intervals
+	clearInterval(countdownInterval);
+
+	// Initialize modal elements
+	countdownModal = bootstrap.Modal.getOrCreateInstance('#countdownModal');
+	countdownNums = document.getElementById("countdownNums");
+	countdownText = document.getElementById("countdownText");
+	currentCountdownType = "grace";
+
+	// Show the modal and start the grace period countdown
 	gracePeriodCountdown = 30;
 	countdownText.textContent = `😒 Waiting for opponent to reconnect...`;
 	countdownNums.textContent = `${gracePeriodCountdown}`;
-	gracePeriodModal.show();
+	countdownModal.show();
 
-	gracePeriodInterval = setInterval(() => {
+	countdownInterval = setInterval(() => {
 		gracePeriodCountdown--;
 		if (gracePeriodCountdown > 0)
+		{
 			countdownNums.textContent = `${gracePeriodCountdown}`;
+		}
 		else
 		{
-			clearInterval(gracePeriodInterval);
-			gracePeriodModal.hide();
+			clearInterval(countdownInterval);
+			countdownModal.hide();
+			currentCountdownType = null;
 		}
 	}, 1000);
 }
 
 function clearGracePeriod(event) {
-	if (gracePeriodInterval)
+	if (currentCountdownType === "grace")
 	{
-		clearInterval(gracePeriodInterval);
+		clearInterval(countdownInterval);
 
 		const data = event.detail;
 		const gameStartTime = new Date(data.game_start);
 		const currentTime = new Date();
 		let countdownStart = Math.floor((gameStartTime - currentTime) / 1000);
-		
-		const countdownNums = document.getElementById("countdownNums");
-		const countdownText = document.getElementById("countdownText");
 
 		countdownNums.textContent = `${countdownStart}`;
-		countdownText.textContent = ``;
+		countdownText.textContent = "";
 
-		const countdownInterval = setInterval(() => {
+		countdownInterval = setInterval(() => {
 			countdownStart--;
-			countdownNums.textContent = `${countdownStart}`;
 			if (countdownStart > 0)
+			{
 				countdownNums.textContent = countdownStart;
+			}
 			else
 			{
 				clearInterval(countdownInterval);
-				gracePeriodModal.hide();
+				countdownModal.hide();
+				currentCountdownType = null;
 			}
 		}, 1000);
 	}
