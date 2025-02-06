@@ -56,7 +56,7 @@ function checkForIntraLoginArg() {
 		const payload = {
 			username: urlParams.get("username"),
 		};
-		localStorage.setItem("login_payload", JSON.stringify(payload));
+		appState.loginPayloadFor2FA = payload;
 		window.location.hash = "#2fa";
 	}
 	if (urlParams.get("access_token"))
@@ -118,11 +118,9 @@ async function loginUser(payload) {
 		const response = await fetch(url, options);
 		if (response.ok) {
 			const data = await response.json();
-			// console.log(data);
 			if (data.otp_required)
 			{
-				// console.log("ENTERING 2FA");
-				localStorage.setItem("login_payload", JSON.stringify(payload));
+				appState.loginPayloadFor2FA = payload;
 				window.location.hash = "#2fa";
 				otp_required = true;
 				return;

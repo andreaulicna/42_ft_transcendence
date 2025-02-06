@@ -2,39 +2,38 @@ import { openStatusWebsocket } from './websockets.js';
 import { showToast } from "./notifications.js";
 
 async function handle2FASubmit(event) {
-	const loginPayload = JSON.parse(localStorage.getItem("login_payload"));
-	localStorage.removeItem("login_payload");
-    const { username, password } = loginPayload;
+	const loginPayload = appState.loginPayloadFor2FA;
+	const { username, password } = loginPayload;
 
-    event.preventDefault();
-    const code = document.getElementById('2faCode').value;
+	event.preventDefault();
+	const code = document.getElementById('2faCode').value;
 
-    const payload = {
-        username: username,
-        password: password,
-        otp_code: code,
+	const payload = {
+		username: username,
+		password: password,
+		otp_code: code,
 	}
 
-    try {
-        const data = await login2FA(payload);
-        // console.log('Login successful:', data);
-        // Store tokens in session storage
-        localStorage.setItem('access', data.access);
-        // Establish friendlist websocket
-        openStatusWebsocket();
-        // Redirect to dashboard upon successful authentication
-        const newUrl = window.location.origin + window.location.pathname;
-        window.history.replaceState({}, document.title, newUrl);
+	try {
+		const data = await login2FA(payload);
+		// console.log('Login successful:', data);
+		// Store tokens in session storage
+		localStorage.setItem('access', data.access);
+		// Establish friendlist websocket
+		openStatusWebsocket();
+		// Redirect to dashboard upon successful authentication
+		const newUrl = window.location.origin + window.location.pathname;
+		window.history.replaceState({}, document.title, newUrl);
 		appState.loggedIn = true;
-        window.location.hash = '#dashboard';
-    } catch (error) {
-        console.error('Login failed:', error);
-        showToast("Login failed", null, error, "t_loginFailed");
-    }
+		window.location.hash = '#dashboard';
+	} catch (error) {
+		console.error('Login failed:', error);
+		showToast("Login failed", null, error, "t_loginFailed");
+	}
 }
 
 export function init() {
-	if (!localStorage.getItem("login_payload"))
+	if (!appState.loginPayloadFor2FA)
 		window.location.hash = "#login";
 	const form = document.getElementById('2faForm');
 	form.addEventListener('submit', handle2FASubmit);	
