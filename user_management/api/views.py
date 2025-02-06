@@ -22,6 +22,8 @@ from django.db import models, IntegrityError
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
+def csrf_failure(request, reason=""):
+	return Response({'detail' : _('CSRF token missing')}, status=status.HTTP_403_FORBIDDEN)
 
 class HealthCheckView(APIView):
 	def get(self, request):

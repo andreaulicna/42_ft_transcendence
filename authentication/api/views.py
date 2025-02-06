@@ -27,6 +27,7 @@ from string import ascii_letters
 import random
 from datetime import timedelta
 from django.db import transaction
+from django.core.files.base import ContentFile
 from django.utils.translation import gettext as _
 
 
@@ -257,7 +258,7 @@ class IntraCallbackView(APIView):
 			headers={"Authorization": f"Bearer {access_token}"})
 		if not current_user_response.ok:
 			return Response({"details" : _("Token provided by 42 OAuth is invalid or has expired")}, status=status.HTTP_401_UNAUTHORIZED)
-		
+
 		# needs protection if image is empty
 		player_info =  {
 			"email": current_user_response.json().get('email'),
@@ -280,14 +281,19 @@ class IntraCallbackView(APIView):
 			for key, value in player_info.items():
 				if value is not None and (getattr(player, key) is None or getattr(player, key) == ''):
 					setattr(player, key, value)
+			if not player.avatar:
+				avatar_link = current_user_response.json().get('image')['link']
+				avatar_response = requests.get(avatar_link)
+				if avatar_response.ok:
+					content_type = avatar_response.headers.get('Content-Type')
+					if content_type:
+						ext = content_type.split('/')[-1]
+						player.avatar.save(f'avatar.{ext}', ContentFile(avatar_response.content))
 			player.save()
 
 			if player.two_factor:
 				response = redirect(f"{settings.PUBLIC_AUTH_URL}" + '?username=' + player.username)
 				response = set_twofa_state_cookie(response, player.id)
-				# twofa_state_string = secrets.token_urlsafe(16)
-				# cache.set(twofa_state_string, player.id, 60)
-				# response = redirect(f"{settings.PUBLIC_AUTH_URL}" + "?twofa_state=" + f"{twofa_state_string}")
 			else:
 				data = get_tokens_for_user(player)
 				response = redirect(f"{settings.PUBLIC_AUTH_URL}" + "?access_token=" + f"{data['access']}")
@@ -308,6 +314,16 @@ class IntraCallbackView(APIView):
 				return Response(player.errors, status=status.HTTP_400_BAD_REQUEST)
 			
 			player = CustomUser.objects.get(email=player_info['email'])
+			if not player.avatar:
+				avatar_link = current_user_response.json().get('image')['link']
+				avatar_response = requests.get(avatar_link)
+				if avatar_response.ok:
+					content_type = avatar_response.headers.get('Content-Type')
+					if content_type:
+						ext = content_type.split('/')[-1]
+						player.avatar.save(f'avatar.{ext}', ContentFile(avatar_response.content))
+			player.save()
+			
 			data = get_tokens_for_user(player)
 			response = redirect(f"{settings.PUBLIC_AUTH_URL}" + "?access_token=" + f"{data['access']}")
 			response = set_response_cookie(response, data=data)
