@@ -20,6 +20,8 @@ RUN sed -i 's/\r//' /entrypoint.sh && \
 	chmod +x /entrypoint.sh && \
 	chown django_nonroot /entrypoint.sh
 
+RUN mkdir -p /app/mediafiles && chown django_nonroot /app/mediafiles
+
 USER django_nonroot
 ENTRYPOINT [ "/entrypoint.sh" ]
 CMD ["daphne", "-b", "0.0.0.0", "-p", "8001", "user_management.asgi:application"]

@@ -29,8 +29,8 @@ user_permissions[] (NULL)
 class CustomUser(AbstractUser):
 	class StateOptions(models.TextChoices):
 		# [VALUE IN CODE] = [DB NAME], [human readable name]
-		IDLE = "ID", gettext_lazy("Idle")
-		INGAME = "IG", gettext_lazy("In game")
+		IDLE = "ID", "Idle"
+		INGAME = "IG", "In game"
 
 	ROLE_CHOICES = (
 		('admin', 'Admin'),
@@ -51,9 +51,9 @@ class AbstractTournament(models.Model):
 		abstract = True
 
 	class StatusOptions(models.TextChoices):
-		WAITING = "WAIT", gettext_lazy("Waiting")
-		INPROGRESS = "IP", gettext_lazy("In progress")
-		FINISHED = "FIN", gettext_lazy("Finished")
+		WAITING = "WAIT", "Waiting"
+		INPROGRESS = "IP", "In progress"
+		FINISHED = "FIN", "Finished"
 
 	id = models.AutoField(primary_key=True)
 	name = models.CharField(max_length=30, default="unnamed")
@@ -76,9 +76,9 @@ class AbstractMatch(models.Model):
 		abstract = True
 	
 	class StatusOptions(models.TextChoices):
-		WAITING = "WAIT", gettext_lazy("Waiting")
-		INPROGRESS = "IP", gettext_lazy("In progress")
-		FINISHED = "FIN", gettext_lazy("Finished")
+		WAITING = "WAIT", "Waiting"
+		INPROGRESS = "IP", "In progress"
+		FINISHED = "FIN", "Finished"
 
 	id = models.AutoField(primary_key=True)
 	time_created = models.DateTimeField(auto_now_add=True)
@@ -114,8 +114,8 @@ class AIMatch(AbstractMatch):
 
 class Friendship(models.Model):
 	class StatusOptions(models.TextChoices):
-		PENDING = "PEN", gettext_lazy("Pending")
-		ACCEPTED = "ACC", gettext_lazy("Accepted")
+		PENDING = "PEN", "Pending"
+		ACCEPTED = "ACC", "Accepted"
 
 	id = models.AutoField(primary_key=True)
 	status = models.CharField(max_length=3, choices=StatusOptions, default=StatusOptions.PENDING)

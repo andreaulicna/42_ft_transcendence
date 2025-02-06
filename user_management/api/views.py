@@ -20,7 +20,10 @@ from django.core.files.base import ContentFile
 import pyotp, qrcode, logging, io
 from django.db import models, IntegrityError
 from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 
+def csrf_failure(request, reason=""):
+	return Response({'detail' : _('CSRF token missing')}, status=status.HTTP_403_FORBIDDEN)
 
 class HealthCheckView(APIView):
 	def get(self, request):
@@ -73,18 +76,18 @@ class Enable2FA(APIView):
 		otp_code = request.data.get('otp_code', None)
 
 		if not otp_code:
-			return Response({'detail' : 'OTP not provided'}, status=status.HTTP_400_BAD_REQUEST)
+			return Response({'detail' : _('OTP not provided')}, status=status.HTTP_400_BAD_REQUEST)
 		
 		if not user.two_factor_secret:
-			return Response({'detail' : 'Secret has not been generated yet'}, status=status.HTTP_400_BAD_REQUEST)
+			return Response({'detail' : _('Secret has not been generated yet')}, status=status.HTTP_400_BAD_REQUEST)
 		
 		totp = pyotp.TOTP(user.two_factor_secret)
 		if totp.verify(otp_code):
 			user.two_factor = True
 			user.save()
-			return Response({'detail' : '2FA enabled'})
+			return Response({'detail' : _('2FA enabled')})
 		
-		return Response({'detail' : 'Invalid OTP'}, status=status.HTTP_403_FORBIDDEN)
+		return Response({'detail' : _('Invalid OTP')}, status=status.HTTP_403_FORBIDDEN)
 	
 class Disable2FA(APIView):
 	permission_classes = [IsAuthenticated]
@@ -95,18 +98,18 @@ class Disable2FA(APIView):
 			otp_code = request.data.get('otp_code', None)
 
 			if not otp_code:
-				return Response({'detail' : 'OTP not provided'}, status=status.HTTP_400_BAD_REQUEST)
+				return Response({'detail' : _('OTP not provided')}, status=status.HTTP_400_BAD_REQUEST)
 			
 			totp = pyotp.TOTP(user.two_factor_secret)
 			if totp.verify(otp_code):
 				user.two_factor = False
 				user.two_factor_secret = None
 				user.save()
-				return Response({'detail' : '2FA disabled'})
+				return Response({'detail' : _('2FA disabled')})
 			
-			return Response({'detail' : 'Invalid OTP'}, status=status.HTTP_403_FORBIDDEN)
+			return Response({'detail' : _('Invalid OTP')}, status=status.HTTP_403_FORBIDDEN)
 		
-		return Response({'detail' : '2FA has not been enabled'}, status=status.HTTP_400_BAD_REQUEST)
+		return Response({'detail' : _('2FA has not been enabled')}, status=status.HTTP_400_BAD_REQUEST)
 
 class UserInfoView(APIView):
 		permission_classes = [IsAuthenticated]
@@ -114,7 +117,7 @@ class UserInfoView(APIView):
 			try:
 				player = CustomUser.objects.get(username=request.user)
 			except CustomUser.DoesNotExist:
-				return Response({'detail': 'Player does not exist'}, status=status.HTTP_404_NOT_FOUND)
+				return Response({'detail': _('Player does not exist')}, status=status.HTTP_404_NOT_FOUND)
 			serializer = UserSerializer(player)
 			return Response(serializer.data)
 		
@@ -122,7 +125,7 @@ class UserInfoView(APIView):
 			try:
 				player = CustomUser.objects.get(username=request.user)
 			except CustomUser.DoesNotExist:
-				return Response({'detail': 'Player does not exist'}, status=status.HTTP_404_NOT_FOUND)
+				return Response({'detail': _('Player does not exist')}, status=status.HTTP_404_NOT_FOUND)
 			first_name = request.data.get('first_name')
 			last_name = request.data.get('last_name')
 			username = request.data.get('username')
@@ -139,10 +142,10 @@ class UserInfoView(APIView):
 				player.full_clean()
 				player.save()
 			except IntegrityError as e:
-				return Response({'detail': 'Username already exists, choose a different one'}, status=status.HTTP_400_BAD_REQUEST)
+				return Response({'detail': _('Username already exists, choose a different one')}, status=status.HTTP_400_BAD_REQUEST)
 			except ValidationError as e:
 				return Response({"details" : str(e)},status=status.HTTP_400_BAD_REQUEST)
-			return Response({'detail' : 'User info updated'})
+			return Response({'detail' : _('User info updated')})
 		
 class OtherUserInfoView(APIView):
 	permission_classes = [IsAuthenticated]
@@ -152,7 +155,7 @@ class OtherUserInfoView(APIView):
 			other_user_serializer = OtherUserSerializer(other_user)
 			return Response(other_user_serializer.data)
 		except Http404:
-			return Response({'detail' : 'Other user not found'}, status=status.HTTP_404_NOT_FOUND)
+			return Response({'detail' : _('Other user not found')}, status=status.HTTP_404_NOT_FOUND)
 
 # protect against identical names and big amounts
 class UserAvatarUpload(APIView):
@@ -162,11 +165,11 @@ class UserAvatarUpload(APIView):
 		try:
 			player = CustomUser.objects.get(username=request.user)
 		except CustomUser.DoesNotExist:
-			return Response({'detail': 'Player does not exist'}, status=status.HTTP_404_NOT_FOUND)
+			return Response({'detail': _('Player does not exist')}, status=status.HTTP_404_NOT_FOUND)
 		# print(request.data)
 		data = request.data.get('profilePic')
 		if not data:
-			return Response({'detail': 'No avatar data provided'}, status=status.HTTP_400_BAD_REQUEST)
+			return Response({'detail': _('No avatar data provided')}, status=status.HTTP_400_BAD_REQUEST)
 		try:
 			format, imgstr = data.split(';base64,')
 			ext = format.split('/')[-1] 
@@ -183,7 +186,7 @@ class UserAvatarUpload(APIView):
 			# Save the file to the user's ImageField
 			player.avatar.save(f'avatar.{ext}', avatar_data)
 			player.save()
-			return Response({'detail': 'Avatar updated successfully'})
+			return Response({'detail': _('Avatar updated successfully')})
 		except Exception as e:
 			return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 	
@@ -191,7 +194,7 @@ class UserAvatarUpload(APIView):
 		try:
 			player = CustomUser.objects.get(username=request.user)
 		except CustomUser.DoesNotExist:
-			return Response({'detail': 'Player does not exist'}, status=status.HTTP_404_NOT_FOUND)
+			return Response({'detail': _('Player does not exist')}, status=status.HTTP_404_NOT_FOUND)
 		serializer = UserSerializer(player)
 		return Response({'avatar' : serializer.data['avatar']})
 		
@@ -215,7 +218,7 @@ class MatchStartView(APIView):
 			match_serializer = MatchStartSerializer(match)
 			return Response(match_serializer.data)
 		except Http404:
-			return Response({'detail' : 'Match not found'}, status=status.HTTP_404_NOT_FOUND)
+			return Response({'detail' : _('Match not found')}, status=status.HTTP_404_NOT_FOUND)
 
 class LocalMatchStartView(APIView):
 	def get(self, request, pk):
@@ -224,7 +227,7 @@ class LocalMatchStartView(APIView):
 			match_serializer = LocalMatchStartSerializer(match)
 			return Response(match_serializer.data)
 		except Http404:
-			return Response({'detail' : 'Match not found'}, status=status.HTTP_404_NOT_FOUND)
+			return Response({'detail' : _('Match not found')}, status=status.HTTP_404_NOT_FOUND)
 
 class AIMatchStartView(APIView):
 	def get(self, request, pk):
@@ -233,7 +236,7 @@ class AIMatchStartView(APIView):
 			match_serializer = AIMatchStartSerializer(match)
 			return Response(match_serializer.data)
 		except Http404:
-			return Response({'detail' : 'Match not found'}, status=status.HTTP_404_NOT_FOUND)
+			return Response({'detail' : _('Match not found')}, status=status.HTTP_404_NOT_FOUND)
 	
 class ActiveFriendshipsListView(ListAPIView):
 	serializer_class = FriendshipListSerializer
@@ -265,19 +268,19 @@ class FriendshipRequestView(APIView):
 	def post(self, request, username):
 		target_player_name = username
 		if not target_player_name:
-			return Response({'detail' : 'Receiver\'s username not specified'}, status=status.HTTP_400_BAD_REQUEST)
+			return Response({'detail' : _('Receiver\'s username not specified')}, status=status.HTTP_400_BAD_REQUEST)
 		elif target_player_name == request.user.username:
-			return Response({'detail' : 'You cannot befriend yourself'}, status=status.HTTP_400_BAD_REQUEST)
+			return Response({'detail' : _('You cannot befriend yourself')}, status=status.HTTP_400_BAD_REQUEST)
 		try:
 			target_player = CustomUser.objects.get(username=target_player_name)
 		except CustomUser.DoesNotExist:
-			return Response({'detail' : 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+			return Response({'detail' : _('User not found')}, status=status.HTTP_404_NOT_FOUND)
 		sender_current = request.user
 		receiver_current = target_player
 		print("Sender: ", sender_current.id, " Receiver: ", receiver_current.id)
 		db_check = Friendship.objects.filter(Q(receiver=sender_current) | Q(sender=sender_current), Q(receiver=receiver_current) | Q(sender=receiver_current))
 		if db_check:
-			return Response({'detail': 'Friendship (request) already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+			return Response({'detail': _('Friendship (request) already exists.')}, status=status.HTTP_400_BAD_REQUEST)
 		# the friendship gets created here and so the database needs data in this format
 		friendship_data = {
 			'sender': sender_current.id,
@@ -286,7 +289,7 @@ class FriendshipRequestView(APIView):
 		friendship_serializer = FriendshipSerializer(data=friendship_data)
 		if friendship_serializer.is_valid():
 			friendship_serializer.save()
-			return Response({'detail': 'Friendship request sent successfully.', 'friendship_id': friendship_serializer.data['id']}, status=status.HTTP_201_CREATED)
+			return Response({'detail': _('Friendship request sent successfully.'), 'friendship_id': friendship_serializer.data['id']}, status=status.HTTP_201_CREATED)
 		else:
 			return Response(friendship_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -303,9 +306,9 @@ class FriendshipRequestAcceptView(APIView):
 				raise Http404
 			friendship.status = Friendship.StatusOptions.ACCEPTED
 			friendship.save()
-			return Response({'detail': 'Friendship request accepted successfully.'}, status=status.HTTP_200_OK)
+			return Response({'detail': _('Friendship request accepted successfully.')}, status=status.HTTP_200_OK)
 		except Http404:
-			return Response({'detail': 'Friendship request not found.'}, status=status.HTTP_404_NOT_FOUND)
+			return Response({'detail': _('Friendship request not found.')}, status=status.HTTP_404_NOT_FOUND)
 	
 class FriendshipRequestRefuseView(APIView):
 	permission_classes = [IsAuthenticated]
@@ -316,9 +319,9 @@ class FriendshipRequestRefuseView(APIView):
 			if (friendship.receiver != request.user) or (friendship.status != Friendship.StatusOptions.PENDING):
 				raise Http404
 			friendship.delete()
-			return Response({'detail': 'Friendship request deleted successfully.'}, status=status.HTTP_200_OK)
+			return Response({'detail': _('Friendship request deleted successfully.')}, status=status.HTTP_200_OK)
 		except Http404:
-			return Response({'detail': 'Friendship request not found.'}, status=status.HTTP_404_NOT_FOUND)
+			return Response({'detail': _('Friendship request not found.')}, status=status.HTTP_404_NOT_FOUND)
 
 class FriendshipRequestDeleteView(APIView):
 	permission_classes = [IsAuthenticated]
@@ -330,9 +333,9 @@ class FriendshipRequestDeleteView(APIView):
 				or (friendship.status != Friendship.StatusOptions.ACCEPTED and friendship.sender != request.user):
 				raise Http404
 			friendship.delete()
-			return Response({'detail': 'Friendship (request) deleted successfully.'}, status=status.HTTP_200_OK)
+			return Response({'detail': _('Friendship (request) deleted successfully.')}, status=status.HTTP_200_OK)
 		except Http404:
-			return Response({'detail': 'Friendship not found.'}, status=status.HTTP_404_NOT_FOUND)
+			return Response({'detail': _('Friendship not found.')}, status=status.HTTP_404_NOT_FOUND)
 
 class MatchHistoryView(APIView):
     permission_classes = [IsAuthenticated]

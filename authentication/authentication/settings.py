@@ -14,6 +14,8 @@ from pathlib import Path
 import os
 from datetime import timedelta
 from django.urls import reverse_lazy
+from django.utils.translation import gettext_lazy as _
+
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -32,7 +34,6 @@ DEBUG = False
 CSRF_FAILURE_VIEW = 'api.views.csrf_failure'
 
 ALLOWED_HOSTS = ['*']
-
 
 # Application definition
 
@@ -62,6 +63,7 @@ MIDDLEWARE = [
 	"debug_toolbar.middleware.DebugToolbarMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+	'django.middleware.locale.LocaleMiddleware',
 	'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -170,12 +172,20 @@ INTERNAL_IPS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'CET'
 USE_TZ = True
 USE_I18N = True
+USE_L10N = True
+LANGUAGE_CODE = 'en'
+LANGUAGES = (
+    ('en', _('English')),
+    ('cs', _('Czech')),
+    ('sk', _('Slovak'))
+)
 
+LOCALE_PATHS = [
+    os.path.join(BASE_DIR, 'locale')
+]
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/

@@ -5,7 +5,11 @@ from rest_framework import status
 from ai_play.settings import GAME_CONSTANTS
 from .serializers import AIMatchSerializer
 from .models import CustomUser
-import logging
+from django.utils.translation import gettext as _
+
+
+def csrf_failure(request, reason=""):
+	return Response({'detail' : _('CSRF token missing')}, status=status.HTTP_403_FORBIDDEN)
 
 class HealthCheckView(APIView):
 	def get(self, request):
@@ -24,7 +28,7 @@ class CreateAIMatchView(APIView):
 	def post(self, request):
 		creator = request.user
 		if get_player_state(creator.id) == CustomUser.StateOptions.INGAME:
-			return Response({'detail' : 'Player already has a match in progress.'}, status=status.HTTP_403_FORBIDDEN)
+			return Response({'detail' : _('Player already has a match in progress.')}, status=status.HTTP_403_FORBIDDEN)
 		data = {
 				'creator' : creator.id,
 				'default_ball_size' : GAME_CONSTANTS['BALL_SIZE'],
@@ -35,6 +39,6 @@ class CreateAIMatchView(APIView):
 		match_serializer = AIMatchSerializer(data=data)
 		if match_serializer.is_valid():
 			match_serializer.save()
-			return Response({'detail': 'AI match created and ready to play.', 'match_id': match_serializer.data['id']}, status=status.HTTP_201_CREATED)
+			return Response({'detail': _('AI match created and ready to play.'), 'match_id': match_serializer.data['id']}, status=status.HTTP_201_CREATED)
 		else:
 			return Response(match_serializer.errors, status=status.HTTP_400_BAD_REQUEST)

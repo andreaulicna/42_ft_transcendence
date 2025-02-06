@@ -106,6 +106,7 @@ services:
     build: ./authentication/
     volumes:
       - ./authentication:/app
+      - uploaded-volume:/app/mediafiles
     env_file:
       - .env
     networks:

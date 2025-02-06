@@ -15,6 +15,8 @@ COPY requirements.txt .
 # Install any dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
+RUN mkdir -p /app/mediafiles && chown django_nonroot /app/mediafiles
+
 USER django_nonroot
 # Specify the command to run on container start
 CMD ["daphne", "-b", "0.0.0.0", "-p", "8002", "authentication.asgi:application"]

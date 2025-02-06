@@ -10,7 +10,8 @@ export async function apiCallAuthed(url, method = 'GET', headers = {}, payload =
 		headers: {
 			...headers,
 			'Authorization': `Bearer ${localStorage.getItem('access')}`,
-			'X-CSRFToken': Cookies.get("csrftoken")
+			'X-CSRFToken': Cookies.get("csrftoken"),
+			'Accept-Language' : localStorage.getItem('language') || 'en'
 		}
 	};
 
@@ -81,6 +82,7 @@ export async function refreshAccessToken() {
 		headers: {
 			'Content-Type': 'application/json',
 			'X-CSRFToken': csrfToken,
+			'Accept-Language' : localStorage.getItem('language') || 'en'
 		},
 	};
 

@@ -10,7 +10,10 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.http import Http404
 from rest_framework.generics import RetrieveAPIView
-import logging
+from django.utils.translation import gettext as _
+
+def csrf_failure(request, reason=""):
+	return Response({'detail' : _('CSRF token missing')}, status=status.HTTP_403_FORBIDDEN)
 
 class HealthCheckView(APIView):
 	def get(self, request):
@@ -54,22 +57,22 @@ class CreateTournamentView(APIView):
 		# User INGAME in other game mode
 		creator = request.user
 		if get_player_state(creator.id) == CustomUser.StateOptions.INGAME:
-			return Response({'detail' : 'Player already has a match in progress.'}, status=status.HTTP_403_FORBIDDEN)
+			return Response({'detail' : _('Player already has a match in progress.')}, status=status.HTTP_403_FORBIDDEN)
 		# Get all waiting tournaments
 		waiting_tournaments = Tournament.objects.filter(status=Tournament.StatusOptions.WAITING)
 		# Allow only one waiting tournament
 		if player_already_in_waiting_tournament(waiting_tournaments, request.user.id):
-			return Response({"details" : "You are already in a waiting tournament, you cannot create another one!"}, status=status.HTTP_403_FORBIDDEN)
+			return Response({"details" : _("You are already in a waiting tournament, you cannot create another one!")}, status=status.HTTP_403_FORBIDDEN)
 		# Get all inprogress tournaments
 		inprogress_tournaments = Tournament.objects.filter(status=Tournament.StatusOptions.INPROGRESS)
 		# Allow only one in-progress tournament
 		if player_already_in_inprogress_tournament(inprogress_tournaments, request.user.id):
-			return Response({"details" : "You are in an inprogress tournament and have matches to play, you cannot created another one!"}, status=status.HTTP_403_FORBIDDEN)
+			return Response({"details" : _("You are already in a tournament and have matches to play, you cannot create another one!")}, status=status.HTTP_403_FORBIDDEN)
 
 		try:
 			creator = CustomUser.objects.get(username=request.user)
 		except CustomUser.DoesNotExist:
-			return Response({'detail': 'Player does not exist'}, status=status.HTTP_404_NOT_FOUND)
+			return Response({'detail': _('Player does not exist')}, status=status.HTTP_404_NOT_FOUND)
 		
 		tournament_data = {
 			'creator' : creator.id,
@@ -94,7 +97,7 @@ class CreateTournamentView(APIView):
 		player_tournament_serializer = PlayerTournamentSerializer(data=player_tournament_data)
 		if player_tournament_serializer.is_valid():
 			player_tournament_serializer.save()
-			return Response({'detail': 'Tournament created.', 
+			return Response({'detail': _('Tournament created.'), 
 					   		'tournament': tournament_serializer.data},
 							status=status.HTTP_201_CREATED)
 		else:
@@ -112,21 +115,21 @@ class JoinTournamentView(APIView):
 		waiting_tournaments = Tournament.objects.filter(status=Tournament.StatusOptions.WAITING)
 		# Allow only one waiting tournament
 		if player_already_in_waiting_tournament(waiting_tournaments, request.user.id):
-			return Response({"details" : "You are alredy in a waiting tournament, you cannot join another one!"}, status=status.HTTP_403_FORBIDDEN)
+			return Response({"details" : _("You are alredy in a waiting tournament, you cannot join another one!")}, status=status.HTTP_403_FORBIDDEN)
 		# Get all inprogress tournaments
 		inprogress_tournaments = Tournament.objects.filter(status=Tournament.StatusOptions.INPROGRESS)
 		# Allow only one in-progress tournament
 		if player_already_in_inprogress_tournament(inprogress_tournaments, request.user.id):
-			return Response({"details" : "You are in an inprogress tournament and have matches to play!"}, status=status.HTTP_403_FORBIDDEN)
+			return Response({"details" : _("You are already in a tournament and have matches to play!")}, status=status.HTTP_403_FORBIDDEN)
 		# Add to tournament based on id
 		try:
 			tournament_to_join = Tournament.objects.get(id=tournament_id)
 		except Tournament.DoesNotExist:
-			return Response({"details" : "No such tournament exists!"}, status=status.HTTP_404_NOT_FOUND)
+			return Response({"details" : _("No such tournament exists!")}, status=status.HTTP_404_NOT_FOUND)
 		
 		players_in_tournament_to_join = PlayerTournament.objects.filter(tournament=tournament_to_join.id)
 		if (len(players_in_tournament_to_join) >= tournament_to_join.capacity):
-			return Response({"details" : "This tournament is already full!"}, status=status.HTTP_403_FORBIDDEN)
+			return Response({"details" : _("This tournament is already full!")}, status=status.HTTP_403_FORBIDDEN)
 		player_tournament_data = {
 			'player' : request.user.id,
 			'tournament' : tournament_to_join.id
@@ -136,7 +139,7 @@ class JoinTournamentView(APIView):
 		player_tournament_serializer = PlayerTournamentSerializer(data=player_tournament_data)
 		if player_tournament_serializer.is_valid():
 			player_tournament_serializer.save()
-			return Response({'detail': 'Added you to the tournament!.', 
+			return Response({'detail': _('Added you to the tournament!.'), 
 					   		'tournament': TournamentSerializer(tournament_to_join).data,},
 							status=status.HTTP_201_CREATED)
 		else:
@@ -152,12 +155,12 @@ class CancelJoinTournamentView(APIView):
 		try:
 			tournament_to_cancel_join = Tournament.objects.get(id=tournament_id)
 		except Tournament.DoesNotExist:
-			return Response({"details": "No such tournament exists!"}, status=status.HTTP_404_NOT_FOUND)
+			return Response({"details": _("No such tournament exists!")}, status=status.HTTP_404_NOT_FOUND)
 
 		if tournament_to_cancel_join.status == Tournament.StatusOptions.INPROGRESS:
-			return Response({"details": "This tournament is already in progress, you cannot cancel joining!"}, status=status.HTTP_403_FORBIDDEN)
+			return Response({"details": _("This tournament is already in progress, you cannot cancel joining!")}, status=status.HTTP_403_FORBIDDEN)
 		if tournament_to_cancel_join.status == Tournament.StatusOptions.FINISHED:
-			return Response({"details": "This tournament has already finished, you cannot cancel joining!"}, status=status.HTTP_403_FORBIDDEN)
+			return Response({"details": _("This tournament has already finished, you cannot cancel joining!")}, status=status.HTTP_403_FORBIDDEN)
 
 		try:
 			tournament_in_return = TournamentSerializer(tournament_to_cancel_join).data
@@ -169,11 +172,11 @@ class CancelJoinTournamentView(APIView):
 			else:
 				player_tournament = PlayerTournament.objects.get(player=user_id, tournament=tournament_id)
 				player_tournament.delete()
-			return Response({"details": "You have successfully canceled joining the tournament.",
+			return Response({"details": _("You have successfully canceled joining the tournament."),
 					   		'tournament': tournament_in_return,},
 							status=status.HTTP_200_OK)
 		except PlayerTournament.DoesNotExist:
-			return Response({"details": "You are not part of this tournament."}, status=status.HTTP_404_NOT_FOUND)
+			return Response({"details": _("You are not part of this tournament.")}, status=status.HTTP_404_NOT_FOUND)
 		
 class WaitingTournamentsListView(APIView):
 	permission_classes = [IsAuthenticated]
@@ -199,12 +202,12 @@ class TournamentInfoView(RetrieveAPIView):
 		try:
 			return Tournament.objects.get(id=tournament_id)
 		except Tournament.DoesNotExist:
-			raise Http404("No such tournament exists!")
+			raise Http404(_("No such tournament exists!"))
 
 def get_players_based_on_capacity(request, capacity):
 	players = request.data.get('players', [])
 	if len(players) != capacity:
-		raise ValueError("Wrong number of players for the tournament capacity")
+		raise ValueError(_("Wrong number of players for the tournament capacity"))
 	return players[:capacity]
 	
 class CreateLocalTournamentView(APIView):
@@ -219,12 +222,12 @@ class CreateLocalTournamentView(APIView):
 		# User INGAME in other game mode
 		creator_player = request.user
 		if get_player_state(creator_player.id) == CustomUser.StateOptions.INGAME:
-			return Response({'detail' : 'Player already has a match in progress.'}, status=status.HTTP_403_FORBIDDEN)
+			return Response({'detail' : _('Player already has a match in progress.')}, status=status.HTTP_403_FORBIDDEN)
 
 		# Get all waiting and in_progress tournaments
 		tournament_to_check = LocalTournament.objects.filter(Q(status=LocalTournament.StatusOptions.WAITING) | Q(status=LocalTournament.StatusOptions.INPROGRESS), Q(creator=creator_player.id)).exists()
 		if tournament_to_check:
-			return Response({"details" : "You are already playing a local tournament, you cannot create another one!"}, status=status.HTTP_403_FORBIDDEN)
+			return Response({"details" : _("You are already playing a local tournament, you cannot create another one!")}, status=status.HTTP_403_FORBIDDEN)
 
 		try:
 			players = get_players_based_on_capacity(request, capacity)
@@ -241,7 +244,7 @@ class CreateLocalTournamentView(APIView):
 		local_tournament_serializer = LocalTournamentSerializer(data=local_tournament_data)
 		if local_tournament_serializer.is_valid():
 			local_tournament_serializer.save()
-			return Response({'detail': 'Local tournament created.',
+			return Response({'detail': _('Local tournament created.'),
 							'local_tournament': local_tournament_serializer.data},
 							status=status.HTTP_201_CREATED)
 		else:
