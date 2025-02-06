@@ -46,15 +46,15 @@ document.addEventListener("DOMContentLoaded", () => {
 		valueMissing: "Player 2's name is required."
 	});
 
-	applyValidationWhenAvailable("#inputUsernameLogin", {
-		patternMismatch: "Please use only letters or numbers (3–20 chars).",
-		valueMissing: "A username is required."
-	});
+	// applyValidationWhenAvailable("#inputUsernameLogin", {
+	// 	patternMismatch: "Please use only letters or numbers (3–20 chars).",
+	// 	valueMissing: "A username is required."
+	// });
 
-	applyValidationWhenAvailable("#inputPasswordLogin", {
-		// patternMismatch: "Password must be 6–20 characters long and can include letters, numbers, and the following symbols: !@#$%&*_?.",
-		valueMissing: "A password is required."
-	});
+	// applyValidationWhenAvailable("#inputPasswordLogin", {
+	// 	// patternMismatch: "Password must be 6–20 characters long and can include letters, numbers, and the following symbols: !@#$%&*_?.",
+	// 	valueMissing: "A password is required."
+	// });
 
 	applyValidationWhenAvailable("#inputUsernameRegister", {
 		patternMismatch: "Please use only letters or numbers (3–20 chars).",
