@@ -52,6 +52,7 @@ async function login2FA(payload) {
 
 		try {
 			const response = await fetch(url, options);
+			console.log(response);
 			if (response.ok) {
 				const data = await response.json();
 
@@ -67,10 +68,10 @@ async function login2FA(payload) {
 				return data;
 			} else {
 				const errorData = await response.json();
-				throw new Error(errorData.details);
+				throw new Error(errorData.detail);
 			}
 		} catch (error) {
-			console.error('Login API call error:', error);
+			// console.error('Login API call error:', error);
 			throw error;
 		}
 }
