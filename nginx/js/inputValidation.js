@@ -1,23 +1,24 @@
 /* INPUT VALIDATION*/
 
-// Set a custom messages for HTML form validation
-function setInputValidation(inputElement, customMessages) {
-	inputElement.addEventListener("invalid", (event) => {
-	  for (const [validityState, message] of Object.entries(customMessages)) {
-		if (inputElement.validity[validityState]) {
-		 	inputElement.setCustomValidity(message);
-			break;
+function setInputValidation(inputElement, customMessages)
+{
+	const showCustomMessage = () => {
+		for (const [validityState, message] of Object.entries(customMessages)) {
+			if (inputElement.validity[validityState]) {
+				inputElement.setCustomValidity(message);
+				return;
+			}
 		}
-	}
-	});
+		inputElement.setCustomValidity(""); // Clear custom message if input is valid
+	};
 
-	inputElement.addEventListener("input", () => {
-	  inputElement.setCustomValidity("");
-	});
+	inputElement.addEventListener("input", showCustomMessage);
+	inputElement.addEventListener("invalid", showCustomMessage);
 }
 
 // Apply validation when elements are available
-function applyValidationWhenAvailable(selector, customMessages) {
+function applyValidationWhenAvailable(selector, customMessages)
+{
 	const observer = new MutationObserver(() => {
 		const inputElement = document.querySelector(selector);
 		if (inputElement) {
