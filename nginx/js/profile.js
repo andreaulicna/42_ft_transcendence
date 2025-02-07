@@ -21,7 +21,7 @@ let filterRemoteCounter;
 export async function init(data) {
 
 	stats = await apiCallAuthed('/api/user/win-loss');
-	textDynamicLoad("userName", `🏓 ${data.username}`);
+	textDynamicLoad("userName", `${data.username}`);
 	textDynamicLoad("numOfWins", `👍 ${stats.overall_win}`);
 	textDynamicLoad("numOfLosses", `👎 ${stats.overall_loss}`);
 	if (data.avatar != null)
@@ -357,7 +357,7 @@ async function handleUsernameEdit() {
 		try {
 			const payload = {'username': editUsernameInput.value};
 			await apiCallAuthed("api/user/info", "PUT", undefined, payload);
-			textDynamicLoad("userName", `🏓 ${editUsernameInput.value}`);
+			textDynamicLoad("userName", `${editUsernameInput.value}`);
 			showToast('Username Change Successful', `You have updated your username.`, null, "t_nameChange");
 		} catch (error) {
 			console.error("Error submitting new username:", error);
