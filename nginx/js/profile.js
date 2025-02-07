@@ -342,6 +342,8 @@ async function addFriend(username) {
 		const addRequest = await apiCallAuthed(`/api/user/friends/request/${username}`, "POST");
 		listOutgoing();
 		showToast('Friend Request', `Friend request sent.`, null, "t_requestSent");
+		if (friendAddInput.value)
+			friendAddInput.value="";
 	} catch (error) {
 		console.error('Error adding friend:', error);
 		showToast('Error adding friend', null, error, "t_requestSentError");
