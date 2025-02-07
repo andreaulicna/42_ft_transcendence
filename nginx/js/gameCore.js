@@ -312,9 +312,9 @@ export function drawTick()
 	clearBoard();
 	drawPaddles(paddle1, paddle2);
 	drawBall(ball);
-	if (ball.xPrediction != 0 && ball.yPrediction != 0){
-		drawBallExactPrediction(ball)
-	}
+	//if (ball.xPrediction != 0 && ball.yPrediction != 0){
+	//	drawBallExactPrediction(ball)
+	//}
 }
 
 /* 👇 PLAYER MOVEMENT */

@@ -24,12 +24,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-#kdp+9sp=#50r6qbmq$z-j8l9s3(5*i+78bk^7+z3s2!eeb!ja'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', os.getenv('WWW_DOMAIN')]
 
 # # In settings.py
 # DATABASE_READY = False
@@ -196,7 +196,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #     "SHOW_TOOLBAR_CALLBACK" : show_toolbar,
 # }
 
-CSRF_TRUSTED_ORIGINS = ["http://localhost:4200", "http://localhost", "http://localhost:5500"]
+CSRF_TRUSTED_ORIGINS = ["http://localhost:4200", "http://127.0.0.1:4200"]
 
 
 CHANNEL_LAYERS = {
@@ -211,14 +211,15 @@ CHANNEL_LAYERS = {
 GAME_CONSTANTS = {
 	'GAME_HEIGHT': 100,
 	'GAME_WIDTH': 160,
-	'BALL_SIZE': float(os.getenv('BALL_SIZE')),
-	'BALL_SPEED': float(os.getenv('BALL_SPEED')),
-	'PADDLE_SPEED': float(os.getenv('PADDLE_SPEED')),
-	'MAX_SCORE': int(os.getenv('MAX_SCORE')),
+	'BALL_SIZE': 3,
+	'BALL_SPEED': 0.6,
+	'PADDLE_SPEED': 1,
+	'MAX_SCORE': 5,
+	'SPEED_CONSTANT': 0.1,
 }
 
 GAME_CONSTANTS['PADDLE_HEIGHT'] = GAME_CONSTANTS['GAME_HEIGHT'] / 5
-GAME_CONSTANTS['PADDLE_WIDTH'] = 3
+GAME_CONSTANTS['PADDLE_WIDTH'] = 2.75
 
 
 LOGGING = {

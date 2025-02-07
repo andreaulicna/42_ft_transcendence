@@ -113,7 +113,7 @@ def calculate_ball_direction_after_collision(paddle, ball) -> Vector2D:
 		return new_ball_direction
 
 def paddle_collision(ball: Ball, paddle1: Paddle, paddle2: Paddle) -> Ball:
-	speed_constant = 0.1
+	speed_constant = settings.GAME_CONSTANTS['SPEED_CONSTANT']
 	# top & bottom are y-components, left & right are x-components
 	paddle1_top = paddle1.position.y - paddle1.paddle_half_height
 	paddle1_bottom = paddle1.position.y + paddle1.paddle_half_height 
