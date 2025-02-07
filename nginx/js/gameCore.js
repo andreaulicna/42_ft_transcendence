@@ -49,6 +49,8 @@ export let player1AvatarPlaceholder;
 export let player2AvatarPlaceholder;
 export let isTouchDevice;
 
+let isCountingDownFlag = true;
+
 
 // let listenersAdded = false;
 
@@ -336,6 +338,8 @@ function throttledDispatchEventPerKey(key, direction, paddle, limit) {
 }
 
 function sendPaddleMovement() {
+	if (isCountingDownFlag)
+		return;
 	const throttleLimit = 10;
 
 	for (const key in paddle1Keys) {
@@ -475,6 +479,7 @@ let currentCountdownType = null;
 let gracePeriodCountdown;
 
 export async function startCountdown(event) {
+	isCountingDownFlag = true;
 	const data = event.detail;
 
 	// In case of grace period reconnect, update the game state accordingly
@@ -525,6 +530,7 @@ export async function startCountdown(event) {
 		} else {
 			clearInterval(countdownInterval);
 			countdownModal.hide();
+			isCountingDownFlag = false;
 			// console.log("Countdown finished, modal hidden");
 		}
 		countdownStart--;
@@ -532,6 +538,8 @@ export async function startCountdown(event) {
 }
 
 export function handleGracePeriod() {
+	isCountingDownFlag = true;
+
 	// Clear any existing intervals
 	clearInterval(countdownInterval);
 
@@ -558,6 +566,7 @@ export function handleGracePeriod() {
 			clearInterval(countdownInterval);
 			countdownModal.hide();
 			currentCountdownType = null;
+			isCountingDownFlag = false;
 		}
 	}, 1000);
 }
@@ -565,6 +574,7 @@ export function handleGracePeriod() {
 function clearGracePeriod(event) {
 	if (currentCountdownType === "grace")
 	{
+		isCountingDownFlag = true;
 		clearInterval(countdownInterval);
 
 		const data = event.detail;
@@ -586,6 +596,7 @@ function clearGracePeriod(event) {
 				clearInterval(countdownInterval);
 				countdownModal.hide();
 				currentCountdownType = null;
+				isCountingDownFlag = false;
 			}
 		}, 1000);
 	}
