@@ -107,6 +107,7 @@ export async function refreshAccessToken() {
 		} else if (response.status == 401 || response.status == 403) {
 			// Handle unauthorized or forbidden response without printing an error
 			frontendLogout();
+			window.location.hash = "#login";
 			return false;
 		} else {
 			// Handle other non-OK responses
@@ -117,6 +118,7 @@ export async function refreshAccessToken() {
 		console.error('Token refresh error:', error);
 
 		frontendLogout();
+		window.location.hash = "#login";
 		return false;
 	}
 }
