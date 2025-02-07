@@ -31,7 +31,11 @@ let ballExactColor;
 let ballPredictionColor;
 let paddleAnimationFrame;
 
+let gameInfo;
+let gameCountdown;
+let gameControlsElem;
 let playerNames;
+let player2ControlsElem;
 let scoreText;
 let gameOverScreen;
 let winnerName;
@@ -114,6 +118,10 @@ export function initGameData(data) {
 		score: 0,
 	}
 
+	gameInfo = document.getElementById("gameInfo");
+	gameControlsElem = document.getElementById("gameControls");
+	gameCountdown = document.getElementById("gameCountdown");
+	player2ControlsElem = document.getElementById("player2ControlsElem");
 	playerNames = document.getElementById("playerNames");
 	scoreText = document.getElementById("scoreText");
 	player1AvatarPlaceholder = document.getElementById("player1Pic");
@@ -131,11 +139,20 @@ export function initGameData(data) {
 	mainMenuButton.style.display = "block";
 	continueButton.style.display = "none";
 	bracketContainer.style.display = "none";
+	gameCountdown.style.setProperty("display", "block", "important");
+	scoreText.style.setProperty("display", "none", "important");
 
 	isTouchDevice = "ontouchstart" in window;
-	if (isTouchDevice) {
+	if (isTouchDevice)
+	{
 		initTouchControls();
 		// console.log("TOUCH CONTROLS ENABLED");
+	}
+
+	// Disable controls hint for player 2 in non-local gamemodes
+	if (gameMode != "local" && gameMode != "local-rematch" && gameMode != "local-rematch-switch" && gameMode != "tournamentLocal")
+	{
+		player2ControlsElem.style.setProperty("display", "none", "important");
 	}
 }
 
@@ -428,8 +445,10 @@ function showGameOverScreen(event) {
 
 	gameOverScreen.style.display = "block";
 	gameBoard.style.display = "none";
-	playerNames.style.visibility = "hidden";
-	scoreText.style.display = "none";
+	gameInfo.style.display = "none";
+	gameControlsElem.style.setProperty("display", "none", "important");
+	scoreText.style.setProperty("display", "none", "important");
+	gameCountdown.style.setProperty("display", "none", "important");
 	if (isTouchDevice) {
 		touchControlsPlayer1.style.setProperty("display", "none", "important");
 		touchControlsPlayer2.style.setProperty("display", "none", "important");
@@ -444,8 +463,10 @@ function showGameOverScreen(event) {
 export function hideGameOverScreen() {
 	gameOverScreen.style.display = "none";
 	gameBoard.style.display = "block";
-	playerNames.style.visibility = "visible";
-	scoreText.style.display = "block";
+	gameInfo.style.display = "block";
+	gameControlsElem.style.setProperty("display", "block", "important");
+	gameCountdown.style.setProperty("display", "block", "important");
+	scoreText.style.setProperty("display", "none", "important");
 	if (isTouchDevice)
 	{
 		touchControlsPlayer1.style.display = "block";
@@ -472,14 +493,18 @@ function preventArrowKeyScroll(event) {
 }
 
 let countdownInterval;
-let countdownModal;
+// let countdownModal;
 let countdownNums;
 let countdownText;
 let currentCountdownType = null;
 let gracePeriodCountdown;
 
 export async function startCountdown(event) {
+	await delay(100);
 	isCountingDownFlag = true;
+	gameCountdown.style.setProperty("display", "block", "important");
+	scoreText.style.setProperty("display", "none", "important");
+
 	const data = event.detail;
 
 	// In case of grace period reconnect, update the game state accordingly
@@ -506,7 +531,7 @@ export async function startCountdown(event) {
 	// console.log("Countdown start:", countdownStart);
 
 	// Initialize modal elements
-	countdownModal = bootstrap.Modal.getOrCreateInstance('#countdownModal');
+	// countdownModal = bootstrap.Modal.getOrCreateInstance('#countdownModal');
 	countdownNums = document.getElementById("countdownNums");
 	countdownText = document.getElementById("countdownText");
 	currentCountdownType = "start";
@@ -516,7 +541,7 @@ export async function startCountdown(event) {
 
 	// Show the modal and start countdown
 	countdownNums.textContent = countdownStart + 1;
-	countdownModal.show();
+	// countdownModal.show();
 
 	const syncCountdownInterval = setTimeout(() => {
 		countdownNums.textContent = countdownStart + 1;
@@ -529,8 +554,10 @@ export async function startCountdown(event) {
 			// console.log("Countdown interval, countdown start:", countdownStart);
 		} else {
 			clearInterval(countdownInterval);
-			countdownModal.hide();
+			// countdownModal.hide();
 			isCountingDownFlag = false;
+			gameCountdown.style.setProperty("display", "none", "important");
+			scoreText.style.setProperty("display", "block", "important");
 			// console.log("Countdown finished, modal hidden");
 		}
 		countdownStart--;
@@ -539,12 +566,14 @@ export async function startCountdown(event) {
 
 export function handleGracePeriod() {
 	isCountingDownFlag = true;
+	gameCountdown.style.setProperty("display", "block", "important");
+	scoreText.style.setProperty("display", "none", "important");
 
 	// Clear any existing intervals
 	clearInterval(countdownInterval);
 
 	// Initialize modal elements
-	countdownModal = bootstrap.Modal.getOrCreateInstance('#countdownModal');
+	// countdownModal = bootstrap.Modal.getOrCreateInstance('#countdownModal');
 	countdownNums = document.getElementById("countdownNums");
 	countdownText = document.getElementById("countdownText");
 	currentCountdownType = "grace";
@@ -553,7 +582,7 @@ export function handleGracePeriod() {
 	gracePeriodCountdown = 30;
 	countdownText.textContent = `😒 Waiting for opponent to reconnect...`;
 	countdownNums.textContent = `${gracePeriodCountdown}`;
-	countdownModal.show();
+	// countdownModal.show();
 
 	countdownInterval = setInterval(() => {
 		gracePeriodCountdown--;
@@ -564,9 +593,11 @@ export function handleGracePeriod() {
 		else
 		{
 			clearInterval(countdownInterval);
-			countdownModal.hide();
+			// countdownModal.hide();
 			currentCountdownType = null;
 			isCountingDownFlag = false;
+			gameCountdown.style.setProperty("display", "none", "important");
+			scoreText.style.setProperty("display", "block", "important");
 		}
 	}, 1000);
 }
@@ -576,6 +607,8 @@ function clearGracePeriod(event) {
 	{
 		isCountingDownFlag = true;
 		clearInterval(countdownInterval);
+		gameCountdown.style.setProperty("display", "block", "important");
+		scoreText.style.setProperty("display", "none", "important");
 
 		const data = event.detail;
 		const gameStartTime = new Date(data.game_start);
@@ -594,9 +627,11 @@ function clearGracePeriod(event) {
 			else
 			{
 				clearInterval(countdownInterval);
-				countdownModal.hide();
+				// countdownModal.hide();
 				currentCountdownType = null;
 				isCountingDownFlag = false;
+				gameCountdown.style.setProperty("display", "none", "important");
+				scoreText.style.setProperty("display", "block", "important");
 			}
 		}, 1000);
 	}

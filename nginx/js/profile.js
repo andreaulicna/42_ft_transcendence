@@ -351,7 +351,8 @@ async function addFriend(username) {
 async function handleUsernameEdit() {
 	const editUsernameForm = document.getElementById("editUsernameForm");
 
-	editUsernameForm.addEventListener('submit', async () => {
+	editUsernameForm.addEventListener('submit', async (event) => {
+		event.preventDefault();
 		const editUsernameInput = document.getElementById("editUsernameInput");
 		try {
 			const payload = {'username': editUsernameInput.value};
