@@ -169,23 +169,25 @@ export function redirectToHome(event) {
 		if (window.location.hash == '#lobby-game' || window.location.hash == '#lobby-tnmt')
 			return;
 		// If a player is inside a live game, they will be asked to confirm first
+		// UPDATE: Leaving the game via the app is now forbidden
 		if (window.location.hash == '#game')
 		{
-			const userConfirmed = confirm("Do you really want to leave an ongoing game?");
-			if (!userConfirmed)
-				return;
-			else
-			{
-				closeLocalWebsocket();
-				closeMatchmakingWebsocket();
-				closeRematchWebsocket();
-				closeTournamentWebsocket();
-				closeLocalTournamentWebsocket()
-				closePongWebsocket();
-				closeAIPlayWebsocket();
-				localStorage.removeItem('match_id');
-				localStorage.removeItem('tournament_id');
-			}
+			// const userConfirmed = confirm("Do you really want to leave an ongoing game?");
+			// if (!userConfirmed)
+			// 	return;
+			// else
+			// {
+			// 	closeLocalWebsocket();
+			// 	closeMatchmakingWebsocket();
+			// 	closeRematchWebsocket();
+			// 	closeTournamentWebsocket();
+			// 	closeLocalTournamentWebsocket()
+			// 	closePongWebsocket();
+			// 	closeAIPlayWebsocket();
+			// 	localStorage.removeItem('match_id');
+			// 	localStorage.removeItem('tournament_id');
+			// }
+			return;
 		}
 		window.location.hash = '#dashboard';
 	} else {

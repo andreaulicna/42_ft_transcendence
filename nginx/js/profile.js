@@ -21,7 +21,7 @@ let filterRemoteCounter;
 export async function init(data) {
 
 	stats = await apiCallAuthed('/api/user/win-loss');
-	textDynamicLoad("userName", `🏓 ${data.username}`);
+	textDynamicLoad("userName", `${data.username}`);
 	textDynamicLoad("numOfWins", `👍 ${stats.overall_win}`);
 	textDynamicLoad("numOfLosses", `👎 ${stats.overall_loss}`);
 	if (data.avatar != null)
@@ -287,7 +287,7 @@ async function listFriends() {
 				listItem.innerHTML = `
 				<div>
 					<span class="status-icon">${statusIcon}</span>
-					<span class="friend-username">${friend.friend_username}</span>
+					<span class="friend-username" data-user-id="${friend.friend_id}">${friend.friend_username}</span>
 				</div>
 				<button type="button" class="btn btn-prg friendDeleteButton" data-request-id="${friend.id}">
 					❌
@@ -321,18 +321,21 @@ async function handleDeleteFriend(event) {
 export function handleFriendStatusUpdate(data) {
 	const { id, status, username } = data;
 
-	const friend = friends.find(friend => friend.friend_username === username);
+	const friend = friends.find(friend => friend.friend_id === id);
 	if (friend) {
 		friend.friend_status = status;
 
 		// Update the DOM
-		const listItem = Array.from(friendlistList.children).find(item => item.textContent.includes(username));
+		const listItem = Array.from(friendlistList.children).find(item => item.querySelector('.friend-username').getAttribute('data-user-id') == id);
 		if (listItem)
 		{
 			let statusIcon = status === "ON" ? "🟢" : "🔴";
 			const statusIconElement = listItem.querySelector('.status-icon');
 			if (statusIconElement)
 				statusIconElement.textContent = statusIcon;
+			const friendNameElement = listItem.querySelector('.friend-username');
+			if (friendNameElement)
+				friendNameElement.textContent = username;
 		}
 	}
 }
@@ -342,6 +345,8 @@ async function addFriend(username) {
 		const addRequest = await apiCallAuthed(`/api/user/friends/request/${username}`, "POST");
 		listOutgoing();
 		showToast('Friend Request', `Friend request sent.`, null, "t_requestSent");
+		if (friendAddInput.value)
+			friendAddInput.value="";
 	} catch (error) {
 		console.error('Error adding friend:', error);
 		showToast('Error adding friend', null, error, "t_requestSentError");
@@ -351,12 +356,13 @@ async function addFriend(username) {
 async function handleUsernameEdit() {
 	const editUsernameForm = document.getElementById("editUsernameForm");
 
-	editUsernameForm.addEventListener('submit', async () => {
+	editUsernameForm.addEventListener('submit', async (event) => {
+		event.preventDefault();
 		const editUsernameInput = document.getElementById("editUsernameInput");
 		try {
 			const payload = {'username': editUsernameInput.value};
 			await apiCallAuthed("api/user/info", "PUT", undefined, payload);
-			textDynamicLoad("userName", `🏓 ${editUsernameInput.value}`);
+			textDynamicLoad("userName", `${editUsernameInput.value}`);
 			showToast('Username Change Successful', `You have updated your username.`, null, "t_nameChange");
 		} catch (error) {
 			console.error("Error submitting new username:", error);

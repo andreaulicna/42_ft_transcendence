@@ -1,18 +1,48 @@
-<div class=" fadeAnimation">
+<div class="fadeAnimation">
 	<div id="gameContainer" class="container-sm">
-		<div id="playerNames" class="d-flex justify-content-center align-items-center gap-2">
-			<div class="d-flex flex-column">
-				<img id="player1Pic" src="assets/default_user_pfp.png" alt="User profile picture" class="profilePic d-block mx-auto p-2" style="width:125px">
-				<div id="player1Name" class="blueSide fs-3">&nbsp;</div>
-			</div>
-			<span class="fs-1">⚔️</span>
-			<div class="d-flex flex-column">
-				<img id="player2Pic" src="assets/default_user_pfp.png" alt="User profile picture" class="profilePic d-block mx-auto p-2" style="width:125px">
-				<div id="player2Name" class="redSide fs-3">&nbsp;</div>
+		<div id="gameInfo" style="height: 150px;">
+			<div id="playerNames">
+				<div class="fadeAnimation d-flex justify-content-between align-items-center gap-2">
+					<div class="d-flex flex-column align-items-center">
+						<img id="player1Pic" src="assets/default_user_pfp.png" alt="User profile picture" class="profilePic d-block mx-auto p-2" style="width:125px">
+						<div id="player1Name" class="blueSide fs-6 fs-md-3">&nbsp;</div>
+					</div>
+					<!-- <span class="fs-1">⚔️</span> -->
+					<div>
+						<div id="gameCountdown" style="display:block !important" class="fadeAnimation">
+							<p id="countdownNums" class="display-1 white-shadow">&nbsp;</p>
+							<p id="countdownText" class="fs-6"></p>
+						</div>
+						<div id="scoreText" class="flex-grow-1 fs-1 white-shadow fadeAnimation" style="display:none !important">0 : 0</div>
+					</div>
+					<div class="d-flex flex-column align-items-center">
+						<img id="player2Pic" src="assets/default_user_pfp.png" alt="User profile picture" class="profilePic d-block mx-auto p-2" style="width:125px">
+						<div id="player2Name" class="redSide fs-6 fs-md-3">&nbsp;</div>
+					</div>
+				</div>
 			</div>
 		</div>
 		<canvas id="gameBoard" width="800" height="500"></canvas>
-		<div id="scoreText" class="fs-1">0 : 0</div>
+		<div id="gameControls" class="mt-3">
+			<div class="d-flex justify-content-center align-items-center gap-4">
+				<div id="player1ControlsElem" class="d-flex flex-column align-items-center justify-content-center">
+					<p class="fs-6">Player 1 controls</p>
+					<div>
+						<img src="assets/icons8-w-key-50.png" class="white-icon" alt="W key icon" width="30px" height="30px">
+						&nbsp;
+						<img src="assets/icons8-s-key-50.png" class="white-icon" alt="S key icon" width="30px" height="30px">
+					</div>
+				</div>
+				<div id="player2ControlsElem" class="d-flex flex-column align-items-center justify-content-center">
+					<p class="fs-6">Player 2 controls</p>
+					<div>
+						<img src="assets/icons8-up-arrow-key-64.png" class="white-icon" alt="S key icon" width="30px" height="30px">
+						&nbsp;
+						<img src="assets/icons8-down-arrow-key-64.png" class="white-icon" alt="W key icon" width="30px" height="30px">
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 	<!-- Touch Controls -->
 	<div class="d-flex">
@@ -27,7 +57,7 @@
 	</div>
 	<!-- Game Over Screen -->
 	<div id="gameOverScreen" style="display:none">
-		<div class="fs-2 text-center">
+		<div class="fs-2 text-center mb-3">
 			<span id="winnerName"></span>
 			<span data-translate="hasWon"> wins!</span>
 		</div>
@@ -50,18 +80,5 @@
 	</div>
 	<div id="bracket-container" style="display:none">
 		<!-- Dynamically generated tournament brackets go here -->
-	</div>
-</div>
-
-
-<!-- Countdown Modal -->
-<div class="modal fade" id="countdownModal" tabindex="-1" aria-labelledby="countdownModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false" inert>
-	<div class="modal-dialog modal-dialog-centered">
-		<div class="modal-content">
-			<div class="modal-body text-center">
-				<p id="countdownNums" class="display-1"></p>
-				<p id="countdownText" class="fs-3"></p>
-			</div>
-		</div>
 	</div>
 </div>

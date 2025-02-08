@@ -11,8 +11,11 @@
 	display: block;
 }
 
-#scoreText {
-	font-size: 6;
+.white-shadow {
+	text-shadow: 0 0 5px whitesmoke, 0 0 15px whitesmoke, 0 0 25px whitesmoke;
+}
+
+.white-shadow-icon {
 	text-shadow: 0 0 5px whitesmoke, 0 0 15px whitesmoke, 0 0 25px whitesmoke;
 }
 
@@ -26,18 +29,22 @@
 	text-shadow: 0 0 5px #df2af7, 0 0 15px #df2af7, 0 0 25px #df2af7;
 }
 
+.white-icon {
+	filter: invert(1) drop-shadow(0 0 5px whitesmoke) drop-shadow(0 0 15px whitesmoke) drop-shadow(0 0 25px whitesmoke);
+}
+
 /* TOUCH CONTROLS */
 
 .touch-controls {
 	display:none;
-    width: 100%;
-    text-align: center;
+	width: 100%;
+	text-align: center;
 }
 
 .control-button {
 	cursor: pointer;
 	background-color: whitesmoke;
-    width: 50px;
-    height: 50px;
-    margin: 5px;
+	width: 50px;
+	height: 50px;
+	margin: 5px;
 }
