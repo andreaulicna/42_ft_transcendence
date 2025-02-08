@@ -33,4 +33,12 @@ export async function init(id) {
 	root.style.setProperty('--color-left-paddle', colorLeftPaddle);
 	root.style.setProperty('--color-right-paddle', colorRightPaddle);
 	root.style.setProperty('--color-ball', colorBall);
+
+	// Clean url of URL parameters
+	const urlParams = new URLSearchParams(window.location.search);
+	if (urlParams.get("access_token"))
+	{
+		const newUrl = window.location.origin + window.location.pathname + window.location.hash;
+		window.history.replaceState({}, document.title, newUrl);
+	}
 }

@@ -70,8 +70,9 @@ function checkForIntraLoginArg() {
 			localStorage.setItem("access", accessToken);
 			localStorage.setItem("access_expiration", accessTokenExpiration);
 
-			const newUrl = window.location.origin + window.location.pathname;
+			const newUrl = window.location.origin + window.location.pathname + window.location.hash;
 			window.history.replaceState({}, document.title, newUrl);
+			// window.history.replaceState({}, document.title, "/");
 			openStatusWebsocket();
 			appState.loggedIn = true;
 			window.location.hash = "#dashboard";
