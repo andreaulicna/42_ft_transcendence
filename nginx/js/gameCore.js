@@ -580,7 +580,7 @@ export function handleGracePeriod() {
 
 	// Show the modal and start the grace period countdown
 	gracePeriodCountdown = 30;
-	countdownText.textContent = `😒 Waiting for opponent to reconnect...`;
+	countdownText.textContent = `Waiting for reconnect...`;
 	countdownNums.textContent = `${gracePeriodCountdown}`;
 	// countdownModal.show();
 
