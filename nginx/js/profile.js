@@ -287,7 +287,7 @@ async function listFriends() {
 				listItem.innerHTML = `
 				<div>
 					<span class="status-icon">${statusIcon}</span>
-					<span class="friend-username">${friend.friend_username}</span>
+					<span class="friend-username" data-user-id="${friend.friend_id}">${friend.friend_username}</span>
 				</div>
 				<button type="button" class="btn btn-prg friendDeleteButton" data-request-id="${friend.id}">
 					❌
@@ -321,18 +321,21 @@ async function handleDeleteFriend(event) {
 export function handleFriendStatusUpdate(data) {
 	const { id, status, username } = data;
 
-	const friend = friends.find(friend => friend.friend_username === username);
+	const friend = friends.find(friend => friend.friend_id === id);
 	if (friend) {
 		friend.friend_status = status;
 
 		// Update the DOM
-		const listItem = Array.from(friendlistList.children).find(item => item.textContent.includes(username));
+		const listItem = Array.from(friendlistList.children).find(item => item.querySelector('.friend-username').getAttribute('data-user-id') == id);
 		if (listItem)
 		{
 			let statusIcon = status === "ON" ? "🟢" : "🔴";
 			const statusIconElement = listItem.querySelector('.status-icon');
 			if (statusIconElement)
 				statusIconElement.textContent = statusIcon;
+			const friendNameElement = listItem.querySelector('.friend-username');
+			if (friendNameElement)
+				friendNameElement.textContent = username;
 		}
 	}
 }
