@@ -26,6 +26,7 @@ class PongGame:
 		self.lock = asyncio.Lock()
 		self.in_progress_flag = False
 		self.game_start = None
+		self.game_loop = None
 	
 	def __repr__(self):
 		return (f"PongGame(match_id={self.match_id}, player1={self.player1}, player2={self.player2}")
