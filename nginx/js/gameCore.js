@@ -485,6 +485,19 @@ export async function delay(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// Wait for an element to be available in the DOM
+async function waitForElement(selector, timeout = 4000) {
+	const start = Date.now();
+	while (Date.now() - start < timeout) {
+		const element = document.getElementById(selector);
+		if (element) {
+			return element;
+		}
+		await delay(100); // Wait for 100ms before checking again
+	}
+	throw new Error(`Element with selector "${selector}" not found within ${timeout}ms`);
+}
+
 // Prevent arrow key scrolling
 function preventArrowKeyScroll(event) {
 	const arrowKeys = ["ArrowUp", "ArrowDown"];
@@ -502,6 +515,12 @@ let gracePeriodCountdown;
 export async function startCountdown(event) {
 	await delay(100);
 	isCountingDownFlag = true;
+
+	if (!gameCountdown)
+		gameCountdown = await waitForElement("gameCountdown");
+	if (!scoreText)
+		scoreText = await waitForElement("scoreText");
+
 	gameCountdown.style.setProperty("display", "block", "important");
 	scoreText.style.setProperty("display", "none", "important");
 
@@ -602,11 +621,17 @@ export function handleGracePeriod() {
 	}, 1000);
 }
 
-function clearGracePeriod(event) {
+async function clearGracePeriod(event) {
 	if (currentCountdownType === "grace")
 	{
 		isCountingDownFlag = true;
 		clearInterval(countdownInterval);
+
+		if (!gameCountdown)
+			gameCountdown = await waitForElement("gameCountdown");
+		if (!scoreText)
+			scoreText = await waitForElement("scoreText");
+
 		gameCountdown.style.setProperty("display", "block", "important");
 		scoreText.style.setProperty("display", "none", "important");
 
