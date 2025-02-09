@@ -23,13 +23,13 @@ from .converters import CapacityConverter
 register_converter(CapacityConverter, 'cap')
 
 urlpatterns = [
-	path('api/tournament/create/<cap:capacity>/', views.CreateTournamentView.as_view(), name='create-tournament'),
+	#path('api/tournament/create/<cap:capacity>/', views.CreateTournamentView.as_view(), name='create-tournament'),
 	path('api/tournament/local/create/<cap:capacity>/', views.CreateLocalTournamentView.as_view(), name='create-local-tournament'),
-	path('api/tournament/join/<int:tournament_id>/', views.JoinTournamentView.as_view(), name='join-tournament'),
-	path('api/tournament/join/cancel/<int:tournament_id>/', views.CancelJoinTournamentView.as_view(), name='cancel-join-tournament'),
-	path('api/tournament/list/waiting', views.WaitingTournamentsListView.as_view(), name='list-waiting-tournaments'),
-	path('api/tournament/list/player', views.TournamentListOfPlayerView.as_view(), name='list-tournaments-of-player'),
-	path('api/tournament/info/<int:tournament_id>/', views.TournamentInfoView.as_view(), name='tournament-info-view'),
+	#path('api/tournament/join/<int:tournament_id>/', views.JoinTournamentView.as_view(), name='join-tournament'),
+	#path('api/tournament/join/cancel/<int:tournament_id>/', views.CancelJoinTournamentView.as_view(), name='cancel-join-tournament'),
+	#path('api/tournament/list/waiting', views.WaitingTournamentsListView.as_view(), name='list-waiting-tournaments'),
+	#path('api/tournament/list/player', views.TournamentListOfPlayerView.as_view(), name='list-tournaments-of-player'),
+	#path('api/tournament/info/<int:tournament_id>/', views.TournamentInfoView.as_view(), name='tournament-info-view'),
 	path('healthcheck', views.HealthCheckView.as_view())
 ]  
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

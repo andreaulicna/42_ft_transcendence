@@ -404,6 +404,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 			match_winner = await get_match_winner(pong_room_grace.match_id)
 			if (match_winner is None) and (pong_room_grace.match_id not in grace_period_dict):
 				grace_period_dict[pong_room_grace.match_id] = asyncio.create_task(self.grace_period_handler(pong_room_grace, match_database))
+				pong_room_grace.game_loop.cancel()
 				pong_room_grace.in_progress_flag = False
 				await self.channel_layer.group_send(
 					pong_room_grace.match_group_name, {
@@ -552,114 +553,118 @@ class PongConsumer(AsyncWebsocketConsumer):
 		# await asyncio.sleep(1)
 		logging.info(f"Starting game for: ")
 		logging.info(pong_room)
-		asyncio.create_task(self.game_loop(pong_room, match_database))
+		pong_room.game_loop = asyncio.create_task(self.game_loop(pong_room, match_database))
 
 	async def game_loop(self, pong_room, match_database):
 		#await asyncio.sleep(3)
-		logging.info(f"Game will start in: {pong_room.get_seconds_until_game_start()} seconds")
-		await asyncio.sleep(pong_room.get_seconds_until_game_start())
-		sequence = 0
-		ball = pong_room.ball
-		paddle1 = pong_room.paddle1
-		paddle2 = pong_room.paddle2
-		
-		while 42:
-			if pong_room.player1 is None or pong_room.player2 is None:
-				break
+		try:
+			logging.info(f"Game will start in: {pong_room.get_seconds_until_game_start()} seconds")
+			await asyncio.sleep(pong_room.get_seconds_until_game_start())
+			sequence = 0
+			ball = pong_room.ball
+			paddle1 = pong_room.paddle1
+			paddle2 = pong_room.paddle2
+			
+			while 42:
+				if pong_room.player1 is None or pong_room.player2 is None:
+					break
 
-			if ball.position.y > (pong_room.GAME_HALF_HEIGHT - (ball.size / 2)):
-				if ball.direction.y > 0:
-					ball.direction.y *= -1
-			elif ball.position.y < ((pong_room.GAME_HALF_HEIGHT - (ball.size / 2))) * (-1):
-				if ball.direction.y < 0:
-					ball.direction.y *= -1
+				if ball.position.y > (pong_room.GAME_HALF_HEIGHT - (ball.size / 2)):
+					if ball.direction.y > 0:
+						ball.direction.y *= -1
+				elif ball.position.y < ((pong_room.GAME_HALF_HEIGHT - (ball.size / 2))) * (-1):
+					if ball.direction.y < 0:
+						ball.direction.y *= -1
 
-			# # Ball collision with floor & ceiling
-			# if (ball.position.y > (pong_room.GAME_HALF_HEIGHT - (ball.size / 2))) or ((ball.position.y < ((pong_room.GAME_HALF_HEIGHT - (ball.size / 2))) * (-1))):
-			# 	ball.direction.y *= -1
+				# # Ball collision with floor & ceiling
+				# if (ball.position.y > (pong_room.GAME_HALF_HEIGHT - (ball.size / 2))) or ((ball.position.y < ((pong_room.GAME_HALF_HEIGHT - (ball.size / 2))) * (-1))):
+				# 	ball.direction.y *= -1
 
-			# might be a source of bugs, watch out
-			ball = paddle_collision(ball, paddle1, paddle2)
-			ball_right = ball.position.x + (ball.size / 2)
-			ball_left = ball.position.x - (ball.size / 2)
+				# might be a source of bugs, watch out
+				ball = paddle_collision(ball, paddle1, paddle2)
+				ball_right = ball.position.x + (ball.size / 2)
+				ball_left = ball.position.x - (ball.size / 2)
 
-			# Scoring player 2 - ball out of bounds on the left side
-			if (ball_left <= (0 - pong_room.GAME_HALF_WIDTH)):
-				pong_room.player2.score += 1
-				match_database.player2_score += 1
-				await sync_to_async(match_database.save)(update_fields=["player2_score"])
-				pong_room.reset()
-				ball = pong_room.ball
-				paddle1 = pong_room.paddle1
-				paddle2 = pong_room.paddle2
+				# Scoring player 2 - ball out of bounds on the left side
+				if (ball_left <= (0 - pong_room.GAME_HALF_WIDTH)):
+					pong_room.player2.score += 1
+					match_database.player2_score += 1
+					await sync_to_async(match_database.save)(update_fields=["player2_score"])
+					pong_room.reset()
+					ball = pong_room.ball
+					paddle1 = pong_room.paddle1
+					paddle2 = pong_room.paddle2
 
-			# Scoring player 1 - ball out of bounds on the right side
-			if (ball_right >= (pong_room.GAME_HALF_WIDTH)):
-				pong_room.player1.score += 1
-				match_database.player1_score += 1
-				await sync_to_async(match_database.save)(update_fields=["player1_score"])
-				pong_room.reset()
-				ball = pong_room.ball
-				paddle1 = pong_room.paddle1
-				paddle2 = pong_room.paddle2
+				# Scoring player 1 - ball out of bounds on the right side
+				if (ball_right >= (pong_room.GAME_HALF_WIDTH)):
+					pong_room.player1.score += 1
+					match_database.player1_score += 1
+					await sync_to_async(match_database.save)(update_fields=["player1_score"])
+					pong_room.reset()
+					ball = pong_room.ball
+					paddle1 = pong_room.paddle1
+					paddle2 = pong_room.paddle2
 
-			# Update ball position
-			ball.position += ball.direction * ball.speed
+				# Update ball position
+				ball.position += ball.direction * ball.speed
 
-			sequence += 1
-			#logging.info(f"Sending draw message to player 1: {pong_room.player1.channel_name}")
-			await self.channel_layer.send(
-				pong_room.player1.channel_name, {
-					"type": "draw",
-					"message": "draw",
-					"sequence": sequence,
-					"for_player": pong_room.player1.id,
-					"ball_x": ball.position.x,
-					"ball_y": ball.position.y,
-					"paddle1_x": paddle1.position.x,
-					"paddle1_y": paddle1.position.y,
-					"paddle2_x": paddle2.position.x,
-					"paddle2_y": paddle2.position.y,
-					"player1_score": pong_room.player1.score,
-					"player2_score": pong_room.player2.score
-				}
-			)
-
-			#logging.info(f"Sending draw message to player 2: {pong_room.player2.channel_name}")
-			await self.channel_layer.send(
-				pong_room.player2.channel_name, {
-					"type": "draw",
-					"message": "draw",
-					"sequence": sequence,
-					"for_player": pong_room.player1.id,
-					"ball_x": ball.position.x,
-					"ball_y": ball.position.y,
-					"paddle1_x": paddle1.position.x,
-					"paddle1_y": paddle1.position.y,
-					"paddle2_x": paddle2.position.x,
-					"paddle2_y": paddle2.position.y,
-					"player1_score": pong_room.player1.score,
-					"player2_score": pong_room.player2.score
-				}
-			)
-
-			# Game over
-			if match_database.player1_score >= GAME_CONSTANTS['MAX_SCORE'] or match_database.player2_score >= GAME_CONSTANTS['MAX_SCORE']:
-				await set_match_winner(match_database)
-				break
-
-			# Short sleep
-			await asyncio.sleep(0.01)
-		if match_database.winner:
-			logging.info(f"Match end for match {pong_room.match_id}")
-			await self.channel_layer.group_send(
-					pong_room.match_group_name, {
-						"type" : "match_end",
-						"message" : "match_end",
-						"winner_id" : match_database.winner.id,
-						"winner_username" : match_database.winner.username
+				sequence += 1
+				#logging.info(f"Sending draw message to player 1: {pong_room.player1.channel_name}")
+				await self.channel_layer.send(
+					pong_room.player1.channel_name, {
+						"type": "draw",
+						"message": "draw",
+						"sequence": sequence,
+						"for_player": pong_room.player1.id,
+						"ball_x": ball.position.x,
+						"ball_y": ball.position.y,
+						"paddle1_x": paddle1.position.x,
+						"paddle1_y": paddle1.position.y,
+						"paddle2_x": paddle2.position.x,
+						"paddle2_y": paddle2.position.y,
+						"player1_score": pong_room.player1.score,
+						"player2_score": pong_room.player2.score
 					}
 				)
+
+				#logging.info(f"Sending draw message to player 2: {pong_room.player2.channel_name}")
+				await self.channel_layer.send(
+					pong_room.player2.channel_name, {
+						"type": "draw",
+						"message": "draw",
+						"sequence": sequence,
+						"for_player": pong_room.player1.id,
+						"ball_x": ball.position.x,
+						"ball_y": ball.position.y,
+						"paddle1_x": paddle1.position.x,
+						"paddle1_y": paddle1.position.y,
+						"paddle2_x": paddle2.position.x,
+						"paddle2_y": paddle2.position.y,
+						"player1_score": pong_room.player1.score,
+						"player2_score": pong_room.player2.score
+					}
+				)
+
+				# Game over
+				if match_database.player1_score >= GAME_CONSTANTS['MAX_SCORE'] or match_database.player2_score >= GAME_CONSTANTS['MAX_SCORE']:
+					await set_match_winner(match_database)
+					break
+
+				# Short sleep
+				await asyncio.sleep(0.01)
+			if match_database.winner:
+				logging.info(f"Match end for match {pong_room.match_id}")
+				await self.channel_layer.group_send(
+						pong_room.match_group_name, {
+							"type" : "match_end",
+							"message" : "match_end",
+							"winner_id" : match_database.winner.id,
+							"winner_username" : match_database.winner.username
+						}
+					)
+		except asyncio.CancelledError:
+			logging.info("Cancelled execution of game loop")
+			pass
 	async def grace_period_handler(self, pong_room, match):
 		try:
 			logging.info("Starting grace period...")

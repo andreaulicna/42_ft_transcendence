@@ -15,7 +15,7 @@ const routes = {
 	'#lobby-game'	: '/pages/gameLobby.html',
 	'#game'			: '/pages/game.html',
 	'#local-tnmt'	: '/pages/tournamentLocal.html',
-	'#remote-tnmt'	: '/pages/tournamentRemote.html',
+	//'#remote-tnmt'	: '/pages/tournamentRemote.html',
 	'#lobby-tnmt'	: '/pages/tournamentLobby.html',
 	'#winner-tnmt'	: '/pages/tournamentWinner.html',
 	'#profile'		: '/pages/profile.html',
@@ -82,8 +82,8 @@ const loadContent = async (path) => {
 				await import('/js/gameTournamentLocal.js').then(module => module.init());
 			else if (mode == "tournamentRemote")
 				await import('/js/gameTournamentRemote.js').then(module => module.init());
-		} else if (window.location.hash === '#remote-tnmt') {
-			await import('/js/tournamentRemote.js').then(module => module.init());
+	//	} else if (window.location.hash === '#remote-tnmt') {
+	//		await import('/js/tournamentRemote.js').then(module => module.init());
 		} else if (window.location.hash === '#local-tnmt') {
 			await import('/js/tournamentLocal.js').then(module => module.init());
 		} else if (window.location.hash === '#lobby-tnmt') {

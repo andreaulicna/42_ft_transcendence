@@ -26,6 +26,7 @@ class PongGame:
 		self.lock = asyncio.Lock()
 		self.in_progress_flag = False
 		self.game_start = None
+		self.game_loop = None
 	
 	def __repr__(self):
 		return (f"PongGame(match_id={self.match_id}, player1={self.player1}, player2={self.player2}")
@@ -113,7 +114,7 @@ def calculate_ball_direction_after_collision(paddle, ball) -> Vector2D:
 		return new_ball_direction
 
 def paddle_collision(ball: Ball, paddle1: Paddle, paddle2: Paddle) -> Ball:
-	speed_constant = 0.1
+	speed_constant = settings.GAME_CONSTANTS['SPEED_CONSTANT']
 	# top & bottom are y-components, left & right are x-components
 	paddle1_top = paddle1.position.y - paddle1.paddle_half_height
 	paddle1_bottom = paddle1.position.y + paddle1.paddle_half_height 
