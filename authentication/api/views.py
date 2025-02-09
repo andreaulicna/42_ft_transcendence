@@ -111,8 +111,8 @@ class LoginView(APIView):
 	permission_classes = []
 	@method_decorator(csrf_exempt)
 	def post(self, request, format=None):
-		logging.info(request.META)
-		logging.info(request.LANGUAGE_CODE)
+		#logging.info(request.META)
+		#logging.info(request.LANGUAGE_CODE)
 
 		data = request.data
 		response = Response()
@@ -155,7 +155,7 @@ class LoginView(APIView):
 							response = set_response_cookie(response, data=data)
 							csrf.get_token(request)
 							response.data = {"access" : data['access']}
-							logging.info(response)
+							#logging.info(response)
 							return response
 					else:
 						return Response({'detail' : _('State not tied to user')}, status=status.HTTP_401_UNAUTHORIZED)
@@ -190,7 +190,7 @@ class LogoutView(APIView):
 	permission_classes = [IsAuthenticated]
 	def post(self, request):
 		player = CustomUser.objects.get(id=request.user.id)
-		logging.info(f"Player {player.id} is {player.state}")
+		#logging.info(f"Player {player.id} is {player.state}")
 		if player.state == CustomUser.StateOptions.INGAME:
 			return Response({"details" : _("Logging out when in game is not possible")}, status=status.HTTP_403_FORBIDDEN)
 		try:
@@ -216,7 +216,7 @@ class IntraAuthorizationView(APIView):
 								"response_type" : "code",
 								"state" : f"{state}"})
 		authorization_url = "https://api.intra.42.fr/oauth/authorize?" + query_string
-		logging.info(f"Authorization URL: {authorization_url}")
+		#logging.info(f"Authorization URL: {authorization_url}")
 		return Response({"URL": authorization_url})
 	
 # What if they are already authenticated?
@@ -274,8 +274,8 @@ class IntraCallbackView(APIView):
 		try:
 			player = CustomUser.objects.get(email=email)
 			existing_info = UserSerializer(player)
-			logging.info(f"Existing player info: {existing_info.data}")
-			logging.info(f"New info for existing: {player_info}")
+			#logging.info(f"Existing player info: {existing_info.data}")
+			#logging.info(f"New info for existing: {player_info}")
 
 			# Update the player's info
 			for key, value in player_info.items():
@@ -308,7 +308,7 @@ class IntraCallbackView(APIView):
 
 			player = UserSerializer(data=player_info)
 			if player.is_valid():
-				logging.info(f"New player info: {player.validated_data}")
+				#logging.info(f"New player info: {player.validated_data}")
 				player.save()
 			else:
 				return Response(player.errors, status=status.HTTP_400_BAD_REQUEST)

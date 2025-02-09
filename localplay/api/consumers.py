@@ -28,7 +28,7 @@ class Player:
 def create_match_room(match_id, player_id):
 	match_database = get_object_or_404(LocalMatch, id=match_id)
 	if match_database.creator.id == player_id:
-		logging.info(f'Added creator with id {player_id} to match {match_id}')
+		#logging.info(f'Added creator with id {player_id} to match {match_id}')
 		player1 = Player(player_id, match_database.player1_tmp_username)
 		player2 = Player(0, match_database.player2_tmp_username)
 	else:
@@ -85,13 +85,12 @@ class LocalPlayConsumer(AsyncWebsocketConsumer):
 		match_id = self.scope['url_route']['kwargs'].get('match_id')
 		logging.info(f"Player {self.id} is ready to play match {match_id}!")
 		if is_player_in_match_room_already(self.id) or await (get_match_status(match_id)) == LocalMatch.StatusOptions.FINISHED:
-			logging.info(f"Player {self.id} in room already or connecting to a finished match")
+			#logging.info(f"Player {self.id} in room already or connecting to a finished match")
 			await self.close()
 			return
 		try:
 			match_room = await create_match_room(match_id, self.id)
 		except ValueError:
-			logging.info("VALUE ERROR")
 			await self.close()
 			return
 		await self.accept()
@@ -100,14 +99,12 @@ class LocalPlayConsumer(AsyncWebsocketConsumer):
 		logging.info(match_rooms)
 		if (match_room.player1 is not None):
 			await self.play_pong(match_room)
-		else: #QUESTION - do we need this?
-			logging.info("Waiting for more players to join the match room.")
 
 	async def disconnect(self, close_code):
 		match_room = find_player_in_match_room(self.id)
 		match_id = self.scope['url_route']['kwargs'].get('match_id')
 		if match_room.match_id == match_id:
-			logging.info(f"Disconnecting player {self.id} from pong")
+			#logging.info(f"Disconnecting player {self.id} from localplay")
 			await set_user_state(self.scope['user'], CustomUser.StateOptions.IDLE)
 			for match_room in match_rooms:
 				if (match_room.player1 is not None) and (self.id == match_room.player1.id):
@@ -116,8 +113,6 @@ class LocalPlayConsumer(AsyncWebsocketConsumer):
 					break
 			logging.info("Rooms after disconnect:")
 			logging.info(match_rooms)
-		else:
-			logging.info("Disconnect reject")
 
 	async def receive(self, text_data):
 		text_data_json = json.loads(text_data)
@@ -149,7 +144,7 @@ class LocalPlayConsumer(AsyncWebsocketConsumer):
 		))
 
 	async def match_start(self, event):
-		logging.info("match_start called")
+		#logging.info("match_start called")
 		await self.send(text_data=json.dumps(
 			{
 				"type": event["message"],
@@ -168,7 +163,7 @@ class LocalPlayConsumer(AsyncWebsocketConsumer):
 		))
 
 	async def match_end(self, event):
-		logging.info("match_end called")
+		#logging.info("match_end called")
 		await self.send(text_data=json.dumps(
 			{
 				"type": event["message"],
@@ -215,8 +210,7 @@ class LocalPlayConsumer(AsyncWebsocketConsumer):
 		asyncio.create_task(self.game_loop(match_room, match_database))
 
 	async def game_loop(self, match_room, match_database):
-		#await asyncio.sleep(3)
-		logging.info(f"Game will start in: {match_room.get_seconds_until_game_start()} seconds")
+		#logging.info(f"Game will start in: {match_room.get_seconds_until_game_start()} seconds")
 		await asyncio.sleep(match_room.get_seconds_until_game_start())
 		sequence = 0
 		ball = match_room.ball

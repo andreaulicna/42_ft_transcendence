@@ -23,7 +23,7 @@ from pprint import pprint
 def create_match_room(match_id, player_id):
 	match_database = get_object_or_404(AIMatch, id=match_id)
 	if match_database.creator.id == player_id:
-		logging.info(f'Added creator with id {player_id} to match {match_id}')
+		#logging.info(f'Added creator with id {player_id} to match {match_id}')
 		match_room = PongGame(match_id, player_id, match_database.creator.username)
 		match_rooms.append(match_room)
 	else:
@@ -78,13 +78,12 @@ class AIPlayConsumer(AsyncWebsocketConsumer):
 		match_id = self.scope['url_route']['kwargs'].get('match_id')
 		logging.info(f"Player {self.id} is ready to play match {match_id}!")
 		if is_player_in_match_room_already(self.id) or await (get_match_status(match_id)) == AIMatch.StatusOptions.FINISHED:
-			logging.info(f"Player {self.id} in room already or connecting to a finished match")
+			#logging.info(f"Player {self.id} in room already or connecting to a finished match")
 			await self.close()
 			return
 		try:
 			match_room = await create_match_room(match_id, self.id)
 		except ValueError:
-			logging.info("VALUE ERROR")
 			await self.close()
 			return
 		await self.accept()
@@ -98,7 +97,7 @@ class AIPlayConsumer(AsyncWebsocketConsumer):
 		match_room = find_player_in_match_room(self.id)
 		match_id = self.scope['url_route']['kwargs'].get('match_id')
 		if match_room.match_id == match_id:
-			logging.info(f"Disconnecting player {self.id} from ai_play")
+			#logging.info(f"Disconnecting player {self.id} from ai_play")
 			await set_user_state(self.scope['user'], CustomUser.StateOptions.IDLE)
 			for match_room in match_rooms:
 				if (match_room.player1 is not None) and (self.id == match_room.player1.id):
@@ -107,8 +106,6 @@ class AIPlayConsumer(AsyncWebsocketConsumer):
 					break
 			logging.info("Rooms after disconnect:")
 			logging.info(match_rooms)
-		else:
-			logging.info("Disconnect reject")
 
 	async def receive(self, text_data):
 		text_data_json = json.loads(text_data)
@@ -144,7 +141,7 @@ class AIPlayConsumer(AsyncWebsocketConsumer):
 		))
 
 	async def match_start(self, event):
-		logging.info("match_start called")
+		#logging.info("match_start called")
 		await self.send(text_data=json.dumps(
 			{
 				"type": event["message"],
@@ -167,7 +164,7 @@ class AIPlayConsumer(AsyncWebsocketConsumer):
 		))
 
 	async def match_end(self, event):
-		logging.info("match_end called")
+		#logging.info("match_end called")
 		await self.send(text_data=json.dumps(
 			{
 				"type": event["message"],
@@ -218,8 +215,7 @@ class AIPlayConsumer(AsyncWebsocketConsumer):
 		asyncio.create_task(self.game_loop(match_room, match_database))
 
 	async def game_loop(self, match_room, match_database):
-		#await asyncio.sleep(3)
-		logging.info(f"Game will start in: {match_room.get_seconds_until_game_start()} seconds")
+		#logging.info(f"Game will start in: {match_room.get_seconds_until_game_start()} seconds")
 		await asyncio.sleep(match_room.get_seconds_until_game_start())
 		sequence = 0
 		ball = match_room.ball

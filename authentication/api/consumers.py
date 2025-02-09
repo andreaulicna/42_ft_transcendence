@@ -18,7 +18,7 @@ class OnlineRoom():
 		self.players = []
 	
 	def __str__(self):
-		return f"OnlineRoom(group_name={self.group_name}, players={[str(player) for player in self.players]})"
+		return f"OnlineRoom(players={[str(player) for player in self.players]})"
 
 online_room = OnlineRoom()
 
@@ -109,7 +109,7 @@ def get_inprogress_match(player_id):
 class UserConsumer(AsyncWebsocketConsumer):
 	async def connect(self):
 		self.id = self.scope['user'].id
-		logging.info(f"Player {self.id} says hello from authentication!")
+		#logging.info(f"Player {self.id} says hello from authentication!")
 		player = await add_player_to_online_room(self.id, self.channel_name)
 		await self.channel_layer.group_add(
 			online_room.group_name, self.channel_name
@@ -130,9 +130,9 @@ class UserConsumer(AsyncWebsocketConsumer):
 		logging.info(online_room)
 		self.timeout_task = asyncio.create_task(self.timeout_handler())
 		inprogress_match_id = await get_inprogress_match(self.id)
-		logging.info(f"Found inprogress match: {inprogress_match_id}")
+		#logging.info(f"Found inprogress match: {inprogress_match_id}")
 		if inprogress_match_id is not None:
-			logging.info("Sending match_id...")
+			#logging.info("Sending match_id...")
 			await self.send(text_data=json.dumps(
 				{
 					"type": "in_game",

@@ -57,7 +57,7 @@ def add_player_to_matchmaking_room(room: MatchRoom, player_id, channel_name):
 def find_room_to_join():
 	for room in matchmaking_rooms:
 		if room.player1 is None or room.player2 is None:
-			logging.info(f'Found match room: {room}')
+			#logging.info(f'Found match room: {room}')
 			return room
 	return None
 
@@ -90,8 +90,8 @@ def get_prev_match(prev_match_id):
 		return None
 
 def player_in_prev_match(prev_match, player_id):
-	logging.info(f"Prev match_id: {prev_match}")
-	logging.info(f"Prev match players: {prev_match.player1}, {prev_match.player2}")
+	#logging.info(f"Prev match_id: {prev_match}")
+	#logging.info(f"Prev match players: {prev_match.player1}, {prev_match.player2}")
 	if prev_match is not None:
 		if player_id in [prev_match.player1.id, prev_match.player2.id]:
 			return True
@@ -144,7 +144,7 @@ def is_player_in_pong_room_already(player_id):
 def find_pong_room_to_join(match_id):
 	for pong_room in pong_rooms:
 		if pong_room.match_id == match_id and (pong_room.player1 is None or pong_room.player2 is None):
-			logging.info(f'Found match room: {pong_room}')
+			#logging.info(f'Found match room: {pong_room}')
 			return pong_room
 	return None
 
@@ -160,10 +160,10 @@ def add_player_to_pong_room(match_id, pong_room, player_id, channel_name):
 	match_database = get_object_or_404(Match, id=match_id)
 	#logging.info(match_database.__dict__)
 	if match_database.player2_id == player_id:
-		logging.info(f'Added player 2 with id {player_id} to match {match_id}')
+		#logging.info(f'Added player 2 with id {player_id} to match {match_id}')
 		pong_room.player2 = Player(player_id, channel_name)
 	elif match_database.player1_id == player_id:
-		logging.info(f'Added player 1 with id {player_id} to match {match_id}')
+		#logging.info(f'Added player 1 with id {player_id} to match {match_id}')
 		pong_room.player1 = Player(player_id, channel_name)
 	else:
 		raise ValueError(f"Player ID {player_id} does not match any players in match {match_id}")
@@ -270,7 +270,7 @@ class MatchmakingConsumer(WebsocketConsumer):
 	def receive(self, text_data):
 		text_data_json = json.loads(text_data)
 		message = text_data_json["message"]
-		logging.info(f"Message in receive: {message}")
+		#logging.info(f"Message in receive: {message}")
 
 		# Send message to room group
 		async_to_sync(self.channel_layer.group_send)(
@@ -279,7 +279,7 @@ class MatchmakingConsumer(WebsocketConsumer):
 	
 	def matchmaking_message(self, event):
 		message = event["message"]
-		logging.info(f"Received group message: {message}")
+		#logging.info(f"Received group message: {message}")
 		self.send(text_data=json.dumps({"message": message}))
 		self.close() # closes the websocket once the match_id has been sent to both of the players
 
@@ -335,7 +335,7 @@ class RematchConsumer(WebsocketConsumer):
 	def receive(self, text_data):
 		text_data_json = json.loads(text_data)
 		message = text_data_json["message"]
-		logging.info(f"Message in receive: {message}")
+		#logging.info(f"Message in receive: {message}")
 
 		# Send message to room group
 		async_to_sync(self.channel_layer.group_send)(
@@ -344,7 +344,7 @@ class RematchConsumer(WebsocketConsumer):
 	
 	def matchmaking_message(self, event):
 		message = event["message"]
-		logging.info(f"Received group message: {message}")
+		#logging.info(f"Received group message: {message}")
 		self.send(text_data=json.dumps({"message": message}))
 		self.close() # closes the websocket once the match_id has been sent to both of the players
 
@@ -357,7 +357,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 		match_id = self.scope['url_route']['kwargs'].get('match_id')
 		logging.info(f"Player {self.id} is ready to play match {match_id}!")
 		if is_player_in_pong_room_already(self.id) or await (get_match_status(match_id)) == Match.StatusOptions.FINISHED:
-			logging.info(f"Player {self.id} in room already or connecting to a finished match")
+			#logging.info(f"Player {self.id} in room already or connecting to a finished match")
 			await self.close()
 			return
 		pong_room = find_pong_room_to_join(match_id)
@@ -366,7 +366,6 @@ class PongConsumer(AsyncWebsocketConsumer):
 		try:
 			await add_player_to_pong_room(match_id, pong_room, self.id, self.channel_name)
 		except ValueError:
-			logging.info("VALUE ERROR")
 			await self.close()
 			return
 		await self.channel_layer.group_add(
@@ -382,10 +381,11 @@ class PongConsumer(AsyncWebsocketConsumer):
 				pong_room.in_progress_flag = True
 				await self.play_pong(pong_room)
 			elif pong_room.in_progress_flag == True:
-				logging.info("The game is already in progress.")
+				#logging.info("The game is already in progress.")
+				pass
 			else:
 				# only happens if the websockets connect one after another
-				logging.info("Waiting for more players to join the match room.")
+				#logging.info("Waiting for more players to join the match room.")
 				match_database = await sync_to_async(get_object_or_404)(Match, id=pong_room.match_id)
 				grace_period_dict[pong_room.match_id] = asyncio.create_task(self.grace_period_handler(pong_room, match_database))
 				await set_match_status(match_database, Match.StatusOptions.INPROGRESS)
@@ -397,7 +397,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 				)
 
 	async def disconnect(self, close_code):
-		logging.info(f"Disconnecting player {self.id} from pong")
+		#logging.info(f"Disconnecting player {self.id} from pong")
 		pong_room_grace = find_player_in_pong_room(self.id)
 		if pong_room_grace is not None:
 			match_database = await sync_to_async(get_object_or_404)(Match, id=pong_room_grace.match_id)
@@ -413,9 +413,9 @@ class PongConsumer(AsyncWebsocketConsumer):
 					}
 				)
 			elif (match_winner is None):
-				logging.info(f"Both players disconnected, setting winner to the one who disconnected last")
+				#logging.info(f"Both players disconnected, setting winner to the one who disconnected last")
 				grace_period_task = grace_period_dict[pong_room_grace.match_id]
-				logging.info("Cancelling grace period from disconnect...")
+				#logging.info("Cancelling grace period from disconnect...")
 				grace_period_task.cancel()
 				grace_period_dict.pop(pong_room_grace.match_id)
 				await set_match_winner_on_dc(match_database, pong_room_grace)
@@ -477,12 +477,12 @@ class PongConsumer(AsyncWebsocketConsumer):
 		))
 
 	async def match_start(self, event):
-		logging.info("match_start called")
+		#logging.info("match_start called")
 		pong_room = find_player_in_pong_room(self.id)
 		if pong_room is not None:
 			grace_period_task = grace_period_dict.get(pong_room.match_id)
 		if grace_period_task is not None:
-			logging.info("Cancelling grace period...")
+			#logging.info("Cancelling grace period...")
 			grace_period_task.cancel()
 			grace_period_dict.pop(pong_room.match_id)
 		await self.send(text_data=json.dumps(
@@ -501,12 +501,12 @@ class PongConsumer(AsyncWebsocketConsumer):
 		))
 
 	async def match_end(self, event):
-		logging.info("match_end called")
+		#logging.info("match_end called")
 		pong_room = find_player_in_pong_room(self.id)
 		if pong_room is not None:
 			grace_period_task = grace_period_dict.get(pong_room.match_id)
 		if grace_period_task is not None:
-			logging.info("Cancelling grace period...")
+			#logging.info("Cancelling grace period...")
 			grace_period_task.cancel()
 			grace_period_dict.pop(pong_room.match_id)
 		await self.send(text_data=json.dumps(
@@ -556,9 +556,8 @@ class PongConsumer(AsyncWebsocketConsumer):
 		pong_room.game_loop = asyncio.create_task(self.game_loop(pong_room, match_database))
 
 	async def game_loop(self, pong_room, match_database):
-		#await asyncio.sleep(3)
 		try:
-			logging.info(f"Game will start in: {pong_room.get_seconds_until_game_start()} seconds")
+			#logging.info(f"Game will start in: {pong_room.get_seconds_until_game_start()} seconds")
 			await asyncio.sleep(pong_room.get_seconds_until_game_start())
 			sequence = 0
 			ball = pong_room.ball
@@ -663,14 +662,14 @@ class PongConsumer(AsyncWebsocketConsumer):
 						}
 					)
 		except asyncio.CancelledError:
-			logging.info("Cancelled execution of game loop")
+			#logging.info("Cancelled execution of game loop")
 			pass
 	async def grace_period_handler(self, pong_room, match):
 		try:
-			logging.info("Starting grace period...")
+			#logging.info("Starting grace period...")
 			await asyncio.sleep(30)
 			await set_match_winner_on_dc(match, pong_room)
-			logging.info(f"Match end (win by default) for match {pong_room.match_id}")
+			#logging.info(f"Match end (win by default) for match {pong_room.match_id}")
 			await self.channel_layer.group_send(
 					pong_room.match_group_name, {
 						"type" : "match_end",
