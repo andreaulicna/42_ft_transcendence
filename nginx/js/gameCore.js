@@ -487,16 +487,15 @@ export async function delay(ms) {
 }
 
 // Wait for an element to be available in the DOM
-async function waitForElement(selector, timeout = 4000) {
-	const start = Date.now();
-	while (Date.now() - start < timeout) {
-		const element = document.getElementById(selector);
-		if (element) {
+async function waitForElement(selector) {
+	let element;
+	while (!element)
+	{
+		element = document.getElementById(selector);
+		if (element)
 			return element;
-		}
 		await delay(100); // Wait for 100ms before checking again
 	}
-	console.error(`Element with selector "${selector}" not found within ${timeout}ms`);
 }
 
 // Prevent arrow key scrolling
