@@ -91,6 +91,7 @@ function dispatchContinue()
 
 function handleTournamentEnd() {
 	window.removeEventListener("brackets", renderTournamentBracket);
+	window.removeEventListener("match_start", nextGame);
 	localStorage.removeItem('tournament_id');
 	closeLocalTournamentWebsocket();
 	window.location.hash = "winner-tnmt";
