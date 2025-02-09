@@ -145,6 +145,7 @@ export function initGameData(data) {
 	isTouchDevice = "ontouchstart" in window;
 	if (isTouchDevice)
 	{
+		gameControlsElem.style.setProperty("display", "none", "important");
 		initTouchControls();
 		// console.log("TOUCH CONTROLS ENABLED");
 	}

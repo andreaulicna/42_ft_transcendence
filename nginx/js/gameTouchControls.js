@@ -25,13 +25,15 @@ export function initTouchControls()
 
 	function handleTouchStart(event, key, paddleKeys) {
 		// console.log("touchStart");
-		event.preventDefault();
+		if (event.cancelable)
+			event.preventDefault();
 		paddleKeys[key] = true;
 	}
 
 	function handleTouchEnd(event, key, paddleKeys) {
 		// console.log("touchEnd");
-		event.preventDefault();
+		if (event.cancelable)
+			event.preventDefault();
 		paddleKeys[key] = false;
 	}
 
