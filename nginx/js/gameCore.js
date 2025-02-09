@@ -599,7 +599,12 @@ export function handleGracePeriod() {
 
 	// Show the modal and start the grace period countdown
 	gracePeriodCountdown = 30;
-	countdownText.textContent = `Waiting for reconnect...`;
+	if (localStorage.getItem("language") == "cs")
+		countdownText.textContent = `Čekání na hráče...`;
+	else if (localStorage.getItem("language") == "sk")
+		countdownText.textContent = `Čakanie na hrača...`;
+	else
+		countdownText.textContent = `Waiting for reconnect...`;
 	countdownNums.textContent = `${gracePeriodCountdown}`;
 	// countdownModal.show();
 

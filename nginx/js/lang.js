@@ -36,6 +36,8 @@ const translations = {
 		buttonReplay: "Replay",
 		buttonReplaySwitch: "Replay (switch sides)",
 		buttonMenu: "Main Menu",
+		player1Controls: "Player 1 Controls",
+		player2Controls: "Player 2 Controls",
 		// TOURNAMENT
 		tournamentCreate: "Create Tournament",
 		tournamentName: "Tournament Name",
@@ -194,6 +196,8 @@ const translations = {
 		buttonReplay: "Hrát znovu",
 		buttonReplaySwitch: "Hrát znovu (vymenit strany)",
 		buttonMenu: "Hlavní menu",
+		player1Controls: "Ovládání hráče 1",
+		player2Controls: "Ovládání hráče 2",
 		// TOURNAMENT
 		tournamentCreate: "Vytvoř turnaj",
 		tournamentName: "Název turnaje",
@@ -352,6 +356,8 @@ const translations = {
 		buttonReplay: "Hrať znova",
 		buttonReplaySwitch: "Hrát znovu (vymenit strany)",
 		buttonMenu: "Hlavné menu",
+		player1Controls: "Ovládanie hráča 1",
+		player2Controls: "Ovládanie hráča 2",
 		// TOURNAMENT
 		tournamentCreate: "Vytvor turnaj",
 		tournamentName: "Názov turnaja",
