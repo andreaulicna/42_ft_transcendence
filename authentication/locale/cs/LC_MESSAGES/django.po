@@ -81,7 +81,7 @@ msgstr "Token poskutnutý 42 OAuth je neplatný"
 
 #: api/views.py:271
 msgid "Intra account does not have a valid e-mail address associated with it"
-msgstr "K intra účtu není přirazena platná e-mailová adresa "
+msgstr "K intra účtu není přirazena platná e-mailová adresa"
 
 #: authentication/settings.py:181
 msgid "English"

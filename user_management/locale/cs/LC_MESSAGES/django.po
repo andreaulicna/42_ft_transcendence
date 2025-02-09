@@ -18,9 +18,14 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n "
 "<= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;\n"
+
+#: .\api\views.py:26
+msgid "CSRF token missing"
+msgstr "Chybí CSRF token"
+
 #: api/views.py:77 api/views.py:99
 msgid "OTP not provided"
-msgstr ""
+msgstr "Chybí jednorázové heslo"
 
 #: api/views.py:80
 msgid "Secret has not been generated yet"
@@ -108,7 +113,7 @@ msgstr "(Žádost o) přátelství úspěšně odstraněna."
 
 #: api/views.py:336
 msgid "Friendship not found."
-msgstr "Záznam o přátelství nebyl nalezen"
+msgstr "Záznam o přátelství nebyl nalezen."
 
 #: user_management/settings.py:152
 msgid "English"
