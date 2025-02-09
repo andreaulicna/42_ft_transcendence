@@ -496,7 +496,7 @@ async function waitForElement(selector, timeout = 4000) {
 		}
 		await delay(100); // Wait for 100ms before checking again
 	}
-	throw new Error(`Element with selector "${selector}" not found within ${timeout}ms`);
+	console.error(`Element with selector "${selector}" not found within ${timeout}ms`);
 }
 
 // Prevent arrow key scrolling
@@ -552,6 +552,9 @@ export async function startCountdown(event) {
 
 	// Initialize modal elements
 	// countdownModal = bootstrap.Modal.getOrCreateInstance('#countdownModal');
+
+	countdownNums = await waitForElement("countdownNums");
+	countdownText = await waitForElement("countdownText");
 	countdownNums = document.getElementById("countdownNums");
 	countdownText = document.getElementById("countdownText");
 	currentCountdownType = "start";
@@ -600,6 +603,9 @@ export async function handleGracePeriod() {
 
 	// Initialize modal elements
 	// countdownModal = bootstrap.Modal.getOrCreateInstance('#countdownModal');
+	
+	countdownNums = await waitForElement("countdownNums");
+	countdownText = await waitForElement("countdownText");
 	countdownNums = document.getElementById("countdownNums");
 	countdownText = document.getElementById("countdownText");
 	currentCountdownType = "grace";
@@ -651,6 +657,11 @@ async function clearGracePeriod(event) {
 		const gameStartTime = new Date(data.game_start);
 		const currentTime = new Date();
 		let countdownStart = Math.floor((gameStartTime - currentTime) / 1000);
+
+		countdownNums = await waitForElement("countdownNums");
+		countdownText = await waitForElement("countdownText");
+		countdownNums = document.getElementById("countdownNums");
+		countdownText = document.getElementById("countdownText");
 
 		countdownNums.textContent = `${countdownStart}`;
 		countdownText.textContent = "";
