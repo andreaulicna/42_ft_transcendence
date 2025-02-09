@@ -584,8 +584,14 @@ export async function startCountdown(event) {
 	}, 1000);
 }
 
-export function handleGracePeriod() {
+export async function handleGracePeriod() {
 	isCountingDownFlag = true;
+
+	if (!gameCountdown)
+		gameCountdown = await waitForElement("gameCountdown");
+	if (!scoreText)
+		scoreText = await waitForElement("scoreText");
+
 	gameCountdown.style.setProperty("display", "block", "important");
 	scoreText.style.setProperty("display", "none", "important");
 
