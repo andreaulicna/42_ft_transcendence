@@ -4,6 +4,7 @@ import { textDotLoading } from './animations.js';
 import { openRematchWebsocket } from "./websockets.js";
 import { closeRematchWebsocket } from "./websockets.js";
 import { openLocalPlayWebsocket } from "./websockets.js";
+import { openPongWebsocket} from './websockets.js';
 import { apiCallAuthed } from './api.js';
 import { showToast } from "./notifications.js";
 
@@ -58,7 +59,9 @@ export function init() {
 
 	// Open corresponding Websocket
 	if (mode == "remote")
-		openMatchmakingWebsocket();
+	{
+		handleMatchRedirect();
+	}
 	else if (mode == "rematch")
 		openRematchWebsocket(last_match_id);
 
@@ -79,6 +82,18 @@ export function init() {
 	}
 
 	textDotLoading("loadingAnimation");
+}
+
+async function handleMatchRedirect()
+{
+	// event.preventDefault();
+	try {
+		const response = await apiCallAuthed(`/api/pong/matches-ip`, "GET", null, null);
+		localStorage.setItem("match_id", response.match_id);
+		openPongWebsocket(response.match_id, "join");
+	} catch (error) {
+		openMatchmakingWebsocket();
+	}
 }
 
 // Create a local match
