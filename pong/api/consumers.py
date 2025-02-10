@@ -590,10 +590,14 @@ class PongConsumer(AsyncWebsocketConsumer):
 			ball = pong_room.ball
 			paddle1 = pong_room.paddle1
 			paddle2 = pong_room.paddle2
+			scored = False
 			
 			while 42:
 				if pong_room.player1 is None or pong_room.player2 is None:
 					break
+				if scored == True:
+					scored = False
+					await asyncio.sleep(0.7)
 
 				if ball.position.y > (pong_room.GAME_HALF_HEIGHT - (ball.size / 2)):
 					if ball.direction.y > 0:
@@ -620,6 +624,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 					ball = pong_room.ball
 					paddle1 = pong_room.paddle1
 					paddle2 = pong_room.paddle2
+					scored = True
 
 				# Scoring player 1 - ball out of bounds on the right side
 				if (ball_right >= (pong_room.GAME_HALF_WIDTH)):
@@ -630,6 +635,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 					ball = pong_room.ball
 					paddle1 = pong_room.paddle1
 					paddle2 = pong_room.paddle2
+					scored = True
 
 				# Update ball position
 				ball.position += ball.direction * ball.speed
@@ -653,6 +659,11 @@ class PongConsumer(AsyncWebsocketConsumer):
 					}
 				)
 
+				# Game over
+				if match_database.player1_score >= GAME_CONSTANTS['MAX_SCORE'] or match_database.player2_score >= GAME_CONSTANTS['MAX_SCORE']:
+					await set_match_winner(match_database)
+					break
+				
 				#logging.info(f"Sending draw message to player 2: {pong_room.player2.channel_name}")
 				await self.channel_layer.send(
 					pong_room.player2.channel_name, {
@@ -671,10 +682,6 @@ class PongConsumer(AsyncWebsocketConsumer):
 					}
 				)
 
-				# Game over
-				if match_database.player1_score >= GAME_CONSTANTS['MAX_SCORE'] or match_database.player2_score >= GAME_CONSTANTS['MAX_SCORE']:
-					await set_match_winner(match_database)
-					break
 
 				# Short sleep
 				await asyncio.sleep(0.01)
