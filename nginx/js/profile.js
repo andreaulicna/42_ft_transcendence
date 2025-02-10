@@ -18,6 +18,8 @@ let filterLocalCounter;
 let filterRemoteBtn;
 let filterRemoteCounter;
 
+let resetColorsBtn;
+
 export async function init(data) {
 
 	stats = await apiCallAuthed('/api/user/win-loss');
@@ -34,6 +36,24 @@ export async function init(data) {
 
 	handleMatchHistory();
 	handleFriendlist();
+
+	resetColorsBtn = document.getElementById("resetColorsButton");
+	resetColorsBtn.addEventListener("click", resetColors);
+}
+
+function resetColors()
+{
+	let colorLeftPaddle = document.getElementById('colorLeftPaddle');
+	let colorRightPaddle = document.getElementById('colorRightPaddle');
+	let colorBall = document.getElementById('colorBall');
+
+	localStorage.removeItem(`${localStorage.getItem("id")}_colorLeftPaddle`);
+	localStorage.removeItem(`${localStorage.getItem("id")}_colorRightPaddle`);
+	localStorage.removeItem(`${localStorage.getItem("id")}_colorBall`);
+
+	colorLeftPaddle.value = '#00babc';
+	colorRightPaddle.value = '#df2af7';
+	colorBall.value = '#ffffff';
 }
 
 // Show a user's profile

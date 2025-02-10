@@ -93,6 +93,7 @@ const translations = {
 		noFriends: "You have no friends :(",
 		noOutgoingRequests: "You have no outgoing friend requests.",
 		noIncomingRequests: "You have no incoming friend requests.",
+		resetColors:"Reset colors to default",
 		// ERROR MESSAGES
 		registrationFailed: "Registration failed",
 		registrationUnsuccessful: "Your attempt at registration was unsuccessful.",
@@ -254,6 +255,7 @@ const translations = {
 		noFriends: "Nemáš žádné přátele :(",
 		noOutgoingRequests: "Nemáš žádné odeslané žádosti.",
 		noIncomingRequests: "Nemáš žádné příchozí žádosti.",
+		resetColors:"Vrátit původní barvy",
 		// ERROR MESSAGES
 		registrationFailed: "Registrace selhala",
 		registrationUnsuccessful: "Tvůj pokus o registraci byl neúspěšný.",
@@ -415,6 +417,7 @@ const translations = {
 		noFriends: "Nemáš žiadnych priateľov :(",
 		noOutgoingRequests: "Nemáš žiadne nevybavené žiadosti.",
 		noIncomingRequests: "Nemáš žiadne prichádzajúce požiadavky.",
+		resetColors:"Vrátit pôvodné farby",
 		// ERROR MESSAGES
 		registrationFailed: "Registrácia zlyhala",
 		registrationUnsuccessful: "Tvoj pokus o registráciu bol neúspešný.",
