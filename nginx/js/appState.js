@@ -5,4 +5,5 @@ window.appState = {
 	accessToken: localStorage.getItem('access'),
 	matchId: localStorage.getItem('match_id'),
 	tournamentId: localStorage.getItem('tournament_id'),
+	isRefreshingToken: false,
 }
