@@ -100,7 +100,7 @@ function handleTournamentEnd() {
 	window.location.hash = "winner-tnmt";
 }
 
-async function nextGame() {
+export async function nextGame() {
 	drawTick();
 	resetScore();
 	await delay(100);

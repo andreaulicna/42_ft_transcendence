@@ -1,6 +1,7 @@
 import { apiCallAuthed } from "./api.js";
 import { openLocalTournamentWebsocket } from "./websockets.js";
 import { showToast } from "./notifications.js";
+import { nextGame } from "./gameTournamentLocal.js";
 
 let tournamentCreateForm;
 let tournamentSlots;
@@ -10,6 +11,8 @@ let addPlayerInput;
 let players = [];
 
 export function init() {
+		window.removeEventListener("match_start", nextGame);
+
 		tournamentCreateForm = document.getElementById("create-tournament-form");
 		tournamentSlots = document.getElementById("tournament-slots");
 		addPlayerBtn = document.getElementById("add-player-button");

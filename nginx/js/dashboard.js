@@ -1,9 +1,11 @@
 import { initMatchStartListener } from "./gameCore.js";
+import { nextGame } from "./gameTournamentLocal.js";
 import { logout } from "./router.js";
 
 let logoutBtn;
 
 export async function init(id) {
+	window.removeEventListener("match_start", nextGame);
 	localStorage.removeItem("match_id");
 	if (id !== null) {
 		localStorage.setItem("id", id);
