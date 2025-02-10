@@ -291,11 +291,6 @@ class AIPlayConsumer(AsyncWebsocketConsumer):
 
 			sequence += 1
 
-			# Game over
-			if match_database.player1_score >= GAME_CONSTANTS['MAX_SCORE'] or match_database.player2_score >= GAME_CONSTANTS['MAX_SCORE']:
-				await set_match_winner(match_database)
-				break
-
 			#logging.info(f"Sending draw message to player 1: {match_room.player1.channel_name}")
 			await self.send(text_data=json.dumps(
 				{
@@ -317,6 +312,11 @@ class AIPlayConsumer(AsyncWebsocketConsumer):
 					"player2_score": match_room.player2.score
 				}
 			))
+
+			# Game over - we can break the loop only after the game state (coordinates in the above send) has been reset
+			if match_database.player1_score >= GAME_CONSTANTS['MAX_SCORE'] or match_database.player2_score >= GAME_CONSTANTS['MAX_SCORE']:
+				await set_match_winner(match_database)
+				break
 
 			match_room.last_frame = match_room.start_timestamp
 

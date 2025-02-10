@@ -658,11 +658,6 @@ class PongConsumer(AsyncWebsocketConsumer):
 						"player2_score": pong_room.player2.score
 					}
 				)
-
-				# Game over
-				if match_database.player1_score >= GAME_CONSTANTS['MAX_SCORE'] or match_database.player2_score >= GAME_CONSTANTS['MAX_SCORE']:
-					await set_match_winner(match_database)
-					break
 				
 				#logging.info(f"Sending draw message to player 2: {pong_room.player2.channel_name}")
 				await self.channel_layer.send(
@@ -681,6 +676,11 @@ class PongConsumer(AsyncWebsocketConsumer):
 						"player2_score": pong_room.player2.score
 					}
 				)
+
+				# Game over - we can break the loop only after the game state (coordinates in the above send) has been reset
+				if match_database.player1_score >= GAME_CONSTANTS['MAX_SCORE'] or match_database.player2_score >= GAME_CONSTANTS['MAX_SCORE']:
+					await set_match_winner(match_database)
+					break
 
 
 				# Short sleep
