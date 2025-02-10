@@ -115,7 +115,14 @@ class LocalPlayConsumer(AsyncWebsocketConsumer):
 			logging.info(match_rooms)
 
 	async def receive(self, text_data):
-		text_data_json = json.loads(text_data)
+		try:
+			text_data_json = json.loads(text_data)
+		except json.JSONDecodeError:
+			# Handle the case where the JSON is invalid
+			self.send(text_data=json.dumps({
+				"error": "Invalid JSON format."
+			}))
+			return
 
 		if "type" in text_data_json and "paddle" in text_data_json:
 			message_type = text_data_json["type"]

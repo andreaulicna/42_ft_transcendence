@@ -284,7 +284,14 @@ class TournamentConsumer(WebsocketConsumer):
 			)
 
 	def receive(self, text_data):
-		text_data_json = json.loads(text_data)
+		try:
+			text_data_json = json.loads(text_data)
+		except json.JSONDecodeError:
+			# Handle the case where the JSON is invalid
+			self.send(text_data=json.dumps({
+				"error": "Invalid JSON format."
+			}))
+			return
 
 		if "message" in text_data_json:
 			message_type = text_data_json["message"]
@@ -533,7 +540,14 @@ class LocalTournamentConsumer(WebsocketConsumer):
 				return
 
 	def receive(self, text_data):
-		text_data_json = json.loads(text_data)
+		try:
+			text_data_json = json.loads(text_data)
+		except json.JSONDecodeError:
+			# Handle the case where the JSON is invalid
+			self.send(text_data=json.dumps({
+				"error": "Invalid JSON format."
+			}))
+			return
 
 		if "message" in text_data_json:
 			message_type = text_data_json["message"]
