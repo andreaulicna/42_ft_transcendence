@@ -52,7 +52,6 @@ class CreateTournamentView(APIView):
 	def post(self, request, *args, **kwargs):
 		# Check max. capacity
 		capacity = self.kwargs.get('capacity')
-		print(f"Capacity in create view: {capacity}")
 
 		# User INGAME in other game mode
 		creator = request.user
@@ -205,6 +204,8 @@ class TournamentInfoView(RetrieveAPIView):
 			raise Http404(_("No such tournament exists!"))
 
 def get_players_based_on_capacity(request, capacity):
+	if 'players' not in request.data:
+		return Response({'detail': 'Missing players key in the request data.'}, status=status.HTTP_400_BAD_REQUEST)
 	players = request.data.get('players', [])
 	if len(players) != capacity:
 		raise ValueError(_("Wrong number of players for the tournament capacity"))
@@ -217,7 +218,6 @@ class CreateLocalTournamentView(APIView):
 	def post(self, request, *args, **kwargs):
 		# Check max. capacity
 		capacity = self.kwargs.get('capacity')
-		print(f"Capacity in create view for local tournament: {capacity}")
 
 		# User INGAME in other game mode
 		creator_player = request.user
