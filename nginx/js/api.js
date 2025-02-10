@@ -107,6 +107,9 @@ export async function refreshAccessToken() {
 		} else if (response.status == 401 || response.status == 403) {
 			// Handle unauthorized or forbidden response without printing an error
 			frontendLogout();
+			// IMPORTANT: For the case of 2FA login via Intra (otherwise creates a loop)
+			if (window.location.hash == "#2fa" && appState.loginPayloadFor2FA)
+				return false;
 			window.location.hash = "#login";
 			return false;
 		} else {
