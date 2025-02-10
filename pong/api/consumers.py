@@ -268,7 +268,14 @@ class MatchmakingConsumer(WebsocketConsumer):
 		logging.info(f"Matchmaking rooms after disconnect:{matchmaking_rooms}")
 	
 	def receive(self, text_data):
-		text_data_json = json.loads(text_data)
+		try:
+			text_data_json = json.loads(text_data)
+		except json.JSONDecodeError:
+			# Handle the case where the JSON is invalid
+			self.send(text_data=json.dumps({
+				"error": "Invalid JSON format."
+			}))
+			return
 		
 		if "message" in text_data_json:
 			message = text_data_json["message"]
@@ -335,7 +342,14 @@ class RematchConsumer(WebsocketConsumer):
 		logging.info(f"Rematch matchmaking_rooms after disconnect: {rematch_rooms}")
 	
 	def receive(self, text_data):
-		text_data_json = json.loads(text_data)
+		try:
+			text_data_json = json.loads(text_data)
+		except json.JSONDecodeError:
+			# Handle the case where the JSON is invalid
+			self.send(text_data=json.dumps({
+				"error": "Invalid JSON format."
+			}))
+			return
 
 		if "message" in text_data_json:
 			message = text_data_json["message"]
@@ -442,7 +456,14 @@ class PongConsumer(AsyncWebsocketConsumer):
 		logging.info(pong_rooms)
 
 	async def receive(self, text_data):
-		text_data_json = json.loads(text_data)
+		try:
+			text_data_json = json.loads(text_data)
+		except json.JSONDecodeError:
+			# Handle the case where the JSON is invalid
+			self.send(text_data=json.dumps({
+				"error": "Invalid JSON format."
+			}))
+			return
 
 		if "type" in text_data_json:
 			message_type = text_data_json["type"]
