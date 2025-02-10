@@ -21,11 +21,11 @@ msgstr ""
 
 #: api/serializers.py:22
 msgid "Username is too short"
-msgstr ""
+msgstr "Uživatelské jméno je příliš dlouhé"
 
 #: api/serializers.py:24
 msgid "Username is too long"
-msgstr ""
+msgstr "Uživatelské jméno je příliš krátké"
 
 #: api/views.py:28
 msgid "CSRF token missing"
