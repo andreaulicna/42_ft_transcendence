@@ -54,13 +54,18 @@ class AbstractTournament(models.Model):
 		WAITING = "WAIT", "Waiting"
 		INPROGRESS = "IP", "In progress"
 		FINISHED = "FIN", "Finished"
+	class CapacityOptions(models.IntegerChoices):
+		EMPTY = 0,
+		SMALL = 4,
+		MEDIUM = 8,
+		LARGE = 16
 
 	id = models.AutoField(primary_key=True)
 	name = models.CharField(max_length=30, default="unnamed")
 	time_created = models.DateTimeField(auto_now_add=True)
 	creator = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, related_name="%(class)s_creator", null=True)
 	status = models.CharField(max_length=4, choices=StatusOptions, default=StatusOptions.WAITING)
-	capacity = models.PositiveIntegerField(blank=False, default=0)
+	capacity = models.PositiveIntegerField(blank=False, default=CapacityOptions.EMPTY, choices=CapacityOptions)
 
 class Tournament(AbstractTournament):
 
