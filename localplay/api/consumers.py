@@ -116,15 +116,17 @@ class LocalPlayConsumer(AsyncWebsocketConsumer):
 
 	async def receive(self, text_data):
 		text_data_json = json.loads(text_data)
-		message_type = text_data_json["type"]
-		paddle = text_data_json["paddle"]
 
-		if message_type == "paddle_movement":
-			match_room = find_player_in_match_room(self.id)
-			if not match_room:
-				return
-			direction = text_data_json["direction"]
-			await self.move_paddle(match_room, paddle, direction)
+		if "type" in text_data_json and "paddle" in text_data_json:
+			message_type = text_data_json["type"]
+			paddle = text_data_json["paddle"]
+	
+			if message_type == "paddle_movement":
+				match_room = find_player_in_match_room(self.id)
+				if not match_room:
+					return
+				direction = text_data_json["direction"]
+				await self.move_paddle(match_room, paddle, direction)
 	
 	async def draw(self, event):
 		await self.send(text_data=json.dumps(

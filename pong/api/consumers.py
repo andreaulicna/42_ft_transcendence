@@ -269,13 +269,15 @@ class MatchmakingConsumer(WebsocketConsumer):
 	
 	def receive(self, text_data):
 		text_data_json = json.loads(text_data)
-		message = text_data_json["message"]
-		#logging.info(f"Message in receive: {message}")
+		
+		if "message" in text_data_json:
+			message = text_data_json["message"]
+			#logging.info(f"Message in receive: {message}")
 
-		# Send message to room group
-		async_to_sync(self.channel_layer.group_send)(
-			self.room_group_name, {"type": "matchmaking_message", "message": message}
-		)
+			# Send message to room group
+			async_to_sync(self.channel_layer.group_send)(
+				self.room_group_name, {"type": "matchmaking_message", "message": message}
+			)
 	
 	def matchmaking_message(self, event):
 		message = event["message"]
@@ -334,13 +336,15 @@ class RematchConsumer(WebsocketConsumer):
 	
 	def receive(self, text_data):
 		text_data_json = json.loads(text_data)
-		message = text_data_json["message"]
-		#logging.info(f"Message in receive: {message}")
 
-		# Send message to room group
-		async_to_sync(self.channel_layer.group_send)(
-			self.room_group_name, {"type": "matchmaking_message", "message": message}
-		)
+		if "message" in text_data_json:
+			message = text_data_json["message"]
+			#logging.info(f"Message in receive: {message}")
+
+			# Send message to room group
+			async_to_sync(self.channel_layer.group_send)(
+				self.room_group_name, {"type": "matchmaking_message", "message": message}
+			)
 	
 	def matchmaking_message(self, event):
 		message = event["message"]
@@ -439,18 +443,20 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 	async def receive(self, text_data):
 		text_data_json = json.loads(text_data)
-		message_type = text_data_json["type"]
 
-		if message_type == "paddle_movement":
-			pong_room = find_player_in_pong_room(self.id)
-			if not pong_room:
-				return
-			if pong_room.player1.id == self.id:
-				paddle = "paddle1"
-			elif pong_room.player2.id == self.id:
-				paddle = "paddle2"
-			direction = text_data_json["direction"]
-			await self.move_paddle(pong_room, paddle, direction)
+		if "type" in text_data_json:
+			message_type = text_data_json["type"]
+
+			if message_type == "paddle_movement":
+				pong_room = find_player_in_pong_room(self.id)
+				if not pong_room:
+					return
+				if pong_room.player1.id == self.id:
+					paddle = "paddle1"
+				elif pong_room.player2.id == self.id:
+					paddle = "paddle2"
+				direction = text_data_json["direction"]
+				await self.move_paddle(pong_room, paddle, direction)
 	
 	async def draw(self, event):
 		await self.send(text_data=json.dumps(

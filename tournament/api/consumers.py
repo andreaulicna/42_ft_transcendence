@@ -285,14 +285,16 @@ class TournamentConsumer(WebsocketConsumer):
 
 	def receive(self, text_data):
 		text_data_json = json.loads(text_data)
-		message_type = text_data_json["message"]
-		#logging.info(f"Message in receive: {message_type}")
 
-		if message_type == "match_end":
-			match_id = int(text_data_json["match_id"])
-			winner_id = int(text_data_json["winner_id"])
-			if (self.id == winner_id):
-				self.next_round(match_id, winner_id)
+		if "message" in text_data_json:
+			message_type = text_data_json["message"]
+			#logging.info(f"Message in receive: {message_type}")
+
+			if message_type == "match_end":
+				match_id = int(text_data_json["match_id"])
+				winner_id = int(text_data_json["winner_id"])
+				if (self.id == winner_id):
+					self.next_round(match_id, winner_id)
 
 	def create_match_and_return_match_id_next_round(self, tournament_room, round):
 		match = get_match_by_round(tournament_room, round)
@@ -532,35 +534,37 @@ class LocalTournamentConsumer(WebsocketConsumer):
 
 	def receive(self, text_data):
 		text_data_json = json.loads(text_data)
-		message_type = text_data_json["message"]
-		#logging.info(f"Message in receive: {message_type}")
-		local_tournament_id = int(self.scope['url_route']['kwargs'].get('local_tournament_id'))
-		local_tournament_room = get_remote_or_local_tournament_room(local_tournament_rooms, local_tournament_id)
 
-		if message_type == "match_end":
-			match_id = int(text_data_json["match_id"])
-			winner_username = text_data_json["winner_username"]
-			self.update_winner_in_match(local_tournament_id, match_id, winner_username)
-			current_match = get_match(local_tournament_room, match_id)
-			last_match = local_tournament_room.brackets[-1] if local_tournament_room.brackets else None
-			if (len(local_tournament_room.brackets) != local_tournament_room.capacity - 1) or (last_match.winner is None):
-				if (last_match.players[1] is None):
-					#logging.info("Adding player 1")
-					last_match.players[1] = current_match.winner
-					match_database = LocalMatch.objects.get(id=last_match.id)
-					match_database.player2_tmp_username = last_match.players[1].username
-					match_database.save()
-				elif (last_match.players[0] is not None):
-					#logging.info("Adding new bracket and player 0")
-					self.create_local_match_for_round(local_tournament_room, last_match.round + 1, current_match.winner, None)
-			#logging.info(local_tournament_room.brackets_to_json())
-			self.send(text_data=json.dumps({
-				"message": "brackets",
-				**local_tournament_room.brackets_to_json(), # the ** operator unpacks the dictionary returned by brackets_to_json and include its contents in the JSON object being sent
-			}))
-		
-		if message_type == "continue":
-			self.play_match_or_create_more_brackets(local_tournament_room)
+		if "message" in text_data_json:
+			message_type = text_data_json["message"]
+			#logging.info(f"Message in receive: {message_type}")
+			local_tournament_id = int(self.scope['url_route']['kwargs'].get('local_tournament_id'))
+			local_tournament_room = get_remote_or_local_tournament_room(local_tournament_rooms, local_tournament_id)
+
+			if message_type == "match_end":
+				match_id = int(text_data_json["match_id"])
+				winner_username = text_data_json["winner_username"]
+				self.update_winner_in_match(local_tournament_id, match_id, winner_username)
+				current_match = get_match(local_tournament_room, match_id)
+				last_match = local_tournament_room.brackets[-1] if local_tournament_room.brackets else None
+				if (len(local_tournament_room.brackets) != local_tournament_room.capacity - 1) or (last_match.winner is None):
+					if (last_match.players[1] is None):
+						#logging.info("Adding player 1")
+						last_match.players[1] = current_match.winner
+						match_database = LocalMatch.objects.get(id=last_match.id)
+						match_database.player2_tmp_username = last_match.players[1].username
+						match_database.save()
+					elif (last_match.players[0] is not None):
+						#logging.info("Adding new bracket and player 0")
+						self.create_local_match_for_round(local_tournament_room, last_match.round + 1, current_match.winner, None)
+				#logging.info(local_tournament_room.brackets_to_json())
+				self.send(text_data=json.dumps({
+					"message": "brackets",
+					**local_tournament_room.brackets_to_json(), # the ** operator unpacks the dictionary returned by brackets_to_json and include its contents in the JSON object being sent
+				}))
+			
+			if message_type == "continue":
+				self.play_match_or_create_more_brackets(local_tournament_room)
 	
 	def update_winner_in_match(self, local_tournament_id , match_id, winner_username):
 		local_tournament_room = get_remote_or_local_tournament_room(local_tournament_rooms, local_tournament_id)
