@@ -4,6 +4,7 @@ import { logout } from "./router.js";
 let logoutBtn;
 
 export async function init(id) {
+	localStorage.removeItem("match_id");
 	if (id !== null) {
 		localStorage.setItem("id", id);
 	}

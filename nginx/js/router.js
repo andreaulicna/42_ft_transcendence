@@ -141,6 +141,29 @@ const router = async () => {
 		return;
 	}
 
+	// Handling the back button
+	if (window.location.hash != "#game")
+	{
+		closeLocalWebsocket();
+		// closeTournamentWebsocket();
+		closeLocalTournamentWebsocket()
+		closePongWebsocket();
+		closeAIPlayWebsocket();
+	}
+	if (window.location.hash != "#lobby-game")
+	{
+		if (localStorage.getItem("gameMode") == "remote")
+			closeMatchmakingWebsocket();
+		if (localStorage.getItem("gameMode") == "rematch")
+			closeRematchWebsocket();
+	}
+	if (window.location.hash == "#lobby-game" && localStorage.getItem("match_id"))
+	{
+		closeMatchmakingWebsocket();
+		localStorage.removeItem("match_id");
+		window.location.hash = "#dashboard";
+	}
+
 	const route = window.location.hash || '';
 	const path = routes[route] || routes['404'];
 
