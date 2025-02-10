@@ -47,6 +47,7 @@ export async function init() {
 	replayButton.style.display = "none";
 	mainMenuButton.style.display = "none";
 	continueButton.style.display = "block";
+	// console.log("Tournament initialized.");
 }
 
 async function initLocalData(data)
@@ -56,6 +57,7 @@ async function initLocalData(data)
 
 	textDynamicLoad("player1Name", `${player1.name}`);
 	textDynamicLoad("player2Name", `${player2.name}`);
+	// console.log("Local data initialized.");
 }
 
 function initTournamentEventListeners()
@@ -67,6 +69,7 @@ function initTournamentEventListeners()
 	window.addEventListener("match_start", nextGame);
 	window.addEventListener("brackets", (event) => renderTournamentBracket(event))
 	continueButton.addEventListener("click", dispatchContinue);
+	// console.log("Tournament event listeners initialized.");
 }
 
 function dispatchWinnerMatchEnd() {

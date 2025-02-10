@@ -20,12 +20,14 @@ export function init() {
 
 		renderTournamentBracket();
 		addPlayerBtn.addEventListener("click", addPlayerToList);
+		tournamentSlots.addEventListener("change", trimPlayerList);
 		tournamentSlots.addEventListener("change", renderTournamentBracket);
 		tournamentCreateForm.addEventListener("submit", (e) => createTournament(e));
 }
 
 function addPlayerToList() {
 	const playerName = addPlayerInput.value.trim();
+	console.log("capacity:", capacity);
 	capacity = parseInt(tournamentSlots.value);
 
 	// Manually trigger validation
@@ -51,10 +53,6 @@ function addPlayerToList() {
 			players.push(playerName);
 			addPlayerInput.value = ""; // Clear the input field
 			renderTournamentBracket();
-
-			// Temporarily disable the required attribute on the 'Add Player' input so the form can submit
-			if (players.length == capacity)
-				addPlayerInput.required = false;
 		} else {
 			showToast("Error adding player", "Player name cannot be empty.", null, "t_emptyName");
 			throw new Error("Player name cannot be empty.");
@@ -63,6 +61,12 @@ function addPlayerToList() {
 		console.error(error.message);
 	};
 	
+}
+
+function trimPlayerList() {
+	capacity = parseInt(tournamentSlots.value);
+	if (players.length > capacity)
+		players = players.slice(0, capacity);
 }
 
 function renderTournamentBracket() {
@@ -121,6 +125,7 @@ async function createTournament(event) {
 
 	const tournamentName = document.getElementById("tournament-name").value;
 
+	capacity = parseInt(tournamentSlots.value);
 	if (players.length < capacity)
 	{
 		showToast("Error creating tournament", `Not enough players added.`, null, "t_notEnoughPlayers");
