@@ -231,11 +231,15 @@ class AIPlayConsumer(AsyncWebsocketConsumer):
 		paddle1 = match_room.paddle1
 		paddle2 = match_room.paddle2
 		ai_player = match_room.player2
+		scored = False
 		
 		while 42:
 			if match_room.player1 is None:
 				await set_match_winner(match_database)
 				break
+			if scored == True:
+				scored = False
+				await asyncio.sleep(0.7)
 
 			match_room.start_timestamp = timezone.now()
 			dt = (match_room.start_timestamp - match_room.last_frame).total_seconds()
@@ -268,6 +272,7 @@ class AIPlayConsumer(AsyncWebsocketConsumer):
 				ball = match_room.ball
 				paddle1 = match_room.paddle1
 				paddle2 = match_room.paddle2
+				scored = True
 
 			# Scoring player 1 - ball out of bounds on the right side
 			if (ball_right >= (match_room.GAME_HALF_WIDTH)):
@@ -279,11 +284,18 @@ class AIPlayConsumer(AsyncWebsocketConsumer):
 				ball = match_room.ball
 				paddle1 = match_room.paddle1
 				paddle2 = match_room.paddle2
+				scored = True
 
 			# Update ball position
 			ball.position += ball.direction * ball.speed
 
 			sequence += 1
+
+			# Game over
+			if match_database.player1_score >= GAME_CONSTANTS['MAX_SCORE'] or match_database.player2_score >= GAME_CONSTANTS['MAX_SCORE']:
+				await set_match_winner(match_database)
+				break
+
 			#logging.info(f"Sending draw message to player 1: {match_room.player1.channel_name}")
 			await self.send(text_data=json.dumps(
 				{
@@ -306,10 +318,6 @@ class AIPlayConsumer(AsyncWebsocketConsumer):
 				}
 			))
 
-			# Game over
-			if match_database.player1_score >= GAME_CONSTANTS['MAX_SCORE'] or match_database.player2_score >= GAME_CONSTANTS['MAX_SCORE']:
-				await set_match_winner(match_database)
-				break
 			match_room.last_frame = match_room.start_timestamp
 
 			# Short sleep
