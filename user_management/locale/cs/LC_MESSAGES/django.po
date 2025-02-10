@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-10 11:19+0100\n"
+"POT-Creation-Date: 2025-02-10 11:41+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -55,7 +55,7 @@ msgstr "Dvoufázové ověření deaktivováno"
 msgid "2FA has not been enabled"
 msgstr "Dvoufázové ověření nebylo aktivováno"
 
-#: api/views.py:107 api/views.py:115 api/views.py:163 api/views.py:191
+#: api/views.py:107 api/views.py:115 api/views.py:162 api/views.py:190
 msgid "Player does not exist"
 msgstr "Hráč neexistuje"
 
@@ -75,55 +75,59 @@ msgstr "Informace o uživateli aktualizovány"
 msgid "Other user not found"
 msgstr "Uživatel nebyl nalezen"
 
-#: api/views.py:166
+#: api/views.py:165
 msgid "No avatar data provided"
 msgstr "Nahrávaný avatar je prázdný"
 
-#: api/views.py:183
+#: api/views.py:182
 msgid "Avatar updated successfully"
 msgstr "Avatar byl úspěšně nahrán"
 
-#: api/views.py:215 api/views.py:224 api/views.py:233
+#: api/views.py:184
+msgid "Avatar upload failed"
+msgstr "Nepodařilo se nahrát avatar"
+
+#: api/views.py:214 api/views.py:223 api/views.py:232
 msgid "Match not found"
 msgstr "Zápas nebyl nalezen"
 
-#: api/views.py:265
+#: api/views.py:264
 msgid "Receiver's username not specified"
 msgstr "Uživatelské jméno příjemce není uvedeno"
 
-#: api/views.py:267
+#: api/views.py:266
 msgid "You cannot befriend yourself"
 msgstr "Nelze přidat sebe samého jako přítele"
 
-#: api/views.py:271
+#: api/views.py:270
 msgid "User not found"
 msgstr "Uživatel nenalezen"
 
-#: api/views.py:276
+#: api/views.py:275
 msgid "Friendship (request) already exists."
 msgstr "(Žádost o) přátelství už existuje."
 
-#: api/views.py:285
+#: api/views.py:284
 msgid "Friendship request sent successfully."
 msgstr "Žádost o přátelství úspěšně odeslána."
 
-#: api/views.py:302
+#: api/views.py:301
 msgid "Friendship request accepted successfully."
 msgstr "Žádost o přátelství úspěšně přijata."
 
-#: api/views.py:304 api/views.py:317
+#: api/views.py:303 api/views.py:316
 msgid "Friendship request not found."
 msgstr "Žádost o přítelství nebyla nalezena."
 
-#: api/views.py:315
+#: api/views.py:314
 msgid "Friendship request deleted successfully."
 msgstr "Žádost o přítelství úspěšně odstraněna."
 
-#: api/views.py:329
+#: api/views.py:328
 msgid "Friendship (request) deleted successfully."
 msgstr "(Žádost o) přátelství úspěšně odstraněna."
 
-#: api/views.py:331
+#: api/views.py:330
 msgid "Friendship not found."
 msgstr "Záznam o přátelství nebyl nalezen."
 
