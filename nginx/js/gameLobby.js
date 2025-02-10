@@ -8,6 +8,8 @@ import { apiCallAuthed } from './api.js';
 import { showToast } from "./notifications.js";
 
 export function init() {
+	localStorage.removeItem("match_id");
+
 	let mode = localStorage.getItem("gameMode");
 	if (mode == "ai" || mode == "tournamentLocal" || mode == "tournamentRemote")
 	{
