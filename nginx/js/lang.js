@@ -158,6 +158,7 @@ const translations = {
 		t_friendDelete_header: "Friend Deleted",
 		t_friendDelete_message: "You have deleted a friend from the list.",
 		t_friendDeleteError_header: "Error deleting friend",
+		t_logoutDuringGame_header: "Error logging out",
 	},
 	cs: {
 		// INDEX
@@ -318,6 +319,7 @@ const translations = {
 		t_friendDelete_header: "Přítel smazán",
 		t_friendDelete_message: "Smazal jsi přítele ze seznamu.",
 		t_friendDeleteError_header: "Chyba při mazání přítele",
+		t_logoutDuringGame_header: "Chyba při odhlášení",
 	},
 	sk: {
 		// INDEX
@@ -478,6 +480,7 @@ const translations = {
 		t_friendDelete_header: "Vymazaný priateľ",
 		t_friendDelete_message: "Vymazal si priateľa zo zoznamu.",
 		t_friendDeleteError_header: "Chyba pri odstraňovaní priateľa",
+		t_logoutDuringGame_header: "Chyba pri odhlásení",
 	}
 };
 

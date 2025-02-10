@@ -205,7 +205,6 @@ export async function logout() {
 		appState.isLoggingOut = true;
 
 		const response = await apiCallAuthed("/api/auth/login/refresh/logout", "POST");
-
 		const broadcastChannel = new BroadcastChannel("ws_channel");
 		broadcastChannel.postMessage("logout");
 
@@ -222,6 +221,7 @@ export async function logout() {
 		// console.log('Logged out successfully');
 	} catch (error) {
 		console.error('Error during logout:', error);
+		showToast("Error during logout", null, error, "t_logoutDuringGame");
 	} finally {
 		appState.isLoggingOut = false;
 	}
