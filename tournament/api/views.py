@@ -204,6 +204,8 @@ class TournamentInfoView(RetrieveAPIView):
 			raise Http404(_("No such tournament exists!"))
 
 def get_players_based_on_capacity(request, capacity):
+	if 'players' not in request.data:
+		return Response({'detail': 'Missing players key in the request data.'}, status=status.HTTP_400_BAD_REQUEST)
 	players = request.data.get('players', [])
 	if len(players) != capacity:
 		raise ValueError(_("Wrong number of players for the tournament capacity"))
