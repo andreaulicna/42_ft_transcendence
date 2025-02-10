@@ -57,7 +57,8 @@ function checkForIntraLoginArg() {
 			username: urlParams.get("username"),
 		};
 		appState.loginPayloadFor2FA = payload;
-		
+		const newUrl = window.location.origin + window.location.pathname;
+		window.history.replaceState({}, document.title, newUrl);
 		window.location.hash = "#2fa";
 	}
 	if (urlParams.get("access_token"))
