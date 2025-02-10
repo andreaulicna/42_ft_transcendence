@@ -37,7 +37,7 @@ export async function apiCallAuthed(url, method = 'GET', headers = {}, payload =
 			throw new Error(data.message || data.detail || data.details || 'API call status not OK');
 		}
 	} catch (error) {
-		console.error('Authenticated API call error:', error);
+		// console.error('Authenticated API call error:', error);
 		throw error;
 	} finally {
 		if (showAnimation == true)
@@ -118,7 +118,7 @@ export async function refreshAccessToken() {
 			throw new Error(errorData.message || 'Token refresh failed');
 		}
 	} catch (error) {
-		console.error('Token refresh error:', error);
+		// console.error('Token refresh error:', error);
 
 		frontendLogout();
 		window.location.hash = "#login";

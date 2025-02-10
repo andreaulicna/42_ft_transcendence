@@ -99,7 +99,7 @@ async function createLocalPlay(event) {
 		localStorage.setItem("match_id", response.match_id);
 		openLocalPlayWebsocket(response.match_id);
 	} catch (error) {
-		console.error("Error creating local match:", error);
+		// console.error("Error creating local match:", error);
 		showToast("Error creating local match", null, error, "t_matchCreateLocal");
 		window.location.hash = "#dashboard";
 	}
@@ -116,7 +116,7 @@ async function createLocalPlayRematch(side_mode) {
 		localStorage.setItem("match_id", response.match_id);
 		openLocalPlayWebsocket(response.match_id);
 	} catch (error) {
-		console.error("Error creating local rematch:", error);
+		// console.error("Error creating local rematch:", error);
 		showToast("Error creating local rematch", null, error, "t_rematchCreateLocal");
 		window.location.hash = "#dashboard";
 	}

@@ -27,7 +27,7 @@ async function fetchPlayerList() {
 		renderTournamentBracket(activePlayers, data.capacity);
 
 	} catch (error) {
-		console.error("Error fetching player list:", error);
+		// console.error("Error fetching player list:", error);
 	}
 }
 
@@ -109,7 +109,7 @@ export function cancelLobby() {
 			// console.log("Leaving tournament");
 		})
 		.catch(error => {
-			console.error("Error leaving tournament:", error);
+			// console.error("Error leaving tournament:", error);
 			showToast("Error leaving tournament", null, error, "t_tournamentLeaveError");
 		})
 		.finally(() => {

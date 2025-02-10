@@ -61,7 +61,7 @@ function addPlayerToList() {
 			throw new Error("Player name cannot be empty.");
 		}
 	} catch (error) {
-		console.error(error.message);
+		// console.error(error.message);
 	};
 	
 }
@@ -146,7 +146,7 @@ async function createTournament(event) {
 		localStorage.setItem("tournament_id", response.local_tournament.id);
 		openLocalTournamentWebsocket(response.local_tournament.id);
 	} catch (error) {
-		console.error("Error creating tournament:", error);
+		// console.error("Error creating tournament:", error);
 		showToast("Error creating tournament", null, error, "t_tournamentError");
 	}
 }

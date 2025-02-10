@@ -94,7 +94,7 @@ const loadContent = async (path) => {
 			await import('/js/2fa.js').then(module => module.init());
 		}
 	} catch (err) {
-		console.error('Error loading content:', err);
+		// console.error('Error loading content:', err);
 	} finally {
 		hideLoading();
 	}
@@ -128,7 +128,7 @@ const router = async () => {
 		if (localStorage.getItem("gameMode") != "ai" && !localStorage.getItem("match_id"))
 		{
 			window.location.hash = '#dashboard';
-			console.error('Cannot access #game without a match ID');
+			// console.error('Cannot access #game without a match ID');
 			showToast("Error", "Cannot start game session", null, "t_openingWsError");
 			return;
 		}
@@ -136,7 +136,7 @@ const router = async () => {
 	else if (window.location.hash === "#lobby-tnmt" && !localStorage.getItem("tournament_id"))
 	{
 		window.location.hash = '#dashboard';
-		console.error('Cannot access #lobby-tnmt without a tournament ID');
+		// console.error('Cannot access #lobby-tnmt without a tournament ID');
 		showToast("Error", "Cannot start game session", null, "t_openingWsError");
 		return;
 	}
@@ -243,7 +243,7 @@ export async function logout() {
 
 		// console.log('Logged out successfully');
 	} catch (error) {
-		console.error('Error during logout:', error);
+		// console.error('Error during logout:', error);
 		showToast("Error during logout", null, error, "t_logoutDuringGame");
 	} finally {
 		appState.isLoggingOut = false;

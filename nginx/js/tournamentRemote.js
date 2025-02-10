@@ -39,7 +39,7 @@ async function createTournament(event) {
 		//openTournamentWebsocket(response.tournament.id);
 		window.location.hash = '#lobby-tnmt';
 	} catch (error) {
-		console.error("Error creating tournament:", error);
+		// console.error("Error creating tournament:", error);
 		showToast("Error creating tournament", null, error, "t_tournamentCreationError");
 	}
 }
@@ -55,7 +55,7 @@ async function joinTournament(event) {
 				window.location.hash = '#lobby-tnmt';
 			})
 			.catch(error => {
-				console.error('Error joining tournament:', error);
+				// console.error('Error joining tournament:', error);
 				showToast("Error joining tournament", null, error, "t_tournamentJoinError");
 			});
 	}
@@ -86,6 +86,6 @@ async function fetchAndUpdateTournamentList() {
 			});
 		}
 	} catch (error) {
-		console.error('Error fetching player list:', error);
+		// console.error('Error fetching player list:', error);
 	}
 }

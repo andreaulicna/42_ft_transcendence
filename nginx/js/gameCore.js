@@ -411,7 +411,7 @@ async function fetchServerTime() {
 		const data = await response.json();
 		return new Date(data.server_time);
 	} catch (error) {
-		console.error("Error fetching server time:", error);
+		// console.error("Error fetching server time:", error);
 		return null;
 	}
 }
