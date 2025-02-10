@@ -152,7 +152,6 @@ class OtherUserInfoView(APIView):
 		except Http404:
 			return Response({'detail' : _('Other user not found')}, status=status.HTTP_404_NOT_FOUND)
 
-# protect against identical names and big amounts
 class UserAvatarUpload(APIView):
 	permission_classes = [IsAuthenticated]
 
@@ -182,7 +181,7 @@ class UserAvatarUpload(APIView):
 			player.save()
 			return Response({'detail': _('Avatar updated successfully')})
 		except Exception as e:
-			return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+			return Response({'detail': _('Avatar upload failed')}, status=status.HTTP_400_BAD_REQUEST)
 	
 	def get(self, request):
 		try:
