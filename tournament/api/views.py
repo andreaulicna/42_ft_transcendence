@@ -52,7 +52,6 @@ class CreateTournamentView(APIView):
 	def post(self, request, *args, **kwargs):
 		# Check max. capacity
 		capacity = self.kwargs.get('capacity')
-		print(f"Capacity in create view: {capacity}")
 
 		# User INGAME in other game mode
 		creator = request.user
@@ -217,7 +216,6 @@ class CreateLocalTournamentView(APIView):
 	def post(self, request, *args, **kwargs):
 		# Check max. capacity
 		capacity = self.kwargs.get('capacity')
-		print(f"Capacity in create view for local tournament: {capacity}")
 
 		# User INGAME in other game mode
 		creator_player = request.user

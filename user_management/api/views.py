@@ -21,6 +21,8 @@ import pyotp, qrcode, logging, io
 from django.db import models, IntegrityError
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+from django.utils import translation
+
 
 def csrf_failure(request, reason=""):
 	return Response({'detail' : _('CSRF token missing')}, status=status.HTTP_403_FORBIDDEN)
@@ -144,7 +146,12 @@ class UserInfoView(APIView):
 			except IntegrityError as e:
 				return Response({'detail': _('Username already exists, choose a different one')}, status=status.HTTP_400_BAD_REQUEST)
 			except ValidationError as e:
-				return Response({"details" : str(e)},status=status.HTTP_400_BAD_REQUEST)
+				error_messages = []
+				for field, messages in e.message_dict.items():
+					for message in messages:
+						error_messages.append(message)
+				error_message_str = ', '.join(error_messages)
+				return Response({"detail" : error_message_str},status=status.HTTP_400_BAD_REQUEST)
 			return Response({'detail' : _('User info updated')})
 		
 class OtherUserInfoView(APIView):
@@ -166,7 +173,6 @@ class UserAvatarUpload(APIView):
 			player = CustomUser.objects.get(username=request.user)
 		except CustomUser.DoesNotExist:
 			return Response({'detail': _('Player does not exist')}, status=status.HTTP_404_NOT_FOUND)
-		# print(request.data)
 		data = request.data.get('profilePic')
 		if not data:
 			return Response({'detail': _('No avatar data provided')}, status=status.HTTP_400_BAD_REQUEST)
@@ -277,7 +283,6 @@ class FriendshipRequestView(APIView):
 			return Response({'detail' : _('User not found')}, status=status.HTTP_404_NOT_FOUND)
 		sender_current = request.user
 		receiver_current = target_player
-		print("Sender: ", sender_current.id, " Receiver: ", receiver_current.id)
 		db_check = Friendship.objects.filter(Q(receiver=sender_current) | Q(sender=sender_current), Q(receiver=receiver_current) | Q(sender=receiver_current))
 		if db_check:
 			return Response({'detail': _('Friendship (request) already exists.')}, status=status.HTTP_400_BAD_REQUEST)
@@ -338,45 +343,45 @@ class FriendshipRequestDeleteView(APIView):
 			return Response({'detail': _('Friendship not found.')}, status=status.HTTP_404_NOT_FOUND)
 
 class MatchHistoryView(APIView):
-    permission_classes = [IsAuthenticated]
+	permission_classes = [IsAuthenticated]
 
-    def get(self, request, *args, **kwargs):
-        user = request.user
+	def get(self, request, *args, **kwargs):
+		user = request.user
 
-        # Get all matches that are FINISHED per type
-        matches = Match.objects.filter(
-            (models.Q(player1=user) | models.Q(player2=user)) & models.Q(status=Match.StatusOptions.FINISHED)
-        )
-        local_matches = LocalMatch.objects.filter(
-            models.Q(creator=user) & models.Q(status=Match.StatusOptions.FINISHED)
-        )
-        ai_matches = AIMatch.objects.filter(
-            models.Q(creator=user) & models.Q(status=Match.StatusOptions.FINISHED)
-        )
+		# Get all matches that are FINISHED per type
+		matches = Match.objects.filter(
+			(models.Q(player1=user) | models.Q(player2=user)) & models.Q(status=Match.StatusOptions.FINISHED)
+		)
+		local_matches = LocalMatch.objects.filter(
+			models.Q(creator=user) & models.Q(status=Match.StatusOptions.FINISHED)
+		)
+		ai_matches = AIMatch.objects.filter(
+			models.Q(creator=user) & models.Q(status=Match.StatusOptions.FINISHED)
+		)
 
-        # Serialize each category of matches
-        match_serializer = HistoryMatchSerializer(matches, many=True)
-        local_match_serializer = HistoryLocalMatchSerializer(local_matches, many=True)
-        ai_match_serializer = HistoryAIMatchSerializer(ai_matches, many=True)
+		# Serialize each category of matches
+		match_serializer = HistoryMatchSerializer(matches, many=True)
+		local_match_serializer = HistoryLocalMatchSerializer(local_matches, many=True)
+		ai_match_serializer = HistoryAIMatchSerializer(ai_matches, many=True)
 
-        # Combine the serialized data into the desired structure
-        response_data = {
-            'remote_matches': match_serializer.data,
-            'local_matches': local_match_serializer.data,
-            'ai_matches': ai_match_serializer.data,
-        }
+		# Combine the serialized data into the desired structure
+		response_data = {
+			'remote_matches': match_serializer.data,
+			'local_matches': local_match_serializer.data,
+			'ai_matches': ai_match_serializer.data,
+		}
 
-        return Response(response_data)
+		return Response(response_data)
 
 class WinLossView(APIView):
-    # Remote + AI matches only as for Local we cannot really distinguish which player is the user
-    permission_classes = [IsAuthenticated]
+	# Remote + AI matches only as for Local we cannot really distinguish which player is the user
+	permission_classes = [IsAuthenticated]
 
-    def get(self, request, *args, **kwargs):
-        user = request.user
-        data = WinLossSerializer.count_win_loss(user)
-        serializer = WinLossSerializer(data)
-        return Response(serializer.data)
+	def get(self, request, *args, **kwargs):
+		user = request.user
+		data = WinLossSerializer.count_win_loss(user)
+		serializer = WinLossSerializer(data)
+		return Response(serializer.data)
 
 class UsersStatusListView(ListAPIView):
 	serializer_class = UsersStatusListSerializer
