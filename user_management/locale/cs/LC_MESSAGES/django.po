@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-05 14:52+0100\n"
+"POT-Creation-Date: 2025-02-10 11:19+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,110 +19,122 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n "
 "<= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;\n"
 
-#: .\api\views.py:26
+#: api/serializers.py:22
+msgid "Username is too short"
+msgstr ""
+
+#: api/serializers.py:24
+msgid "Username is too long"
+msgstr ""
+
+#: api/views.py:28
 msgid "CSRF token missing"
 msgstr "Chybí CSRF token"
 
-#: api/views.py:77 api/views.py:99
+#: api/views.py:66 api/views.py:88
 msgid "OTP not provided"
 msgstr "Chybí jednorázové heslo"
 
-#: api/views.py:80
+#: api/views.py:69
 msgid "Secret has not been generated yet"
 msgstr "Dvoufázové ověření nemá aktivní kód"
 
-#: api/views.py:86
+#: api/views.py:75
 msgid "2FA enabled"
 msgstr "Dvoufázové ověření aktivováno"
 
-#: api/views.py:88 api/views.py:108
+#: api/views.py:77 api/views.py:97
 msgid "Invalid OTP"
 msgstr "Neplatné jednorázové heslo"
 
-#: api/views.py:106
+#: api/views.py:95
 msgid "2FA disabled"
 msgstr "Dvoufázové ověření deaktivováno"
 
-#: api/views.py:110
+#: api/views.py:99
 msgid "2FA has not been enabled"
 msgstr "Dvoufázové ověření nebylo aktivováno"
 
-#: api/views.py:118 api/views.py:126 api/views.py:166 api/views.py:195
+#: api/views.py:107 api/views.py:115 api/views.py:163 api/views.py:191
 msgid "Player does not exist"
 msgstr "Hráč neexistuje"
 
-#: api/views.py:143
+#: api/views.py:131
+msgid "Username must consist of 3-20 characters"
+msgstr "Uživatelské jméno musí obsahovat 3-20 znaků"
+
+#: api/views.py:135
 msgid "Username already exists, choose a different one"
 msgstr "Uživatelské jméno už existuje, vyber si jiné"
 
-#: api/views.py:146
+#: api/views.py:143
 msgid "User info updated"
 msgstr "Informace o uživateli aktualizovány"
 
-#: api/views.py:156
+#: api/views.py:153
 msgid "Other user not found"
 msgstr "Uživatel nebyl nalezen"
 
-#: api/views.py:170
+#: api/views.py:166
 msgid "No avatar data provided"
 msgstr "Nahrávaný avatar je prázdný"
 
-#: api/views.py:187
+#: api/views.py:183
 msgid "Avatar updated successfully"
 msgstr "Avatar byl úspěšně nahrán"
 
-#: api/views.py:219 api/views.py:228 api/views.py:237
+#: api/views.py:215 api/views.py:224 api/views.py:233
 msgid "Match not found"
 msgstr "Zápas nebyl nalezen"
 
-#: api/views.py:269
+#: api/views.py:265
 msgid "Receiver's username not specified"
 msgstr "Uživatelské jméno příjemce není uvedeno"
 
-#: api/views.py:271
+#: api/views.py:267
 msgid "You cannot befriend yourself"
 msgstr "Nelze přidat sebe samého jako přítele"
 
-#: api/views.py:275
+#: api/views.py:271
 msgid "User not found"
 msgstr "Uživatel nenalezen"
 
-#: api/views.py:281
+#: api/views.py:276
 msgid "Friendship (request) already exists."
 msgstr "(Žádost o) přátelství už existuje."
 
-#: api/views.py:290
+#: api/views.py:285
 msgid "Friendship request sent successfully."
 msgstr "Žádost o přátelství úspěšně odeslána."
 
-#: api/views.py:307
+#: api/views.py:302
 msgid "Friendship request accepted successfully."
 msgstr "Žádost o přátelství úspěšně přijata."
 
-#: api/views.py:309 api/views.py:322
+#: api/views.py:304 api/views.py:317
 msgid "Friendship request not found."
 msgstr "Žádost o přítelství nebyla nalezena."
 
-#: api/views.py:320
+#: api/views.py:315
 msgid "Friendship request deleted successfully."
 msgstr "Žádost o přítelství úspěšně odstraněna."
 
-#: api/views.py:334
+#: api/views.py:329
 msgid "Friendship (request) deleted successfully."
 msgstr "(Žádost o) přátelství úspěšně odstraněna."
 
-#: api/views.py:336
+#: api/views.py:331
 msgid "Friendship not found."
 msgstr "Záznam o přátelství nebyl nalezen."
 
-#: user_management/settings.py:152
+#: user_management/settings.py:153
 msgid "English"
 msgstr "Angličtina"
 
-#: user_management/settings.py:153
+#: user_management/settings.py:154
 msgid "Czech"
 msgstr "Čeština"
 
-#: user_management/settings.py:154
+#: user_management/settings.py:155
 msgid "Slovak"
 msgstr "Slovenština"

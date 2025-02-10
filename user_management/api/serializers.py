@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import CustomUser, Match, LocalMatch, AIMatch, Friendship
 from django.db.models import Q
 from django.db import models
-from django.utils.translation import gettext_lazy
+from django.utils.translation import gettext_lazy as _
 
 
 
@@ -16,6 +16,13 @@ class UserSerializer(serializers.ModelSerializer):
 	def create(self, validated_data):
 		user = CustomUser.objects.create_user(**validated_data)
 		return user
+
+	def validate_username(self, value):
+		if len(value) < 3:
+			raise serializers.ValidationError(_("Username is too short"))
+		elif len(value) > 20:
+			raise serializers.ValidationError(_("Username is too long"))
+		return value
 
 class OtherUserSerializer(serializers.ModelSerializer):
 	class Meta:

@@ -36,25 +36,10 @@ class UserRegistrationView(APIView):
 
 	def post(self, request):
 		serializer = UserSerializer(data=request.data)
-		# request.data['two_factor_secret'] = pyotp.random_base32() #might be moved somewhere else
 		if serializer.is_valid():
 			serializer.save()
 			return Response(serializer.data, status=status.HTTP_201_CREATED)
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-# class QRCodeView(APIView):
-# 	permission_classes = [IsAuthenticated]
-	
-# 	def get(self, request):
-# 		user = request.user
-# 		otp_uri = pyotp.totp.TOTP(user.two_factor_secret).provisioning_uri(name=user.username, issuer_name='42praguescendence')
-# 		qr = qrcode.make(otp_uri)
-# 		buffer = io.BytesIO()
-# 		qr.save(buffer, format="png")
-# 		buffer.seek(0)
-# 		qr_code = base64.b64encode(buffer.getvalue()).decode("utf-8")
-# 		qr_code_data_uri = f"data:image/png;base64,{qr_code}"
-# 		return Response({"qr_code" : qr_code_data_uri})
 
 class Enable2FA(APIView):
 	permission_classes = [IsAuthenticated]
@@ -140,7 +125,10 @@ class UserInfoView(APIView):
 					player.last_name = new_last_name
 				if username:
 					new_username = ' '.join(username.split())
-					player.username = new_username
+					if (3 <= len(new_username) <= 20):
+						player.username = new_username
+					else:
+						return Response({'detail': _('Username must consist of 3-20 characters')}, status=status.HTTP_400_BAD_REQUEST)
 				player.full_clean()
 				player.save()
 			except IntegrityError as e:
