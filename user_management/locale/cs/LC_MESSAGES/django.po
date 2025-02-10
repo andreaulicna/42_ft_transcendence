@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-10 11:41+0100\n"
+"POT-Creation-Date: 2025-02-10 12:19+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -55,79 +55,83 @@ msgstr "Dvoufázové ověření deaktivováno"
 msgid "2FA has not been enabled"
 msgstr "Dvoufázové ověření nebylo aktivováno"
 
-#: api/views.py:107 api/views.py:115 api/views.py:162 api/views.py:190
+#: api/views.py:107 api/views.py:115 api/views.py:164 api/views.py:192
 msgid "Player does not exist"
 msgstr "Hráč neexistuje"
 
-#: api/views.py:131
+#: api/views.py:129
+msgid "Please choose a username different to your current one"
+msgstr "Zvol si uživatelské jméno, které se liší od současného"
+
+#: api/views.py:133
 msgid "Username must consist of 3-20 characters"
 msgstr "Uživatelské jméno musí obsahovat 3-20 znaků"
 
-#: api/views.py:135
+#: api/views.py:137
 msgid "Username already exists, choose a different one"
 msgstr "Uživatelské jméno už existuje, vyber si jiné"
 
-#: api/views.py:143
+#: api/views.py:145
 msgid "User info updated"
 msgstr "Informace o uživateli aktualizovány"
 
-#: api/views.py:153
+#: api/views.py:155
 msgid "Other user not found"
 msgstr "Uživatel nebyl nalezen"
 
-#: api/views.py:165
+#: api/views.py:167
 msgid "No avatar data provided"
 msgstr "Nahrávaný avatar je prázdný"
 
-#: api/views.py:182
+#: api/views.py:184
 msgid "Avatar updated successfully"
 msgstr "Avatar byl úspěšně nahrán"
 
-#: api/views.py:184
+#: api/views.py:186
 msgid "Avatar upload failed"
 msgstr "Nepodařilo se nahrát avatar"
 
-#: api/views.py:214 api/views.py:223 api/views.py:232
+#: api/views.py:216 api/views.py:225 api/views.py:234
 msgid "Match not found"
 msgstr "Zápas nebyl nalezen"
 
-#: api/views.py:264
+#: api/views.py:266
 msgid "Receiver's username not specified"
 msgstr "Uživatelské jméno příjemce není uvedeno"
 
-#: api/views.py:266
+#: api/views.py:268
 msgid "You cannot befriend yourself"
 msgstr "Nelze přidat sebe samého jako přítele"
 
-#: api/views.py:270
+#: api/views.py:272
 msgid "User not found"
 msgstr "Uživatel nenalezen"
 
-#: api/views.py:275
+#: api/views.py:277
 msgid "Friendship (request) already exists."
 msgstr "(Žádost o) přátelství už existuje."
 
-#: api/views.py:284
+#: api/views.py:286
 msgid "Friendship request sent successfully."
 msgstr "Žádost o přátelství úspěšně odeslána."
 
-#: api/views.py:301
+#: api/views.py:303
 msgid "Friendship request accepted successfully."
 msgstr "Žádost o přátelství úspěšně přijata."
 
-#: api/views.py:303 api/views.py:316
+#: api/views.py:305 api/views.py:318
 msgid "Friendship request not found."
 msgstr "Žádost o přítelství nebyla nalezena."
 
-#: api/views.py:314
+#: api/views.py:316
 msgid "Friendship request deleted successfully."
 msgstr "Žádost o přítelství úspěšně odstraněna."
 
-#: api/views.py:328
+#: api/views.py:330
 msgid "Friendship (request) deleted successfully."
 msgstr "(Žádost o) přátelství úspěšně odstraněna."
 
-#: api/views.py:330
+#: api/views.py:332
 msgid "Friendship not found."
 msgstr "Záznam o přátelství nebyl nalezen."
 
