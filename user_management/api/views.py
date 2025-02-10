@@ -125,7 +125,9 @@ class UserInfoView(APIView):
 					player.last_name = new_last_name
 				if username:
 					new_username = ' '.join(username.split())
-					if (3 <= len(new_username) <= 20):
+					if (new_username == player.username):
+						return Response({'detail': _('Please choose a username different to your current one')}, status=status.HTTP_400_BAD_REQUEST)
+					elif (3 <= len(new_username) <= 20):
 						player.username = new_username
 					else:
 						return Response({'detail': _('Username must consist of 3-20 characters')}, status=status.HTTP_400_BAD_REQUEST)
