@@ -1,0 +1,46 @@
+<div class="container-sm fadeAnimation mt-4">
+	<div id="defaultTournamentPage" class="d-flex flex-column justify-content-center align-items-center">
+		<!-- <div class="row w-100"> -->
+			<div class="card w-75">
+				<div class="card-header">
+					<h2 class="section-title" data-translate="tournamentCreate">Create Tournament</h2>
+				</div>
+				<div class="card-body">
+					<form id="create-tournament-form">
+						<div class="form-group mb-3">
+							<label for="tournament-name" data-translate="tournamentName">Tournament Name</label>
+							<input type="text" required pattern="[A-Za-z0-9]{3,20}" class="form-control" id="tournament-name" placeholder="Enter tournament name" data-translate="tournamentNamePlaceholder">
+						</div>
+						<div class="form-group  mb-3">
+							<label for="tournament-slots" data-translate="tournamentSlots">Slots</label>
+							<select class="form-control" id="tournament-slots">
+								<option value="4">4</option>
+								<option value="8">8</option>
+								<option value="8">16</option>
+							</select>
+						</div>
+						<div class="d-flex justify-content-center">
+							<button type="submit" class="btn btn-prg" data-translate="tournamentCreateButton">Create</button>
+						</div>
+					</form>
+				</div>
+			</div>
+
+			<hr class="mt-4 mb-4 w-50 mx-auto"  style="max-width: 360px">
+			
+			<div class="card w-75">
+				<div class="card-header">
+					<span class="d-flex justify-content-between align-items-center">
+						<h2 class="section-title" data-translate="tournamentJoin">Join Tournament</h2>
+						<button id="refreshTournamentsBtn" class="btn">🔁</button>
+					</span>
+				</div>
+				<div class="card-body">
+					<ul class="list-group" id="joinable-tournaments">
+						<!-- Dynamic content -->
+					</ul>
+				</div>
+			</div>
+		<!-- </div> -->
+	</div>
+</div>

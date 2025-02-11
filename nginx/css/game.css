@@ -1,0 +1,50 @@
+/* GAME CONTAINER */
+
+#gameContainer {
+	text-align: center;
+}
+
+#gameBoard {
+	outline: 1px solid whitesmoke !important;
+	width: 100%;
+	height: auto;
+	display: block;
+}
+
+.white-shadow {
+	text-shadow: 0 0 5px whitesmoke, 0 0 15px whitesmoke, 0 0 25px whitesmoke;
+}
+
+.white-shadow-icon {
+	text-shadow: 0 0 5px whitesmoke, 0 0 15px whitesmoke, 0 0 25px whitesmoke;
+}
+
+.blueSide {
+	color: #00babc;
+	text-shadow: 0 0 5px #00babc, 0 0 15px #00babc, 0 0 25px #00babc;
+}
+
+.redSide {
+	color: #df2af7;
+	text-shadow: 0 0 5px #df2af7, 0 0 15px #df2af7, 0 0 25px #df2af7;
+}
+
+.white-icon {
+	filter: invert(1) drop-shadow(0 0 5px whitesmoke) drop-shadow(0 0 15px whitesmoke) drop-shadow(0 0 25px whitesmoke);
+}
+
+/* TOUCH CONTROLS */
+
+.touch-controls {
+	display:none;
+	width: 100%;
+	text-align: center;
+}
+
+.control-button {
+	cursor: pointer;
+	background-color: whitesmoke;
+	width: 50px;
+	height: 50px;
+	margin: 5px;
+}

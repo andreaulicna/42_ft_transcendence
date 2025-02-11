@@ -1,0 +1,202 @@
+<div class="container-sm fadeAnimation">
+	<div class="row g-2">
+		<div class="col-12 col-lg-4">
+			<div class="card h-100">
+				<div class="card-body">
+					<h5 class="card-title">⚙️ <span data-translate="profile">Profile</span></h5>
+					<div class="d-flex flex-column align-items-center justify-content-center">
+						<div class="profilePicContainer" data-bs-toggle="modal" data-bs-target="#editProfilePicModal">
+							<img id="profilePic" class="profilePic profilePicChange" src="assets/default_user_pfp.png" alt="User profile picture">
+							<div class="profilePicText">💾</div>
+						</div>
+						<div class="d-flex">
+							<div id="userName" class="text-center fs-5 pb-2 text-truncate">&nbsp;</div>
+							<small>
+								&nbsp;
+								<a id="editNameButton" class="link-prg" data-bs-toggle="modal" data-bs-target="#editNameModal"><span data-translate="edit">Edit</span></a>
+							</small>
+						</div>
+						<div class="d-flex justify-content-center gap-4">
+							<div id="numOfWins">&nbsp;</div>
+							<div id="numOfLosses">&nbsp;</div>
+						</div>
+					</div>
+					<hr class="my-4 mx-auto" style="max-width: 500px">
+					<div class="d-flex justify-content-center gap-2">
+						<button type="button" id="2FAButton" class="btn btn-prg" data-bs-toggle="modal" data-bs-target="#setup2FAModal">🔐 <span data-translate="setup2FA">Setup 2FA</span></button>
+					</div>
+					<hr class="my-4 mx-auto" style="max-width: 500px">
+					<ul class="list-group" id="colorPickerList">
+						<div class="list-group-item list-group-item-action">
+							<form class="d-flex justify-content-between">
+								<label for="colorLeftPaddle" class="form-label"><span data-translate="leftPaddleColor">Left paddle color</span></label>
+								<input type="color" class="form-control form-control-color" id="colorLeftPaddle" value="#00babc" title="Choose a color">
+							</form>
+							<form class="d-flex justify-content-between">
+								<label for="colorRightPaddle" class="form-label"><span data-translate="rightPaddleColor">Right paddle color</span></label>
+								<input type="color" class="form-control form-control-color" id="colorRightPaddle" value="#df2af7" title="Choose a color">
+							</form>
+							<form class="d-flex justify-content-between">
+								<label for="colorBall" class="form-label"><span data-translate="ballColor">Ball color</span></label>
+								<input type="color" class="form-control form-control-color" id="colorBall" value="#ffffff" title="Choose a color">
+							</form>
+						</div>
+						<div class="d-flex justify-content-center mt-2">
+							<button type="button" id="resetColorsButton" class="btn btn-prg"><span data-translate="resetColors">Reset colors to default</span></button>
+						</div>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div class="col-12 col-lg-4">
+			<div class="card h-100">
+				<div class="card-body">
+					<h5 class="card-title">⚔️ <span data-translate="matchHistory">Match History</span></h5>
+					<div class="d-flex justify-content-center gap-2 mb-2">
+						<button type="button" class="btn btn-prg" id="filterAiBtn">
+							🤖 <span>AI</span>
+							<span class="badge text-bg-secondary" id="filterAiCounter">0</span>
+						</button>
+						<button type="button" class="btn btn-prg" id="filterLocalBtn">
+							⌨️ <span data-translate="local">Local</span>
+							<span class="badge text-bg-secondary" id="filterLocalCounter">0</span>
+						</button>
+						<button type="button" class="btn btn-prg" id="filterRemoteBtn">
+							⚔️ <span>Online</span>
+							<span class="badge text-bg-secondary" id="filterRemoteCounter">0</span>
+						</button>
+					</div>
+					<ul class="list-group list-group-flush overflow-auto" id="matchHistoryList" style="max-height: 450px;">
+						<div class="list-group-item list-group-item-action">
+							<div class="d-flex w-100 justify-content-between">
+								<p class="mb-1"><strong>{decision}</strong> vs <strong>{opponent_name}</strong></p>
+								<small>{date}</small>
+							</div>
+						</div>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div class="col-12 col-lg-4">
+			<div class="card h-100">
+				<div class="card-body">
+					<span class="d-flex justify-content-between align-items-center">
+						<h5 class="card-title">👯 <span data-translate="friendlist">Friendlist</span></h5>
+						<button id="refreshFriendlistBtn" class="btn">🔁</button>
+					</span>
+					<span data-translate="addFriends">Add Friends</span>
+					<form class="mb-4" id="friendAddForm">
+						<div class="form-group d-flex gap-2">
+							<input type="text" required pattern="[A-Za-z0-9]{3,20}" class="form-control" id="friendAddInput" placeholder="Provide friend's username" data-translate="addFriendPlaceholder">
+							<button type="submit" class="btn btn-prg" data-translate="add">Add</button>
+						</div>
+					</form>
+					<span data-translate="outgoingRequests">Outgoing Requests</span>
+					<ul class="list-group mb-4" id="outgoingFriendList">
+					</ul>
+					<span data-translate="incomingRequests">Incoming Requests</span>
+					<ul class="list-group mb-4" id="incomingFriendList">
+					</ul>
+					<span data-translate="availableFriends">Available Friends</span>
+					<ul class="list-group mb-4" id="friendlistList">
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Show user profile modal -->
+<div class="modal fade" id="userProfileModal" tabindex="-1" aria-labelledby="userProfileModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="userProfileModalLabel" data-translate="userProfile">User profile</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body d-flex flex-column align-items-center" id="userProfileBody">
+				
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Edit name modal -->
+<div class="modal fade" id="editNameModal" tabindex="-1" aria-labelledby="editNameModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="editNameModalLabel" data-translate="editName">Edit name</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<form class="mb-4" id="editUsernameForm">
+					<div class="form-group d-flex gap-2">
+						<input type="text" required pattern="[A-Za-z0-9]{3,20}" class="form-control" id="editUsernameInput" placeholder="New username" data-translate="editNamePlaceholder">
+						<button type="submit" class="btn btn-prg" data-translate="update">Update</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Edit profile pic modal -->
+<div class="modal fade" id="editProfilePicModal" tabindex="-1" aria-labelledby="editProfilePicModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="editProfilePicModalLabel" data-translate="changePic">Change profile picture</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<form id="editProfilePicForm" class="d-flex flex-column">
+					<div class="mb-3">
+						<label for="profilePicInput" class="form-label" data-translate="uploadNewPic">Upload a new profile picture</label>
+						<input type="file" class="form-control" id="profilePicInput" accept="image/jpeg">
+						<small><span data-translate="maxSize">Maximum size</span>: 800x800px</small>
+					</div>
+					<button type="submit" class="btn btn-prg" data-translate="submit">Submit</button>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Setup 2FA modal -->
+<div class="modal fade" id="setup2FAModal" tabindex="-1" aria-labelledby="setup2FAModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="setup2FAModalLabel" data-translate="setup2FA">Setup 2FA</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<form id="2faFormEnable" class="d-flex flex-column align-items-center">
+					<div class="mb-3">
+						<p data-translate="setup2FA">Setup 2FA</p>
+						<button type="button" id="generateQrCodeButton" class="btn btn-prg" data-translate="generateQrCode">Generate QR Code</button>
+						<div id="qrCodeContainer" class="mt-3" style="display: none;">
+							<img id="qrCodeImage" src="" alt="QR Code" class="img-fluid">
+							<div class="mt-3">
+								<label for="pairingPinInput" class="form-label" data-translate="enterPairingPinEnable">Enter Pairing PIN to Enable 2FA</label>
+								<input type="number" id="pairingPinInputEnable" class="form-control" placeholder="Enter PIN" data-translate="enterPinPlaceholder">
+								<button type="submit" class="btn btn-prg mt-2" data-translate="submit">Submit</button>
+							</div>
+						</div>
+					</div>
+				</form>
+				<form id="2faFormDisable" style="display: none;">
+					<div class="mb-3">
+						<p data-translate="disable2FA">Disable 2FA</p>
+						<div class="mt-3">
+							<label for="pairingPinInput" class="form-label" data-translate="enterPairingPinDisable">Enter Pairing PIN to Disable 2FA</label>
+							<input type="number" id="pairingPinInputDisable" class="form-control" placeholder="Enter PIN" data-translate="enterPinPlaceholder">
+							<button type="submit" class="btn btn-prg mt-2">Submit</button>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>

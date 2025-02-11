@@ -1,0 +1,31 @@
+<div class="container-sm fadeAnimation d-flex flex-column justify-content-center align-items-center gap-3">
+	<h1 id="loadingText" class="text-center fs-1">
+		<span>👻</span>
+		<span data-translate="searchingForGame">Searching for game</span>
+	</h1>
+	<p id="loadingAnimation" class="text-center fs-1">&nbsp;</p>
+
+	<div id="localPlayPage" style="display:none">
+		<div class="card w-100">
+			<div class="card-body">
+				<form id="create-localplay-form">
+					<div class="form-group mb-3">
+						<label for="local-player1-tmp-username" data-translate="localPlayer1TmpUsername">Player 1 Userame</label>
+						<input type="text" required pattern="[A-Za-z0-9]{3,20}" class="form-control" id="local-player1-tmp-username" placeholder="Enter player 1 username" data-translate="localPlayer1TmpUsernamePlaceholder">
+					</div>
+					<div class="form-group mb-3">
+						<label for="local-player2-tmp-username" data-translate="localPlayer2TmpUsername">Player 2 Name</label>
+						<input type="text" required pattern="[A-Za-z0-9]{3,20}" class="form-control" id="local-player2-tmp-username" placeholder="Enter player 2 username" data-translate="localPlayer2TmpUsernamePlaceholder">
+					</div>
+					<div class="d-flex justify-content-center">
+						<button type="submit" class="btn btn-prg" data-translate="tournamentCreateButton">Play</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	<button id="stopSearchingBtn" class="mt-4 btn btn-prg">
+		<span class="fs-5">🚪</span> 
+		<span data-translate="returnToMenu">Return to menu</span>
+	</button>
+</div>

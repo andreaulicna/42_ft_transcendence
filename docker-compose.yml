@@ -1,0 +1,210 @@
+services:
+  user_management:
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+    container_name: user_management
+    build: ./user_management/
+    volumes:
+      - ./user_management:/app
+      - uploaded-volume:/app/mediafiles
+    env_file:
+      - .env
+    networks:
+      - transcendence
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:8001/healthcheck || exit 1"]
+      interval: 5m
+      retries: 3
+      start_period: 20s
+      start_interval: 5s
+      timeout: 10s
+  
+  postgres_db:
+    user: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5m
+      retries: 3
+      start_period: 20s
+      start_interval: 5s
+      timeout: 10s
+    container_name: postgres_db
+    image: postgres:16
+    env_file:
+      - .env
+    networks:
+      - transcendence
+    volumes:
+      - user-db:/var/lib/postgresql/data
+    restart: unless-stopped
+
+#  pg_admin:
+#    container_name: pg_admin
+#    image: dpage/pgadmin4
+#    env_file:
+#      - .env
+#    networks:
+#      - transcendence
+#    volumes:
+#      - ./pgadmin:/var/lib/pgadmin
+#    ports:
+#      - 8081:80
+#    restart: unless-stopped
+#    depends_on:
+#      postgres_db:
+#        condition: service_healthy
+
+  nginx:
+    container_name: nginx
+    build: ./nginx
+    ports:
+      - 4200:443
+    restart: unless-stopped
+    networks:
+      - transcendence
+    volumes:
+      - uploaded-volume:/var/www/ft_transcendence/media
+      - ./nginx/certs:/etc/nginx/ssl/
+    depends_on:
+      user_management:
+        condition: service_healthy
+      authentication:
+        condition: service_healthy
+      pong:
+        condition: service_healthy
+      tournament:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      localplay:
+        condition: service_healthy
+      ai_play:
+        condition: service_healthy
+      
+
+  redis:
+    container_name: redis
+    user: redis
+    image: redis:8.0-M03-alpine3.21
+    networks:
+      - transcendence
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "redis-cli",  "ping"]
+      interval: 5m
+      retries: 3
+      start_period: 20s
+      start_interval: 5s
+      timeout: 10s
+
+  authentication:
+    depends_on:
+    - user_management
+    container_name: authentication
+    build: ./authentication/
+    volumes:
+      - ./authentication:/app
+      - uploaded-volume:/app/mediafiles
+    env_file:
+      - .env
+    networks:
+      - transcendence
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:8002/healthcheck || exit 1"]
+      interval: 5m
+      retries: 3
+      start_period: 20s
+      start_interval: 5s
+      timeout: 10s
+
+  
+  pong:
+    depends_on:
+    - user_management
+    container_name: pong
+    build: ./pong/
+    volumes:
+      - ./pong:/app
+    env_file:
+      - .env
+    networks:
+      - transcendence
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:8004/healthcheck || exit 1"]
+      interval: 5m
+      retries: 3
+      start_period: 20s
+      start_interval: 5s
+      timeout: 10s
+
+  tournament:
+    depends_on:
+    - user_management
+    container_name: tournament
+    build: ./tournament/
+    volumes:
+      - ./tournament:/app
+    env_file:
+      - .env
+    networks:
+      - transcendence
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:8005/healthcheck || exit 1"]
+      interval: 5m
+      retries: 3
+      start_period: 20s
+      start_interval: 5s
+      timeout: 10s
+
+  localplay:
+    depends_on:
+    - user_management
+    container_name: localplay
+    build: ./localplay/
+    volumes:
+      - ./localplay:/app
+    env_file:
+      - .env
+    networks:
+      - transcendence
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:8006/healthcheck || exit 1"]
+      interval: 5m
+      retries: 3
+      start_period: 20s
+      start_interval: 5s
+      timeout: 10s
+  ai_play:
+    depends_on:
+    - user_management
+    container_name: ai_play
+    build: ./ai_play/
+    volumes:
+      - ./ai_play:/app
+    env_file:
+      - .env
+    networks:
+      - transcendence
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:8007/healthcheck || exit 1"]
+      interval: 5m
+      retries: 3
+      start_period: 20s
+      start_interval: 5s
+      timeout: 10s
+    
+networks:
+  transcendence:
+    name: transcendence
+    driver: bridge
+
+volumes:
+  user-db:
+  uploaded-volume:

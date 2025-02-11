@@ -1,0 +1,148 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-02-10 12:19+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n % 1 == 0 && n == 1 ? 0 : n % 1 == 0 && n "
+">= 2 && n <= 4 ? 1 : n % 1 != 0 ? 2: 3);\n"
+
+#: api/serializers.py:22
+msgid "Username is too short"
+msgstr "Používateľské meno je príliš dlhé"
+
+#: api/serializers.py:24
+msgid "Username is too long"
+msgstr "Používateľské meno je príliš krátke"
+
+#: api/views.py:28
+msgid "CSRF token missing"
+msgstr "Chýba CSRF token"
+
+#: api/views.py:66 api/views.py:88
+msgid "OTP not provided"
+msgstr "Chýba jednorázové heslo"
+
+#: api/views.py:69
+msgid "Secret has not been generated yet"
+msgstr "Dvojfázové overenie nemá aktívny kód"
+
+#: api/views.py:75
+msgid "2FA enabled"
+msgstr "Dvojfázové overenie aktivované"
+
+#: api/views.py:77 api/views.py:97
+msgid "Invalid OTP"
+msgstr "Neplatné jednorázové heslo"
+
+#: api/views.py:95
+msgid "2FA disabled"
+msgstr "Dvojfázové overenie deaktivované"
+
+#: api/views.py:99
+msgid "2FA has not been enabled"
+msgstr "Dvojfázové overenie nebolo aktivované"
+
+#: api/views.py:107 api/views.py:115 api/views.py:164 api/views.py:192
+msgid "Player does not exist"
+msgstr "Hráč neexistuje"
+
+#: api/views.py:129
+msgid "Please choose a username different to your current one"
+msgstr "Zvoľ si použivateľské meno, ktoré sa líši od tvojho súčasného"
+
+#: api/views.py:133
+msgid "Username must consist of 3-20 characters"
+msgstr "Používateľské meno musí obsahovať 3-20 znakov"
+
+#: api/views.py:137
+msgid "Username already exists, choose a different one"
+msgstr "Používateľské meno už existuje, vyber si iné"
+
+#: api/views.py:145
+msgid "User info updated"
+msgstr "Informácie o používateľovi aktualizované"
+
+#: api/views.py:155
+msgid "Other user not found"
+msgstr "Používateľ sa nenašiel"
+
+#: api/views.py:167
+msgid "No avatar data provided"
+msgstr "Nahraný avatar je prázdny"
+
+#: api/views.py:184
+msgid "Avatar updated successfully"
+msgstr "Avatar bol úspešne nahraný"
+
+#: api/views.py:186
+msgid "Avatar upload failed"
+msgstr "Nepodarilo sa nahrať avatar"
+
+#: api/views.py:216 api/views.py:225 api/views.py:234
+msgid "Match not found"
+msgstr "Zápas sa nenašiel"
+
+#: api/views.py:266
+msgid "Receiver's username not specified"
+msgstr "Používateľské meno príjemncu nie je uvedené"
+
+#: api/views.py:268
+msgid "You cannot befriend yourself"
+msgstr "Nie je možné pridať seba samého ako priateľa"
+
+#: api/views.py:272
+msgid "User not found"
+msgstr "Používateľ sa nenašiel"
+
+#: api/views.py:277
+msgid "Friendship (request) already exists."
+msgstr "(Žiadosť o) priateľstvo už existuje."
+
+#: api/views.py:286
+msgid "Friendship request sent successfully."
+msgstr "Žiadosť o priateľstvo úspešne odoslaná."
+
+#: api/views.py:303
+msgid "Friendship request accepted successfully."
+msgstr "Žiadosť o priateľstvo úspešne prijatá."
+
+#: api/views.py:305 api/views.py:318
+msgid "Friendship request not found."
+msgstr "Žiadosť o priateľstvo sa nenašla."
+
+#: api/views.py:316
+msgid "Friendship request deleted successfully."
+msgstr "Žiadosť o priateľstvo úspešne odstránená."
+
+#: api/views.py:330
+msgid "Friendship (request) deleted successfully."
+msgstr "(Žiadosť o ) priateľstvo úspešne odstránená."
+
+#: api/views.py:332
+msgid "Friendship not found."
+msgstr "Záznam o priateľstve sa nenašiel."
+
+#: user_management/settings.py:153
+msgid "English"
+msgstr "Angličtina"
+
+#: user_management/settings.py:154
+msgid "Czech"
+msgstr "Čeština"
+
+#: user_management/settings.py:155
+msgid "Slovak"
+msgstr "Slovenčina"

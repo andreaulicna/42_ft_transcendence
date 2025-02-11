@@ -1,0 +1,148 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-02-10 12:19+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n "
+"<= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;\n"
+
+#: api/serializers.py:22
+msgid "Username is too short"
+msgstr "Uživatelské jméno je příliš dlouhé"
+
+#: api/serializers.py:24
+msgid "Username is too long"
+msgstr "Uživatelské jméno je příliš krátké"
+
+#: api/views.py:28
+msgid "CSRF token missing"
+msgstr "Chybí CSRF token"
+
+#: api/views.py:66 api/views.py:88
+msgid "OTP not provided"
+msgstr "Chybí jednorázové heslo"
+
+#: api/views.py:69
+msgid "Secret has not been generated yet"
+msgstr "Dvoufázové ověření nemá aktivní kód"
+
+#: api/views.py:75
+msgid "2FA enabled"
+msgstr "Dvoufázové ověření aktivováno"
+
+#: api/views.py:77 api/views.py:97
+msgid "Invalid OTP"
+msgstr "Neplatné jednorázové heslo"
+
+#: api/views.py:95
+msgid "2FA disabled"
+msgstr "Dvoufázové ověření deaktivováno"
+
+#: api/views.py:99
+msgid "2FA has not been enabled"
+msgstr "Dvoufázové ověření nebylo aktivováno"
+
+#: api/views.py:107 api/views.py:115 api/views.py:164 api/views.py:192
+msgid "Player does not exist"
+msgstr "Hráč neexistuje"
+
+#: api/views.py:129
+msgid "Please choose a username different to your current one"
+msgstr "Zvol si uživatelské jméno, které se liší od současného"
+
+#: api/views.py:133
+msgid "Username must consist of 3-20 characters"
+msgstr "Uživatelské jméno musí obsahovat 3-20 znaků"
+
+#: api/views.py:137
+msgid "Username already exists, choose a different one"
+msgstr "Uživatelské jméno už existuje, vyber si jiné"
+
+#: api/views.py:145
+msgid "User info updated"
+msgstr "Informace o uživateli aktualizovány"
+
+#: api/views.py:155
+msgid "Other user not found"
+msgstr "Uživatel nebyl nalezen"
+
+#: api/views.py:167
+msgid "No avatar data provided"
+msgstr "Nahrávaný avatar je prázdný"
+
+#: api/views.py:184
+msgid "Avatar updated successfully"
+msgstr "Avatar byl úspěšně nahrán"
+
+#: api/views.py:186
+msgid "Avatar upload failed"
+msgstr "Nepodařilo se nahrát avatar"
+
+#: api/views.py:216 api/views.py:225 api/views.py:234
+msgid "Match not found"
+msgstr "Zápas nebyl nalezen"
+
+#: api/views.py:266
+msgid "Receiver's username not specified"
+msgstr "Uživatelské jméno příjemce není uvedeno"
+
+#: api/views.py:268
+msgid "You cannot befriend yourself"
+msgstr "Nelze přidat sebe samého jako přítele"
+
+#: api/views.py:272
+msgid "User not found"
+msgstr "Uživatel nenalezen"
+
+#: api/views.py:277
+msgid "Friendship (request) already exists."
+msgstr "(Žádost o) přátelství už existuje."
+
+#: api/views.py:286
+msgid "Friendship request sent successfully."
+msgstr "Žádost o přátelství úspěšně odeslána."
+
+#: api/views.py:303
+msgid "Friendship request accepted successfully."
+msgstr "Žádost o přátelství úspěšně přijata."
+
+#: api/views.py:305 api/views.py:318
+msgid "Friendship request not found."
+msgstr "Žádost o přítelství nebyla nalezena."
+
+#: api/views.py:316
+msgid "Friendship request deleted successfully."
+msgstr "Žádost o přítelství úspěšně odstraněna."
+
+#: api/views.py:330
+msgid "Friendship (request) deleted successfully."
+msgstr "(Žádost o) přátelství úspěšně odstraněna."
+
+#: api/views.py:332
+msgid "Friendship not found."
+msgstr "Záznam o přátelství nebyl nalezen."
+
+#: user_management/settings.py:153
+msgid "English"
+msgstr "Angličtina"
+
+#: user_management/settings.py:154
+msgid "Czech"
+msgstr "Čeština"
+
+#: user_management/settings.py:155
+msgid "Slovak"
+msgstr "Slovenština"

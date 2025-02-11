@@ -1,0 +1,8 @@
+.env
+__pycache__
+staticfiles/
+.vscode
+.DS_STORE
+cert.pem
+key.pem
+pgadmin
