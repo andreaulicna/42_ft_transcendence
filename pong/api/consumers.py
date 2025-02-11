@@ -590,14 +590,10 @@ class PongConsumer(AsyncWebsocketConsumer):
 			ball = pong_room.ball
 			paddle1 = pong_room.paddle1
 			paddle2 = pong_room.paddle2
-			scored = False
 			
 			while 42:
 				if pong_room.player1 is None or pong_room.player2 is None:
 					break
-				if scored == True:
-					scored = False
-					await asyncio.sleep(0.7)
 
 				if ball.position.y > (pong_room.GAME_HALF_HEIGHT - (ball.size / 2)):
 					if ball.direction.y > 0:
@@ -624,7 +620,6 @@ class PongConsumer(AsyncWebsocketConsumer):
 					ball = pong_room.ball
 					paddle1 = pong_room.paddle1
 					paddle2 = pong_room.paddle2
-					scored = True
 
 				# Scoring player 1 - ball out of bounds on the right side
 				if (ball_right >= (pong_room.GAME_HALF_WIDTH)):
@@ -635,7 +630,6 @@ class PongConsumer(AsyncWebsocketConsumer):
 					ball = pong_room.ball
 					paddle1 = pong_room.paddle1
 					paddle2 = pong_room.paddle2
-					scored = True
 
 				# Update ball position
 				ball.position += ball.direction * ball.speed

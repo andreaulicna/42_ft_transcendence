@@ -26,13 +26,13 @@ class MatchesInProgressView(APIView):
 		player = request.user
 		player_id = request.user.id
 		try:
+			if player.state == CustomUser.StateOptions.INGAME:
+				return Response({'match_id' : 'User is already playing something else'}, status=status.HTTP_403_FORBIDDEN)
 			match_database = Match.objects.get(
 				(Q(player1=player_id) | Q(player2=player_id)) & Q(status=Match.StatusOptions.INPROGRESS))
-			if player.state == CustomUser.StateOptions.INGAME:
-				return Response({'detail' : 'User is already playing something else'}, status=status.HTTP_403_FORBIDDEN)
 			return Response({'match_id' : match_database.id})
 		except Match.DoesNotExist:
-				return Response({'detail' : 'User does not have any matches in progress'}, status=status.HTTP_404_NOT_FOUND)
+				return Response({'match_id' : 0})
 		except Match.MultipleObjectsReturned:
 			match_database = Match.objects.filter(
 				(Q(player1=player_id) | Q(player2=player_id)) & Q(status=Match.StatusOptions.INPROGRESS)).latest()

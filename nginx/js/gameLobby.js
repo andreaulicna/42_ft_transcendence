@@ -89,10 +89,16 @@ async function handleMatchRedirect()
 	// event.preventDefault();
 	try {
 		const response = await apiCallAuthed(`/api/pong/matches-ip`, "GET", null, null);
+		if(response.match_id == 0)
+		{
+			openMatchmakingWebsocket();
+			return
+		}
 		localStorage.setItem("match_id", response.match_id);
 		openPongWebsocket(response.match_id, "join");
 	} catch (error) {
-		openMatchmakingWebsocket();
+		window.location.hash = '#dashboard'
+		showToast("Error", "Cannot start game session", null, "t_openingWsError");
 	}
 }
 

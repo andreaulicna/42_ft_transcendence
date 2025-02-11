@@ -225,15 +225,11 @@ class LocalPlayConsumer(AsyncWebsocketConsumer):
 		ball = match_room.ball
 		paddle1 = match_room.paddle1
 		paddle2 = match_room.paddle2
-		scored = False
 		
 		while 42:
 			if match_room.player1 is None:
 				await set_match_winner(match_database)
 				break
-			if scored == True:
-				scored = False
-				await asyncio.sleep(0.7)
 
 			# Ball collision with floor & ceiling
 			# if (ball.position.y > (match_room.GAME_HALF_HEIGHT - (ball.size / 2))) or ((ball.position.y < ((match_room.GAME_HALF_HEIGHT - (ball.size / 2))) * (-1))):
@@ -260,7 +256,6 @@ class LocalPlayConsumer(AsyncWebsocketConsumer):
 				ball = match_room.ball
 				paddle1 = match_room.paddle1
 				paddle2 = match_room.paddle2
-				scored = True
 
 			# Scoring player 1 - ball out of bounds on the right side
 			if (ball_right >= (match_room.GAME_HALF_WIDTH)):
@@ -271,7 +266,6 @@ class LocalPlayConsumer(AsyncWebsocketConsumer):
 				ball = match_room.ball
 				paddle1 = match_room.paddle1
 				paddle2 = match_room.paddle2
-				scored = True
 
 			# Update ball position
 			ball.position += ball.direction * ball.speed

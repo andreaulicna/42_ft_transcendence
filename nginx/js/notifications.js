@@ -22,7 +22,7 @@ export function showToast(header, message = null, error = null, langId = null) {
 	if (message)
 		toastBodyContent += `<span ${messageTranslateAttr}>${message}</span>`;
 	if (error)
-		toastBodyContent += (toastBodyContent ? '<br><br>' : '') + "Server: " + error;
+		toastBodyContent += (toastBodyContent ? '<br><br>' : '') + error;
 
 	toastElement.innerHTML = `
 		<div class="toast-header">
