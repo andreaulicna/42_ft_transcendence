@@ -346,7 +346,10 @@ export function handleFriendStatusUpdate(data) {
 		friend.friend_status = status;
 
 		// Update the DOM
-		const listItem = Array.from(friendlistList.children).find(item => item.querySelector('.friend-username').getAttribute('data-user-id') == id);
+		const findFriend = Array.from(friendlistList.children);
+		let listItem;
+		if (findFriend)
+			listItem = findFriend.find(item => item.querySelector('.friend-username').getAttribute('data-user-id') == id);
 		if (listItem)
 		{
 			let statusIcon = status === "ON" ? "🟢" : "🔴";
