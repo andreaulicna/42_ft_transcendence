@@ -27,7 +27,7 @@ async function handle2FASubmit(event) {
 		appState.loggedIn = true;
 		window.location.hash = '#dashboard';
 	} catch (error) {
-		console.error('Login failed:', error);
+		// console.error('Login failed:', error);
 		showToast("Login failed", null, error, "t_loginFailed");
 	}
 }

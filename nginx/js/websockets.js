@@ -35,7 +35,7 @@ async function openWebSocket(url, type) {
 			};
 
 			ws.onerror = (error) => {
-				console.error(`${type} WebSocket error:`, error);
+				// console.error(`${type} WebSocket error:`, error);
 				reject(error);
 			};
 
@@ -109,7 +109,7 @@ async function openWebSocket(url, type) {
 				}
 			};
 		} catch (error) {
-			console.error(`Error opening WebSocket ${type} :`, error);
+			// console.error(`Error opening WebSocket ${type} :`, error);
 			reject(error);
 		}
 	});
@@ -121,7 +121,7 @@ export async function openStatusWebsocket() {
 		statusWebSocket = ws;
 		// console.log('Status WebSocket established');
 	}).catch((error) => {
-		console.error('Failed to establish Status WebSocket:', error);
+		// console.error('Failed to establish Status WebSocket:', error);
 	});
 }
 
@@ -131,7 +131,7 @@ export async function openMatchmakingWebsocket() {
 		matchmakingWebSocket = ws;
 		// console.log('Matchmaking WebSocket established');
 	}).catch((error) => {
-		console.error('Failed to establish Matchmaking WebSocket:', error);
+		// console.error('Failed to establish Matchmaking WebSocket:', error);
 		showToast("Error", "Cannot start game session", null, "t_openingWsError");
 		window.location.hash = "#dashboard";
 	});
@@ -143,7 +143,7 @@ export async function openRematchWebsocket(rematch_id) {
 		rematchWebSocket = ws;
 		// console.log('Rematch WebSocket established');
 	}).catch((error) => {
-		console.error('Failed to establish Rematch WebSocket:', error);
+		// console.error('Failed to establish Rematch WebSocket:', error);
 		showToast("Error", "Cannot start game session", null, "t_openingWsError");
 		window.location.hash = '#dashboard';
 	});
@@ -155,7 +155,7 @@ export async function openTournamentWebsocket(tournament_id) {
 		tournamentWebSocket = ws;
 		// console.log('Tournament WebSocket established');
 	}).catch((error) => {
-		console.error('Failed to establish Tournament WebSocket:', error);
+		// console.error('Failed to establish Tournament WebSocket:', error);
 		showToast("Error", "Cannot start game session", null, "t_openingWsError");
 	});
 }
@@ -166,7 +166,7 @@ export async function openLocalTournamentWebsocket(tournament_id) {
 		localTournamentWebSocket = ws;
 		// console.log('Local Tournament WebSocket established');
 	}).catch((error) => {
-		console.error('Failed to establish Local Tournament WebSocket:', error);
+		// console.error('Failed to establish Local Tournament WebSocket:', error);
 		showToast("Error", "Cannot start game session", null, "t_openingWsError");
 	});
 }
@@ -178,7 +178,7 @@ export async function openPongWebsocket(match_id, flag) {
 		// console.log('Pong WebSocket established');
 		window.location.hash = '#game';
 	}).catch((error) => {
-		console.error('Failed to establish Pong WebSocket:', error);
+		// console.error('Failed to establish Pong WebSocket:', error);
 		if (flag == "reconnect")
 			showToast("Error", "The match is no longer ongoing.", null, "t_matchNoLongerOngoing");
 		if (flag == "join")
@@ -196,7 +196,7 @@ export async function openLocalPlayWebsocket(match_id) {
 		// console.log('LocalPlay WebSocket established');
 		window.location.hash = '#game';
 	}).catch((error) => {
-		console.error('Failed to establish LocalPlay WebSocket:', error);
+		// console.error('Failed to establish LocalPlay WebSocket:', error);
 		showToast("Error", "Cannot start game session", null, "t_openingWsError");
 	});
 }
@@ -208,7 +208,7 @@ export async function openAIPlayWebsocket(match_id) {
 		// console.log('AIPlay WebSocket established');
 		window.location.hash = '#game';
 	}).catch((error) => {
-		console.error('Failed to establish AIPlay WebSocket:', error);
+		// console.error('Failed to establish AIPlay WebSocket:', error);
 		showToast("Error", "Cannot start game session", null, "t_openingWsError");
 	});
 }

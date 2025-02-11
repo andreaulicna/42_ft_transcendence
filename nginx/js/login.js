@@ -31,7 +31,7 @@ async function handleSubmit(event) {
 		appState.loggedIn = true;
 		window.location.hash = "#dashboard";
 	} catch (error) {
-		console.error("Login failed:", error);
+		// console.error("Login failed:", error);
 		showToast("Login failed", null, error, "t_loginFailed");
 	}
 }
@@ -57,6 +57,8 @@ function checkForIntraLoginArg() {
 			username: urlParams.get("username"),
 		};
 		appState.loginPayloadFor2FA = payload;
+		const newUrl = window.location.origin + window.location.pathname;
+		window.history.replaceState({}, document.title, newUrl);
 		window.location.hash = "#2fa";
 	}
 	if (urlParams.get("access_token"))
@@ -101,7 +103,7 @@ async function loginIntra() {
 			throw new Error(response.status);
 		}
 	} catch (error) {
-		console.error("Intra login failed:", error);
+		// console.error("Intra login failed:", error);
 		showToast("Intra login failed", null, error, "t_intraLoginFailed");
 	}
 }
@@ -144,7 +146,7 @@ async function loginUser(payload) {
 			throw new Error(errorData.details);
 		}
 	} catch (error) {
-		console.error("Login API call error:", error);
+		// console.error("Login API call error:", error);
 		throw error;
 	}
 }

@@ -24,7 +24,7 @@ export function init() {
 				// Redirect to dashboard upon succesful registration
 				window.location.hash = '#login';
 			} catch (error) {
-				console.error('Registration failed:', error);
+				// console.error('Registration failed:', error);
 				showToast("Registration failed", null, error, "t_registrationFailed");
 			}
 		});
@@ -59,7 +59,7 @@ async function registerUser(payload) {
 			throw new Error(errorMessage || 'Registration failed');
 		}
 	} catch (error) {
-		console.error('Registration API call error:', error);
+		// console.error('Registration API call error:', error);
 		throw error;
 	} finally {
 		hideLoading();

@@ -37,7 +37,7 @@ export async function apiCallAuthed(url, method = 'GET', headers = {}, payload =
 			throw new Error(data.message || data.detail || data.details || 'API call status not OK');
 		}
 	} catch (error) {
-		console.error('Authenticated API call error:', error);
+		// console.error('Authenticated API call error:', error);
 		throw error;
 	} finally {
 		if (showAnimation == true)
@@ -69,10 +69,15 @@ function frontendLogout() {
 }
 
 export async function refreshAccessToken() {
+	if (appState.isRefreshingToken)
+		return false;
+
+	appState.isRefreshingToken = true;
 	const csrfToken = Cookies.get("csrftoken");
 	if (!csrfToken)
 	{
 		frontendLogout();
+		appState.isRefreshingToken = false;
 		return false;
 	}
 	
@@ -103,11 +108,20 @@ export async function refreshAccessToken() {
 
 			localStorage.setItem('access', accessToken);
 			localStorage.setItem('access_expiration', accessTokenExpiration);
+
+			appState.isRefreshingToken = false;
 			return true;
 		} else if (response.status == 401 || response.status == 403) {
 			// Handle unauthorized or forbidden response without printing an error
 			frontendLogout();
+			// IMPORTANT: For the case of 2FA login via Intra (otherwise creates a loop)
+			if (window.location.hash == "#2fa" && appState.loginPayloadFor2FA)
+			{
+				appState.isRefreshingToken = false;
+				return false;
+			}
 			window.location.hash = "#login";
+			appState.isRefreshingToken = false;
 			return false;
 		} else {
 			// Handle other non-OK responses
@@ -115,10 +129,11 @@ export async function refreshAccessToken() {
 			throw new Error(errorData.message || 'Token refresh failed');
 		}
 	} catch (error) {
-		console.error('Token refresh error:', error);
+		// console.error('Token refresh error:', error);
 
 		frontendLogout();
 		window.location.hash = "#login";
+		appState.isRefreshingToken = false;
 		return false;
 	}
 }

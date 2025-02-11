@@ -76,7 +76,7 @@ async function showUserProfile(event) {
 				})
 			})
 			.catch(error => {
-				console.error('Error showing user profile:', error);
+				// console.error('Error showing user profile:', error);
 			});
 	}
 }
@@ -145,7 +145,7 @@ async function listMatchHistory(type) {
 			});
 		}
 	} catch (error) {
-		console.error('Error fetching match history:', error);
+		// console.error('Error fetching match history:', error);
 	}
 }
 
@@ -219,7 +219,7 @@ async function listOutgoing() {
 			});
 		}
 	} catch (error) {
-		console.error('Error fetching outgoing friend requests:', error);
+		// console.error('Error fetching outgoing friend requests:', error);
 	}
 }
 
@@ -259,7 +259,7 @@ async function listIncoming() {
 			});
 		}
 	} catch (error) {
-		console.error('Error fetching incoming friend requests:', error);
+		// console.error('Error fetching incoming friend requests:', error);
 	}
 }
 
@@ -271,7 +271,7 @@ async function handleAccept(event) {
 		listIncoming();
 		listFriends();
 	} catch (error) {
-		console.error('Error accepting friend request:', error);
+		// console.error('Error accepting friend request:', error);
 		showToast('Error accepting friend request', null, error, "t_requestAcceptError");
 	}
 }
@@ -283,7 +283,7 @@ async function handleReject(event) {
 		showToast('Friend Request Rejected', 'You have rejected the friend request.', null, "t_requestReject");
 		listIncoming(); // Refresh the list
 	} catch (error) {
-		console.error('Error rejecting friend request:', error);
+		// console.error('Error rejecting friend request:', error);
 		showToast('Error rejecting friend request', null, error, "t_requestRejectError");
 	}
 }
@@ -321,7 +321,7 @@ async function listFriends() {
 			});
 		}
 	} catch (error) {
-		console.error('Error fetching friendslist:', error);
+		// console.error('Error fetching friendslist:', error);
 	}
 }
 
@@ -332,7 +332,7 @@ async function handleDeleteFriend(event) {
 		showToast('Friend Deleted', 'You have deleted a friend from the list.', null, "t_friendDelete");
 		listFriends(); // Refresh the list
 	} catch (error) {
-		console.error('Error deleting friend:', error);
+		// console.error('Error deleting friend:', error);
 		showToast('Error deleting friend', null, error, "t_friendDeleteError");
 	}
 }
@@ -368,7 +368,7 @@ async function addFriend(username) {
 		if (friendAddInput.value)
 			friendAddInput.value="";
 	} catch (error) {
-		console.error('Error adding friend:', error);
+		// console.error('Error adding friend:', error);
 		showToast('Error adding friend', null, error, "t_requestSentError");
 	}
 }
@@ -385,7 +385,7 @@ async function handleUsernameEdit() {
 			textDynamicLoad("userName", `${editUsernameInput.value}`);
 			showToast('Username Change Successful', `You have updated your username.`, null, "t_nameChange");
 		} catch (error) {
-			console.error("Error submitting new username:", error);
+			// console.error("Error submitting new username:", error);
 			showToast('Username Change Error', null, error, "t_nameChangeError");
 		}
 	})
@@ -416,7 +416,7 @@ async function handle2FA(data) {
 			qrCodeImage.src = response.qr_code;
 			qrCodeContainer.style.display = 'block';
 		} catch (error) {
-			console.error("Error generating QR code:", error);
+			// console.error("Error generating QR code:", error);
 			showToast("Error generating QR code", null, error, "t_qrGenError");
 		}
 	});
@@ -432,7 +432,7 @@ async function handle2FA(data) {
 			await apiCallAuthed("api/user/2fa-enable", "POST", headers, payload);
 			showToast("2FA", "The 2FA settings for this account has been enabled.", null, "t_2faEnable");
 		} catch (error) {
-			console.error("Error submitting PIN code:", error);
+			// console.error("Error submitting PIN code:", error);
 			showToast("Error submitting PIN code", null, error, "t_pinSubmitError");
 		}
 	});
@@ -448,7 +448,7 @@ async function handle2FA(data) {
 			await apiCallAuthed("api/user/2fa-disable", "POST", headers, payload);
 			showToast("2FA", "The 2FA settings for this account has been disabled.", null, "t_2faDisable");
 		} catch (error) {
-			console.error("Error submitting PIN code:", error);
+			// console.error("Error submitting PIN code:", error);
 			showToast("Error submitting PIN code", null, error, "t_pinSubmitError");
 		}
 	});
@@ -494,7 +494,7 @@ async function handleProfilePicUpload() {
 				if (data.avatar != null)
 					profilePic.src = data.avatar;
 			} catch (error) {
-				console.error("Error uploading profile picture:", error);
+				// console.error("Error uploading profile picture:", error);
 				showToast("Error uploading profile picture", null, error, "t_profilePictureUploadError");
 			}
 		};
