@@ -5,7 +5,7 @@
 ## Project description
 ft_transcendence is the final project of the [42 Common Core](https://www.42prague.com/studies). The goal is to build a full-stack single page application where users can play Pong. The version you're seeing now, 42_praguescendence, was made by 42 Prague students aulicna, plouda and vbartos.
 
-The subject outlines a mandatory part, the tech stack, and multiple additional modules which complement the mandatory base part. Based on the subject's constrains, the tech stack consists of Vanilla JavaScript and Bootstrap for the front-end, Python Django for the back-end, and PostgreSQL for the database.
+The subject outlines a mandatory part, the tech stack, and multiple additional modules which complement the mandatory base part. Based on the subject's constraints, the tech stack consists of Vanilla JavaScript and Bootstrap for the front-end, Python Django for the back-end, and PostgreSQL for the database.
 
 Notable features include
 - Pong game running server-side;
